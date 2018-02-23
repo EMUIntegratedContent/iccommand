@@ -27,3 +27,9 @@ https://symfony.com/doc/current/frontend/encore/babel.html#creating-a-babelrc-fi
 
 Getting Vue Components to load properly (.default)
 https://github.com/vuejs/vue-router/issues/1882
+
+LDAP
+https://symfony.com/doc/current/security/ldap.html
+
+Axios (Vue) Config + CSRF Config (taken from Laravel docs)
+https://github.com/laravel/laravel/blob/master/resources/assets/js/bootstrap.js#L28-L33

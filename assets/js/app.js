@@ -1,13 +1,5 @@
 require('../css/app.scss')
-
-var $ = require('jquery')
-// JS is equivalent to the normal "bootstrap" package
-// no need to set this to a variable, just require it. This is BOOTSTRAP 4!
-require('bootstrap')
-
-// or you can include specific pieces
-// require('bootstrap-sass/javascripts/bootstrap/tooltip');
-// require('bootstrap-sass/javascripts/bootstrap/popover');
+require('./bootstrap')
 
 $(document).ready(function() {
     $('[data-toggle="popover"]').popover();
@@ -17,7 +9,7 @@ $(document).ready(function() {
 import Vue from 'vue'
 
 /** DECLARE COMPONENTS HERE **/
-Vue.component('app', require('./components/ExampleComponent.vue').default);
+Vue.component('new-map-item', require('./components/NewMapItem.vue').default);
 
 /** VUE APP **/
 const app = new Vue({
