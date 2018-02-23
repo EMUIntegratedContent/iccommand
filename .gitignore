@@ -19,5 +19,5 @@
 ###> Homestead ###
 Homestead.yaml
 Vagrantfile
-.vagrant/*
+.vagrant/
 ###< Homestead ###
