@@ -1,0 +1,12 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+
+controllers:
+    resource: '../src/Controller/'
+    type:     annotation
+
+mapbathrooms:
+    type: rest
+    resource: App\Controller\Api\MapBathroomController
+    prefix: /api/

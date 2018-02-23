@@ -1,0 +1,29 @@
+Doctrine inheritance mapping
+http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/inheritance-mapping.html#mapped-superclasses
+
+Doctrine field types
+http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html
+
+Yarn commands
+https://symfony.com/doc/current/frontend/encore/simple-example.html
+yarn run encore dev
+yarn run encore dev --watch
+yarn run encore production
+
+Pagination
+https://github.com/KnpLabs/KnpPaginatorBundle
+
+Cors
+https://github.com/nelmio/NelmioCorsBundle
+
+REST
+https://symfony.com/doc/master/bundles/FOSRestBundle/6-automatic-route-generation_multiple-restful-controllers.html
+
+JSON Serialization
+http://jmsyst.com/bundles/JMSSerializerBundle
+
+Babel (.babelrc) creation
+https://symfony.com/doc/current/frontend/encore/babel.html#creating-a-babelrc-file
+
+Getting Vue Components to load properly (.default)
+https://github.com/vuejs/vue-router/issues/1882

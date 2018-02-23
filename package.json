@@ -1,0 +1,34 @@
+{
+    "devDependencies": {
+        "@symfony/webpack-encore": "^0.17.1",
+        "babel-preset-env": "^2.0.0-alpha.20",
+        "babel-preset-es2015": "^6.24.1",
+        "babel-preset-es2017": "^6.24.1",
+        "bootstrap-sass": "^3.3.7",
+        "jquery": "^3.3.1",
+        "node-sass": "^4.7.2",
+        "sass-loader": "^6.0.6",
+        "vue": "^2.5.13",
+        "vue-loader": "^14.1.1",
+        "vue-template-compiler": "^2.5.13",
+        "webpack": "^3.11.0",
+        "webpack-notifier": "^1.5.1"
+    },
+    "license": "UNLICENSED",
+    "private": true,
+    "scripts": {
+        "dev-server": "encore dev-server",
+        "dev": "encore dev",
+        "watch": "encore dev --watch",
+        "build": "encore production"
+    },
+    "dependencies": {
+        "@babel/core": "^7.0.0-beta.40",
+        "@babel/preset-env": "^7.0.0-beta.40",
+        "babel-loader": "^8.0.0-beta.0",
+        "bootstrap": "^4.0.0",
+        "font-awesome": "^4.7.0",
+        "popper.js": "^1.12.9",
+        "vue-router": "^3.0.1"
+    }
+}
