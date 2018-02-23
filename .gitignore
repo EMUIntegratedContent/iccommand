@@ -4,6 +4,7 @@
 /public/bundles/
 /var/
 /vendor/
+.*/
 ###< symfony/framework-bundle ###
 
 ###> symfony/webpack-encore-pack ###
@@ -19,5 +20,4 @@
 ###> Homestead ###
 Homestead.yaml
 Vagrantfile
-/.vagrant
 ###< Homestead ###
