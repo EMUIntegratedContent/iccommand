@@ -9,3 +9,10 @@ $brand-primary: darken(#428bca, 20%);
 // the ~ allows you to reference things in node_modules
 // this is BOOTSTRAP 4!
 @import '~bootstrap/scss/bootstrap';
+
+.spacer-top{
+  margin-top: 20px;
+}
+.spacer-bottom{
+  margin-bottom: 20px;
+}

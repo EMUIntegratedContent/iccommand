@@ -6,7 +6,7 @@ controllers:
     resource: '../src/Controller/'
     type:     annotation
 
-mapbathrooms:
+mapitems:
     type: rest
-    resource: App\Controller\Api\MapBathroomController
+    resource: App\Controller\Api\Map\MapItemController
     prefix: /api/

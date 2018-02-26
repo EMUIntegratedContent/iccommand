@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MapItemRepository")
@@ -21,36 +22,42 @@ abstract class MapItem
 
     /**
      * @ORM\Column(type="string", precision=10, scale=7)
+     *
+     * @Assert\NotBlank(message="You must provide a name for this item.")
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", precision=10, scale=7)
+     *
+     * @Assert\NotBlank(message="You must provide a slug for this item.")
      */
     private $slug;
 
     /**
      * @ORM\Column(type="text", precision=10, scale=7)
+     *
+     * @Assert\NotBlank(message="You must provide a description for this item.")
      */
     private $description;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=7)
+     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
      */
     private $latitudeIllustration;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=7)
+     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
      */
     private $longitudeIllustration;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=7)
+     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
      */
     private $latitudeSatellite;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=7)
+     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
      */
     private $longitudeSatellite;
 

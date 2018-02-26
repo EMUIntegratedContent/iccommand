@@ -4,7 +4,7 @@
       <button class="btn btn-info" @click="swapComponent(previousStep)"><i class="fa fa-chevron-circle-left"></i> Previous</button>
     </template>
     <!-- :is = a magic vue word -->
-    <div :is="currentComponent" @mapItemChosen="setItemType" :record="record"></div>
+    <div :is="currentComponent" @mapItemChosen="setItemType" :itemType="itemType" :itemExists="false"></div>
     <div v-show="!currentComponent" v-for="component in componentsArray">
       <button @click="swapComponent(component)">{{component}}</button>
     </div>
@@ -52,13 +52,7 @@
       return {
         currentComponent: 'new-map-item-choices',
         componentsArray: ['new-map-item-choices', 'map-item-form'],
-        record: {
-          title: '',
-          itemType: '',
-          latitude: 0.0,
-          longitude: 0.0,
-          tags:[],
-        }
+        itemType: '',
       }
     },
     methods: {
@@ -67,7 +61,7 @@
       },
       setItemType: function(itemType){
         // Format: this.$set(the data item named 'record', the property 'type' within 'record', the value to set)
-        this.$set(this.record, 'itemType', itemType) // set the item type
+        this.itemType = itemType // set the item type to pass to the form
         this.swapComponent('map-item-form') // change to the form for a new map item
       }
     },

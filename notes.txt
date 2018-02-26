@@ -33,3 +33,9 @@ https://symfony.com/doc/current/security/ldap.html
 
 Axios (Vue) Config + CSRF Config (taken from Laravel docs)
 https://github.com/laravel/laravel/blob/master/resources/assets/js/bootstrap.js#L28-L33
+
+Vue2-Google-Maps: how to get latitude and longitude and how to set a marker
+http://xkjyeah.github.io/vue-google-maps/index-app.html#/03CurvedLine
+
+Validation
+https://symfony.com/doc/current/validation.html

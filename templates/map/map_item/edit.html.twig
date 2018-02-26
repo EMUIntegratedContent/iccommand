@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello {{ controller_name }}!{% endblock %}
+{% block title %}Edit map item.{% endblock %}
 
 {% block body %}
 <style>
@@ -9,8 +9,8 @@
 </style>
 
 <div class="example-wrapper" id="app">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <h1>Edit map item</h1>
 
-    <new-map-item></new-map-item>
+    <map-item-form :item-exists="true" item-type="{{ itemType }}" item-id="{{ id }}"></map-item-form>
 </div>
 {% endblock %}
