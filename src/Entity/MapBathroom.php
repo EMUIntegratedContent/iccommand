@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  *     exp="object.getItemType()",
  *     options={@Serializer\SerializedName("itemType")}
  *  )
+ * @Serializer\ExclusionPolicy("all")
  */
 class MapBathroom extends MapItem
 {
@@ -22,7 +23,8 @@ class MapBathroom extends MapItem
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Expose()
+     * @Serializer\SerializedName("id")
+     * @Serializer\Expose
      */
     private $id;
 
@@ -33,6 +35,10 @@ class MapBathroom extends MapItem
      * @Serializer\SerializedName("isGenderNeutral")
      */
     private $isGenderNeutral;
+
+    public function getId(){
+      return $this->id;
+    }
 
     public function getItemType(){
       return constant("self::ITEM_TYPE");

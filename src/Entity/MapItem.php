@@ -11,6 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"mapitem" = "MapItem", "mapbathroom" = "MapBathroom", "mapparking" = "MapParking"})
+ * @Serializer\ExclusionPolicy("all")
  */
 abstract class MapItem
 {
@@ -18,7 +19,6 @@ abstract class MapItem
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Expose()
      */
     private $id;
 
@@ -68,7 +68,6 @@ abstract class MapItem
     private $longitudeSatellite;
 
     // Getters and setters
-
     public function getId()
     {
         return $this->id;
