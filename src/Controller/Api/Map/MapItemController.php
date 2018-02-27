@@ -13,21 +13,95 @@ use App\Entity\MapBathroom;
 
 class MapItemController extends FOSRestController{
 
-  public function getMapItemsAction()
+  /**
+   * Get all map items
+   */
+  public function getMapitemsAction()
   {
-    $items = $this->getDoctrine()->getRepository(MapItem::class)->findAll();
+    $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findAll();
 
-    $serializer = $this->container->get('serializer');
-    $serialized = $serializer->serialize($items, 'json');
+    $serializer = $this->container->get('jms_serializer');
+    $serialized = $serializer->serialize($mapItems, 'json');
     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
     return $response;
   }
 
-  public function postMapItemAction(Request $request)
-  {
-    $type = $request->request->get('itemType');
+  /**
+   * Get a single map item
+   */
+  public function getMapitemAction($id){
+    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($id);
 
+    $serializer = $this->container->get('jms_serializer');
+    $serialized = $serializer->serialize($mapItem, 'json');
+    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+    return $response;
+  }
+
+  /**
+   * Save a map item to the database
+   */
+  public function postMapitemAction(Request $request)
+  {
+    $itemType = $request->request->get('itemType');
+
+    switch($itemType){
+      case "bathroom":
+        $mapItem = new MapBathroom();
+        $mapItem->setIsGenderNeutral($request->request->get('isGenderNeutral'));
+        break;
+      default:
+        return new Response("This is not a valid map type.", 400, array('Content-Type' => 'application/json'));
+    }
+
+    // set common fields for all mapItem objects
+    $mapItem->setName($request->request->get('name'));
+    $mapItem->setSlug($request->request->get('slug'));
+    $mapItem->setDescription($request->request->get('description'));
+    $mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
+    $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
+    $mapItem->setLatitudeSatellite($request->request->get('latitudeStatellite'));
+    $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
+
+    $serializer = $this->container->get('serializer');
+
+    $validator = $this->container->get('validator');
+    $errors = $validator->validate($mapItem);
+    if (count($errors) > 0) {
+        $serialized = $serializer->serialize($errors, 'json');
+        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
+
+        return $response;
+    }
+
+    // save the map item
+    $em = $this->getDoctrine()->getManager();
+    $em->persist($mapItem);
+    $em->flush();
+
+    $serialized = $serializer->serialize($mapItem, 'json');
+    $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
+    return $response;
+  }
+
+  /**
+   * Update a map item to the database
+   */
+  public function putMapitemAction(Request $request)
+  {
+    $itemType = $request->request->get('itemType');
+
+    $em = $this->getDoctrine()->getManager();
+    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($request->request->get('id'));
+
+
+    $serialized = $serializer->serialize($mapItem, 'json');
+    $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
+
+    return $response;
+    /*
     switch($type){
       case "bathroom":
         $mapItem = new MapBathroom();
@@ -51,11 +125,6 @@ class MapItemController extends FOSRestController{
     $validator = $this->container->get('validator');
     $errors = $validator->validate($mapItem);
     if (count($errors) > 0) {
-        /*
-         * Uses a __toString method on the $errors variable which is a
-         * ConstraintViolationList object. This gives us a nice string
-         * for debugging.
-         */
         $errorsString = (string) $errors;
         $serialized = $serializer->serialize($errors, 'json');
 
@@ -63,8 +132,6 @@ class MapItemController extends FOSRestController{
 
         return $response;
     }
-
-
 
     // save the map item
     $em = $this->getDoctrine()->getManager();
@@ -74,5 +141,6 @@ class MapItemController extends FOSRestController{
     $serialized = $serializer->serialize($mapItem, 'json');
     $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
     return $response;
+    */
   }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "818a84d21dabdd86418b35b218c4d2c7",
+    "content-hash": "ae8a4a26389ceccea8c085e7711f317d",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -2347,6 +2347,28 @@
                 "mailer"
             ],
             "time": "2017-09-30T22:39:41+00:00"
+        },
+        {
+            "name": "symfony/apache-pack",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/apache-pack.git",
+                "reference": "3aa5818d73ad2551281fc58a75afd9ca82622e6c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/apache-pack/zipball/3aa5818d73ad2551281fc58a75afd9ca82622e6c",
+                "reference": "3aa5818d73ad2551281fc58a75afd9ca82622e6c",
+                "shasum": ""
+            },
+            "type": "symfony-pack",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A pack for Apache support in Symfony",
+            "time": "2017-12-12T01:46:35+00:00"
         },
         {
             "name": "symfony/asset",
@@ -5678,6 +5700,70 @@
                 "validate"
             ],
             "time": "2018-01-29T19:49:41+00:00"
+        },
+        {
+            "name": "willdurand/hateoas",
+            "version": "2.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/willdurand/Hateoas.git",
+                "reference": "71b1af62b398dc9a870ac0b16c84bdc23a76a5c5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/willdurand/Hateoas/zipball/71b1af62b398dc9a870ac0b16c84bdc23a76a5c5",
+                "reference": "71b1af62b398dc9a870ac0b16c84bdc23a76a5c5",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/annotations": "~1.0",
+                "doctrine/common": "~2.0",
+                "jms/metadata": "~1.1",
+                "jms/serializer": "^1.7",
+                "php": "^5.5|^7.0",
+                "phpoption/phpoption": ">=1.1.0,<2.0-dev",
+                "symfony/expression-language": "~2.4 || ~3.0 || ~4.0"
+            },
+            "require-dev": {
+                "pagerfanta/pagerfanta": "~1.0",
+                "phpunit/phpunit": "~5",
+                "symfony/dependency-injection": "~2.4 || ~3.0 || ~4.0",
+                "symfony/routing": "~2.4 || ~3.0 || ~4.0",
+                "symfony/yaml": "~2.4 || ~3.0 || ~4.0",
+                "twig/twig": "~1.12"
+            },
+            "suggest": {
+                "symfony/routing": "To use the SymfonyRouteFactory.",
+                "symfony/yaml": "To use yaml based configuration.",
+                "twig/twig": "To use the Twig extensions."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.12-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Hateoas": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrien Brault",
+                    "email": "adrien.brault@gmail.com"
+                },
+                {
+                    "name": "William Durand",
+                    "email": "william.durand1@gmail.com"
+                }
+            ],
+            "description": "A PHP library to support implementing representations for HATEOAS REST web services",
+            "time": "2018-02-23T17:05:31+00:00"
         },
         {
             "name": "willdurand/jsonp-callback-validator",

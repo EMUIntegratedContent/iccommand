@@ -1,8 +1,11 @@
 <template>
-  <div>
+  <div v-if="isDataLoaded === false">
+    <img src="/build/images/loading.gif" alt="Loading..." />
+  </div>
+  <div v-else>
     <heading>
       <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
-      <span slot="title">New {{ record.itemType }}</span>
+      <span slot="title">Map {{ record.itemType | capitalize }}</span>
     </heading>
     <div class="row">
       <div class="col-12">
@@ -56,14 +59,14 @@
               <div class="col-md-4">
                 <div class="form-group">
                   <label>Satellite Coordinates</label>
-                  <input readonly class="form-control-plaintext" :value="record.latitudeStatellite + ', ' + record.longitudeSatellite">
+                  <input readonly class="form-control-plaintext" :value="record.latitudeSatellite + ', ' + record.longitudeSatellite">
                 </div>
                 <div class="form-group">
                   <label>Illustration Coordinates</label>
                   <input readonly class="form-control-plaintext" :value="record.latitudeIllustration + ', ' + record.longitudeIllustration">
                 </div>
-                <template v-if="tempLongitudeSatellite != null && tempLatitudeStatellite != null">
-                  <button class="btn btn-success" type="button" @click="setLocation(tempLatitudeStatellite, tempLongitudeSatellite)">Set location</button>
+                <template v-if="tempLongitudeSatellite != null && tempLatitudeSatellite != null">
+                  <button class="btn btn-success" type="button" @click="setLocation(tempLatitudeSatellite, tempLongitudeSatellite)">Set location</button>
                   <button class="btn btn-default" type="button" @click="clearTempLocation">Clear</button>
                 </template>
               </div>
@@ -97,7 +100,7 @@
               </div>
             </fieldset>
           </template>
-          <button class="btn btn-success spacer-top" type="button" @click="submitForm">{{ itemExists ? 'Create ' + record.itemType : 'Update ' + record.itemType }}</button>
+          <button class="btn btn-success spacer-top" type="button" @click="submitForm">{{ itemExists ? 'Update ' + record.itemType : 'Create ' + record.itemType }}</button>
         </form>
       </div>
     </div>
@@ -125,9 +128,13 @@
 
   export default {
     mounted() {
-      // Set the kind of map item being created via the itemType property from NewMapItemChoices
       if(this.itemExists === false){
+        // Set the kind of map item being created via the itemType property from NewMapItemChoices
+        this.isDataLoaded = true
         this.record.itemType = this.itemType
+      } else {
+        // fetch the existing record using the prop itemId
+        this.fetchMapItem(this.itemId)
       }
     },
     components: {Heading, Multiselect},
@@ -164,15 +171,16 @@
         ],
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
         markers: [], // google map markers
-        tempLatitudeStatellite: null,
+        tempLatitudeSatellite: null,
         tempLongitudeSatellite: null,
         errors:{},
+        isDataLoaded: false,
         record: {
           id: '',
           description: '',
           isGenderNeutral: false,
           itemType: '',
-          latitudeStatellite: null,
+          latitudeSatellite: null,
           longitudeSatellite: null,
           latitudeIllustration: null,
           longitudeIllustration: null,
@@ -202,7 +210,7 @@
         this.clearErrors() // clear any previous validation errors
         // New item has been submitted, go to edit
         if(!this.itemExists){
-          let newurl = '/map/items/' + this.record.id + '/edit';
+          let newurl = '/mapitems/' + this.record.id + '/edit';
           document.location = newurl;
         }
       },
@@ -213,15 +221,28 @@
         this.markers = []
       },
       clearTempLocation: function(){
-        this.tempLatitudeStatellite = null;
+        this.tempLatitudeSatellite = null;
         this.tempLongitudeSatellite = null;
+      },
+      fetchMapItem(itemId){
+        let self = this
+        axios.get('/api/mapitems/' + itemId)
+        // success
+        .then(function (response) {
+          self.record = response.data
+          self.isDataLoaded = true;
+        })
+        // fail
+        .catch(function (error) {
+          console.log("NAH FAM...")
+        })
       },
       fetchTags: function(){
         console.log("fetching tags")
       },
       setLocation: function(lat, lng){
         this.clearMarkers() // get rid of existing markers
-        this.record.latitudeStatellite = lat
+        this.record.latitudeSatellite = lat
         this.record.longitudeSatellite = lng
         // make a new marker for these coordinates
         this.markers.push({
@@ -233,7 +254,7 @@
         this.clearTempLocation()
       },
       setTempPosition: function(e){
-        this.tempLatitudeStatellite = e.latLng.lat()
+        this.tempLatitudeSatellite = e.latLng.lat()
         this.tempLongitudeSatellite = e.latLng.lng()
       },
       // Submit the form via the API
@@ -241,13 +262,13 @@
         let self = this // 'this' loses scope within axios
 
         let method = (this.itemExists) ? 'put' : 'post'
-        let route =  (this.itemExists) ? '/api/maps/items/' + record.id : '/api/maps/items';
+        let route =  (this.itemExists) ? '/api/mapitem' : '/api/mapitems';
 
         // AJAX (axios) submission
         axios({
           method: method,
           url: route,
-          data: this.record
+          data: self.record
         })
           // success
           .then(function (response) {

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MapItemRepository")
@@ -17,6 +18,7 @@ abstract class MapItem
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Serializer\Expose()
      */
     private $id;
 
@@ -43,21 +45,25 @@ abstract class MapItem
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
+     * @Serializer\SerializedName("latitudeIllustration")
      */
     private $latitudeIllustration;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
+     * @Serializer\SerializedName("longitudeIllustration")
      */
     private $longitudeIllustration;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
+     * @Serializer\SerializedName("latitudeSatellite")
      */
     private $latitudeSatellite;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
+     * @Serializer\SerializedName("longitudeSatellite")
      */
     private $longitudeSatellite;
 

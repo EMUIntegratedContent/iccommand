@@ -19,6 +19,9 @@ https://github.com/nelmio/NelmioCorsBundle
 REST
 https://symfony.com/doc/master/bundles/FOSRestBundle/6-automatic-route-generation_multiple-restful-controllers.html
 
+cas
+https://github.com/PRayno/CasAuthBundle
+
 JSON Serialization
 http://jmsyst.com/bundles/JMSSerializerBundle
 
@@ -39,3 +42,8 @@ http://xkjyeah.github.io/vue-google-maps/index-app.html#/03CurvedLine
 
 Validation
 https://symfony.com/doc/current/validation.html
+
+As of 2/27/18, the only way I know to bring images from /assets/images into /public/build/images is by requiring them in app.js
+With versioning enabled in webpack, the images are saved with a version number. In order to include the images in a template, a json_manifest_path file
+is generated which maps the file to its version number. This must be specified in the framework.yaml file:
+https://symfony.com/doc/current/frontend/encore/versioning.html
