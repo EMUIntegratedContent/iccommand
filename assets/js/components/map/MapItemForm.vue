@@ -1,6 +1,6 @@
 <template>
   <div v-if="isDataLoaded === false">
-    <img src="/build/images/loading.gif" alt="Loading..." />
+    <img src="/images/loading.gif" alt="Loading..." />
   </div>
   <div v-else>
     <heading>
