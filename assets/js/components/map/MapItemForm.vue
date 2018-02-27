@@ -210,7 +210,7 @@
         this.clearErrors() // clear any previous validation errors
         // New item has been submitted, go to edit
         if(!this.itemExists){
-          let newurl = '/mapitems/' + this.record.id + '/edit';
+          let newurl = '/map/items/' + this.record.id + '/edit'
           document.location = newurl;
         }
       },

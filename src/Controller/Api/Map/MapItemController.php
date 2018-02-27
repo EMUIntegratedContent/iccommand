@@ -62,7 +62,7 @@ class MapItemController extends FOSRestController{
     $mapItem->setDescription($request->request->get('description'));
     $mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
     $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
-    $mapItem->setLatitudeSatellite($request->request->get('latitudeStatellite'));
+    $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
     $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
 
     $serializer = $this->container->get('serializer');
@@ -96,7 +96,7 @@ class MapItemController extends FOSRestController{
     $em = $this->getDoctrine()->getManager();
     $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($request->request->get('id'));
 
-
+    $serializer = $this->container->get('jms_serializer');
     $serialized = $serializer->serialize($mapItem, 'json');
     $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
 
@@ -117,7 +117,7 @@ class MapItemController extends FOSRestController{
     $mapItem->setDescription($request->request->get('description'));
     $mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
     $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
-    $mapItem->setLatitudeSatellite($request->request->get('latitudeStatellite'));
+    $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
     $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
 
     $serializer = $this->container->get('serializer');

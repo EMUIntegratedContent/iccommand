@@ -20,25 +20,12 @@ class MapBathroom extends MapItem
     const ITEM_TYPE = 'bathroom';
 
     /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     * @Serializer\SerializedName("id")
-     * @Serializer\Expose
-     */
-    private $id;
-
-    /**
      * @ORM\Column(type="boolean")
      *
      * @Assert\NotNull(message="Is the bathroom gender neutral?")
      * @Serializer\SerializedName("isGenderNeutral")
      */
     private $isGenderNeutral;
-
-    public function getId(){
-      return $this->id;
-    }
 
     public function getItemType(){
       return constant("self::ITEM_TYPE");
