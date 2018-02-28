@@ -13,7 +13,6 @@ use JMS\Serializer\Annotation as Serializer;
  *     exp="object.getItemType()",
  *     options={@Serializer\SerializedName("itemType")}
  *  )
- * @Serializer\ExclusionPolicy("all")
  */
 class MapBathroom extends MapItem
 {

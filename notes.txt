@@ -47,3 +47,6 @@ As of 2/27/18, the only way I know to bring images from /assets/images into /pub
 With versioning enabled in webpack, the images are saved with a version number. In order to include the images in a template, a json_manifest_path file
 is generated which maps the file to its version number. This must be specified in the framework.yaml file:
 https://symfony.com/doc/current/frontend/encore/versioning.html
+
+Repository Classes (use and function)
+https://symfony.com/doc/3.4/doctrine/repository.html

@@ -1,109 +1,149 @@
 <template>
-  <div v-if="isDataLoaded === false">
-    <img src="/images/loading.gif" alt="Loading..." />
-  </div>
-  <div v-else>
-    <heading>
-      <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
-      <span slot="title">Map {{ record.itemType | capitalize }}</span>
-    </heading>
-    <div class="row">
-      <div class="col-12">
-        <form>
-          <fieldset>
-            <legend>Basic Information</legend>
-            <div class="form-group">
-              <label>Name</label>
-              <input type="text" class="form-control" :class="{'is-invalid': errors.name}" v-model="record.name">
-              <div class="invalid-feedback">
-                {{ errors.name }}
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Slug</label>
-              <input type="text" class="form-control" :class="{'is-invalid': errors.slug}" v-model="record.slug">
-              <div class="invalid-feedback">
-                {{ errors.slug }}
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Description</label>
-              <textarea class="form-control" :class="{'is-invalid': errors.description}" v-model="record.description"></textarea>
-              <div class="invalid-feedback">
-                {{ errors.description }}
-              </div>
-            </div>
-          </fieldset>
-          <!-- GOOGLE MAP -->
-          <fieldset>
-            <legend>Set {{ record.itemType }} coordinates</legend>
-            <p>Click on the map at the desired location. Use the "Set Location" button to set a marker.</p>
-            <div class="row">
-              <div class="col-md-8">
-                <gmap-map
-                  :center="center"
-                  :zoom="16"
-                  style="width: 100%; height: 300px"
-                  @click="setTempPosition"
-                >
-                  <gmap-marker
-                    :key="index"
-                    v-for="(m, index) in markers"
-                    :position="m.position"
-                    :clickable="true"
-                    :draggable="true"
-                    @click="center=m.position"
-                  ></gmap-marker>
-                </gmap-map>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label>Satellite Coordinates</label>
-                  <input readonly class="form-control-plaintext" :value="record.latitudeSatellite + ', ' + record.longitudeSatellite">
-                </div>
-                <div class="form-group">
-                  <label>Illustration Coordinates</label>
-                  <input readonly class="form-control-plaintext" :value="record.latitudeIllustration + ', ' + record.longitudeIllustration">
-                </div>
-                <template v-if="tempLongitudeSatellite != null && tempLatitudeSatellite != null">
-                  <button class="btn btn-success" type="button" @click="setLocation(tempLatitudeSatellite, tempLongitudeSatellite)">Set location</button>
-                  <button class="btn btn-default" type="button" @click="clearTempLocation">Clear</button>
-                </template>
-              </div>
-            </div>
-          </fieldset>
-          <!--<fieldset>
-            <legend>Tags</legend>
-            <multiselect
-              v-model="record.tags"
-              :options="tags"
-              :multiple="true"
-              placeholder="Choose tags"
-              label="tag"
-              track-by="id"
-              >
-            </multiselect>
-          </fieldset>-->
-
-          <!-- BUILDING FIELDS -->
-          <template v-if="record.itemType == 'building'">
-            BUILIDING
-          </template>
-          <!-- BATHROOM FIELDS -->
-          <template v-if="record.itemType == 'bathroom'">
+  <div>
+    <not-found v-if="is404 === true"></not-found>
+    <div v-if="isDataLoaded === false">
+      <img src="/images/loading.gif" alt="Loading..." />
+    </div>
+    <div v-if="isDeleted === true" class="alert alert-info alert-dismissible fade show" role="alert">
+      {{ record.itemType | capitalize }} "{{ record.name }}" item has been deleted.
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
+      <heading>
+        <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
+        <span v-if="!itemExists" slot="title">Step 2/2: Provide {{ record.itemType }} information</span>
+        <span v-else slot="title">Map {{ record.itemType }}: {{ record.name }}</span>
+      </heading>
+      <div class="row">
+        <div class="col-12">
+          <form>
             <fieldset>
-              <legend>{{ record.itemType | capitalize }} specific fields</legend>
+              <legend>Basic Information <button v-if="itemExists && this.permissions[0].edit" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button></legend>
               <div class="form-group">
-                <label class="checkbox-inline">
-                  <input type="checkbox" :class="{'is-invalid': errors.isGenderNeutral}" v-model="record.isGenderNeutral"> Gender Neutral?
-                </label>
+                <label>Name</label>
+                <input type="text" class="form-control" :class="{'is-invalid': errors.name, 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode" v-model="record.name">
+                <div class="invalid-feedback">
+                  {{ errors.name }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Slug</label>
+                <input type="text" class="form-control" :class="{'is-invalid': errors.slug, 'form-control-plaintext': !userCanEdit || !isEditMode}" readonly v-model="record.slug">
+                <div class="invalid-feedback">
+                  {{ errors.slug }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea class="form-control" :class="{'is-invalid': errors.description, 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode" v-model="record.description"></textarea>
+                <div class="invalid-feedback">
+                  {{ errors.description }}
+                </div>
               </div>
             </fieldset>
-          </template>
-          <button class="btn btn-success spacer-top" type="button" @click="submitForm">{{ itemExists ? 'Update ' + record.itemType : 'Create ' + record.itemType }}</button>
-        </form>
+            <!-- GOOGLE MAP (edit mode only!)-->
+            <fieldset v-if="userCanEdit && isEditMode">
+              <legend>Set {{ record.itemType }} coordinates</legend>
+              <p>Click on the map at the desired location. Use the "Set Location" button to set a marker.</p>
+              <div class="row">
+                <div class="col-md-8">
+                  <gmap-map
+                    :center="center"
+                    :zoom="16"
+                    style="width: 100%; height: 300px"
+                    @click="setTempPosition"
+                  >
+                    <gmap-marker
+                      :key="index"
+                      v-for="(m, index) in markers"
+                      :position="m.position"
+                      :clickable="true"
+                      :draggable="true"
+                      @click="center=m.position"
+                    ></gmap-marker>
+                  </gmap-map>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Satellite Coordinates</label>
+                    <input readonly class="form-control-plaintext" :value="record.latitudeSatellite + ', ' + record.longitudeSatellite">
+                  </div>
+                  <div class="form-group">
+                    <label>Illustration Coordinates</label>
+                    <input readonly class="form-control-plaintext" :value="record.latitudeIllustration + ', ' + record.longitudeIllustration">
+                  </div>
+                  <template v-if="tempLongitudeSatellite != null && tempLatitudeSatellite != null">
+                    <button class="btn btn-success" type="button" @click="setLocation(tempLatitudeSatellite, tempLongitudeSatellite)">Set location</button>
+                    <button class="btn btn-default" type="button" @click="clearTempLocation">Clear</button>
+                  </template>
+                </div>
+              </div>
+            </fieldset>
+            <!--<fieldset>
+              <legend>Tags</legend>
+              <multiselect
+                v-model="record.tags"
+                :options="tags"
+                :multiple="true"
+                placeholder="Choose tags"
+                label="tag"
+                track-by="id"
+                >
+              </multiselect>
+            </fieldset>-->
+
+            <!-- BUILDING FIELDS -->
+            <template v-if="record.itemType == 'building'">
+              BUILIDING
+            </template>
+            <!-- BATHROOM FIELDS -->
+            <template v-if="record.itemType == 'bathroom'">
+              <fieldset>
+                <legend>{{ record.itemType | capitalize }} specific fields</legend>
+                <div v-if="userCanEdit && isEditMode" class="form-group">
+                  <label class="checkbox-inline">
+                    <input type="checkbox" :class="{'is-invalid': errors.isGenderNeutral}" v-model="record.isGenderNeutral"> Gender Neutral?
+                  </label>
+                </div>
+                <div v-else>
+                  <p>Bathroom <strong>is <span v-if="!record.isGenderNeutral">not</span></strong> designated as gender neutral</p>
+                </div>
+              </fieldset>
+            </template>
+            <div v-if="Object.keys(errors).length" class="alert alert-danger alert-dismissible fade show" role="alert">
+              Please fix the <strong>{{ Object.keys(errors).length }} error(s)</strong> before submitting.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div v-if="success" class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ successMessage }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div v-if="isDeleteError === true" class="alert alert-danger alert-dismissible fade show" role="alert">
+              There was an error deleting this item.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div v-if="userCanEdit && isEditMode">
+              <button class="btn btn-success spacer-top" type="button" @click="submitForm">{{ itemExists ? 'Update ' + record.itemType : 'Create ' + record.itemType }}</button>
+              <button v-if="itemExists && this.permissions[0].delete" type="button" class="btn btn-danger spacer-top" data-toggle="modal" data-target="#deleteModal">Delete {{ record.itemType }}</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
+    <!-- DELETE MODAL -->
+    <mapitem-delete-modal
+    :mapitem="record"
+    @itemDeleted="markItemDeleted"
+    @itemDeleteError="markItemDeleteError"
+    ></mapitem-delete-modal>
   </div>
 </template>
 <style>
@@ -112,8 +152,10 @@
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
   import Vue from 'vue'
-  import Heading from '../utils/HeadingComponent.vue'
+  import MapitemDeleteModal from './MapitemDeleteModal.vue'
+  import Heading from '../utils/Heading.vue'
   import Multiselect from 'vue-multiselect'
+  import NotFound from '../utils/NotFound.vue'
   import * as VueGoogleMaps from 'vue2-google-maps'
 
   Vue.use(VueGoogleMaps, {
@@ -128,6 +170,11 @@
 
   export default {
     mounted() {
+      // detect if the form should be in edit mode from the start (default is false)
+      if(this.startMode == 'edit'){
+        this.isEditMode = true
+      }
+
       if(this.itemExists === false){
         // Set the kind of map item being created via the itemType property from NewMapItemChoices
         this.isDataLoaded = true
@@ -137,7 +184,7 @@
         this.fetchMapItem(this.itemId)
       }
     },
-    components: {Heading, Multiselect},
+    components: {Heading, Multiselect, MapitemDeleteModal, NotFound},
     props:{
       itemType: {
         type: String,
@@ -148,6 +195,14 @@
         required: true
       },
       itemId:{
+        type: String,
+        required: false
+      },
+      permissions: {
+        type: Array,
+        required: true
+      },
+      startMode: {
         type: String,
         required: false
       }
@@ -174,7 +229,11 @@
         tempLatitudeSatellite: null,
         tempLongitudeSatellite: null,
         errors:{},
+        is404: false,
         isDataLoaded: false,
+        isDeleted: false,
+        isDeleteError: false,
+        isEditMode: false, // true = make forms editable
         record: {
           id: '',
           description: '',
@@ -188,6 +247,9 @@
           slug: '',
           tags:[],
         },
+        recordSlug: '',
+        success: false,
+        successMessage: '',
       }
     },
     computed: {
@@ -204,14 +266,38 @@
       isInvalid: function(){
         return 'is-invalid'
       },
+      lockIcon: function(){
+        return this.isEditMode ? '<i class="fa fa-unlock"></i>' : '<i class="fa fa-lock"></i>'
+      },
+      slugify: function(){
+        if(this.record.name){
+          return this.recordSlug.toString().toLowerCase()
+                                .replace(/\s+/g, '-')           // Replace spaces with -
+                                .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                                .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+                                .replace(/^-+/, '')             // Trim - from start of text
+                                .replace(/-+$/, ''); // Trim - from end of text
+        }
+        return ''
+      },
+      userCanEdit: function(){
+        // An existing record can be edited by a user with edit permissions, a new record can be created by a user with create permissions
+        return this.itemExists && this.permissions[0].edit || !this.itemExists && this.permissions[0].create ? true : false
+      }
     },
     methods: {
       afterSubmitSucceeds: function(){
         this.clearErrors() // clear any previous validation errors
         // New item has been submitted, go to edit
         if(!this.itemExists){
-          let newurl = '/map/items/' + this.record.id + '/edit'
-          document.location = newurl;
+          this.success = true
+          this.successMessage = "Item created."
+
+          let newurl = '/map/items/' + this.record.id
+          document.location = newurl
+        } else {
+          this.success = true
+          this.successMessage = "Update successful."
         }
       },
       clearErrors: function(){
@@ -234,11 +320,23 @@
         })
         // fail
         .catch(function (error) {
-          console.log("NAH FAM...")
+          if(error.request.status == 404){
+            self.is404 = true
+            self.isDataLoaded = true
+          }
         })
       },
       fetchTags: function(){
         console.log("fetching tags")
+      },
+      // Called from the @itemDeleted event emission from the Delete Modal
+      markItemDeleted: function () {
+          this.isDeleteError = false
+          this.isDeleted = true
+      },
+      markItemDeleteError: function(){
+          this.isDeleted = false
+          this.isDeleteError = true
       },
       setLocation: function(lat, lng){
         this.clearMarkers() // get rid of existing markers
@@ -264,6 +362,7 @@
         let method = (this.itemExists) ? 'put' : 'post'
         let route =  (this.itemExists) ? '/api/mapitem' : '/api/mapitems';
 
+        this.recordSlug = this.record.slug
         // AJAX (axios) submission
         axios({
           method: method,
@@ -277,16 +376,18 @@
           })
           // fail
           .catch(function (error) {
-            console.log("ERRORS!")
-            self.errors = {}; // clear any previous errors
+            self.clearErrors() // clear any previous errors
             let errors = error.response.data
             // Add any validation errors to the errors object
             errors.forEach(function(error){
-              let key = error.propertyPath
-              let message = error.messageTemplate
+              let key = error.property_path
+              let message = error.message
               self.errors[key] = message
             })
           })
+      },
+      toggleEdit: function(){
+        this.isEditMode === true ? this.isEditMode = false : this.isEditMode = true
       }
     },
     filters: {

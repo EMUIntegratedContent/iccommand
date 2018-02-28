@@ -32,7 +32,10 @@ class MapItemController extends FOSRestController{
    */
   public function getMapitemAction($id){
     $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($id);
-
+    if(!$mapItem){
+      $response = new Response("The map item you requested was not found.", 404, array('Content-Type' => 'application/json'));
+      return $response;
+    }
     $serializer = $this->container->get('jms_serializer');
     $serialized = $serializer->serialize($mapItem, 'json');
     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
@@ -65,10 +68,10 @@ class MapItemController extends FOSRestController{
     $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
     $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
 
-    $serializer = $this->container->get('serializer');
+    $serializer = $this->container->get('jms_serializer');
 
-    $validator = $this->container->get('validator');
-    $errors = $validator->validate($mapItem);
+    // validate map item
+    $errors = $this->validate($mapItem);
     if (count($errors) > 0) {
         $serialized = $serializer->serialize($errors, 'json');
         $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -96,15 +99,8 @@ class MapItemController extends FOSRestController{
     $em = $this->getDoctrine()->getManager();
     $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($request->request->get('id'));
 
-    $serializer = $this->container->get('jms_serializer');
-    $serialized = $serializer->serialize($mapItem, 'json');
-    $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
-
-    return $response;
-    /*
-    switch($type){
+    switch($itemType){
       case "bathroom":
-        $mapItem = new MapBathroom();
         $mapItem->setIsGenderNeutral($request->request->get('isGenderNeutral'));
         break;
       default:
@@ -120,16 +116,13 @@ class MapItemController extends FOSRestController{
     $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
     $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
 
-    $serializer = $this->container->get('serializer');
+    $serializer = $this->container->get('jms_serializer');
 
-    $validator = $this->container->get('validator');
-    $errors = $validator->validate($mapItem);
+    // validate map item
+    $errors = $this->validate($mapItem);
     if (count($errors) > 0) {
-        $errorsString = (string) $errors;
         $serialized = $serializer->serialize($errors, 'json');
-
         $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-
         return $response;
     }
 
@@ -141,6 +134,27 @@ class MapItemController extends FOSRestController{
     $serialized = $serializer->serialize($mapItem, 'json');
     $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
     return $response;
-    */
+  }
+
+  /**
+   * Delete a map item from the database
+   */
+  public function deleteMapitemAction($id)
+  {
+    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($id);
+
+    $em = $this->getDoctrine()->getManager();
+    $em->remove($mapItem);
+    $em->flush();
+
+    $response = new Response('Item has been deleted.', 204, array('Content-Type' => 'application/json'));
+    return $response;
+  }
+
+  protected function validate($mapItem){
+    $validator = $this->container->get('validator');
+    $errors = $validator->validate($mapItem);
+
+    return $errors;
   }
 }

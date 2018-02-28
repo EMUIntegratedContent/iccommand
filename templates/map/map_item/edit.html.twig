@@ -9,8 +9,6 @@
 </style>
 
 <div class="example-wrapper" id="app">
-    <h1>Edit map item</h1>
-
-    <map-item-form :item-exists="true" item-type="{{ itemType }}" item-id="{{ id }}"></map-item-form>
+    <map-item-form :item-exists="true" item-type="{{ itemType }}" start-mode="edit" item-id="{{ id }}" :permissions="[{create: true, edit: true, delete: true}]"></map-item-form>
 </div>
 {% endblock %}

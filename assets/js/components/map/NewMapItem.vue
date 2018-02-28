@@ -1,12 +1,17 @@
 <template>
-  <div id="toReplace">
-    <template v-if="previousStep">
-      <button class="btn btn-info" @click="swapComponent(previousStep)"><i class="fa fa-chevron-circle-left"></i> Previous</button>
-    </template>
-    <!-- :is = a magic vue word -->
-    <div :is="currentComponent" @mapItemChosen="setItemType" :itemType="itemType" :itemExists="false"></div>
-    <div v-show="!currentComponent" v-for="component in componentsArray">
-      <button @click="swapComponent(component)">{{component}}</button>
+  <div>
+    <div v-if="this.permissions[0].create" id="toReplace">
+      <template v-if="previousStep">
+        <button class="btn btn-info" @click="swapComponent(previousStep)"><i class="fa fa-chevron-circle-left"></i> Previous</button>
+      </template>
+      <!-- :is = a magic vue word -->
+      <div :is="currentComponent" @mapItemChosen="setItemType" :itemType="itemType" :itemExists="false" :permissions="this.permissions" startMode="edit"></div>
+      <div v-show="!currentComponent" v-for="component in componentsArray">
+        <button @click="swapComponent(component)">{{component}}</button>
+      </div>
+    </div>
+    <div v-else class="alert alert-danger alert-dismissible fade show" role="alert">
+      You do not have create privileges for map items.
     </div>
   </div>
 </template>
@@ -27,6 +32,12 @@
     components: {
       'new-map-item-choices': NewMapItemChoices,
       'map-item-form': MapItemForm,
+    },
+    props:{
+      permissions: {
+        type: Array,
+        required: true
+      },
     },
     computed:{
       // determine what the next step in the new item creation is, if any
@@ -60,7 +71,6 @@
         this.currentComponent = component
       },
       setItemType: function(itemType){
-        // Format: this.$set(the data item named 'record', the property 'type' within 'record', the value to set)
         this.itemType = itemType // set the item type to pass to the form
         this.swapComponent('map-item-form') // change to the form for a new map item
       }

@@ -23,6 +23,13 @@ class MapItemController extends Controller
     }
 
     /**
+     * @Route("/map/items/{id}", name="map_items_show")
+     */
+    public function show($id){
+      return $this->render('map/map_item/show.html.twig', ['id' => $id, 'itemType' => 'bathroom']);
+    }
+
+    /**
      * @Route("/map/items/{id}/edit", name="map_items_edit")
      */
     public function edit($id){
