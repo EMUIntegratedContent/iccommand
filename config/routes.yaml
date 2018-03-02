@@ -10,3 +10,8 @@ mapitems:
     type: rest
     resource: App\Controller\Api\Map\MapItemController
     prefix: /api/
+
+mapitemImages:
+    type: rest
+    resource: App\Controller\Api\Map\MapItemImageController
+    prefix: /api/

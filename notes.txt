@@ -50,3 +50,12 @@ https://symfony.com/doc/current/frontend/encore/versioning.html
 
 Repository Classes (use and function)
 https://symfony.com/doc/3.4/doctrine/repository.html
+
+StofDoctrineExtensionsBundle, Gedmo (Timestamps/Tree/Sortable, etc.)
+https://symfony.com/doc/current/doctrine/common_extensions.html
+
+Uploading IMAGES
+https://symfony.com/doc/current/controller/upload_file.html
+
+Uploading images with Vue(API)
+https://scotch.io/tutorials/how-to-handle-file-uploads-in-vue-2

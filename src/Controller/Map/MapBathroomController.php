@@ -12,9 +12,9 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-use App\Entity\MapBathroom;
-use App\Entity\MapParking;
-use App\Entity\MapItem;
+use App\Entity\Map\MapBathroom;
+use App\Entity\Map\MapParking;
+use App\Entity\Map\MapItem;
 
 class MapBathroomController extends Controller
 {

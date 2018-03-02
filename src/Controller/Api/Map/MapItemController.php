@@ -8,8 +8,8 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
-use App\Entity\MapItem;
-use App\Entity\MapBathroom;
+use App\Entity\Map\MapItem;
+use App\Entity\Map\MapBathroom;
 
 class MapItemController extends FOSRestController{
 
