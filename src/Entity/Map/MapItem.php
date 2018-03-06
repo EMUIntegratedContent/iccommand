@@ -5,8 +5,10 @@ namespace App\Entity\Map;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\Entity\Document;
+use App\Entity\Image;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
@@ -18,6 +20,7 @@ use App\Entity\Document;
  *    errorPath="slug",
  *    message="There is already a map item with this slug."
  * )
+ * @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
  */
 abstract class MapItem
 {
@@ -25,6 +28,7 @@ abstract class MapItem
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Serializer\XmlAttribute
      */
     private $id;
 
@@ -80,6 +84,7 @@ abstract class MapItem
      *      joinColumns={@ORM\JoinColumn(name="mapitem_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id")}
      *      )
+     * @ORM\OrderBy({"priority" = "ASC"})
      */
     private $images;
 
@@ -163,16 +168,12 @@ abstract class MapItem
         $this->longitudeSatellite = $longitudeSatellite;
     }
 
-/*
-    public function setImage(Document $image = null)
+    public function getImages()
     {
-        $this->image = $image;
-        return $this;
+        return $this->images;
     }
 
-    public function getImage()
-    {
-        return $this->image;
+    public function addImage(Image $image = null){
+      $this->images[] = $image;
     }
-*/
 }

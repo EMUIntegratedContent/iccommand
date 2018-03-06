@@ -8,50 +8,160 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Entity\Image;
-use App\Service\MapitemFileUploader;
+use App\Entity\Map\MapItem;
 
 class MapItemImageController extends FOSRestController{
 
   /**
-   * Process images
+   * Process new image uploads
    */
-  public function postMapitemimageUploadAction(Request $request)
+  public function postMapitemimageUploadAction(Request $request) : Response
   {
-    //$formData = $request->request->all();
     $images = $request->files->get('uploadFiles');
-
     $processedImages = array();
+    $errors = array();
+
+    // Go through each uploaded image
     foreach($images as $image){
-      $newImage = $this->storeImage($image);
+      $newImage = $this->storeImage($image); // store the image to the database
       if($newImage){
+        $this->linkImageToMapItem($newImage, $request->request->get('mapitem_id')); // associate the new image with the map item
         $processedImages[] = $newImage;
+      } else {
+        $errors[] = "The file " . $image->getClientOriginalName() . " was not uploaded because it either already exists or is not a JPG, PNG, or GIF.";
       }
     }
     $serializer = $this->container->get('jms_serializer');
-    $serialized = $serializer->serialize($processedImages, 'json');
+    $serialized = $serializer->serialize(array('errors' => $errors, 'processedImages' => $processedImages), 'json');
     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
     return $response;
   }
 
-  protected function storeImage($image){
-    $existingImage = $this->getDoctrine()->getRepository(Image::class)->findOneBy(['name' => $image->getClientOriginalName()]);
+  public function putMapitemimageReorderAction(Request $request) : Response
+  {
+    $idArray = $request->request->get('imageIds');
 
-    // only process images that don't match an existing image name
-    if(!$existingImage){
-      // save the image
-      $newImage = new Image();
-      $newImage->setName($image->getClientOriginalName());
-      $newImage->setFile($image);
-      $newImage->setSubDir($this->container->getParameter('mapitem_images_subdirectory'));
+    $em = $this->getDoctrine()->getManager();
 
-      $em = $this->getDoctrine()->getManager();
-      $em->persist($newImage);
-      $em->flush();
+    for($i = 0; $i < count($idArray); $i++){
+      $image = $this->getDoctrine()->getRepository(Image::class)->find($idArray[$i]); // find the matching image
 
-      return $newImage;
+      // return an error if the image was not found
+      if(!$image){
+        $response = new Response("An image was not found. Update was not executed.", 400, array('Content-Type' => 'application/json'));
+        return $response;
+      }
+      $image->setPriority($i);
+      $em->persist($image);
     }
+    $em->flush(); // save the reordering of all images at once
+
+    $response = new Response("Reorder saved successfully.", 200, array('Content-Type' => 'application/json'));
+
+    return $response;
+  }
+
+  public function putMapitemImageRenameAction(Request $request) : Response
+  {
+    $imageData = $request->request->get('imageData');
+    /*
+    $image = $this->getDoctrine()->getRepository(Image::class)->find($idArray[$i]); // find the matching image
+    // return an error if the image was not found
+    if(!$image){
+      $response = new Response("An image was not found. Update was not executed.", 400, array('Content-Type' => 'application/json'));
+      return $response;
+    }
+      $image->setPriority($i);
+      $em->persist($image);
+    }
+    $em->flush(); // save the reordering of all images at once
+
+    $response = new Response("Image renamed to " . $newName . ".", 200, array('Content-Type' => 'application/json'));
+    */
+    $response = new Response($imageData, 200, array('Content-Type' => 'application/json'));
+    return $response;
+  }
+
+  public function deleteMapitemimageAction($id) : Response
+  {
+
+  }
+
+  protected function storeImage(UploadedFile $image) : ?Image
+  {
+    // Make sure user is uploading a JPG, PNG, or GIF and not
+    if($this->isValidImage($image)){
+      $existingImage = $this->getDoctrine()->getRepository(Image::class)->findOneBy(['name' => $image->getClientOriginalName()]);
+
+      // only process images that don't match an existing image name
+      if(!$existingImage){
+        // save the image
+        $newImage = new Image();
+        $newImage->setName($image->getClientOriginalName());
+        $newImage->setFile($image);
+        $newImage->setPriority(10000); // will be changed when associated with a map item
+        $newImage->setSubDir($this->container->getParameter('mapitem_images_subdirectory'));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($newImage);
+        $em->flush();
+
+        return $newImage;
+      }
+    }
+
     return null;
+  }
+
+  protected function linkImageToMapItem(Image $image, $itemId) : bool
+  {
+    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($itemId);
+    if(!$mapItem){
+      return false;
+    }
+    $mapItem->addImage($image);
+
+    $em = $this->getDoctrine()->getManager();
+    $em->persist($mapItem);
+
+    // Assign this image lowest priority among all associated images
+    $numMapItemImages = $this->getCountMapItemImages($itemId);
+    if($numMapItemImages > -1){
+      $image->setPriority($numMapItemImages - 1);
+    } else {
+      // first image, set as main (priority of 0)
+      $image->setPriority(0);
+    }
+    $em->persist($mapItem);
+    $em->flush();
+
+    return true;
+  }
+
+  /**
+   * Get a count of images associated with a map item.
+   */
+  protected function getCountMapItemImages($itemId) : int
+  {
+    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($itemId);
+    if(!$mapItem){
+      return -1;
+    }
+
+    return count($mapItem->getImages());
+  }
+
+  /**
+   * Ensure image meets criteria for uploading
+   */
+  protected function isValidImage(UploadedFile $image) : bool {
+    $mimeType = $image->getMimeType();
+    $fileSize = $image->getClientSize();
+
+    // 2MB = 2097152 bytes
+    return (($mimeType == 'image/jpeg' || $mimeType == 'image/png' || $mimeType == 'image/gif') && $fileSize <= 2097152);
   }
 }
