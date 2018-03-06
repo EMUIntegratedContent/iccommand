@@ -196,7 +196,7 @@ use JMS\Serializer\Annotation as Serializer;
          if(null === $this->getSubDir()){
              return 'uploads';
          } else {
-             return 'uploads/' . $this->getSubDir();
+             return $this->getSubDir();
          }
      }
 

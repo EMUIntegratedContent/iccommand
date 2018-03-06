@@ -86,6 +86,9 @@
     "gedmo/doctrine-extensions": {
         "version": "v2.4.33"
     },
+    "imagine/imagine": {
+        "version": "v0.7.1"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -109,6 +112,15 @@
     },
     "laravel/homestead": {
         "version": "v7.1.2"
+    },
+    "liip/imagine-bundle": {
+        "version": "1.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.8",
+            "ref": "d2a601ea5ccad81de2a131ed68481d012ed4667c"
+        }
     },
     "monolog/monolog": {
         "version": "1.23.0"

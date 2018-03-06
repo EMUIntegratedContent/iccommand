@@ -17,11 +17,21 @@
         <span v-if="!itemExists" slot="title">Step 2/2: Provide {{ record.itemType }} information</span>
         <span v-else slot="title">Map {{ record.itemType }}: {{ record.name }}</span>
       </heading>
-      <div class="row">
-        <div class="col-md-12">
+      <p><button v-if="itemExists && this.permissions[0].edit" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button></p>
+      <!-- TABS -->
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="home-tab" data-toggle="tab" href="#information" role="tab" aria-controls="information" aria-selected="true">Information</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="profile-tab" data-toggle="tab" href="#photos" role="tab" aria-controls="photos" aria-selected="false">Photos</a>
+        </li>
+      </ul>
+      <div class="tab-content" id="mapitemTabContent">
+        <div class="tab-pane fade show active" id="information" role="tabpanel" aria-labelledby="information-tab">
           <form>
             <fieldset>
-              <legend>Basic Information <button v-if="itemExists && this.permissions[0].edit" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button></legend>
+              <legend>Basic Information</legend>
               <div class="form-group">
                 <label>Name</label>
                 <input type="text" class="form-control" :class="{'is-invalid': errors.name, 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode" v-model="record.name">
@@ -31,7 +41,6 @@
               </div>
               <div class="form-group">
                 <label>Slug</label>
-                <!--<input type="text" class="form-control" :class="{'is-invalid': errors.slug, 'form-control-plaintext': !userCanEdit || !isEditMode}" readonly v-model="record.slug">-->
                 <input type="text" class="form-control form-control-plaintext" :class="{'is-invalid': errors.slug}" readonly v-model="slugify">
                 <div class="invalid-feedback">
                   {{ errors.slug }}
@@ -131,46 +140,123 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-          </form><!-- /end form -->
-          <!--IMAGE UPLOAD-->
-          <template v-if="itemExists">
-            <form enctype="multipart/form-data" novalidate v-if="isInitial || isSaving">
-              <fieldset>
-                <legend>Upload Images</legend>
-                <div class="dropbox">
-                  <input type="file" multiple name="uploadFiles[]" :disabled="isSaving" @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length" accept="image/*" class="input-file">
-                    <p v-if="isInitial">
-                      Drag your file(s) here to begin<br> or click to browse
-                    </p>
-                    <p v-if="isSaving">
-                      Uploading {{ fileCount }} files...
-                    </p>
-                  <input type="hidden" name="record_id" :value="record.id" />
-                </div>
-              </fieldset>
-            </form>
-            <h3>{{ record.itemType }} Images</h3>
-            <img v-for="image in uploadedFiles" :src="image.subdir + '/' + image.path" :alt="image.name" />
-          </template>
-          <template v-else>
-            <div class="alert alert-info" role="alert">
-              You will be able to upload images once you create the {{ record.itemType }}
+            <!-- ACTION BUTTONS -->
+            <div v-if="userCanEdit && isEditMode">
+              <button class="btn btn-success spacer-top" type="button" @click="submitForm">{{ itemExists ? 'Update ' + record.itemType : 'Create ' + record.itemType }}</button>
+              <button v-if="itemExists && this.permissions[0].delete" type="button" class="btn btn-danger spacer-top" data-toggle="modal" data-target="#deleteModal">Delete {{ record.itemType }}</button>
             </div>
-          </template>
-          <!-- ACTION BUTTONS -->
-          <div v-if="userCanEdit && isEditMode">
-            <button class="btn btn-success spacer-top" type="button" @click="submitForm">{{ itemExists ? 'Update ' + record.itemType : 'Create ' + record.itemType }}</button>
-            <button v-if="itemExists && this.permissions[0].delete" type="button" class="btn btn-danger spacer-top" data-toggle="modal" data-target="#deleteModal">Delete {{ record.itemType }}</button>
-          </div>
-        </div><!-- end .col-md-12 -->
-      </div><!-- end .row -->
+          </form><!-- /end form -->
+        </div><!-- end .tab-pane #information -->
+        <div class="tab-pane fade show active" id="photos" role="tabpanel" aria-labelledby="photos-tab">
+          <div class="row">
+            <div class="col-xs-12 col-md-6">
+              <h3>{{ record.itemType | capitalize }} Images ({{ record.images.length }})</h3>
+              <!-- Image order change buttons -->
+              <template v-if="isImageOrderChanged">
+                <button class="btn btn-success" @click="updateImageOrder()">Confirm</button>
+                <button class="btn btn-default" @click="resetImageOrder()">Reset</button>
+              </template>
+              <div v-if="itemExists && userCanEdit && isEditMode">
+                <draggable v-model="record.images" :options="{}" @start="drag=true" @end="onDragEnd">
+                  <!--<image-thumbnail-pod
+                    v-for="image in record.images"
+                    :key="image.id"
+                    :image="image"
+                    :deleteURL="uploadsDeleteURL"
+                    :thumbnailURL="uploadsThumbnailURL"
+                    :updateURL="uploadsUpdateURL"
+                    >
+                  </image-thumbnail-pod>-->
+                  <li class="list-group-item" v-for="image in record.images">
+                    <div class="row">
+                        <div class="col-sm-9">
+                          <h6 class="box-title">{{image.name}} <span><i class="fa fa-pencil" aria-hidden="true"></i></span></h6>
+                        </div><!-- /.col-md-12 -->
+                        <div class="col-sm-3">
+                          <button type="button" class="btn btn-sm btn-danger pull-right" @click="openDeleteImageModal(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
+                        </div><!-- /.col-md-12 -->
+                    </div><!-- /.row -->
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <img :src="uploadsThumbnailURL + image.path" :alt="image.name" class="rounded" />
+                      </div>
+                    </div>
+                  </li><!-- /li -->
+                </draggable>
+              </div>
+            </div><!-- end .col-md-6 (images)-->
+            <div class="col-xs-12 col-md-6">
+              <h5>Primary Photo</h5>
+              <template v-if="record.images.length > 0">
+                <img id="primary-image" :src="record.images[0].subdir + '/' + record.images[0].path" :alt="record.images[0].name" />
+                <p><a :href="record.images[0].subdir + '/' + record.images[0].path" target="_blank">Full Size</a></p>
+              </template>
+              <template v-else>
+                <p>No photos have been uploaded yet.</p>
+              </template>
+            </div><!-- end .col-md-6 (images)-->
+          </div><!-- end .row (images) -->
+          <!--IMAGE UPLOAD-->
+          <div class="row">
+            <div class="col-xs-12 col-md-12">
+              <template v-if="itemExists && userCanEdit && isEditMode">
+                <!--SUCCESS-->
+                <div v-if="isUploadSuccess">
+                  <div v-if="uploadErrors.length == 0" class="alert alert-success" role="alert">
+                    <p><strong>Uploaded {{ uploadedFiles.length }} file(s).</strong> <a class="btn btn-default" href="javascript:void(0)" @click="resetUploadForm()">Upload more images</a></p>
+                  </div>
+                  <div v-else class="alert alert-warning" role="alert">
+                    <p><strong>Uploaded {{ uploadedFiles.length }} file(s) with the following errors.</strong> <a class="btn btn-default" href="javascript:void(0)" @click="resetUploadForm()">Upload more images</a></p>
+                    <ul>
+                      <li v-for="uploadError in uploadErrors">{{ uploadError }}</li>
+                    </ul>
+                  </div>
+                </div>
+                <!--FAILED-->
+                <div v-if="isUploadFailed" class="alert alert-danger" role="alert">
+                  <p><strong>Upload failed.</strong> <a href="javascript:void(0)" @click="resetUploadForm()">Try again</a></p>
+                  <pre v-for="uploadError in uploadErrors">{{ uploadErrors }}</pre>
+                </div>
+                <!-- UPLOAD FORM -->
+                <form enctype="multipart/form-data" novalidate v-if="isUploadInitial || isUploadSaving">
+                  <fieldset>
+                    <legend>Upload Images</legend>
+                    <div class="dropbox">
+                      <input type="file" multiple name="uploadFiles[]" :disabled="isUploadSaving" @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length" accept="image/*" class="input-file">
+                        <p v-if="isUploadInitial">
+                          Drag your image(s) here to begin<br> or click to browse.
+                        </p>
+                        <p v-if="isUploadSaving">
+                          Uploading {{ fileCount }} files...
+                        </p>
+                    </div>
+                  </fieldset>
+                </form>
+              </template>
+              <template v-else>
+                <div class="alert alert-info" role="alert">
+                  <p v-if="!itemExists">You will be able to upload images once you create the {{ record.itemType }}</p>
+                  <p v-if="!userCanEdit">You do not have sufficient privileges to upload images</p>
+                  <p v-if="!isEditMode">Photo upload only available in edit mode</p>
+                </div>
+              </template>
+            </div><!-- end .col-xs-12 (uploads) -->
+          </div><!-- end .row (uploads) -->
+        </div><!-- end .tab-pane #photos -->
+      </div><!-- end .tab-content -->
     </div>
-    <!-- DELETE MODAL -->
+    <!-- DELETE ITEM MODAL -->
     <mapitem-delete-modal
     :mapitem="record"
     @itemDeleted="markItemDeleted"
     @itemDeleteError="markItemDeleteError"
     ></mapitem-delete-modal>
+    <!-- DELETE IMAGE MODAL -->
+    <mapitem-image-delete-modal
+    id="deleteImageModal"
+    :image="deleteImageModalData"
+    @imageDeleteRequested="deleteImage(deleteImageModalData)"
+    ></mapitem-image-delete-modal>
   </div>
 </template>
 <style>
@@ -202,31 +288,28 @@
     text-align: center;
     padding: 50px 0;
   }
+
+  #primary-image{
+    max-width:100%;
+  }
+  .list-group-item, .list-group-item:hover{ z-index: auto; }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
-  import Vue from 'vue'
   import MapitemDeleteModal from './MapitemDeleteModal.vue'
+  import MapitemImageDeleteModal from './MapitemImageDeleteModal.vue'
+  import ImageThumbnailPod from '../utils/ImageThumbnailPod.vue'
   import Heading from '../utils/Heading.vue'
   import Multiselect from 'vue-multiselect'
   import NotFound from '../utils/NotFound.vue'
-  import * as VueGoogleMaps from 'vue2-google-maps'
+  import Draggable from 'vuedraggable'
 
   const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3;
 
-  Vue.use(VueGoogleMaps, {
-    load: {
-      key: 'AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8',
-      libraries: 'places', // This is required if you use the Autocomplete plugin
-      // OR: libraries: 'places,drawing'
-      // OR: libraries: 'places,drawing,visualization'
-      // (as you require)
-    }
-  })
-
   export default {
+    created() {},
     mounted() {
-      this.reset();
+      this.resetUploadForm();
       // detect if the form should be in edit mode from the start (default is false)
       if(this.startMode == 'edit'){
         this.isEditMode = true
@@ -241,7 +324,7 @@
         this.fetchMapItem(this.itemId)
       }
     },
-    components: {Heading, Multiselect, MapitemDeleteModal, NotFound},
+    components: {Heading, Multiselect, MapitemDeleteModal, MapitemImageDeleteModal, ImageThumbnailPod, NotFound, Draggable},
     props:{
       itemType: {
         type: String,
@@ -266,10 +349,6 @@
     },
     data: function() {
       return {
-        uploadedFiles: [],
-        uploadError: null,
-        currentStatus: null,
-
         // the list of potential tags for this map item
         tags:[
           {
@@ -286,15 +365,18 @@
           },
         ],
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
-        markers: [], // google map markers
-        tempLatitudeSatellite: null,
-        tempLongitudeSatellite: null,
+        currentStatus: null,
+        deleteImageModalData: null,
         errors:{},
         is404: false,
         isDataLoaded: false,
         isDeleted: false,
         isDeleteError: false,
         isEditMode: false, // true = make forms editable
+        isImageNameEdit: false,
+        isImageOrderChanged: false,
+        markers: [], // google map markers
+        originalImageOrder: [], // when order of images is being re-arranged, put the initial images, in order, here
         record: {
           id: '',
           description: '',
@@ -312,6 +394,13 @@
         recordSlug: '',
         success: false,
         successMessage: '',
+        tempLatitudeSatellite: null,
+        tempLongitudeSatellite: null,
+        uploadedFiles: [],
+        uploadErrors: [],
+        uploadsDeleteURL: '/api/mapitemimages/',
+        uploadsThumbnailURL: '/media/cache/resolve/squared_thumbnail/uploads/map/',
+        uploadsUpdateURL: '/api/mapitem/image/rename',
       }
     },
     computed: {
@@ -330,16 +419,16 @@
       },
 
       // PHOTOS
-      isInitial() {
+      isUploadInitial() {
         return this.currentStatus === STATUS_INITIAL;
       },
-      isSaving() {
+      isUploadSaving() {
         return this.currentStatus === STATUS_SAVING;
       },
-      isSuccess() {
+      isUploadSuccess() {
         return this.currentStatus === STATUS_SUCCESS;
       },
-      isFailed() {
+      isUploadFailed() {
         return this.currentStatus === STATUS_FAILED;
       },
       // -end PHOTOS
@@ -387,13 +476,17 @@
         this.tempLatitudeSatellite = null;
         this.tempLongitudeSatellite = null;
       },
+      deleteImage: function(image){
+        this.record.images.splice(this.record.images.indexOf(image), 1);
+      },
       fetchMapItem(itemId){
         let self = this
         axios.get('/api/mapitems/' + itemId)
         // success
         .then(function (response) {
           self.record = response.data
-          self.isDataLoaded = true;
+          self.isDataLoaded = true
+          self.setOriginalImages(self.record.images)
         })
         // fail
         .catch(function (error) {
@@ -409,7 +502,6 @@
       filesChange(fieldName, fileList) {
         // handle file changes
         const formData = new FormData()
-        console.log(fieldName + " tony")
         if (!fileList.length) return
 
         // append the files to FormData
@@ -431,6 +523,14 @@
           this.isDeleted = false
           this.isDeleteError = true
       },
+      // When a user has finished dragging (re-ordering) an image
+      onDragEnd: function(evt){
+        this.isImageOrderChanged = true
+      },
+      openDeleteImageModal(image){
+        this.deleteImageModalData = image
+        $('#deleteImageModal').modal('show')
+      },
       setLocation: function(lat, lng){
         this.clearMarkers() // get rid of existing markers
         this.record.latitudeSatellite = lat
@@ -444,6 +544,10 @@
         })
         this.clearTempLocation()
       },
+      // JSON.stringify the original image order in case a user wants to reset the drag and drop order
+      setOriginalImages: function(imageArr){
+        this.originalImageOrder = JSON.parse(JSON.stringify(imageArr))
+      },
       setSlug: function(){
         this.record.slug = this.slugify
       },
@@ -455,10 +559,8 @@
       submitForm: function(){
         let self = this // 'this' loses scope within axios
 
-        this.currentStatus = STATUS_SAVING;
-
         let method = (this.itemExists) ? 'put' : 'post'
-        let route =  (this.itemExists) ? '/api/mapitem' : '/api/mapitems';
+        let route =  (this.itemExists) ? '/api/mapitem' : '/api/mapitems'
 
         this.setSlug() // slug is only computed until this point, not set into record
 
@@ -471,15 +573,12 @@
           // success
           .then(function (response) {
             self.record.id = response.data.id // set the item's id
-
-            //this.uploadedFiles = [].concat(response.data.images);
-            this.currentStatus = STATUS_SUCCESS;
-
             self.afterSubmitSucceeds()
           })
           // fail
           .catch(function (error) {
             self.clearErrors() // clear any previous errors
+            console.log(error)
             let errors = error.response.data
             // Add any validation errors to the errors object
             errors.forEach(function(error){
@@ -487,19 +586,47 @@
               let message = error.message
               self.errors[key] = message
             })
-
-            this.uploadError = "ERROR!";
-            this.currentStatus = STATUS_FAILED;
           })
       },
-      reset: function() {
+      resetUploadForm: function() {
         // reset form to initial state
-        this.currentStatus = STATUS_INITIAL;
+        this.currentStatus = STATUS_INITIAL
         this.uploadedFiles = [];
-        this.uploadError = null;
+        this.uploadErrors = [];
+      },
+      resetImageOrder: function(){
+        this.record.images = this.originalImageOrder
+        this.isImageOrderChanged = false
+      },
+      updateImageOrder: function(){
+        let self = this
+        // Get current images in order
+        let imageIdsObj = {
+          imageIds: []
+        }
+        this.record.images.forEach(function(image){
+          imageIdsObj.imageIds.push(image.id)
+        })
+
+        // AJAX (axios) submission
+        axios.put('/api/mapitemimage/reorder', imageIdsObj)
+          // success
+          .then(function (response) {
+            self.isImageOrderChanged = false
+            //self.resetImageOrder()
+          })
+          // fail
+          .catch(function (error) {
+            console.log(error)
+          })
       },
       uploadImages: function(formData){
         let self = this
+
+        this.currentStatus = STATUS_SAVING
+
+        // append map item ID to form data
+        formData.append('mapitem_id', this.record.id)
 
         // AJAX (axios) submission
         axios.post('/api/mapitemimages/uploads', formData, {
@@ -509,15 +636,18 @@
         })
           // success
           .then(function (response) {
-            console.log("Images Uploaded")
-            self.uploadedFiles = [].concat(response.data);
-            self.currentStatus = STATUS_SUCCESS;
+            // add the new images to the record's array of images
+            response.data.processedImages.forEach(function(image){
+              self.record.images.push(image)
+            })
+            self.setOriginalImages(self.record.images) // set original image order to reflect new image
+            self.uploadedFiles = [].concat(response.data.processedImages)
+            self.uploadErrors = response.data.errors
+            self.currentStatus = STATUS_SUCCESS
           })
           // fail
           .catch(function (error) {
-            console.log("NO DICE")
-            self.uploadError = "Images failed to upload.";
-            self.currentStatus = STATUS_FAILED;
+            self.currentStatus = STATUS_FAILED
           })
       },
       toggleEdit: function(){
