@@ -13,7 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\HasLifecycleCallbacks
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"document" = "Document", "image" = "Image"})
+ * @ORM\DiscriminatorMap({"document" = "Document", "image" = "Image", "mapitemimage" = "App\Entity\Map\MapitemImage"})
 */
  abstract class Document
  {

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\Entity\Image;
+use App\Entity\Map\MapitemImage;
 use App\Entity\Map\MapItem;
 
 class MapItemImageController extends FOSRestController{
@@ -47,7 +47,7 @@ class MapItemImageController extends FOSRestController{
     $em = $this->getDoctrine()->getManager();
 
     for($i = 0; $i < count($idArray); $i++){
-      $image = $this->getDoctrine()->getRepository(Image::class)->find($idArray[$i]); // find the matching image
+      $image = $this->getDoctrine()->getRepository(MapitemImage::class)->find($idArray[$i]); // find the matching image
 
       // return an error if the image was not found
       if(!$image){
@@ -87,19 +87,32 @@ class MapItemImageController extends FOSRestController{
 
   public function deleteMapitemimageAction($id) : Response
   {
+    $image = $this->getDoctrine()->getRepository(MapitemImage::class)->find($id); // find the matching image
+
+      if(!$image){
+          $response = new Response("That image was not found. Deletion not executed.", 404, array('Content-Type' => 'application/json'));
+          return $response;
+      }
+      // delete the image
+      $em = $this->getDoctrine()->getManager();
+      $em->remove($image);
+      $em->flush();
+
+      $response = new Response("Image deleted successfully.", 204, array('Content-Type' => 'application/json'));
+      return $response;
 
   }
 
-  protected function storeImage(UploadedFile $image) : ?Image
+  protected function storeImage(UploadedFile $image) : ?MapitemImage
   {
     // Make sure user is uploading a JPG, PNG, or GIF and not
     if($this->isValidImage($image)){
-      $existingImage = $this->getDoctrine()->getRepository(Image::class)->findOneBy(['name' => $image->getClientOriginalName()]);
+      $existingImage = $this->getDoctrine()->getRepository(MapitemImage::class)->findOneBy(['name' => $image->getClientOriginalName()]);
 
       // only process images that don't match an existing image name
       if(!$existingImage){
         // save the image
-        $newImage = new Image();
+        $newImage = new MapitemImage();
         $newImage->setName($image->getClientOriginalName());
         $newImage->setFile($image);
         $newImage->setPriority(10000); // will be changed when associated with a map item
@@ -116,7 +129,7 @@ class MapItemImageController extends FOSRestController{
     return null;
   }
 
-  protected function linkImageToMapItem(Image $image, $itemId) : bool
+  protected function linkImageToMapItem(MapitemImage $image, $itemId) : bool
   {
     $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($itemId);
     if(!$mapItem){

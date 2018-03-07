@@ -10,18 +10,5 @@ use App\Entity\Document;
  */
 class Image extends Document
 {
-  /**
-   * @ORM\Column(type="integer")
-   */
-  private $priority;
 
-  public function setPriority($priority)
-  {
-      $this->priority = $priority;
-  }
-
-  public function getPriority()
-  {
-      return $this->$priority;
-  }
 }

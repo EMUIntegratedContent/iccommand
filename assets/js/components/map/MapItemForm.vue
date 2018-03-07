@@ -158,16 +158,7 @@
               </template>
               <div v-if="itemExists && userCanEdit && isEditMode">
                 <draggable v-model="record.images" :options="{}" @start="drag=true" @end="onDragEnd">
-                  <!--<image-thumbnail-pod
-                    v-for="image in record.images"
-                    :key="image.id"
-                    :image="image"
-                    :deleteURL="uploadsDeleteURL"
-                    :thumbnailURL="uploadsThumbnailURL"
-                    :updateURL="uploadsUpdateURL"
-                    >
-                  </image-thumbnail-pod>-->
-                  <li class="list-group-item" v-for="image in record.images">
+                  <li class="list-group-item" :class="{'image-deleted-border': index === deletedImageIndex}" v-for="(image, index) in record.images">
                     <div class="row">
                         <div class="col-sm-9">
                           <h6 class="box-title">{{image.name}} <span><i class="fa fa-pencil" aria-hidden="true"></i></span></h6>
@@ -260,7 +251,7 @@
   </div>
 </template>
 <style>
-.dropbox {
+  .dropbox {
     outline: 2px dashed grey; /* the dash box */
     outline-offset: -10px;
     background: lightcyan;
@@ -292,7 +283,14 @@
   #primary-image{
     max-width:100%;
   }
-  .list-group-item, .list-group-item:hover{ z-index: auto; }
+
+  .list-group-item, .list-group-item:hover{
+    z-index: auto;
+  }
+
+  .image-deleted-border{
+    border: 3px solid red;
+  }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
@@ -366,6 +364,7 @@
         ],
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
         currentStatus: null,
+        deletedImageIndex: -1,
         deleteImageModalData: null,
         errors:{},
         is404: false,
@@ -373,6 +372,7 @@
         isDeleted: false,
         isDeleteError: false,
         isEditMode: false, // true = make forms editable
+        isImageDeleted: false,
         isImageNameEdit: false,
         isImageOrderChanged: false,
         markers: [], // google map markers
@@ -398,7 +398,6 @@
         tempLongitudeSatellite: null,
         uploadedFiles: [],
         uploadErrors: [],
-        uploadsDeleteURL: '/api/mapitemimages/',
         uploadsThumbnailURL: '/media/cache/resolve/squared_thumbnail/uploads/map/',
         uploadsUpdateURL: '/api/mapitem/image/rename',
       }
@@ -413,6 +412,9 @@
           default:
             return false
         }
+      },
+      imageDeleted: function(){
+          return this.isImageDeleted ? 'image-deleted-border' : ''
       },
       isInvalid: function(){
         return 'is-invalid'
@@ -473,12 +475,27 @@
         this.markers = []
       },
       clearTempLocation: function(){
-        this.tempLatitudeSatellite = null;
-        this.tempLongitudeSatellite = null;
+        this.tempLatitudeSatellite = null
+        this.tempLongitudeSatellite = null
       },
       deleteImage: function(image){
-        this.record.images.splice(this.record.images.indexOf(image), 1);
+        let self = this
+
+        axios.delete('/api/mapitemimages/' + image.id)
+          .then(function(response){
+              // mark the deleted image in a colored border for 1.5 seconds, then remove it from the record
+              self.deletedImageIndex = self.record.images.indexOf(image)
+              setTimeout(function(){
+                  self.deletedImageIndex = -1 // reset the index
+                  self.record.images.splice(self.record.images.indexOf(image), 1) // splice the deleted item from the record
+                  self.setOriginalImages(self.record.images)
+              }, 1500)
+          })
+          .catch(function(error){
+            console.log(error)
+          })
       },
+
       fetchMapItem(itemId){
         let self = this
         axios.get('/api/mapitems/' + itemId)

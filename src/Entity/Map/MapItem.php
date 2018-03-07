@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\Entity\Document;
-use App\Entity\Image;
+use App\Entity\Map\MapitemImage;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
@@ -79,10 +79,10 @@ abstract class MapItem
 
     /**
      * Many MapItems have Many Images.
-     * @ORM\ManyToMany(targetEntity="App\Entity\Image")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Map\MapitemImage", cascade={"remove", "persist"})
      * @ORM\JoinTable(name="mapitems_images",
-     *      joinColumns={@ORM\JoinColumn(name="mapitem_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id")}
+     *      joinColumns={@ORM\JoinColumn(name="mapitem_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id", onDelete="CASCADE")}
      *      )
      * @ORM\OrderBy({"priority" = "ASC"})
      */
@@ -173,7 +173,7 @@ abstract class MapItem
         return $this->images;
     }
 
-    public function addImage(Image $image = null){
+    public function addImage(MapitemImage $image = null){
       $this->images[] = $image;
     }
 }
