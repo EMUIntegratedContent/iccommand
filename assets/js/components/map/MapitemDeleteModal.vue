@@ -62,7 +62,7 @@ export default {
     itemDeleted: function(){
       this.$emit('itemDeleted')
     },
-    // Emit an event to the parent component telling it the item has been deleted
+    // Emit an event to the parent component telling it the item has not been deleted
     itemDeleteError: function(){
       this.$emit('itemDeleteError')
     }

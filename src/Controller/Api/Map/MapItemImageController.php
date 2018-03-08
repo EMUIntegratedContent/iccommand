@@ -64,24 +64,25 @@ class MapItemImageController extends FOSRestController{
     return $response;
   }
 
-  public function putMapitemImageRenameAction(Request $request) : Response
+  public function putMapitemimageRenameAction(Request $request) : Response
   {
-    $imageData = $request->request->get('imageData');
-    /*
-    $image = $this->getDoctrine()->getRepository(Image::class)->find($idArray[$i]); // find the matching image
-    // return an error if the image was not found
+    $imageArr = $request->request->get('image');
+
+    $image = $this->getDoctrine()->getRepository(MapitemImage::class)->find($imageArr['id']); // find the matching image
+
+    // return 404 if the image was not found
     if(!$image){
-      $response = new Response("An image was not found. Update was not executed.", 400, array('Content-Type' => 'application/json'));
+      $response = new Response("An image was not found. Update was not executed.", 404, array('Content-Type' => 'application/json'));
       return $response;
     }
-      $image->setPriority($i);
-      $em->persist($image);
-    }
-    $em->flush(); // save the reordering of all images at once
 
-    $response = new Response("Image renamed to " . $newName . ".", 200, array('Content-Type' => 'application/json'));
-    */
-    $response = new Response($imageData, 200, array('Content-Type' => 'application/json'));
+    $image->setName($imageArr['name']);
+
+    $em = $this->getDoctrine()->getManager();
+    $em->persist($image);
+    $em->flush(); // save the image
+
+    $response = new Response("Image renamed to " . $image->getName() . ".", 200, array('Content-Type' => 'application/json'));
     return $response;
   }
 
