@@ -35,11 +35,6 @@ export default {
         type: Object,
         required: false
     },
-    // Need to pass a copy of the image array in order to be able to restore to original in case of cancelation or failure
-    imageCopy: {
-        type: Object,
-        required: false
-    },
   },
   data: function() {
     return {

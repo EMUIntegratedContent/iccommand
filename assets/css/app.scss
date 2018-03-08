@@ -19,3 +19,6 @@ $brand-primary: darken(#428bca, 20%);
 .spacer-bottom{
   margin-bottom: 20px;
 }
+.hover-cards .card-body:hover{
+  background-color: $brand-primary;
+}

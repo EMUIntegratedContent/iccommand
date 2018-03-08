@@ -2,7 +2,7 @@
   <div>
     <not-found v-if="is404 === true"></not-found>
     <div v-if="isDataLoaded === false">
-      <img src="/images/loading.gif" alt="Loading..." />
+      <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..." /></p>
     </div>
     <div v-if="isDeleted === true" class="alert alert-info alert-dismissible fade show" role="alert">
       {{ record.itemType | capitalize }} "{{ record.name }}" item has been deleted.
@@ -160,27 +160,16 @@
               <div v-if="isImageOrderUpdated" class="alert alert-success fade show" role="alert">
                 Image order has been updated
               </div>
-              <div v-if="isImageEditedError" class="alert alert-danger fade show" role="alert">
-                Image information was not edited
-              </div>
               <div v-if="itemExists && userCanEdit && isEditMode">
                 <draggable v-model="record.images" :options="{}" @start="drag=true" @end="onDragEnd">
-                  <li class="list-group-item" :class="{'image-deleted-border': index === deletedImageIndex, 'image-edited-border': index === editedImageIndex}" v-for="(image, index) in record.images">
-                    <div class="row">
-                        <div class="col-sm-9">
-                          <h6 class="box-title"><i v-if="index == 0" class="fa fa-star" aria-hidden="true"></i> {{image.name}} <span @click="openEditImageModal(image)"><i class="fa fa-pencil" aria-hidden="true"></i></span></h6>
-                        </div><!-- /.col-md-12 -->
-                        <div class="col-sm-3">
-                          <button type="button" class="btn btn-sm btn-danger pull-right" @click="openDeleteImageModal(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
-                        </div><!-- /.col-md-12 -->
-                    </div><!-- /.row -->
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <img :src="uploadsThumbnailURL + image.path" :alt="image.name" class="rounded" />
-                        <p><a :href="image.subdir + '/' + image.path" target="_blank">Full Size</a></p>
-                      </div>
-                    </div>
-                  </li><!-- /li -->
+                  <image-thumbnail-pod
+                          v-for="(image, index) in record.images"
+                          :key="index"
+                          :image="image"
+                          v-model="record.images"
+                          @imageDeleteRequested="spliceDeletedImage"
+                  >
+                  </image-thumbnail-pod>
                 </draggable>
               </div>
             </div><!-- end .col-md-6 (images)-->
@@ -250,20 +239,6 @@
     @itemDeleted="markItemDeleted"
     @itemDeleteError="markItemDeleteError"
     ></mapitem-delete-modal>
-    <!-- DELETE IMAGE MODAL -->
-    <mapitem-image-delete-modal
-    id="deleteImageModal"
-    :image="deleteImageModalData"
-    @imageDeleteRequested="deleteImage(deleteImageModalData)"
-    ></mapitem-image-delete-modal>
-    <!-- EDIT IMAGE MODAL -->
-    <mapitem-image-edit-modal
-            id="editImageModal"
-            :image="editImageModalData"
-            :image-copy="editImageModalDataCopy"
-            @imageEditRequested="editImage(editImageModalData)"
-            @imageEditCanceled="resetImageInformation(editImageModalData, editImageModalDataCopy)"
-    ></mapitem-image-edit-modal>
   </div>
 </template>
 <style>
@@ -303,21 +278,13 @@
   .list-group-item, .list-group-item:hover{
     z-index: auto;
   }
-
-  .image-deleted-border{
-    border: 3px solid red;
-  }
-
-  .image-edited-border{
-    border: 3px solid green;
-  }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
   import MapitemDeleteModal from './MapitemDeleteModal.vue'
   import MapitemImageDeleteModal from './MapitemImageDeleteModal.vue'
   import MapitemImageEditModal from './MapitemImageEditModal.vue'
-  import ImageThumbnailPod from '../utils/ImageThumbnailPod.vue'
+  import ImageThumbnailPod from './ImageThumbnailPod.vue'
   import Heading from '../utils/Heading.vue'
   import Multiselect from 'vue-multiselect'
   import NotFound from '../utils/NotFound.vue'
@@ -385,20 +352,12 @@
         ],
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
         currentStatus: null,
-        deletedImageIndex: -1,
-        deleteImageModalData: null,
-        editedImageIndex: -1,
-        editImageModalData: null,
-        editImageModalDataCopy: null,
         errors:{},
         is404: false,
         isDataLoaded: false,
         isDeleted: false,
         isDeleteError: false,
         isEditMode: false, // true = make forms editable
-        isImageDeleted: false,
-        isImageEditedError: false,
-        isImageNameEdit: false,
         isImageOrderChanged: false,
         isImageOrderUpdated: false,
         markers: [], // google map markers
@@ -424,19 +383,17 @@
         tempLongitudeSatellite: null,
         uploadedFiles: [],
         uploadErrors: [],
-        uploadsThumbnailURL: '/media/cache/resolve/squared_thumbnail/uploads/map/',
-        uploadsUpdateURL: '/api/mapitem/image/rename',
       }
     },
     computed: {
       headingIcon: function() {
         switch(this.record.itemType){
           case 'building':
-            return '<i class="fa fa-building fa-3x"></i>'
+            return '<i class="fa fa-building"></i>'
           case 'bathroom':
-            return '<i class="fa fa-male fa-3x"></i><i class="fa fa-female fa-3x"></i>'
+            return '<i class="fa fa-male"></i><i class="fa fa-female"></i>'
           default:
-            return false
+              return '<i class="fa fa-map">'
         }
       },
       imageDeleted: function(){
@@ -504,43 +461,6 @@
         this.tempLatitudeSatellite = null
         this.tempLongitudeSatellite = null
       },
-      deleteImage: function(image){
-        let self = this
-
-        axios.delete('/api/mapitemimages/' + image.id)
-          .then(function(response){
-              // mark the deleted image in a colored border for 1.5 seconds, then remove it from the record
-              self.deletedImageIndex = self.record.images.indexOf(image)
-              setTimeout(function(){
-                  self.deletedImageIndex = -1 // reset the index
-                  self.record.images.splice(self.record.images.indexOf(image), 1) // splice the deleted item from the record
-                  self.setOriginalImages(self.record.images)
-              }, 1500)
-          })
-          .catch(function(error){
-            console.log(error)
-          })
-      },
-      editImage: function(image){
-          let self = this
-
-          axios.put('/api/mapitemimage/rename', {image: image})
-              .then(function(response){
-                  // mark the updated image in a colored border for 1.5 seconds, then remove the border
-                  self.editedImageIndex = self.record.images.indexOf(image)
-                  setTimeout(function(){
-                      self.editedImageIndex = -1 // reset the index
-                  }, 3000)
-              })
-              .catch(function(error){
-                  self.resetImageInformation(self.editImageModalData, self.editImageModalDataCopy)
-                  // restore original image information
-                  self.isImageEditedError = true
-                  setTimeout(function(){
-                      self.isImageEditedError = false
-                  }, 5000)
-              })
-      },
       fetchMapItem(itemId){
         let self = this
         axios.get('/api/mapitems/' + itemId)
@@ -589,14 +509,15 @@
       onDragEnd: function(evt){
         this.isImageOrderChanged = true
       },
-      openDeleteImageModal(image){
-        this.deleteImageModalData = image
-        $('#deleteImageModal').modal('show')
+      resetImageOrder: function(){
+          this.record.images = this.originalImageOrder
+          this.isImageOrderChanged = false
       },
-      openEditImageModal(image){
-          this.editImageModalData = image
-          this.editImageModalDataCopy = JSON.parse(JSON.stringify(image))
-          $('#editImageModal').modal('show')
+      resetUploadForm: function() {
+          // reset form to initial state
+          this.currentStatus = STATUS_INITIAL
+          this.uploadedFiles = [];
+          this.uploadErrors = [];
       },
       setLocation: function(lat, lng){
         this.clearMarkers() // get rid of existing markers
@@ -621,6 +542,11 @@
       setTempPosition: function(e){
         this.tempLatitudeSatellite = e.latLng.lat()
         this.tempLongitudeSatellite = e.latLng.lng()
+      },
+      // Called as a result of $emit from child component
+      spliceDeletedImage: function(image){
+        this.record.images.splice(this.record.images.indexOf(image) - 1, 1) // splice the deleted item from the record
+        this.setOriginalImages(this.record.images)
       },
       // Submit the form via the API
       submitForm: function(){
@@ -654,25 +580,6 @@
               self.errors[key] = message
             })
           })
-      },
-      resetImageInformation: function(image, imageCopy){
-        // find where the image is in the record.images array
-        let index = this.record.images.indexOf(image)
-        // replace that information with its original information
-        this.record.images[index] = imageCopy
-        // clear the temp data
-        this.editImageModalData = null
-        this.editImageModalDataCopy = null
-      },
-      resetImageOrder: function(){
-        this.record.images = this.originalImageOrder
-        this.isImageOrderChanged = false
-      },
-      resetUploadForm: function() {
-          // reset form to initial state
-          this.currentStatus = STATUS_INITIAL
-          this.uploadedFiles = [];
-          this.uploadErrors = [];
       },
       updateImageOrder: function(){
         let self = this

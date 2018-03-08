@@ -2,14 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d66ea48-4f5d-4e4a-b33a-5c304987f3b5" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/assets/js/components/map/MapitemImageEditModal.vue" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/assets/js/components/map/ImageThumbnailPod.vue" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/assets/css/app.scss" afterPath="$PROJECT_DIR$/assets/css/app.scss" />
       <change beforePath="$PROJECT_DIR$/assets/js/components/map/MapItemForm.vue" afterPath="$PROJECT_DIR$/assets/js/components/map/MapItemForm.vue" />
-      <change beforePath="$PROJECT_DIR$/assets/js/components/map/MapitemDeleteModal.vue" afterPath="$PROJECT_DIR$/assets/js/components/map/MapitemDeleteModal.vue" />
+      <change beforePath="$PROJECT_DIR$/assets/js/components/map/MapitemImageEditModal.vue" afterPath="$PROJECT_DIR$/assets/js/components/map/MapitemImageEditModal.vue" />
+      <change beforePath="$PROJECT_DIR$/assets/js/components/map/NewMapItemChoices.vue" afterPath="$PROJECT_DIR$/assets/js/components/map/NewMapItemChoices.vue" />
+      <change beforePath="$PROJECT_DIR$/assets/js/components/utils/ImageThumbnailPod.vue" afterPath="" />
       <change beforePath="$PROJECT_DIR$/public/build/app.css" afterPath="$PROJECT_DIR$/public/build/app.css" />
       <change beforePath="$PROJECT_DIR$/public/build/app.js" afterPath="$PROJECT_DIR$/public/build/app.js" />
-      <change beforePath="$PROJECT_DIR$/public/uploads/map/b_riemer-min.jpg" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Api/Map/MapItemImageController.php" afterPath="$PROJECT_DIR$/src/Controller/Api/Map/MapItemImageController.php" />
+      <change beforePath="$PROJECT_DIR$/public/uploads/map/a_balazs-min.jpg" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/public/uploads/map/a_kurta-min.jpg" afterPath="" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -26,15 +29,23 @@
       <file leaf-file-name="MapItemForm.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/assets/js/components/map/MapItemForm.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="278">
-              <caret line="526" column="62" lean-forward="false" selection-start-line="526" selection-start-column="62" selection-end-line="526" selection-end-column="62" />
+            <state relative-caret-position="157">
+              <caret line="379" column="23" lean-forward="true" selection-start-line="379" selection-start-column="23" selection-end-line="379" selection-end-column="23" />
               <folding>
-                <element signature="e#479#486#1" expanded="true" />
-                <element signature="n#style#0;n#gmap-map#0;n#div#0;n#div#0;n#fieldset#1;n#form#0;n#div#0;n#div#0;n#div#2;n#div#0;n#template#0;n#!!top" expanded="true" />
-                <element signature="e#6683#6690#1" expanded="true" />
-                <element signature="e#7014#7021#1" expanded="true" />
-                <element signature="e#7383#7390#1" expanded="true" />
-                <element signature="e#15760#15817#0" expanded="true" />
+                <element signature="n#style#0;n#p#0;n#div#0;n#div#0;n#template#0;n#!!top" expanded="true" />
+                <element signature="e#14008#14065#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ImageThumbnailPod.vue" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/assets/js/components/map/ImageThumbnailPod.vue">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="232">
+              <caret line="78" column="85" lean-forward="false" selection-start-line="78" selection-start-column="85" selection-end-line="78" selection-end-column="85" />
+              <folding>
+                <element signature="e#2185#2252#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -43,8 +54,8 @@
       <file leaf-file-name="MapitemImageEditModal.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/assets/js/components/map/MapitemImageEditModal.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="439">
-              <caret line="61" column="39" lean-forward="false" selection-start-line="61" selection-start-column="39" selection-end-line="61" selection-end-column="39" />
+            <state relative-caret-position="540">
+              <caret line="36" column="6" lean-forward="false" selection-start-line="36" selection-start-column="6" selection-end-line="36" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -53,45 +64,29 @@
       <file leaf-file-name="MapitemImageDeleteModal.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/assets/js/components/map/MapitemImageDeleteModal.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="697">
-              <caret line="49" column="6" lean-forward="false" selection-start-line="49" selection-start-column="6" selection-end-line="49" selection-end-column="6" />
+            <state relative-caret-position="454">
+              <caret line="47" column="4" lean-forward="false" selection-start-line="47" selection-start-column="4" selection-end-line="49" selection-end-column="6" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MapItemImageController.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/Controller/Api/Map/MapItemImageController.php">
+      <file leaf-file-name="NewMapItemChoices.vue" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/assets/js/components/map/NewMapItemChoices.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="368">
-              <caret line="72" column="17" lean-forward="false" selection-start-line="72" selection-start-column="17" selection-end-line="72" selection-end-column="17" />
-              <folding>
-                <element signature="e#41#100#0#PHP" expanded="true" />
-              </folding>
+            <state relative-caret-position="634">
+              <caret line="84" column="31" lean-forward="false" selection-start-line="84" selection-start-column="31" selection-end-line="84" selection-end-column="31" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MapitemImage.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Entity/Map/MapitemImage.php">
+      <file leaf-file-name="app.scss" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/assets/css/app.scss">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="9" column="3" lean-forward="false" selection-start-line="9" selection-start-column="3" selection-end-line="9" selection-end-column="3" />
-              <folding>
-                <element signature="e#34#66#0#PHP" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MapitemImageRepository.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Repository/Map/MapitemImageRepository.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="14" column="28" lean-forward="false" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
-              <folding>
-                <element signature="e#38#70#0#PHP" expanded="true" />
-              </folding>
+            <state relative-caret-position="165">
+              <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -102,7 +97,6 @@
     <findStrings>
       <find>MapitemImage</find>
       <find>Image</find>
-      <find>uploadsUpdateURL</find>
       <find>storeImage</find>
       <find>priority</find>
       <find>setOriginalImages</find>
@@ -110,14 +104,25 @@
       <find>alert</find>
       <find>success</find>
       <find>isImageOrderUpdated</find>
-      <find>deleteImageModalData</find>
       <find>editImageModal</find>
-      <find>openEditImageModal</find>
       <find>deleteImage</find>
       <find>imageEditRequested</find>
       <find>imageDeleteRequested</find>
       <find>JSON</find>
       <find>editedImageIndex</find>
+      <find>headingIcon</find>
+      <find>previous</find>
+      <find>key</find>
+      <find>deletedImageIndex</find>
+      <find>openEditImageModal</find>
+      <find>editImageModalData</find>
+      <find>isupload</find>
+      <find>isImageEdit</find>
+      <find>isImageEdited</find>
+      <find>deletedImage</find>
+      <find>deleteImageModalData</find>
+      <find>uploadsUpdateURL</find>
+      <find>uploadsThumbnailURL</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -133,9 +138,13 @@
         <option value="$PROJECT_DIR$/src/Entity/Document.php" />
         <option value="$PROJECT_DIR$/assets/js/components/map/MapitemDeleteModal.vue" />
         <option value="$PROJECT_DIR$/assets/js/components/map/MapitemImageDeleteModal.vue" />
-        <option value="$PROJECT_DIR$/assets/js/components/map/MapitemImageEditModal.vue" />
-        <option value="$PROJECT_DIR$/assets/js/components/map/MapItemForm.vue" />
         <option value="$PROJECT_DIR$/src/Controller/Api/Map/MapItemImageController.php" />
+        <option value="$PROJECT_DIR$/assets/css/app.scss" />
+        <option value="$PROJECT_DIR$/assets/js/components/map/NewMapItemChoices.vue" />
+        <option value="$PROJECT_DIR$/assets/js/components/utils/ImageThumbnailPod.vue" />
+        <option value="$PROJECT_DIR$/assets/js/components/map/MapitemImageEditModal.vue" />
+        <option value="$PROJECT_DIR$/assets/js/components/map/ImageThumbnailPod.vue" />
+        <option value="$PROJECT_DIR$/assets/js/components/map/MapItemForm.vue" />
       </list>
     </option>
   </component>
@@ -302,6 +311,12 @@
               <item name="iccommand" type="b2602c69:ProjectViewProjectNode" />
               <item name="iccommand" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="assets" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="css" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="iccommand" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccommand" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="assets" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="js" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
@@ -318,6 +333,14 @@
               <item name="js" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="components" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="map" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="iccommand" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccommand" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="assets" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="js" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="components" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="utils" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="iccommand" type="b2602c69:ProjectViewProjectNode" />
@@ -409,6 +432,7 @@
       <recent name="$PROJECT_DIR$/assets/js/components/map" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/js/components/map" />
       <recent name="$PROJECT_DIR$/src/Repository/Map" />
       <recent name="$PROJECT_DIR$/src/Entity/Map" />
     </key>
@@ -440,35 +464,35 @@
       <updated>1520309834755</updated>
       <workItem from="1520309836969" duration="1636000" />
       <workItem from="1520391979536" duration="7043000" />
-      <workItem from="1520469042957" duration="6880000" />
+      <workItem from="1520469042957" duration="14311000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15559000" />
+    <option name="totallyTimeSpent" value="22990000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18888889" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297362" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18888889" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297362" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -488,12 +512,8 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#479#486#1" expanded="true" />
-            <element signature="n#style#0;n#gmap-map#0;n#div#0;n#div#0;n#fieldset#1;n#form#0;n#div#0;n#div#0;n#div#2;n#div#0;n#template#0;n#!!top" expanded="true" />
-            <element signature="e#6683#6690#1" expanded="true" />
-            <element signature="e#7014#7021#1" expanded="true" />
-            <element signature="e#7383#7390#1" expanded="true" />
-            <element signature="e#15760#15817#0" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#div#0;n#div#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="e#14008#14065#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -503,7 +523,7 @@
         <state relative-caret-position="1830">
           <caret line="131" column="39" lean-forward="false" selection-start-line="131" selection-start-column="21" selection-end-line="131" selection-end-column="39" />
           <folding>
-            <element signature="e#41#100#0#PHP" expanded="true" />
+            <element signature="e#41#100#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -513,7 +533,7 @@
         <state relative-caret-position="120">
           <caret line="9" column="3" lean-forward="false" selection-start-line="9" selection-start-column="3" selection-end-line="9" selection-end-column="3" />
           <folding>
-            <element signature="e#34#66#0#PHP" expanded="true" />
+            <element signature="e#34#66#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -523,7 +543,7 @@
         <state relative-caret-position="180">
           <caret line="14" column="28" lean-forward="false" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
           <folding>
-            <element signature="e#38#70#0#PHP" expanded="true" />
+            <element signature="e#38#70#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -532,6 +552,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -547,12 +568,8 @@
         <state relative-caret-position="5310">
           <caret line="354" column="38" lean-forward="false" selection-start-line="354" selection-start-column="38" selection-end-line="354" selection-end-column="38" />
           <folding>
-            <element signature="e#479#486#1" expanded="true" />
-            <element signature="n#style#0;n#gmap-map#0;n#div#0;n#div#0;n#fieldset#1;n#form#0;n#div#0;n#div#0;n#div#2;n#div#0;n#template#0;n#!!top" expanded="true" />
-            <element signature="e#6683#6690#1" expanded="true" />
-            <element signature="e#7014#7021#1" expanded="true" />
-            <element signature="e#7383#7390#1" expanded="true" />
-            <element signature="e#15760#15817#0" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#div#0;n#div#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="e#14008#14065#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -561,6 +578,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -585,6 +603,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-652">
           <caret line="10" column="25" lean-forward="false" selection-start-line="10" selection-start-column="25" selection-end-line="10" selection-end-column="25" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -593,17 +612,7 @@
         <state relative-caret-position="180">
           <caret line="14" column="28" lean-forward="false" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
           <folding>
-            <element signature="e#38#70#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Entity/Map/MapitemImage.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="9" column="3" lean-forward="false" selection-start-line="9" selection-start-column="3" selection-end-line="9" selection-end-column="3" />
-          <folding>
-            <element signature="e#34#66#0#PHP" expanded="true" />
+            <element signature="e#38#70#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -654,44 +663,76 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/Controller/Api/Map/MapItemImageController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="72" column="17" lean-forward="false" selection-start-line="72" selection-start-column="17" selection-end-line="72" selection-end-column="17" />
+          <folding>
+            <element signature="e#41#100#0#PHP" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Entity/Map/MapitemImage.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="3" lean-forward="false" selection-start-line="9" selection-start-column="3" selection-end-line="9" selection-end-column="3" />
+          <folding>
+            <element signature="e#34#66#0#PHP" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/js/components/map/NewMapItemChoices.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="634">
+          <caret line="84" column="31" lean-forward="false" selection-start-line="84" selection-start-column="31" selection-end-line="84" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/assets/js/components/map/MapitemImageDeleteModal.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="697">
-          <caret line="49" column="6" lean-forward="false" selection-start-line="49" selection-start-column="6" selection-end-line="49" selection-end-column="6" />
+        <state relative-caret-position="454">
+          <caret line="47" column="4" lean-forward="false" selection-start-line="47" selection-start-column="4" selection-end-line="49" selection-end-column="6" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/assets/js/components/map/MapitemImageEditModal.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="439">
-          <caret line="61" column="39" lean-forward="false" selection-start-line="61" selection-start-column="39" selection-end-line="61" selection-end-column="39" />
+        <state relative-caret-position="540">
+          <caret line="36" column="6" lean-forward="false" selection-start-line="36" selection-start-column="6" selection-end-line="36" selection-end-column="6" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/js/components/map/ImageThumbnailPod.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="78" column="85" lean-forward="false" selection-start-line="78" selection-start-column="85" selection-end-line="78" selection-end-column="85" />
+          <folding>
+            <element signature="e#2185#2252#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/assets/js/components/map/MapItemForm.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="526" column="62" lean-forward="false" selection-start-line="526" selection-start-column="62" selection-end-line="526" selection-end-column="62" />
+        <state relative-caret-position="157">
+          <caret line="379" column="23" lean-forward="true" selection-start-line="379" selection-start-column="23" selection-end-line="379" selection-end-column="23" />
           <folding>
-            <element signature="e#479#486#1" expanded="true" />
-            <element signature="n#style#0;n#gmap-map#0;n#div#0;n#div#0;n#fieldset#1;n#form#0;n#div#0;n#div#0;n#div#2;n#div#0;n#template#0;n#!!top" expanded="true" />
-            <element signature="e#6683#6690#1" expanded="true" />
-            <element signature="e#7014#7021#1" expanded="true" />
-            <element signature="e#7383#7390#1" expanded="true" />
-            <element signature="e#15760#15817#0" expanded="true" />
+            <element signature="n#style#0;n#p#0;n#div#0;n#div#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="e#14008#14065#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Controller/Api/Map/MapItemImageController.php">
+    <entry file="file://$PROJECT_DIR$/assets/css/app.scss">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="72" column="17" lean-forward="false" selection-start-line="72" selection-start-column="17" selection-end-line="72" selection-end-column="17" />
-          <folding>
-            <element signature="e#41#100#0#PHP" expanded="true" />
-          </folding>
+        <state relative-caret-position="165">
+          <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
