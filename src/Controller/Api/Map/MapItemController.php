@@ -31,7 +31,7 @@ class MapItemController extends FOSRestController{
    * Get a single map item
    */
   public function getMapitemAction($id){
-    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($id);
+    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->findOneBy(['id' => $id, 'deleted' => null]);
     if(!$mapItem){
       $response = new Response("The map item you requested was not found.", 404, array('Content-Type' => 'application/json'));
       return $response;

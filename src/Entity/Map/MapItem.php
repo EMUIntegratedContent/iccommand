@@ -3,6 +3,7 @@
 namespace App\Entity\Map;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -21,6 +22,7 @@ use App\Entity\Map\MapitemImage;
  *    message="There is already a map item with this slug."
  * )
  * @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
+ * @Gedmo\SoftDeleteable(fieldName="deleted", timeAware=false, hardDelete=true)
  */
 abstract class MapItem
 {
@@ -87,6 +89,29 @@ abstract class MapItem
      * @ORM\OrderBy({"priority" = "ASC"})
      */
     private $images;
+
+    /**
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(type="datetime")
+    */
+    private $created;
+
+    /**
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(type="datetime")
+    */
+    private $updated;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Gedmo\Timestampable(on="change", field={"title", "body"})
+     */
+    private $contentChanged;
+
+    /**
+     * @ORM\Column(name="deleted", type="datetime", nullable=true)
+     */
+    private $deleted;
 
     public function __construct(){
       $this->images = new \Doctrine\Common\Collections\ArrayCollection();
@@ -175,5 +200,28 @@ abstract class MapItem
 
     public function addImage(MapitemImage $image = null){
       $this->images[] = $image;
+    }
+
+    /** GEDMO FIELDS **/
+    
+    public function getCreated(){
+        return $this->created;
+    }
+
+    public function getUpdated(){
+        return $this->updated;
+    }
+
+    public function getContentChanged(){
+        return $this->contentChanged;
+    }
+
+    public function getDeleted(){
+        return $this->deleted;
+    }
+
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
     }
 }

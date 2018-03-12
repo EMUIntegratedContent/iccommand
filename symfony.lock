@@ -89,6 +89,9 @@
     "imagine/imagine": {
         "version": "v0.7.1"
     },
+    "jasig/phpcas": {
+        "version": "1.3.5"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -109,6 +112,9 @@
             "version": "2.0",
             "ref": "fe60ce509ef04a3f40da96e3979bc8d9b13b2372"
         }
+    },
+    "l3/cas-bundle": {
+        "version": "1.1.12"
     },
     "laravel/homestead": {
         "version": "v7.1.2"
@@ -295,6 +301,9 @@
     },
     "symfony/intl": {
         "version": "v4.0.4"
+    },
+    "symfony/ldap": {
+        "version": "v4.0.6"
     },
     "symfony/lts": {
         "version": "4-dev"

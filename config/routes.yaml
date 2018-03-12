@@ -15,3 +15,7 @@ mapitemImages:
     type: rest
     resource: App\Controller\Api\Map\MapItemImageController
     prefix: /api/
+
+login:
+    path: /login
+    controller: App\Controller\DefaultController::login

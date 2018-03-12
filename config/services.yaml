@@ -31,3 +31,14 @@ services:
     #App\Service\MapitemFileUploader:
         #arguments:
             #$targetDirectory: '%mapitem_images_directory%'
+
+    Symfony\Component\Ldap\Ldap:
+        arguments: ['@Symfony\Component\Ldap\Adapter\ExtLdap\Adapter']
+    Symfony\Component\Ldap\Adapter\ExtLdap\Adapter:
+        arguments:
+            -   host: ad.emich.edu
+                port: 389
+                #encryption: tls
+                options:
+                    protocol_version: 3
+                    referrals: false

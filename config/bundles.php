@@ -18,4 +18,5 @@ return [
     FOS\RestBundle\FOSRestBundle::class => ['all' => true],
     Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],
     Liip\ImagineBundle\LiipImagineBundle::class => ['all' => true],
+    L3\Bundle\CasBundle\L3CasBundle::class => ['all' => true],
 ];

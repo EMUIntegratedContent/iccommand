@@ -1,13 +1,26 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory: { memory: ~ }
+        #in_memory: { memory: ~ }
+        my_ldap:
+            ldap:
+                service: Symfony\Component\Ldap\Ldap
+                base_dn: cn=users,dc=ad,dc=emich,dc=edu
+                search_dn: "cn=ext_brandserver,dc=emich,dc=edu"
+                search_password: peep-cRjHFtF531RefT
+                default_roles: ROLE_USER
+                uid_key: samaccountname
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: true
+            anonymous: ~
+            form_login_ldap:
+                login_path: login
+                check_path: login
+                service: Symfony\Component\Ldap\Ldap
+                dn_string: 'uid={username},dc=emich,dc=edu'
 
             # activate different ways to authenticate
 
@@ -20,5 +33,6 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
+        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/map, roles: ROLE_USER }
         # - { path: ^/profile, roles: ROLE_USER }
