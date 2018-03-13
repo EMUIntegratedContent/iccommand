@@ -15,14 +15,13 @@ use App\Entity\Map\MapitemImage;
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"mapitem" = "MapItem", "mapbathroom" = "MapBathroom", "mapparking" = "MapParking"})
+ * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking"})
  * @UniqueEntity(
  *    fields={"name", "slug"},
  *    errorPath="slug",
  *    message="There is already a map item with this slug."
  * )
  * @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
- * @Gedmo\SoftDeleteable(fieldName="deleted", timeAware=false, hardDelete=true)
  */
 abstract class MapItem
 {
@@ -35,23 +34,19 @@ abstract class MapItem
     private $id;
 
     /**
-     * @ORM\Column(type="string", precision=10, scale=7)
-     *
+     * @ORM\Column(type="string")
      * @Assert\NotBlank(message="You must provide a name for this item.")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", precision=10, scale=7)
-     *
-     * @Assert\NotBlank(message="You must provide a slug for this item.")
+     * @Gedmo\Slug(fields={"name"})
+     * @ORM\Column(length=128, unique=true)
      */
     private $slug;
 
     /**
-     * @ORM\Column(type="text", precision=10, scale=7)
-     *
-     * @Assert\NotBlank(message="You must provide a description for this item.")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
@@ -108,11 +103,6 @@ abstract class MapItem
      */
     private $contentChanged;
 
-    /**
-     * @ORM\Column(name="deleted", type="datetime", nullable=true)
-     */
-    private $deleted;
-
     public function __construct(){
       $this->images = new \Doctrine\Common\Collections\ArrayCollection();
     }
@@ -136,11 +126,6 @@ abstract class MapItem
     public function getSlug()
     {
         return $this->slug;
-    }
-
-    public function setSlug($slug)
-    {
-        $this->slug = $slug;
     }
 
     public function getDescription()
@@ -203,7 +188,7 @@ abstract class MapItem
     }
 
     /** GEDMO FIELDS **/
-    
+
     public function getCreated(){
         return $this->created;
     }
@@ -216,12 +201,7 @@ abstract class MapItem
         return $this->contentChanged;
     }
 
-    public function getDeleted(){
-        return $this->deleted;
-    }
-
-    public function setDeleted($deleted)
-    {
-        $this->deleted = $deleted;
+    public function __toString(){
+        return $this->getName();
     }
 }

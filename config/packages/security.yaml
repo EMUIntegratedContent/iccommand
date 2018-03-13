@@ -6,10 +6,10 @@ security:
             ldap:
                 service: Symfony\Component\Ldap\Ldap
                 base_dn: cn=users,dc=ad,dc=emich,dc=edu
-                search_dn: "cn=ext_brandserver,dc=emich,dc=edu"
-                search_password: peep-cRjHFtF531RefT
+                search_dn: "cn=cpuzzuol,cn=users,dc=ad,dc=emich,dc=edu"
+                search_password: Madd13Z03yCP
                 default_roles: ROLE_USER
-                uid_key: samaccountname
+                uid_key: cn
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -20,7 +20,7 @@ security:
                 login_path: login
                 check_path: login
                 service: Symfony\Component\Ldap\Ldap
-                dn_string: 'uid={username},dc=emich,dc=edu'
+                dn_string: 'cn=cpuzzuol,cn=users,dc=ad,dc=emich,dc=edu'
 
             # activate different ways to authenticate
 

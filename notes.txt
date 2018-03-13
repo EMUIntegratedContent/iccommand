@@ -22,6 +22,9 @@ https://symfony.com/doc/master/bundles/FOSRestBundle/6-automatic-route-generatio
 cas
 https://github.com/PRayno/CasAuthBundle
 
+LDAP
+http://symfony.com/doc/current/security/ldap.html
+
 JSON Serialization
 http://jmsyst.com/bundles/JMSSerializerBundle
 

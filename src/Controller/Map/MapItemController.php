@@ -26,13 +26,21 @@ class MapItemController extends Controller
      * @Route("/map/items/{id}", name="map_items_show")
      */
     public function show($id){
-      return $this->render('map/map_item/show.html.twig', ['id' => $id, 'itemType' => 'bathroom']);
+      $em = $this->getDoctrine()->getManager();
+      $itemRepo = $em->getRepository('App\Entity\Map\MapItem');
+      $itemType = $itemRepo->findItemType($id);
+
+      return $this->render('map/map_item/show.html.twig', ['id' => $id, 'itemType' => $itemType]);
     }
 
     /**
      * @Route("/map/items/{id}/edit", name="map_items_edit")
      */
     public function edit($id){
-      return $this->render('map/map_item/edit.html.twig', ['id' => $id, 'itemType' => 'bathroom']);
+      $em = $this->getDoctrine()->getManager();
+      $itemRepo = $em->getRepository('App\Entity\Map\MapItem');
+      $itemType = $itemRepo->findItemType($id);
+
+      return $this->render('map/map_item/edit.html.twig', ['id' => $id, 'itemType' => $itemType]);
     }
 }

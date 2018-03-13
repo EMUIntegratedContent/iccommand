@@ -29,19 +29,26 @@
       </ul>
       <div class="tab-content" id="mapitemTabContent">
         <div class="tab-pane fade show active" id="information" role="tabpanel" aria-labelledby="information-tab">
-          <form>
+          <form class="form" @submit.prevent="checkForm">
             <fieldset>
               <legend>Basic Information</legend>
               <div class="form-group">
+                <label>Babalu</label>
+                <input v-validate="'required'" name="babalu" type="text" class="form-control" :class="{'is-invalid': errors.has('babalu')}">
+                <div class="invalid-feedback">
+                  {{ errors.first('babalu') }}
+                </div>
+              </div>
+              <div class="form-group">
                 <label>Name</label>
-                <input type="text" class="form-control" :class="{'is-invalid': errors.name, 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode" v-model="record.name">
+                <input v-validate="'required'" type="text" class="form-control" :class="{'is-invalid': errors.name, 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode" v-model="record.name">
                 <div class="invalid-feedback">
                   {{ errors.name }}
                 </div>
               </div>
               <div class="form-group">
                 <label>Slug</label>
-                <input type="text" class="form-control form-control-plaintext" :class="{'is-invalid': errors.slug}" readonly v-model="slugify">
+                <input type="text" class="form-control form-control-plaintext" :class="{'is-invalid': errors.slug}" readonly v-model="record.slug">
                 <div class="invalid-feedback">
                   {{ errors.slug }}
                 </div>
@@ -106,10 +113,90 @@
             </fieldset>-->
             <!-- BUILDING FIELDS -->
             <template v-if="record.itemType == 'building'">
-              BUILIDING
+              <fieldset>
+                <legend class="sr-only">{{ record.itemType | capitalize }} specific fields</legend>
+                <template v-if="itemExists && userCanEdit && isEditMode">
+                </template>
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link active" id="pills-bathrooms-tab" data-toggle="pill" href="#pills-bathrooms" role="tab" aria-controls="pills-bathrooms" aria-selected="true">Bathrooms <span class="badge badge-light">{{ record.bathrooms.length }}</span></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="pills-emergency-tab" data-toggle="pill" href="#pills-emergency" role="tab" aria-controls="pills-emergency" aria-selected="false">Emergency Devices <span class="badge badge-light">{{ record.emergencyDevices.length }}</span></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="pills-exhibits-tab" data-toggle="pill" href="#pills-exhibits" role="tab" aria-controls="pills-exhibits" aria-selected="false">Exhibits <span class="badge badge-light">{{ record.exhibits.length }}</span></a>
+                  </li>
+                </ul>
+                <div class="tab-content" id="pills-tabContent">
+                  <div class="tab-pane fade show active" id="pills-bathrooms" role="tabpanel" aria-labelledby="pills-bathrooms-tab">
+                    <template v-if="userCanEdit && isEditMode">
+                      <div v-for="(bathroom, index) in record.bathrooms">
+                        <div class="form-row">
+                          <div class="form-group col-md-6">
+                            <label for="bathroomLocation" class="sr-only">Location</label>
+                            <input v-model="bathroom.name" type="text" class="form-control" id="bathroomLocation" placeholder="Location">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <div class="form-check">
+                              <input v-model="bathroom.isGenderNeutral" class="form-check-input" type="checkbox" id="bathroomGenderNeutral">
+                              <label class="form-check-label" for="bathroomGenderNeutral">
+                                Gender Neutral
+                              </label>
+                            </div>
+                          </div>
+                          <div class="form-group col-md-2">
+                            <button type="button" @click="removeSubitemFromBuilding('bathroom', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                          </div>
+                        </div>
+                      </div>
+                      <button @click="addRecordSubitem('bathroom')" type="button" class="btn btn-sm btn-default">Add Bathroom</button>
+                    </template>
+                  </div>
+                  <div class="tab-pane fade" id="pills-emergency" role="tabpanel" aria-labelledby="pills-emergency-tab">
+                    <template v-if="userCanEdit && isEditMode">
+                      <div v-for="(emergency, index) in record.emergencyDevices">
+                        <div class="form-row">
+                          <div class="form-group col-md-7">
+                            <label for="emergencyLocation" class="sr-only">Location</label>
+                            <input v-model="emergency.name" type="text" class="form-control" id="emergencyLocation" placeholder="Location">
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="emergencyType" class="sr-only">Type</label>
+                            <multiselect
+                              v-validate="'required'"
+                              data-vv-as="device type"
+                              v-model="record.emergencyDevices[index].type"
+                              :options="emergencyTypes"
+                              :multiple="false"
+                              placeholder="Choose type"
+                              label="name"
+                              track-by="id"
+                              class="form-control"
+                              style="padding:0"
+                              :name="'emergency' + index"
+                              :class="{'is-invalid': errors.has('emergency' + index) }"
+                              >
+                            </multiselect>
+                            <div class="invalid-feedback">
+                              {{ errors.first('emergency' + index) }}
+                            </div>
+                          </div>
+                          <div class="form-group col-md-2">
+                            <i v-if="emergency.id" class="fa fa-pencil"></i>
+                            <button type="button" @click="removeSubitemFromBuilding('emergency', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                          </div>
+                        </div>
+                      </div>
+                      <button @click="addRecordSubitem('emergency')" type="button" class="btn btn-sm btn-default">Add Device</button>
+                    </template>
+                  </div>
+                  <div class="tab-pane fade" id="pills-exhibits" role="tabpanel" aria-labelledby="pills-exhibits-tab">exhibits</div>
+                </div>
+              </fieldset>
             </template>
             <!-- BATHROOM FIELDS -->
-            <template v-if="record.itemType == 'bathroom'">
+            <!--<template v-if="record.itemType == 'bathroom'">
               <fieldset>
                 <legend>{{ record.itemType | capitalize }} specific fields</legend>
                 <div v-if="userCanEdit && isEditMode" class="form-group">
@@ -121,7 +208,7 @@
                   <p>Bathroom <strong>is <span v-if="!record.isGenderNeutral">not</span></strong> designated as gender neutral</p>
                 </div>
               </fieldset>
-            </template>
+            </template>-->
             <div v-if="Object.keys(errors).length" class="alert alert-danger alert-dismissible fade show" role="alert">
               Please fix the <strong>{{ Object.keys(errors).length }} error(s)</strong> before submitting.
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -142,7 +229,7 @@
             </div>
             <!-- ACTION BUTTONS -->
             <div v-if="userCanEdit && isEditMode">
-              <button class="btn btn-success spacer-top" type="button" @click="submitForm">{{ itemExists ? 'Update ' + record.itemType : 'Create ' + record.itemType }}</button>
+              <button class="btn btn-success spacer-top" type="submit">{{ itemExists ? 'Update ' + record.itemType : 'Create ' + record.itemType }}</button>
               <button v-if="itemExists && this.permissions[0].delete" type="button" class="btn btn-danger spacer-top" data-toggle="modal" data-target="#deleteModal">Delete {{ record.itemType }}</button>
             </div>
           </form><!-- /end form -->
@@ -309,6 +396,10 @@
         // fetch the existing record using the prop itemId
         this.fetchMapItem(this.itemId)
       }
+
+      if(this.itemType == 'building' || this.itemType == 'emergency'){
+        this.fetchEmergencyTypes()
+      }
     },
     components: {Heading, Multiselect, MapitemDeleteModal, MapitemImageDeleteModal, MapitemImageEditModal, ImageThumbnailPod, NotFound, Draggable},
     props:{
@@ -352,7 +443,8 @@
         ],
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
         currentStatus: null,
-        errors:{},
+        emergencyTypes: [],
+        //errors: {},
         is404: false,
         isDataLoaded: false,
         isDeleted: false,
@@ -364,7 +456,10 @@
         originalImageOrder: [], // when order of images is being re-arranged, put the initial images, in order, here
         record: {
           id: '',
+          bathrooms: [],
           description: '',
+          emergencyDevices: [],
+          exhibits: [],
           isGenderNeutral: false,
           images: [],
           itemType: '',
@@ -421,6 +516,7 @@
       lockIcon: function(){
         return this.isEditMode ? '<i class="fa fa-unlock"></i>' : '<i class="fa fa-lock"></i>'
       },
+      /*
       slugify: function(){
         if(this.record.name){
           return this.record.name.toString().toLowerCase()
@@ -431,12 +527,31 @@
                                 .replace(/-+$/, ''); // Trim - from end of text
         }
       },
+      */
       userCanEdit: function(){
         // An existing record can be edited by a user with edit permissions, a new record can be created by a user with create permissions
         return this.itemExists && this.permissions[0].edit || !this.itemExists && this.permissions[0].create ? true : false
       }
     },
     methods: {
+      // e.g. add a new bathroom to a building
+      addRecordSubitem: function(itemType){
+        switch(itemType){
+          case 'bathroom':
+            this.record.bathrooms.push({
+              name: '',
+              itemType: 'bathroom',
+              isGenderNeutral: false
+            })
+            break;
+          case 'emergency':
+            this.record.emergencyDevices.push({
+              name: '',
+              emergencyDeviceType: null,
+            })
+            break;
+        }
+      },
       afterSubmitSucceeds: function(){
         this.clearErrors() // clear any previous validation errors
         // New item has been submitted, go to edit
@@ -451,6 +566,24 @@
           this.successMessage = "Update successful."
         }
       },
+      // Run prior to submitting
+      checkForm: function(){
+        let self = this
+
+        // All devices MUST have a type chosen (AED, fire extinguisher, etc.)
+        this.record.emergencyDevices.forEach(function(device){
+          if(!device.type){
+            let key = "emergencyDeviceIndex" + self.record.emergencyDevices.indexOf(device)
+            let message = "Device type required."
+            self.errors[key] = message
+          }
+        })
+
+        // No errors? Submit the form!
+        if(Object.keys(this.errors).length == 0){
+          this.submitForm()
+        }
+      },
       clearErrors: function(){
         this.errors = {}
       },
@@ -460,6 +593,18 @@
       clearTempLocation: function(){
         this.tempLatitudeSatellite = null
         this.tempLongitudeSatellite = null
+      },
+      fetchEmergencyTypes(){
+        let self = this
+        axios.get('/api/emergencytypes')
+        // success
+        .then(function (response) {
+          self.emergencyTypes = response.data
+        })
+        // fail
+        .catch(function (error) {
+          console.log("COULDN'T GET EMERGENCY TYPES!")
+        })
       },
       fetchMapItem(itemId){
         let self = this
@@ -496,6 +641,15 @@
         // save it
         this.uploadImages(formData);
       },
+      // Error checking for emergency devices
+      isEmergencyError: function(index){
+        let key = "emergencyDeviceIndex" + index
+        // there was an error found for this key
+        if(this.errors[key]){
+          return true
+        }
+        return false
+      },
       // Called from the @itemDeleted event emission from the Delete Modal
       markItemDeleted: function () {
           this.isDeleteError = false
@@ -508,6 +662,17 @@
       // When a user has finished dragging (re-ordering) an image
       onDragEnd: function(evt){
         this.isImageOrderChanged = true
+      },
+      // use the map item's array index
+      removeSubitemFromBuilding(type, index){
+        switch(type){
+          case 'bathroom':
+            this.record.bathrooms.splice(index, 1)
+            break
+          case 'emergency':
+            this.record.emergencyDevices.splice(index, 1)
+            break
+        }
       },
       resetImageOrder: function(){
           this.record.images = this.originalImageOrder
@@ -536,9 +701,11 @@
       setOriginalImages: function(imageArr){
         this.originalImageOrder = JSON.parse(JSON.stringify(imageArr))
       },
+      /*
       setSlug: function(){
         this.record.slug = this.slugify
       },
+      */
       setTempPosition: function(e){
         this.tempLatitudeSatellite = e.latLng.lat()
         this.tempLongitudeSatellite = e.latLng.lng()
@@ -554,8 +721,6 @@
 
         let method = (this.itemExists) ? 'put' : 'post'
         let route =  (this.itemExists) ? '/api/mapitem' : '/api/mapitems'
-
-        this.setSlug() // slug is only computed until this point, not set into record
 
         // AJAX (axios) submission
         axios({

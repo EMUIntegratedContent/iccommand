@@ -16,12 +16,14 @@
             </div>
           </div>
           <div class="col-xs-12 col-md-4">
+            <!--
             <div class="card" @click="setItem('bathroom')">
               <div class="card-body">
                 <h5 class="card-title">Bathroom</h5>
                 <i class="fa fa-male fa-4x"></i><i class="fa fa-female fa-4x"></i>
               </div>
             </div>
+            -->
           </div>
           <div class="col-xs-12 col-md-4">
             <div class="card" @click="setItem('emergency')">

@@ -8,6 +8,9 @@ $(document).ready(function() {
 /** VUE SETUP **/
 import Vue from 'vue'
 import * as VueGoogleMaps from 'vue2-google-maps'
+import VeeValidate from 'vee-validate'
+
+Vue.use(VeeValidate)
 
 Vue.use(VueGoogleMaps, {
   load: {

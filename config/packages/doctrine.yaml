@@ -25,12 +25,3 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
-
-l3_cas:
-    host: netid.emich.edu/cas                               # Cas Server
-    path: ~                                             # App path if not in root (eg. cas.test.com/cas)
-    port: 443                                           # Server port
-    ca: false                                           # SSL Certificate
-    handleLogoutRequest: true                           # Single sign out activation (default: false)
-    casLogoutTarget: https://netid.emich.edu/cas/logout # Redirect path after logout
-    force: true                                         # Allows cas check mode and not force, user : __NO_USER__ if not connected (If force false, Single sign out cant work).
