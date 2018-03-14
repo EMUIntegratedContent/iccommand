@@ -10,6 +10,8 @@ security:
                 search_password: Madd13Z03yCP
                 default_roles: ROLE_USER
                 uid_key: cn
+                #Username: ext_symf
+                #Password: sfbe6mea5q8a5sh
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/

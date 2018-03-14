@@ -33,31 +33,42 @@
             <fieldset>
               <legend>Basic Information</legend>
               <div class="form-group">
-                <label>Babalu</label>
-                <input v-validate="'required'" name="babalu" type="text" class="form-control" :class="{'is-invalid': errors.has('babalu')}">
+                <label>Name *</label>
+                <input
+                  v-validate="'required'"
+                  name="name"
+                  type="text"
+                  class="form-control"
+                  :class="{ 'is-invalid': errors.has('name'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                  :readonly="!userCanEdit || !isEditMode"
+                  v-model="record.name">
                 <div class="invalid-feedback">
-                  {{ errors.first('babalu') }}
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Name</label>
-                <input v-validate="'required'" type="text" class="form-control" :class="{'is-invalid': errors.name, 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode" v-model="record.name">
-                <div class="invalid-feedback">
-                  {{ errors.name }}
+                  {{ errors.first('name') }}
                 </div>
               </div>
               <div class="form-group">
                 <label>Slug</label>
-                <input type="text" class="form-control form-control-plaintext" :class="{'is-invalid': errors.slug}" readonly v-model="record.slug">
+                <input
+                  type="text"
+                  class="form-control form-control-plaintext"
+                  :class="{'is-invalid': errors.has('slug')}"
+                  readonly
+                  v-model="record.slug">
                 <div class="invalid-feedback">
-                  {{ errors.slug }}
+                  {{ errors.first('slug') }}
                 </div>
               </div>
               <div class="form-group">
                 <label>Description</label>
-                <textarea class="form-control" :class="{'is-invalid': errors.description, 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode" v-model="record.description"></textarea>
+                <textarea
+                  class="form-control"
+                  name="description"
+                  :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                  :readonly="!userCanEdit || !isEditMode"
+                  v-model="record.description">
+                </textarea>
                 <div class="invalid-feedback">
-                  {{ errors.description }}
+                  {{ errors.first('description') }}
                 </div>
               </div>
             </fieldset>
@@ -99,18 +110,6 @@
                 </div>
               </div>
             </fieldset>
-            <!--<fieldset>
-              <legend>Tags</legend>
-              <multiselect
-                v-model="record.tags"
-                :options="tags"
-                :multiple="true"
-                placeholder="Choose tags"
-                label="tag"
-                track-by="id"
-                >
-              </multiselect>
-            </fieldset>-->
             <!-- BUILDING FIELDS -->
             <template v-if="record.itemType == 'building'">
               <fieldset>
@@ -134,8 +133,20 @@
                       <div v-for="(bathroom, index) in record.bathrooms">
                         <div class="form-row">
                           <div class="form-group col-md-6">
-                            <label for="bathroomLocation" class="sr-only">Location</label>
-                            <input v-model="bathroom.name" type="text" class="form-control" id="bathroomLocation" placeholder="Location">
+                            <label for="bathroomLocation" class="sr-only">Location *</label>
+                            <input
+                              v-validate="'required'"
+                              data-vv-as="location"
+                              :name="'bathroom-location-' + index"
+                              :class="{'is-invalid': errors.has('bathroom-location-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode"
+                              v-model="bathroom.name"
+                              type="text"
+                              class="form-control"
+                              id="bathroomLocation"
+                              placeholder="Location">
+                              <div class="invalid-feedback">
+                                {{ errors.first('bathroom-location-' + index) }}
+                              </div>
                           </div>
                           <div class="form-group col-md-4">
                             <div class="form-check">
@@ -158,11 +169,23 @@
                       <div v-for="(emergency, index) in record.emergencyDevices">
                         <div class="form-row">
                           <div class="form-group col-md-7">
-                            <label for="emergencyLocation" class="sr-only">Location</label>
-                            <input v-model="emergency.name" type="text" class="form-control" id="emergencyLocation" placeholder="Location">
+                            <label for="emergencyLocation" class="sr-only">Location *</label>
+                            <input
+                              v-validate="'required'"
+                              data-vv-as="location"
+                              v-model="emergency.name"
+                              type="text"
+                              class="form-control"
+                              id="emergencyLocation"
+                              placeholder="Location"
+                              :name="'emergency-location-' + index"
+                              :class="{'is-invalid': errors.has('emergency-location-' + index) }">
+                            <div class="invalid-feedback">
+                              {{ errors.first('emergency-location-' + index) }}
+                            </div>
                           </div>
                           <div class="form-group col-md-3">
-                            <label for="emergencyType" class="sr-only">Type</label>
+                            <label for="emergencyType" class="sr-only">Type *</label>
                             <multiselect
                               v-validate="'required'"
                               data-vv-as="device type"
@@ -174,58 +197,212 @@
                               track-by="id"
                               class="form-control"
                               style="padding:0"
-                              :name="'emergency' + index"
-                              :class="{'is-invalid': errors.has('emergency' + index) }"
+                              :name="'emergency-type-' + index"
+                              :class="{'is-invalid': errors.has('emergency-type-' + index) }"
                               >
                             </multiselect>
                             <div class="invalid-feedback">
-                              {{ errors.first('emergency' + index) }}
+                              {{ errors.first('emergency-type-' + index) }}
                             </div>
                           </div>
                           <div class="form-group col-md-2">
-                            <i v-if="emergency.id" class="fa fa-pencil"></i>
-                            <button type="button" @click="removeSubitemFromBuilding('emergency', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                            <a v-if="emergency.id" target="_blank" :href="'/map/items/' + emergency.id"><i class="fa fa-pencil"></i></a>
+                            <button type="button" @click="removeSubitemFromBuilding('emergency device', index)" class="close"><span aria-hidden="true">&times;</span></button>
                           </div>
                         </div>
                       </div>
-                      <button @click="addRecordSubitem('emergency')" type="button" class="btn btn-sm btn-default">Add Device</button>
+                      <button @click="addRecordSubitem('emergency device')" type="button" class="btn btn-sm btn-default">Add Device</button>
                     </template>
                   </div>
-                  <div class="tab-pane fade" id="pills-exhibits" role="tabpanel" aria-labelledby="pills-exhibits-tab">exhibits</div>
+                  <div class="tab-pane fade" id="pills-exhibits" role="tabpanel" aria-labelledby="pills-exhibits-tab">
+                    <template v-if="userCanEdit && isEditMode">
+                      <div v-for="(exhibit, index) in record.exhibits">
+                        <div class="form-row">
+                          <div class="form-group col-md-4">
+                            <label for="exhibitName" class="sr-only">Title *</label>
+                            <input
+                              v-validate="'required'"
+                              data-vv-as="title"
+                              v-model="exhibit.name"
+                              type="text"
+                              class="form-control"
+                              id="exhibitName"
+                              placeholder="Title"
+                              :name="'exhibit-name-' + index"
+                              :class="{'is-invalid': errors.has('exhibit-name-' + index) }">
+                            <div class="invalid-feedback">
+                              {{ errors.first('exhibit-name-' + index) }}
+                            </div>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exhibitDescription" class="sr-only">Description *</label>
+                            <textarea
+                              v-validate="'required'"
+                              data-vv-as="description"
+                              id="exhibitDescription"
+                              v-model="exhibit.description"
+                              class="form-control"
+                              :name="'exhibit-description-' + index"
+                              :class="{'is-invalid': errors.has('exhibit-description-' + index) }"
+                              placeholder="Describe the exhibit here...">
+                            </textarea>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exhibitType" class="sr-only">Type *</label>
+                            <multiselect
+                              v-validate="'required'"
+                              data-vv-as="exhibit type"
+                              v-model="record.exhibits[index].type"
+                              :options="exhibitTypes"
+                              :multiple="false"
+                              placeholder="Choose type"
+                              label="name"
+                              track-by="id"
+                              class="form-control"
+                              style="padding:0"
+                              :name="'exhibit-type' + index"
+                              :class="{'is-invalid': errors.has('exhibit-type' + index) }"
+                              >
+                            </multiselect>
+                            <div class="invalid-feedback">
+                              {{ errors.first('exhibit-type' + index) }}
+                            </div>
+                          </div>
+                          <div class="form-group col-md-2">
+                            <a v-if="exhibit.id" target="_blank" :href="'/map/items/' + exhibit.id"><i class="fa fa-pencil"></i></a>
+                            <button type="button" @click="removeSubitemFromBuilding('exhibit', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                          </div>
+                        </div>
+                      </div>
+                      <button @click="addRecordSubitem('exhibit')" type="button" class="btn btn-sm btn-default">Add Exhibit</button>
+                    </template>
+                  </div>
                 </div>
               </fieldset>
             </template>
-            <!-- BATHROOM FIELDS -->
-            <!--<template v-if="record.itemType == 'bathroom'">
+            <!-- EMERGENCY DEVICE FIELDS -->
+            <template v-if="record.itemType == 'emergency device'">
               <fieldset>
                 <legend>{{ record.itemType | capitalize }} specific fields</legend>
-                <div v-if="userCanEdit && isEditMode" class="form-group">
-                  <label class="checkbox-inline">
-                    <input type="checkbox" :class="{'is-invalid': errors.isGenderNeutral}" v-model="record.isGenderNeutral"> Gender Neutral?
-                  </label>
+                <div v-if="userCanEdit && isEditMode" class="form-row">
+                  <div class="form-group col-md-8">
+                    <label for="building">Building (can be blank)</label>
+                    <multiselect
+                      v-model="record.building"
+                      :options="buildings"
+                      :multiple="false"
+                      placeholder="Choose building"
+                      label="name"
+                      track-by="id"
+                      id="building"
+                      class="form-control"
+                      style="padding:0"
+                      name="building"
+                      :class="{'is-invalid': errors.has('building') }"
+                      >
+                    </multiselect>
+                    <div class="invalid-feedback">
+                      {{ errors.first('building') }}
+                    </div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="deviceType">Type *</label>
+                    <multiselect
+                      v-validate="'required'"
+                      data-vv-as="device type"
+                      v-model="record.type"
+                      :options="emergencyTypes"
+                      :multiple="false"
+                      placeholder="Choose type"
+                      label="name"
+                      track-by="id"
+                      id="deviceType"
+                      class="form-control"
+                      style="padding:0"
+                      :name="'emergency-type'"
+                      :class="{'is-invalid': errors.has('emergency-type') }"
+                      >
+                    </multiselect>
+                    <div class="invalid-feedback">
+                      {{ errors.first('emergency-type') }}
+                    </div>
+                  </div>
                 </div>
                 <div v-else>
-                  <p>Bathroom <strong>is <span v-if="!record.isGenderNeutral">not</span></strong> designated as gender neutral</p>
+                  <p v-if="record.building">This device is in {{ record.building.name }}</p>
+                  <p v-else>This devices is located outside.</p>
+                  <p>Device type: {{ record.type.name }}</p>
                 </div>
               </fieldset>
-            </template>-->
-            <div v-if="Object.keys(errors).length" class="alert alert-danger alert-dismissible fade show" role="alert">
-              Please fix the <strong>{{ Object.keys(errors).length }} error(s)</strong> before submitting.
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+            </template>
+            <!-- EXHIBIT FIELDS -->
+            <template v-if="record.itemType == 'exhibit'">
+              <fieldset>
+                <legend>{{ record.itemType | capitalize }} specific fields</legend>
+                <div v-if="userCanEdit && isEditMode" class="form-row">
+                  <div class="form-group col-md-8">
+                    <label for="building">Building (can be blank)</label>
+                    <multiselect
+                      v-model="record.building"
+                      :options="buildings"
+                      :multiple="false"
+                      placeholder="Choose building"
+                      label="name"
+                      track-by="id"
+                      id="building"
+                      class="form-control"
+                      style="padding:0"
+                      name="building"
+                      :class="{'is-invalid': errors.has('building') }"
+                      >
+                    </multiselect>
+                    <div class="invalid-feedback">
+                      {{ errors.first('building') }}
+                    </div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="exhibitType">Type *</label>
+                    <multiselect
+                      v-validate="'required'"
+                      data-vv-as="device type"
+                      v-model="record.type"
+                      :options="exhibitTypes"
+                      :multiple="false"
+                      placeholder="Choose type"
+                      label="name"
+                      track-by="id"
+                      id="exhibitType"
+                      class="form-control"
+                      style="padding:0"
+                      :name="'exhibit-type'"
+                      :class="{'is-invalid': errors.has('exhibit-type') }"
+                      >
+                    </multiselect>
+                    <div class="invalid-feedback">
+                      {{ errors.first('exhibit-type') }}
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <p v-if="record.building">This exhibit is in {{ record.building.name }}</p>
+                  <p v-else>This exhibit is located outside.</p>
+                  <p>Exhibit type: {{ record.type.name }}</p>
+                </div>
+              </fieldset>
+            </template>
+            <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
+              You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
+              <ul>
+                <li v-for="error in this.$validator.errors.all()">
+                  <strong>{{ error }}</strong>
+                </li>
+              </ul>
             </div>
-            <div v-if="success" class="alert alert-success alert-dismissible fade show" role="alert">
+            <div v-if="success" class="alert alert-success fade show" role="alert">
               {{ successMessage }}
-              <button type="button" class="close" @click="success = false" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
             </div>
-            <div v-if="isDeleteError === true" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">
               There was an error deleting this item.
-              <button type="button" class="close" @click="isDeleteError = false" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
             </div>
             <!-- ACTION BUTTONS -->
             <div v-if="userCanEdit && isEditMode">
@@ -397,8 +574,16 @@
         this.fetchMapItem(this.itemId)
       }
 
-      if(this.itemType == 'building' || this.itemType == 'emergency'){
+      if(this.itemType == 'building' || this.itemType == 'emergency device'){
         this.fetchEmergencyTypes()
+      }
+
+      if(this.itemType == 'building' || this.itemType == 'exhibit'){
+        this.fetchExhibitTypes()
+      }
+
+      if(this.itemType == 'emergency device' || this.itemType == 'exhibit'){
+        this.fetchBuildings()
       }
     },
     components: {Heading, Multiselect, MapitemDeleteModal, MapitemImageDeleteModal, MapitemImageEditModal, ImageThumbnailPod, NotFound, Draggable},
@@ -427,24 +612,11 @@
     data: function() {
       return {
         // the list of potential tags for this map item
-        tags:[
-          {
-              id: 4,
-              tag: 'bob',
-          },
-          {
-              id: 5,
-              tag: 'tom',
-          },
-          {
-              id: 6,
-              tag: 'rob',
-          },
-        ],
+        buildings: [], // for multiselect
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
         currentStatus: null,
-        emergencyTypes: [],
-        //errors: {},
+        emergencyTypes: [], // for multiselect
+        exhibitTypes: [], // for multiselect
         is404: false,
         isDataLoaded: false,
         isDeleted: false,
@@ -457,6 +629,7 @@
         record: {
           id: '',
           bathrooms: [],
+          building: null,
           description: '',
           emergencyDevices: [],
           exhibits: [],
@@ -481,6 +654,10 @@
       }
     },
     computed: {
+      // are there any validation errors?
+      haveErrors: function(){
+        return this.$validator.errors.count() > 0 ? true : false
+      },
       headingIcon: function() {
         switch(this.record.itemType){
           case 'building':
@@ -544,16 +721,24 @@
               isGenderNeutral: false
             })
             break;
-          case 'emergency':
+          case 'emergency device':
             this.record.emergencyDevices.push({
               name: '',
               emergencyDeviceType: null,
             })
             break;
+          case 'exhibit':
+            this.record.exhibits.push({
+              name: '',
+              description: '',
+              exhibitType: null,
+            })
+            break;
         }
       },
       afterSubmitSucceeds: function(){
-        this.clearErrors() // clear any previous validation errors
+        let self = this
+
         // New item has been submitted, go to edit
         if(!this.itemExists){
           this.success = true
@@ -565,27 +750,26 @@
           this.success = true
           this.successMessage = "Update successful."
         }
+        // remove the message after 3 seconds
+        setTimeout(function(){
+            self.success = false
+        }, 3000)
       },
       // Run prior to submitting
       checkForm: function(){
         let self = this
 
-        // All devices MUST have a type chosen (AED, fire extinguisher, etc.)
-        this.record.emergencyDevices.forEach(function(device){
-          if(!device.type){
-            let key = "emergencyDeviceIndex" + self.record.emergencyDevices.indexOf(device)
-            let message = "Device type required."
-            self.errors[key] = message
+        this.$validator.validateAll()
+        .then((result) => {
+          // if all fields valid, submit the form
+          if (result) {
+            self.submitForm()
+            return
           }
         })
-
-        // No errors? Submit the form!
-        if(Object.keys(this.errors).length == 0){
-          this.submitForm()
-        }
-      },
-      clearErrors: function(){
-        this.errors = {}
+        .catch(() => {
+          console.log("Something went wrong that wasn't validation related.")
+        });
       },
       clearMarkers: function(){
         this.markers = []
@@ -593,6 +777,18 @@
       clearTempLocation: function(){
         this.tempLatitudeSatellite = null
         this.tempLongitudeSatellite = null
+      },
+      fetchBuildings(){
+        let self = this
+        axios.get('/api/mapbuildings')
+        // success
+        .then(function (response) {
+          self.buildings = response.data
+        })
+        // fail
+        .catch(function (error) {
+          console.log("COULDN'T GET BUILDINGS!")
+        })
       },
       fetchEmergencyTypes(){
         let self = this
@@ -604,6 +800,18 @@
         // fail
         .catch(function (error) {
           console.log("COULDN'T GET EMERGENCY TYPES!")
+        })
+      },
+      fetchExhibitTypes(){
+        let self = this
+        axios.get('/api/exhibittypes')
+        // success
+        .then(function (response) {
+          self.exhibitTypes = response.data
+        })
+        // fail
+        .catch(function (error) {
+          console.log("COULDN'T GET EXHIBIT TYPES!")
         })
       },
       fetchMapItem(itemId){
@@ -652,12 +860,18 @@
       },
       // Called from the @itemDeleted event emission from the Delete Modal
       markItemDeleted: function () {
-          this.isDeleteError = false
-          this.isDeleted = true
+        this.isDeleteError = false
+        this.isDeleted = true
       },
       markItemDeleteError: function(){
-          this.isDeleted = false
-          this.isDeleteError = true
+        let self = this
+
+        this.isDeleted = false
+        this.isDeleteError = true
+
+        setTimeout(function(){
+            self.isDeleteError = false
+        }, 5000)
       },
       // When a user has finished dragging (re-ordering) an image
       onDragEnd: function(evt){
@@ -669,8 +883,11 @@
           case 'bathroom':
             this.record.bathrooms.splice(index, 1)
             break
-          case 'emergency':
+          case 'emergency device':
             this.record.emergencyDevices.splice(index, 1)
+            break
+          case 'exhibit':
+            this.record.exhibits.splice(index, 1)
             break
         }
       },
@@ -730,19 +947,18 @@
         })
           // success
           .then(function (response) {
-            self.record.id = response.data.id // set the item's id
+            self.record.id = response.data.id // set the item's ID
             self.afterSubmitSucceeds()
           })
           // fail
           .catch(function (error) {
-            self.clearErrors() // clear any previous errors
             console.log(error)
             let errors = error.response.data
-            // Add any validation errors to the errors object
+            // Add any validation errors to the vee validator error bag
             errors.forEach(function(error){
               let key = error.property_path
               let message = error.message
-              self.errors[key] = message
+              self.$validator.errors.add(key, message)
             })
           })
       },

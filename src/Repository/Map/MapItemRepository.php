@@ -35,7 +35,11 @@ class MapItemRepository extends ServiceEntityRepository
       $stmt->execute(['id' => $id]);
 
       $mapItem = $stmt->fetchAll();
-      return $mapItem[0]['discr'];
+      if($mapItem){
+        return $mapItem[0]['discr'];
+      }
+
+      return null;
     }
 
 }

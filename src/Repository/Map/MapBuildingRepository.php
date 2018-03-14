@@ -19,16 +19,14 @@ class MapBuildingRepository extends ServiceEntityRepository
         parent::__construct($registry, MapBuilding::class);
     }
 
-    /*
-    public function findBySomething($value)
+
+    public function findAllBuildingsWithFields(array $fields)
     {
-        return $this->createQueryBuilder('m')
-            ->where('m.something = :value')->setParameter('value', $value)
-            ->orderBy('m.id', 'ASC')
-            ->setMaxResults(10)
+        return $this->createQueryBuilder('b')
+            ->select($fields)
+            ->orderBy('b.id', 'ASC')
             ->getQuery()
             ->getResult()
         ;
     }
-    */
 }

@@ -26,14 +26,14 @@ class MapBuilding extends MapItem
 
     /**
      * One building has (zero to) many emergency devices.
-     * @ORM\OneToMany(targetEntity="MapEmergency", mappedBy="building", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="MapEmergency", mappedBy="building", cascade={"persist"})
      * @Serializer\SerializedName("emergencyDevices")
      */
     private $emergencyDevices;
 
     /**
      * One building has (zero to) many exhibits.
-     * @ORM\OneToMany(targetEntity="MapExhibit", mappedBy="building", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="MapExhibit", mappedBy="building", cascade={"persist"})
      */
     private $exhibits;
 

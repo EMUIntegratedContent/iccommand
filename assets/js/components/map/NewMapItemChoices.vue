@@ -26,7 +26,7 @@
             -->
           </div>
           <div class="col-xs-12 col-md-4">
-            <div class="card" @click="setItem('emergency')">
+            <div class="card" @click="setItem('emergency device')">
               <div class="card-body">
                 <h5 class="card-title">Emergency Device</h5>
                 <i class="fa fa-ambulance fa-4x"></i>
@@ -44,9 +44,9 @@
                   </div>
               </div>
               <div class="col-xs-12 col-md-4">
-                  <div class="card" @click="setItem('attraction')">
+                  <div class="card" @click="setItem('exhibit')">
                       <div class="card-body">
-                          <h5 class="card-title">Attraction</h5>
+                          <h5 class="card-title">Exhibit</h5>
                           <i class="fa fa-paint-brush fa-4x"></i>
                       </div>
                   </div>
