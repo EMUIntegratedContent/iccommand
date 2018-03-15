@@ -23,7 +23,7 @@ class MapExhibitType
 
   /**
    * @ORM\Column(type="string")
-   * @Assert\NotBlank(message="You must provide a name for exhibit type.")
+   * @Assert\NotBlank(message="You must provide a name for this exhibit.")
    */
   private $name;
 

@@ -12,12 +12,23 @@ use FOS\RestBundle\View\View;
 use App\Entity\Map\MapItem;
 use App\Entity\Map\MapBathroom;
 use App\Entity\Map\MapBuilding;
+use App\Entity\Map\MapBuildingType;
+use App\Entity\Map\MapBus;
 use App\Entity\Map\MapEmergency;
 use App\Entity\Map\MapEmergencyType;
 use App\Entity\Map\MapExhibit;
 use App\Entity\Map\MapExhibitType;
+use App\Entity\Map\MapParking;
+use App\Entity\Map\MapParkingType;
+use App\Service\MapItemService;
 
 class MapItemController extends FOSRestController{
+
+  private $service;
+
+  public function __construct(MapItemService $service){
+    $this->service = $service;
+  }
 
   /**
    * Get all map items
@@ -56,7 +67,7 @@ class MapItemController extends FOSRestController{
    {
      $em = $this->getDoctrine()->getManager();
      $itemRepo = $em->getRepository('App\Entity\Map\MapBuilding');
-     $buildings = $itemRepo->findAllBuildingsWithFields(['b.id', 'b.name']); // don't need the whole building object, so just grab ID and name from the repo method
+     $buildings = $itemRepo->findAllBuildingsWithFields(['b.id', 'b.name']); // don't need the whole MapBuilding object, so just grab ID and name from the repo method
 
      $serializer = $this->container->get('jms_serializer');
      $serialized = $serializer->serialize($buildings, 'json');
@@ -65,10 +76,26 @@ class MapItemController extends FOSRestController{
      return $response;
    }
 
+   /**
+    * Get building types
+    */
+    public function getMapbuildingtypesAction()
+    {
+      $em = $this->getDoctrine()->getManager();
+      $itemRepo = $em->getRepository('App\Entity\Map\MapBuildingType');
+      $buildingsTypes = $itemRepo->findAllBuildingTypesWithFields(['bt.id', 'bt.name']); // don't need the whole MapBuildingType object, so just grab ID and name from the repo method
+
+      $serializer = $this->container->get('jms_serializer');
+      $serialized = $serializer->serialize($buildingsTypes, 'json');
+      $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+      return $response;
+    }
+
   /**
    * Get emergency types
    */
-   public function getEmergencytypesAction()
+   public function getMapemergencytypesAction()
    {
      $emergencyTypes = $this->getDoctrine()->getRepository(MapEmergencyType::class)->findAll();
 
@@ -82,7 +109,7 @@ class MapItemController extends FOSRestController{
    /**
     * Get emergency types
     */
-    public function getExhibittypesAction()
+    public function getMapexhibittypesAction()
     {
       $exhibitTypes = $this->getDoctrine()->getRepository(MapExhibitType::class)->findAll();
 
@@ -92,6 +119,20 @@ class MapItemController extends FOSRestController{
 
       return $response;
     }
+
+  /**
+   * Get parking types
+   */
+   public function getMapparkingtypesAction()
+   {
+     $parkingTypes = $this->getDoctrine()->getRepository(MapParkingType::class)->findAll();
+
+     $serializer = $this->container->get('jms_serializer');
+     $serialized = $serializer->serialize($parkingTypes, 'json');
+     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+     return $response;
+   }
 
   /**
    * Save a map item to the database
@@ -111,12 +152,21 @@ class MapItemController extends FOSRestController{
         break;
       case "building":
         $mapItem = new MapBuilding();
+        $mapItem->setHours($request->request->get('hours'));
+        break;
+      case "bus":
+        $mapItem = new MapBus();
         break;
       case "emergency device":
         $mapItem = new MapEmergency();
         break;
       case "exhibit":
         $mapItem = new MapExhibit();
+        break;
+      case "parking":
+        $mapItem = new MapParking();
+        $mapItem->setSpaces($request->request->get('spaces'));
+        $mapItem->setHours($request->request->get('hours'));
         break;
       default:
         return new Response("This map item type cannot be created here.", 400, array('Content-Type' => 'application/json'));
@@ -131,7 +181,7 @@ class MapItemController extends FOSRestController{
     $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
 
     // validate map item
-    $errors = $this->validate($mapItem);
+    $errors = $this->service->validate($mapItem);
     if (count($errors) > 0) {
         $serialized = $serializer->serialize($errors, 'json');
         $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -150,7 +200,7 @@ class MapItemController extends FOSRestController{
           $bathroom->setIsGenderNeutral($bldgBathroom['isGenderNeutral']);
           $bathroom->setBuilding($mapItem);
 
-          $bathroomErrors = $this->validate($bathroom);
+          $bathroomErrors = $this->service->validate($bathroom);
           if (count($bathroomErrors) > 0) {
               $serialized = $serializer->serialize($bathroomErrors, 'json');
               $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -165,13 +215,14 @@ class MapItemController extends FOSRestController{
           $emergencyType = $this->getDoctrine()->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
           if(!$emergencyType){
             $response = new Response("The emergency item type was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
           }
           $emergencyDevice = new MapEmergency();
           $emergencyDevice->setName($bldgEmergency['name']);
           $emergencyDevice->setType($emergencyType);
           $emergencyDevice->setBuilding($mapItem);
 
-          $emergencyErrors = $this->validate($emergencyDevice);
+          $emergencyErrors = $this->service->validate($emergencyDevice);
           if (count($emergencyErrors) > 0) {
               $serialized = $serializer->serialize($emergencyErrors, 'json');
               $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -185,7 +236,8 @@ class MapItemController extends FOSRestController{
           // need to find the exhibit type entity
           $exhibitType = $this->getDoctrine()->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
           if(!$exhibitType){
-            $response = new Response("The exhitib type was not found.", 404, array('Content-Type' => 'application/json'));
+            $response = new Response("The exhibit type was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
           }
           $exhibit = new MapExhibit();
           $exhibit->setName($bldgExhibit['name']);
@@ -193,7 +245,7 @@ class MapItemController extends FOSRestController{
           $exhibit->setType($exhibitType);
           $exhibit->setBuilding($mapItem);
 
-          $exibitErrors = $this->validate($exhibit);
+          $exibitErrors = $this->service->validate($exhibit);
           if (count($exibitErrors) > 0) {
               $serialized = $serializer->serialize($exibitErrors, 'json');
               $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -201,28 +253,51 @@ class MapItemController extends FOSRestController{
           }
           $em->persist($exhibit); // persist but don't save until the end
         }
-        break;
-        case "emergency device":
-        case "exhibit":
-          // Find the building in which this device/exhibit is located (if any)
-          $building = $request->request->get('building');
-          if($building){
-            $building = $this->getDoctrine()->getRepository(MapItem::class)->find($building['id']);
-          }
-          $mapItem->setBuilding($building);
 
-          // Get which type of device/exhibit this is
-          $type = $request->request->get('type');
-          if(!$type){
-            return new Response("Each ". $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
+        // Building Types
+        foreach($request->request->get('buildingTypes') as $type){
+          // find the building type entity
+          $buildingType = $this->getDoctrine()->getRepository(MapBuildingType::class)->find($type['id']);
+          if(!$buildingType){
+            $response = new Response("The building type was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
           }
-          if($itemType == 'emergency device'){
-            $type = $this->getDoctrine()->getRepository(MapEmergencyType::class)->find($type['id']);
-          } else {
-            $type = $this->getDoctrine()->getRepository(MapExhibitType::class)->find($type['id']);
+          $mapItem->addBuildingType($buildingType);
+        }
+        break;
+      case "emergency device":
+      case "exhibit":
+        // Find the building in which this device/exhibit is located (if any)
+        $building = $request->request->get('building');
+        if($building){
+          $building = $this->getDoctrine()->getRepository(MapItem::class)->find($building['id']);
+        }
+        $mapItem->setBuilding($building);
+
+        // Get which type of device/exhibit this is
+        $type = $request->request->get('type');
+        if(!$type){
+          return new Response("Each ". $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
+        }
+        if($itemType == 'emergency device'){
+          $type = $this->getDoctrine()->getRepository(MapEmergencyType::class)->find($type['id']);
+        } else {
+          $type = $this->getDoctrine()->getRepository(MapExhibitType::class)->find($type['id']);
+        }
+        $mapItem->setType($type);
+        break;
+      case "parking":
+        // Parking lot types
+        foreach($request->request->get('parkingTypes') as $type){
+          // find the parking type entity
+          $parkingType = $this->getDoctrine()->getRepository(MapParkingType::class)->find($type['id']);
+          if(!$parkingType){
+            $response = new Response("The parking lot type was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
           }
-          $mapItem->setType($type);
-          break;
+          $mapItem->addParkingType($parkingType);
+        }
+        break;
     }
 
     // commit everything to the database
@@ -249,6 +324,8 @@ class MapItemController extends FOSRestController{
         $mapItem->setIsGenderNeutral($request->request->get('isGenderNeutral'));
         break;
       case "building":
+        $mapItem->setHours($request->request->get('hours'));
+
         // Building bathrooms
         foreach($request->request->get('bathrooms') as $bldgBathroom){
           // a new bathroom won't have an ID
@@ -261,7 +338,7 @@ class MapItemController extends FOSRestController{
           $bathroom->setName($bldgBathroom['name']);
           $bathroom->setIsGenderNeutral($bldgBathroom['isGenderNeutral']);
 
-          $bathroomErrors = $this->validate($bathroom);
+          $bathroomErrors = $this->service->validate($bathroom);
           if (count($bathroomErrors) > 0) {
               $serialized = $serializer->serialize($bathroomErrors, 'json');
               $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -270,7 +347,7 @@ class MapItemController extends FOSRestController{
           $em->persist($bathroom); // persist but don't save until the end
         }
         // Compare and delete any bathrooms not in the updated list
-        $this->mapItemCollectionCompare($mapItem->getBathrooms(), $request->request->get('bathrooms'));
+        $this->service->mapItemCollectionCompare($mapItem->getBathrooms(), $request->request->get('bathrooms'));
 
         // Building Emergency Devices
         foreach($request->request->get('emergencyDevices') as $bldgEmergency){
@@ -278,6 +355,7 @@ class MapItemController extends FOSRestController{
           $emergencyType = $this->getDoctrine()->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
           if(!$emergencyType){
             $response = new Response("The emergency item type was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
           }
 
           // a new device won't have an ID
@@ -290,7 +368,7 @@ class MapItemController extends FOSRestController{
           $emergencyDevice->setName($bldgEmergency['name']);
           $emergencyDevice->setType($emergencyType);
 
-          $emergencyErrors = $this->validate($emergencyDevice);
+          $emergencyErrors = $this->service->validate($emergencyDevice);
           if (count($emergencyErrors) > 0) {
               $serialized = $serializer->serialize($emergencyErrors, 'json');
               $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -299,7 +377,7 @@ class MapItemController extends FOSRestController{
           $em->persist($emergencyDevice); // persist but don't save until the end
         }
         // Compare and delete any emergency devices not in the updated list
-        $this->mapItemCollectionCompare($mapItem->getEmergencyDevices(), $request->request->get('emergencyDevices'));
+        $this->service->mapItemCollectionCompare($mapItem->getEmergencyDevices(), $request->request->get('emergencyDevices'));
 
         // Building Exhibits
         foreach($request->request->get('exhibits') as $bldgExhibit){
@@ -307,6 +385,7 @@ class MapItemController extends FOSRestController{
           $exhibitType = $this->getDoctrine()->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
           if(!$exhibitType){
             $response = new Response("The exhibit type was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
           }
           // a new exhibit won't have an ID
           if(isset($bldgExhibit['id'])){
@@ -319,7 +398,7 @@ class MapItemController extends FOSRestController{
           $exhibit->setDescription($bldgExhibit['description']);
           $exhibit->setType($exhibitType);
 
-          $exhibitErrors = $this->validate($exhibit);
+          $exhibitErrors = $this->service->validate($exhibit);
           if (count($exhibitErrors) > 0) {
               $serialized = $serializer->serialize($exhibitErrors, 'json');
               $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -328,7 +407,12 @@ class MapItemController extends FOSRestController{
           $em->persist($exhibit); // persist but don't save until the end
         }
         // Compare and delete any emergency devices not in the updated list
-        $this->mapItemCollectionCompare($mapItem->getExhibits(), $request->request->get('exhibits'));
+        $this->service->mapItemCollectionCompare($mapItem->getExhibits(), $request->request->get('exhibits'));
+
+        // Compare and delete any building types not in the updated list
+        $this->service->mapBuildingTypeCompare($mapItem->getBuildingTypes(), $request->request->get('buildingTypes'), $mapItem);
+        break;
+      case "bus":
         break;
       case "emergency device":
       case "exhibit":
@@ -351,6 +435,12 @@ class MapItemController extends FOSRestController{
         }
         $mapItem->setType($type);
         break;
+      case "parking":
+        $mapItem->setSpaces($request->request->get('spaces'));
+        $mapItem->setHours($request->request->get('hours'));
+        // Compare and delete any parking lot types not in the updated list
+        $this->service->mapParkingLotTypeCompare($mapItem->getParkingTypes(), $request->request->get('parkingTypes'), $mapItem);
+        break;
       default:
         return new Response("This is not a valid map type.", 400, array('Content-Type' => 'application/json'));
     }
@@ -364,7 +454,7 @@ class MapItemController extends FOSRestController{
     $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
 
     // validate map item
-    $errors = $this->validate($mapItem);
+    $errors = $this->service->validate($mapItem);
     if (count($errors) > 0) {
         $serialized = $serializer->serialize($errors, 'json');
         $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
@@ -393,46 +483,5 @@ class MapItemController extends FOSRestController{
 
     $response = new Response('Item has been deleted.', 204, array('Content-Type' => 'application/json'));
     return $response;
-  }
-
-  // NEEDS TO GO INTO A SERVICE
-  protected function validate($mapItem){
-    $validator = $this->container->get('validator');
-    $errors = $validator->validate($mapItem);
-
-    return $errors;
-  }
-
-  // NEEDS TO GO INTO A SERVICE
-  protected function mapItemCollectionCompare(PersistentCollection $currentCollection, array $updatedArray): bool
-  {
-    $current_ids = array();
-    foreach($currentCollection as $item){
-      $current_ids[] = $item->getId();
-    }
-    $updated_ids = array();
-    foreach($updatedArray as $item){
-      // new bathrooms will NOT have an id
-      if(isset($item['id'])){
-        $updated_ids[] = $item['id'];
-      }
-    }
-    $itemsToDelete = array_diff($current_ids, $updated_ids); // result is the items that do NOT appear in the updated IDs
-
-    // Find and remove any items that do NOT appear in the updated IDs
-    foreach($itemsToDelete as $itemToDelete){
-      $item = $this->getDoctrine()->getRepository(MapItem::class)->find($itemToDelete);
-      $this->deleteMapItem($item);
-    }
-    return true;
-  }
-
-  // NEEDS TO GO INTO A SERVICE
-  protected function deleteMapItem(MapItem $mapItem): bool{
-    $em = $this->getDoctrine()->getManager();
-    $em->remove($mapItem);
-    $em->flush();
-
-    return true;
   }
 }

@@ -15,7 +15,7 @@ use App\Entity\Map\MapitemImage;
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking"})
+ * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking"})
  * @UniqueEntity(
  *    fields={"name", "slug"},
  *    errorPath="slug",

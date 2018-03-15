@@ -5,6 +5,7 @@ namespace App\Entity\Map;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Annotation as Serializer;
+use App\Entity\Map\MapBuildingType;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapBuildingRepository")
@@ -17,6 +18,11 @@ use JMS\Serializer\Annotation as Serializer;
 class MapBuilding extends MapItem
 {
     const ITEM_TYPE = 'building';
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $hours;
 
     /**
      * One building has (zero to) many bathrooms.
@@ -37,10 +43,23 @@ class MapBuilding extends MapItem
      */
     private $exhibits;
 
+    /**
+     * Many MapItems have Many types.
+     * @ORM\ManyToMany(targetEntity="App\Entity\Map\MapBuildingType", cascade={"remove", "persist"})
+     * @ORM\JoinTable(name="mapbuilding_types",
+     *      joinColumns={@ORM\JoinColumn(name="mapbuilding_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="type_id", referencedColumnName="id", onDelete="CASCADE")}
+     *      )
+     * @ORM\OrderBy({"name" = "ASC"})
+     * @Serializer\SerializedName("buildingTypes")
+     */
+    private $buildingTypes;
+
     public function __construct() {
         parent::__construct();
         $this->bathrooms = new ArrayCollection();
         $this->emergencyDevices = new ArrayCollection();
+        $this->buildingTypes = new ArrayCollection();
     }
 
     public function getItemType(){
@@ -59,27 +78,69 @@ class MapBuilding extends MapItem
       $this->exhibits[] = $exhibit;
     }
 
-    /**
-     * @return Collection|MapBathroom[]
-     */
+    public function addUserGroup(UserGroup $userGroup)
+    {
+        if ($this->userGroups->contains($userGroup)) {
+            return;
+        }
+        $this->userGroups->add($userGroup);
+        $userGroup->addUser($this);
+    }
+
+    public function removeUserGroup(UserGroup $userGroup)
+    {
+        if (!$this->userGroups->contains($userGroup)) {
+            return;
+        }
+        $this->userGroups->removeElement($userGroup);
+        $userGroup->removeUser($this);
+    }
+
+    public function getHours()
+    {
+        return $this->hours;
+    }
+
+    public function setHours($hours)
+    {
+        $this->hours = $hours;
+    }
+
     public function getBathrooms()
     {
         return $this->bathrooms;
     }
 
-    /**
-     * @return Collection|MapEmergency[]
-     */
     public function getEmergencyDevices()
     {
         return $this->emergencyDevices;
     }
 
-    /**
-     * @return Collection|MapExhibit[]
-     */
     public function getExhibits()
     {
         return $this->exhibits;
+    }
+
+    public function getBuildingTypes()
+    {
+        return $this->buildingTypes;
+    }
+
+    public function addBuildingType(MapBuildingType $buildingType)
+    {
+        if ($this->buildingTypes->contains($buildingType)) {
+            return;
+        }
+        $this->buildingTypes->add($buildingType);
+        $buildingType->addBuilding($this);
+    }
+
+    public function removeBuildingType(MapBuildingType $buildingType)
+    {
+        if (!$this->buildingTypes->contains($buildingType)) {
+            return;
+        }
+        $this->buildingTypes->removeElement($buildingType);
+        $buildingType->removeBuilding($this);
     }
 }

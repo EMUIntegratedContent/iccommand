@@ -72,3 +72,8 @@ https://github.com/symfony/symfony/issues/26364
 Flickering Modal when in list-item-group FIX:
 .list-group-item, .list-group-item:hover{ z-index: auto; }
 https://github.com/twbs/bootstrap/issues/25206
+
+Services - autowiring
+https://symfony.com/doc/current/service_container.html#service-container-creating-service
+Services - passing container into service
+https://ourcodeworld.com/articles/read/42/how-to-create-a-php-service-for-symfony-2-3-with-entity-manager-and-service-container

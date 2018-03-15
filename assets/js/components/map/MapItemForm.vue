@@ -114,8 +114,19 @@
             <template v-if="record.itemType == 'building'">
               <fieldset>
                 <legend class="sr-only">{{ record.itemType | capitalize }} specific fields</legend>
-                <template v-if="itemExists && userCanEdit && isEditMode">
-                </template>
+                <div class="form-group">
+                  <label>Building hours</label>
+                  <textarea
+                    class="form-control"
+                    name="hours"
+                    :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                    :readonly="!userCanEdit || !isEditMode"
+                    v-model="record.hours">
+                  </textarea>
+                  <div class="invalid-feedback">
+                    {{ errors.first('hours') }}
+                  </div>
+                </div>
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                   <li class="nav-item">
                     <a class="nav-link active" id="pills-bathrooms-tab" data-toggle="pill" href="#pills-bathrooms" role="tab" aria-controls="pills-bathrooms" aria-selected="true">Bathrooms <span class="badge badge-light">{{ record.bathrooms.length }}</span></a>
@@ -162,6 +173,13 @@
                         </div>
                       </div>
                       <button @click="addRecordSubitem('bathroom')" type="button" class="btn btn-sm btn-default">Add Bathroom</button>
+                    </template>
+                    <template v-else>
+                      <div v-if="record.bathrooms.length > 0">
+                        <ul>
+                          <li v-for="bathroom in record.bathrooms">{{ bathroom.name }} <span v-if="bathroom.isGenderNeutral">(Gender neutral)</span></li>
+                        </ul>
+                      </div>
                     </template>
                   </div>
                   <div class="tab-pane fade" id="pills-emergency" role="tabpanel" aria-labelledby="pills-emergency-tab">
@@ -213,6 +231,13 @@
                       </div>
                       <button @click="addRecordSubitem('emergency device')" type="button" class="btn btn-sm btn-default">Add Device</button>
                     </template>
+                    <template v-else>
+                      <div v-if="record.emergencyDevices.length > 0">
+                        <ul>
+                          <li v-for="emergency in record.emergencyDevices">{{ emergency.name }} {{ emergency.type.name }}</li>
+                        </ul>
+                      </div>
+                    </template>
                   </div>
                   <div class="tab-pane fade" id="pills-exhibits" role="tabpanel" aria-labelledby="pills-exhibits-tab">
                     <template v-if="userCanEdit && isEditMode">
@@ -246,6 +271,9 @@
                               :class="{'is-invalid': errors.has('exhibit-description-' + index) }"
                               placeholder="Describe the exhibit here...">
                             </textarea>
+                            <div class="invalid-feedback">
+                              {{ errors.first('exhibit-description-' + index) }}
+                            </div>
                           </div>
                           <div class="form-group col-md-3">
                             <label for="exhibitType" class="sr-only">Type *</label>
@@ -276,8 +304,46 @@
                       </div>
                       <button @click="addRecordSubitem('exhibit')" type="button" class="btn btn-sm btn-default">Add Exhibit</button>
                     </template>
+                    <template v-else>
+                      <div v-if="record.exhibits.length > 0">
+                        <ul>
+                          <li v-for="exhibit in record.exhibits">{{ exhibit.name }} {{ exhibit.description }} {{ exhibit.type.name }}</li>
+                        </ul>
+                      </div>
+                    </template>
+                  </div><!-- end .tab-pane -->
+                </div><!-- end .tablist -->
+                <template v-if="userCanEdit && isEditMode">
+                  <div class="form-row">
+                    <div class="form-group col-md-12">
+                      <label for="buildingTypes" class="sr-only">Building Type(s)</label>
+                      <multiselect
+                        v-model="record.buildingTypes"
+                        :options="buildingTypes"
+                        :multiple="true"
+                        placeholder="Choose building"
+                        label="name"
+                        track-by="id"
+                        id="buildingTypes"
+                        class="form-control"
+                        style="padding:0"
+                        name="buildingTypes"
+                        :class="{'is-invalid': errors.has('buildingTypes') }"
+                        >
+                      </multiselect>
+                      <div class="invalid-feedback">
+                        {{ errors.first('buildingTypes') }}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </template>
+                <template v-else>
+                  <h5>Building Types</h5>
+                  <ul v-if="record.buildingTypes.length > 0">
+                    <li v-for="buildingType in record.buildingTypes">{{ buildingType.name }}</li>
+                  </ul>
+                  <p v-if="record.buildingTypes.length == 0">None</p>
+                </template>
               </fieldset>
             </template>
             <!-- EMERGENCY DEVICE FIELDS -->
@@ -390,6 +456,80 @@
                 </div>
               </fieldset>
             </template>
+            <!-- PARKING FIELDS -->
+            <template v-if="record.itemType == 'parking'">
+              <fieldset>
+                <legend>{{ record.itemType | capitalize }} specific fields</legend>
+                <div v-if="userCanEdit && isEditMode" class="form-row">
+                  <div class="form-group col-md-4">
+                    <label>Lot hours</label>
+                    <textarea
+                      class="form-control"
+                      name="hours"
+                      :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                      :readonly="!userCanEdit || !isEditMode"
+                      v-model="record.hours">
+                    </textarea>
+                    <div class="invalid-feedback">
+                      {{ errors.first('hours') }}
+                    </div>
+                  </div>
+                  <div class="form-group col-md-2">
+                    <div class="form-group">
+                      <label>Spaces</label>
+                      <input
+                        name="spaces"
+                        type="number"
+                        min="0"
+                        step="1"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.has('spaces'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                        :readonly="!userCanEdit || !isEditMode"
+                        v-model="record.spaces">
+                      <div class="invalid-feedback">
+                        {{ errors.first('spaces') }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label>Lot type(s)</label>
+                    <multiselect
+                      v-model="record.parkingTypes"
+                      :options="parkingTypes"
+                      :multiple="true"
+                      placeholder="Choose lot types"
+                      label="name"
+                      track-by="id"
+                      id="parkingTypes"
+                      class="form-control"
+                      style="padding:0"
+                      name="parkingTypes"
+                      :class="{'is-invalid': errors.has('parkingTypes') }"
+                      >
+                    </multiselect>
+                    <div class="invalid-feedback">
+                      {{ errors.first('parkingTypes') }}
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <div class="row">
+                    <div class="col-md-4">
+                      Lot Type(s):
+                      <ul v-if="record.parkingTypes.length > 0">
+                        <li v-for="lotType in record.parkingTypes">{{ lotType.name }}</li>
+                      </ul>
+                    </div>
+                    <div class="col-md-4">
+                      Hours: {{ record.hours }}
+                    </div>
+                    <div class="col-md-4">
+                      Parking Spaces: {{ record.spaces }}
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </template>
             <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
               You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
               <ul>
@@ -475,12 +615,8 @@
                     <legend>Upload Images</legend>
                     <div class="dropbox">
                       <input type="file" multiple name="uploadFiles[]" :disabled="isUploadSaving" @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length" accept="image/*" class="input-file">
-                        <p v-if="isUploadInitial">
-                          Drag your image(s) here to begin<br> or click to browse.
-                        </p>
-                        <p v-if="isUploadSaving">
-                          Uploading {{ fileCount }} files...
-                        </p>
+                        <p v-if="isUploadInitial">Drag your image(s) here to begin<br> or click to browse.</p>
+                        <p v-if="isUploadSaving">Uploading {{ fileCount }} files...</p>
                     </div>
                   </fieldset>
                 </form>
@@ -574,6 +710,10 @@
         this.fetchMapItem(this.itemId)
       }
 
+      if(this.itemType == 'building'){
+        this.fetchBuildingTypes()
+      }
+
       if(this.itemType == 'building' || this.itemType == 'emergency device'){
         this.fetchEmergencyTypes()
       }
@@ -584,6 +724,10 @@
 
       if(this.itemType == 'emergency device' || this.itemType == 'exhibit'){
         this.fetchBuildings()
+      }
+
+      if(this.itemType == 'parking'){
+        this.fetchParkingTypes()
       }
     },
     components: {Heading, Multiselect, MapitemDeleteModal, MapitemImageDeleteModal, MapitemImageEditModal, ImageThumbnailPod, NotFound, Draggable},
@@ -613,6 +757,7 @@
       return {
         // the list of potential tags for this map item
         buildings: [], // for multiselect
+        buildingTypes: [], // for multiselect
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
         currentStatus: null,
         emergencyTypes: [], // for multiselect
@@ -626,6 +771,7 @@
         isImageOrderUpdated: false,
         markers: [], // google map markers
         originalImageOrder: [], // when order of images is being re-arranged, put the initial images, in order, here
+        parkingTypes: [], // for multiselect
         record: {
           id: '',
           bathrooms: [],
@@ -633,6 +779,7 @@
           description: '',
           emergencyDevices: [],
           exhibits: [],
+          hours: '',
           isGenderNeutral: false,
           images: [],
           itemType: '',
@@ -641,7 +788,9 @@
           latitudeIllustration: null,
           longitudeIllustration: null,
           name: '',
+          parkingTypes: [],
           slug: '',
+          spaces: 0,
           tags:[],
         },
         recordSlug: '',
@@ -790,9 +939,21 @@
           console.log("COULDN'T GET BUILDINGS!")
         })
       },
+      fetchBuildingTypes(){
+        let self = this
+        axios.get('/api/mapbuildingtypes')
+        // success
+        .then(function (response) {
+          self.buildingTypes = response.data
+        })
+        // fail
+        .catch(function (error) {
+          console.log("COULDN'T GET BUILDING TYPES!")
+        })
+      },
       fetchEmergencyTypes(){
         let self = this
-        axios.get('/api/emergencytypes')
+        axios.get('/api/mapemergencytypes')
         // success
         .then(function (response) {
           self.emergencyTypes = response.data
@@ -804,7 +965,7 @@
       },
       fetchExhibitTypes(){
         let self = this
-        axios.get('/api/exhibittypes')
+        axios.get('/api/mapexhibittypes')
         // success
         .then(function (response) {
           self.exhibitTypes = response.data
@@ -831,8 +992,17 @@
           }
         })
       },
-      fetchTags: function(){
-        console.log("fetching tags")
+      fetchParkingTypes(){
+        let self = this
+        axios.get('/api/mapparkingtypes')
+        // success
+        .then(function (response) {
+          self.parkingTypes = response.data
+        })
+        // fail
+        .catch(function (error) {
+          console.log("COULDN'T GET PARKING TYPES!")
+        })
       },
       filesChange(fieldName, fileList) {
         // handle file changes

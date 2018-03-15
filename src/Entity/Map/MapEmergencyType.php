@@ -14,7 +14,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @UniqueEntity(
  *    fields={"name"},
  *    errorPath="name",
- *    message="There is already an emergency device type with this slug."
+ *    message="There is already an emergency device type with this name."
  * )
  */
 class MapEmergencyType
