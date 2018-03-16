@@ -100,13 +100,10 @@
             axios.delete('/api/mapitemimages/' + image.id)
                 .then(function(response){
                     // mark the deleted image in a colored border for 1.5 seconds, then remove it from the record
-                    //self.deletedImageIndex = self.record.images.indexOf(image)
                     self.isImageDeleted = true
                     setTimeout(function(){
                         self.imageDeleteRequested() // function to emit notice of deletion to parent
                         self.isImageDeleted = false
-                        //self.record.images.splice(self.record.images.indexOf(image), 1) // splice the deleted item from the record
-                        //self.setOriginalImages(self.record.images)
                     }, 1500)
                 })
                 .catch(function(error){
@@ -123,7 +120,7 @@
                 .then(function(response){
                     // mark the updated image in a colored border for 1.5 seconds, then remove the border
                     self.isImageEdited = true
-                    self.imageDeleteRequested()
+                    //self.imageDeleteRequested()
                     setTimeout(function(){
                         self.isImageEdited = false
                     }, 3000)
@@ -149,9 +146,6 @@
             $('#editImageModal').modal('show')
         },
         resetImageInformation: function(){
-            // imageDeleteRequested: function(){
-            //     this.$emit('imageDeleteRequested')
-            // },
             // clear the temp data
             this.editImageModalDataCopy = null
         },

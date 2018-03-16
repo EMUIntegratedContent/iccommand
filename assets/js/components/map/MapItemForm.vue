@@ -80,10 +80,12 @@
                 <div class="col-md-8">
                   <gmap-map
                     :center="center"
-                    :zoom="16"
+                    :map-type-id.sync="terrain"
+                    :zoom="6"
                     style="width: 100%; height: 300px"
                     @click="setTempPosition"
                   >
+                    <gmap-polygon :paths.sync="plPath" :editable="true" :options="{strokeColor:'#FF0000', fillColor:'#000000'}"></gmap-polygon>
                     <gmap-marker
                       :key="index"
                       v-for="(m, index) in markers"
@@ -92,6 +94,7 @@
                       :draggable="true"
                       @click="center=m.position"
                     ></gmap-marker>
+
                   </gmap-map>
                 </div>
                 <div class="col-md-4">
@@ -321,7 +324,7 @@
                         v-model="record.buildingTypes"
                         :options="buildingTypes"
                         :multiple="true"
-                        placeholder="Choose building"
+                        placeholder="What kind of building is this?"
                         label="name"
                         track-by="id"
                         id="buildingTypes"
@@ -565,7 +568,8 @@
                 Image order has been updated
               </div>
               <div v-if="itemExists && userCanEdit && isEditMode">
-                <draggable v-model="record.images" :options="{}" @start="drag=true" @end="onDragEnd">
+                <!--<draggable v-model="record.images" :options="{}" @start="drag=true" @end="onDragEnd">-->
+                <draggable v-model="record.images" @start="drag=true" @end="drag=false">
                   <image-thumbnail-pod
                           v-for="(image, index) in record.images"
                           :key="index"
@@ -652,7 +656,6 @@
     position: relative;
     cursor: pointer;
   }
-
   .input-file {
     opacity: 0; /* invisible but it's there! */
     width: 100%;
@@ -660,21 +663,17 @@
     position: absolute;
     cursor: pointer;
   }
-
   .dropbox:hover {
     background: lightblue; /* when mouse over to the drop zone, change color */
   }
-
   .dropbox p {
     font-size: 1.2em;
     text-align: center;
     padding: 50px 0;
   }
-
   #primary-image{
     max-width:100%;
   }
-
   .list-group-item, .list-group-item:hover{
     z-index: auto;
   }
@@ -695,12 +694,11 @@
   export default {
     created() {},
     mounted() {
-      this.resetUploadForm();
+      this.resetUploadForm()
       // detect if the form should be in edit mode from the start (default is false)
       if(this.startMode == 'edit'){
         this.isEditMode = true
       }
-
       if(this.itemExists === false){
         // Set the kind of map item being created via the itemType property from NewMapItemChoices
         this.isDataLoaded = true
@@ -709,23 +707,18 @@
         // fetch the existing record using the prop itemId
         this.fetchMapItem(this.itemId)
       }
-
       if(this.itemType == 'building'){
         this.fetchBuildingTypes()
       }
-
       if(this.itemType == 'building' || this.itemType == 'emergency device'){
         this.fetchEmergencyTypes()
       }
-
       if(this.itemType == 'building' || this.itemType == 'exhibit'){
         this.fetchExhibitTypes()
       }
-
       if(this.itemType == 'emergency device' || this.itemType == 'exhibit'){
         this.fetchBuildings()
       }
-
       if(this.itemType == 'parking'){
         this.fetchParkingTypes()
       }
@@ -755,7 +748,28 @@
     },
     data: function() {
       return {
-        // the list of potential tags for this map item
+        /***** GOOGLE MAPS DOODLING *****/
+        plPath: [
+          {lat: 25.774, lng: -80.190},
+          {lat: 18.466, lng: -66.118},
+          {lat: 32.321, lng: -64.757},
+          {lat: 25.774, lng: -80.190}
+        ],
+        //terrain: 'terrain',
+        terrain: 'coordinate',
+        /*
+        illustratedTypeOptions = {
+            getTileUrl: function(coord, zoom) {
+                return 'admin/php/tile.php?zoom=' + zoom + '&x=' + coord.x + '&y=' + coord.y;
+            },
+            maxZoom: 6,
+            minZoom: 3,
+            tileSize: new google.maps.Size(256, 256),
+            name: 'Illustrated View'
+        },
+        */
+
+        /**** end GOOGLE MAPS DOODLING *****/
         buildings: [], // for multiselect
         buildingTypes: [], // for multiselect
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
@@ -823,7 +837,6 @@
       isInvalid: function(){
         return 'is-invalid'
       },
-
       // PHOTOS
       isUploadInitial() {
         return this.currentStatus === STATUS_INITIAL;
@@ -838,22 +851,9 @@
         return this.currentStatus === STATUS_FAILED;
       },
       // -end PHOTOS
-
       lockIcon: function(){
         return this.isEditMode ? '<i class="fa fa-unlock"></i>' : '<i class="fa fa-lock"></i>'
       },
-      /*
-      slugify: function(){
-        if(this.record.name){
-          return this.record.name.toString().toLowerCase()
-                                .replace(/\s+/g, '-')           // Replace spaces with -
-                                .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-                                .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-                                .replace(/^-+/, '')             // Trim - from start of text
-                                .replace(/-+$/, ''); // Trim - from end of text
-        }
-      },
-      */
       userCanEdit: function(){
         // An existing record can be edited by a user with edit permissions, a new record can be created by a user with create permissions
         return this.itemExists && this.permissions[0].edit || !this.itemExists && this.permissions[0].create ? true : false
@@ -887,12 +887,10 @@
       },
       afterSubmitSucceeds: function(){
         let self = this
-
         // New item has been submitted, go to edit
         if(!this.itemExists){
           this.success = true
           this.successMessage = "Item created."
-
           let newurl = '/map/items/' + this.record.id
           document.location = newurl
         } else {
@@ -907,7 +905,6 @@
       // Run prior to submitting
       checkForm: function(){
         let self = this
-
         this.$validator.validateAll()
         .then((result) => {
           // if all fields valid, submit the form
@@ -1008,14 +1005,12 @@
         // handle file changes
         const formData = new FormData()
         if (!fileList.length) return
-
         // append the files to FormData
         Array
           .from(Array(fileList.length).keys())
           .map(x => {
             formData.append(fieldName, fileList[x], fileList[x].name)
           });
-
         // save it
         this.uploadImages(formData);
       },
@@ -1035,10 +1030,8 @@
       },
       markItemDeleteError: function(){
         let self = this
-
         this.isDeleted = false
         this.isDeleteError = true
-
         setTimeout(function(){
             self.isDeleteError = false
         }, 5000)
@@ -1088,11 +1081,6 @@
       setOriginalImages: function(imageArr){
         this.originalImageOrder = JSON.parse(JSON.stringify(imageArr))
       },
-      /*
-      setSlug: function(){
-        this.record.slug = this.slugify
-      },
-      */
       setTempPosition: function(e){
         this.tempLatitudeSatellite = e.latLng.lat()
         this.tempLongitudeSatellite = e.latLng.lng()
@@ -1105,10 +1093,8 @@
       // Submit the form via the API
       submitForm: function(){
         let self = this // 'this' loses scope within axios
-
         let method = (this.itemExists) ? 'put' : 'post'
         let route =  (this.itemExists) ? '/api/mapitem' : '/api/mapitems'
-
         // AJAX (axios) submission
         axios({
           method: method,
@@ -1141,19 +1127,16 @@
         this.record.images.forEach(function(image){
           imageIdsObj.imageIds.push(image.id)
         })
-
-        // AJAX (axios) submission
         axios.put('/api/mapitemimage/reorder', imageIdsObj)
           // success
           .then(function (response) {
             self.isImageOrderChanged = false
-
             // flash the success message for three seconds
             self.isImageOrderUpdated = true
             setTimeout(function(){
                 self.isImageOrderUpdated = false
             }, 3000)
-            //self.resetImageOrder()
+            self.setOriginalImages(self.record.images) // make these the new 'original' images, reflecting the proper order
           })
           // fail
           .catch(function (error) {
@@ -1162,9 +1145,7 @@
       },
       uploadImages: function(formData){
         let self = this
-
         this.currentStatus = STATUS_SAVING
-
         // append map item ID to form data
         formData.append('mapitem_id', this.record.id)
 

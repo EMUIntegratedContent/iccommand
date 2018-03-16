@@ -42,6 +42,10 @@ https://github.com/laravel/laravel/blob/master/resources/assets/js/bootstrap.js#
 
 Vue2-Google-Maps: how to get latitude and longitude and how to set a marker
 http://xkjyeah.github.io/vue-google-maps/index-app.html#/03CurvedLine
+https://github.com/GuillaumeLeclerc/vue-google-maps-example/blob/gh-pages/src/app.vue
+https://medium.com/founders-factory/building-a-custom-google-map-component-with-vue-js-d1c01ddd0b0a
+Custom map types (Google Docs)
+https://developers.google.com/maps/documentation/javascript/maptypes
 
 Validation
 https://symfony.com/doc/current/validation.html
