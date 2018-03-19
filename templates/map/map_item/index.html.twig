@@ -3,5 +3,7 @@
 {% block title %}Map Items{% endblock %}
 
 {% block body %}
-Map items index
+<div id="app">
+  <map-index :permissions="[{create: true, edit: true, delete: true}]"></map-index>
+</div>
 {% endblock %}

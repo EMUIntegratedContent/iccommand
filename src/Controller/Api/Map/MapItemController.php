@@ -35,7 +35,7 @@ class MapItemController extends FOSRestController{
    */
   public function getMapitemsAction()
   {
-    $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findAll();
+    $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([],['name' => 'asc']);
 
     $serializer = $this->container->get('jms_serializer');
     $serialized = $serializer->serialize($mapItems, 'json');

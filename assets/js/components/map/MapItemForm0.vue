@@ -679,7 +679,6 @@
     created() {},
     mounted() {
       window.addEventListener('load',function(){
-        alert("FANNY!");
         function CoordMapType(tileSize) {
           this.tileSize = tileSize;
         }
@@ -864,7 +863,7 @@
           case 'bathroom':
             return '<i class="fa fa-male"></i><i class="fa fa-female"></i>'
           default:
-              return '<i class="fa fa-map">'
+            return '<i class="fa fa-map"></i>'
         }
       },
       imageDeleted: function(){

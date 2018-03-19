@@ -78,24 +78,6 @@ class MapBuilding extends MapItem
       $this->exhibits[] = $exhibit;
     }
 
-    public function addUserGroup(UserGroup $userGroup)
-    {
-        if ($this->userGroups->contains($userGroup)) {
-            return;
-        }
-        $this->userGroups->add($userGroup);
-        $userGroup->addUser($this);
-    }
-
-    public function removeUserGroup(UserGroup $userGroup)
-    {
-        if (!$this->userGroups->contains($userGroup)) {
-            return;
-        }
-        $this->userGroups->removeElement($userGroup);
-        $userGroup->removeUser($this);
-    }
-
     public function getHours()
     {
         return $this->hours;

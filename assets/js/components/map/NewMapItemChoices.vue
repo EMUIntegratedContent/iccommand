@@ -6,6 +6,7 @@
           <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
           <span slot="title">Step 1/2: Choose item type</span>
         </heading>
+        <p><a href="/map/items" class="btn btn-primary">Map Items</a></p>
         <div class="row">
           <div class="col-xs-12 col-md-4">
             <div class="card" @click="setItem('building')">

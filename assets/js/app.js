@@ -12,7 +12,7 @@ import * as VueGoogleMaps from 'vue2-google-maps'
 import VeeValidate from 'vee-validate'
 
 Vue.use(VeeValidate)
-/*
+
 Vue.use(VueGoogleMaps, {
   load: {
     key: 'AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8',
@@ -22,10 +22,11 @@ Vue.use(VueGoogleMaps, {
     // (as you require)
   }
 })
-*/
+
 /** DECLARE COMPONENTS HERE **/
+Vue.component('map-index', require('./components/map/MapIndex.vue').default)
 Vue.component('new-map-item', require('./components/map/NewMapItem.vue').default)
-Vue.component('map-item-form', require('./components/map/MapItemForm0.vue').default)
+Vue.component('map-item-form', require('./components/map/MapItemForm.vue').default)
 
 /** VUE APP **/
 const app = new Vue({

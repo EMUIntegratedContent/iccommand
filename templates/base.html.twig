@@ -9,7 +9,9 @@
     </head>
     <body>
         <!-- <div id="map-canvas" style="width: 500px; height: 500px;"></div> -->
+        <div class="container">
         {% block body %}{% endblock %}
+        </div>
         {% block javascripts %}
           <script src="{{ asset('build/app.js') }}"></script>
           <script>

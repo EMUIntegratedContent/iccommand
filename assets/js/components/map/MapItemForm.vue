@@ -80,7 +80,7 @@
                 <div class="col-md-8">
                   <gmap-map
                     :center="center"
-                    :map-type-id.sync="terrain"
+                    :map-type-id.sync="mapType"
                     :zoom="6"
                     style="width: 100%; height: 300px"
                     @click="setTempPosition"
@@ -755,20 +755,7 @@
           {lat: 32.321, lng: -64.757},
           {lat: 25.774, lng: -80.190}
         ],
-        //terrain: 'terrain',
-        terrain: 'coordinate',
-        /*
-        illustratedTypeOptions = {
-            getTileUrl: function(coord, zoom) {
-                return 'admin/php/tile.php?zoom=' + zoom + '&x=' + coord.x + '&y=' + coord.y;
-            },
-            maxZoom: 6,
-            minZoom: 3,
-            tileSize: new google.maps.Size(256, 256),
-            name: 'Illustrated View'
-        },
-        */
-
+        mapType: 'terrain',
         /**** end GOOGLE MAPS DOODLING *****/
         buildings: [], // for multiselect
         buildingTypes: [], // for multiselect
@@ -828,7 +815,7 @@
           case 'bathroom':
             return '<i class="fa fa-male"></i><i class="fa fa-female"></i>'
           default:
-              return '<i class="fa fa-map">'
+            return '<i class="fa fa-map"></i>'
         }
       },
       imageDeleted: function(){
