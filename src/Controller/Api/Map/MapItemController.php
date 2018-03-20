@@ -8,6 +8,7 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\PersistentCollection;
+use Hateoas\HateoasBuilder;
 use FOS\RestBundle\View\View;
 use App\Entity\Map\MapItem;
 use App\Entity\Map\MapBathroom;
@@ -28,6 +29,15 @@ class MapItemController extends FOSRestController{
 
   public function __construct(MapItemService $service){
     $this->service = $service;
+  }
+
+  public function getExternalMapitemsAction(){
+    $hateoas = HateoasBuilder::create()->build();
+    $mapItems = $this->getDoctrine()->getRepository(MapExhibit::class)->findBy(['id' => 29]);
+    $serialized = $hateoas->serialize($mapItems, 'json');
+
+    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+    return $response;
   }
 
   /**

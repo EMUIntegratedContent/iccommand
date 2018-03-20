@@ -9,11 +9,6 @@ use App\Entity\Map\MapBuilding;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapBathroomRepository")
- * @Serializer\VirtualProperty(
- *     "itemType",
- *     exp="object.getItemType()",
- *     options={@Serializer\SerializedName("itemType")}
- *  )
  */
 class MapBathroom extends MapItem
 {
@@ -34,6 +29,11 @@ class MapBathroom extends MapItem
      */
     private $building;
 
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("itemType")
+     * @return String
+    */
     public function getItemType(){
       return constant("self::ITEM_TYPE");
     }

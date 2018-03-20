@@ -9,11 +9,6 @@ use App\Entity\Map\MapParkingType;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapParkingRepository")
- * @Serializer\VirtualProperty(
- *     "itemType",
- *     exp="object.getItemType()",
- *     options={@Serializer\SerializedName("itemType")}
- *  )
  */
 class MapParking extends MapItem
 {
@@ -45,6 +40,11 @@ class MapParking extends MapItem
         $this->parkingTypes = new ArrayCollection();
     }
 
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("itemType")
+     * @return String
+    */
     public function getItemType(){
       return constant("self::ITEM_TYPE");
     }

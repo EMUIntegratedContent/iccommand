@@ -5,14 +5,10 @@ namespace App\Entity\Map;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapExhibitRepository")
- * @Serializer\VirtualProperty(
- *     "itemType",
- *     exp="object.getItemType()",
- *     options={@Serializer\SerializedName("itemType")}
- *  )
  */
 class MapExhibit extends MapItem
 {
@@ -32,6 +28,11 @@ class MapExhibit extends MapItem
     */
    private $building;
 
+   /**
+    * @Serializer\VirtualProperty
+    * @Serializer\SerializedName("itemType")
+    * @return String
+   */
    public function getItemType(){
      return constant("self::ITEM_TYPE");
    }
@@ -46,7 +47,7 @@ class MapExhibit extends MapItem
        $this->type = $type;
    }
 
-   public function getBuilding(): MapBuilding
+   public function getBuilding(): ?MapBuilding
    {
        return $this->building;
    }

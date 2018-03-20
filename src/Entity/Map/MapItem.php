@@ -16,11 +16,7 @@ use App\Entity\Map\MapitemImage;
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking"})
- * @UniqueEntity(
- *    fields={"name", "slug"},
- *    errorPath="slug",
- *    message="There is already a map item with this slug."
- * )
+ * @Serializer\XmlRoot("mapItem")
  * @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
  */
 abstract class MapItem

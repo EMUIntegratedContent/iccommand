@@ -9,11 +9,6 @@ use App\Entity\Map\MapBuildingType;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapBuildingRepository")
- * @Serializer\VirtualProperty(
- *     "itemType",
- *     exp="object.getItemType()",
- *     options={@Serializer\SerializedName("itemType")}
- *  )
  */
 class MapBuilding extends MapItem
 {
@@ -62,6 +57,11 @@ class MapBuilding extends MapItem
         $this->buildingTypes = new ArrayCollection();
     }
 
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("itemType")
+     * @return String
+    */
     public function getItemType(){
       return constant("self::ITEM_TYPE");
     }
