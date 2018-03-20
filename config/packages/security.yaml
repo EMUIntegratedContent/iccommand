@@ -1,40 +1,71 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    # show full user not found message
+    hide_user_not_found: false
     providers:
-        #in_memory: { memory: ~ }
-        my_ldap:
-            ldap:
-                service: Symfony\Component\Ldap\Ldap
-                base_dn: cn=users,dc=ad,dc=emich,dc=edu
-                search_dn: "cn=cpuzzuol,cn=users,dc=ad,dc=emich,dc=edu"
-                search_password: Madd13Z03yCP
-                default_roles: ROLE_USER
-                uid_key: cn
-                #Username: ext_symf
-                #Password: sfbe6mea5q8a5sh
+        #emu_ldap:
+        #    ldap:
+        #        service: Symfony\Component\Ldap\Ldap
+        #        base_dn: cn=users,dc=ad,dc=emich,dc=edu
+        #        search_dn: "cn=ext_symf,cn=users,dc=ad,dc=emich,dc=edu"
+        #        search_password: sfbe6mea5q8a5sh
+        #        default_roles: ROLE_USER
+        #        uid_key: cn
+        fos_userbundle:
+            id: fos_user.user_provider.username
+        ldap:
+            id: ldap_tools.security.user.ldap_user_provider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        #main:
+        #    anonymous: ~
+        #    form_login_ldap:
+        #        login_path: login
+        #        check_path: login
+        #        service: Symfony\Component\Ldap\Ldap
+        #        dn_string: 'cn={username},cn=users,dc=ad,dc=emich,dc=edu'
+        #    logout:
+        #      path: logout
+
+        #main:
+        #    pattern: ^/
+        #    form_login:
+        #        provider: fos_userbundle
+        #        csrf_token_generator: security.csrf.token_manager
+        #    logout:       true
+        #    anonymous:    true
         main:
             anonymous: ~
-            form_login_ldap:
-                login_path: login
-                check_path: login
-                service: Symfony\Component\Ldap\Ldap
-                dn_string: 'cn=cpuzzuol,cn=users,dc=ad,dc=emich,dc=edu'
+            pattern: ^/
+            # Use the default LDAP user provider defined above
+            provider: fos_userbundle
+            form_login:
+                login_path: /login
+                check_path: /login_check
+                use_forward: true
+            logout: ~
+            guard:
+                authenticators:
+                    - ldap_tools.security.ldap_guard_authenticator
+        login:
+            pattern: ^/login$
+            anonymous: ~
 
-            # activate different ways to authenticate
-
-            # http_basic: true
-            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-
-            # form_login: true
-            # https://symfony.com/doc/current/security/form_login_setup.html
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
+        LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/map, roles: ROLE_USER }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/, role: ROLE_ADMIN }
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN

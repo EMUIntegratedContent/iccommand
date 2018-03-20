@@ -16,6 +16,5 @@ mapitemImages:
     resource: App\Controller\Api\Map\MapItemImageController
     prefix: /api/
 
-login:
-    path: /login
-    controller: App\Controller\DefaultController::login
+fos_user:
+    resource: "@FOSUserBundle/Resources/config/routing/all.xml"

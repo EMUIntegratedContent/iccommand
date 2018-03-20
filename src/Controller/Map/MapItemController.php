@@ -13,6 +13,8 @@ class MapItemController extends Controller
      */
     public function index()
     {
+      $user = $this->get('security.token_storage')->getToken()->getUser();
+      var_dump($user);
       return $this->render('map/map_item/index.html.twig', []);
     }
 

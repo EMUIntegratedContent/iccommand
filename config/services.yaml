@@ -34,7 +34,13 @@ services:
         arguments:
             -   host: ad.emich.edu
                 port: 389
-                #encryption: tls
                 options:
                     protocol_version: 3
                     referrals: false
+
+    # Handle user login from EMU LDAP
+    # Tutorial: https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-Provider.md#guard-redirection
+    app.event.login_listener:
+        class: App\Event\LdapLoginListener
+        tags:
+            - { name: kernel.event_listener, event: ldap_tools_bundle.login.success, method: onLdapLoginSuccess }

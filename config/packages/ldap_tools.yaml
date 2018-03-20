@@ -1,0 +1,32 @@
+ldap_tools:
+    domains:
+        emich:
+            # The LDAP FQDN is required
+            domain_name: emich.edu
+            # The username to use for the LDAP connection
+            username: ext_symf
+            # The password to use for the username
+            password: sfbe6mea5q8a5sh
+            # The base DN for LDAP searches (queried from the RootDSE if not provided)
+            base_dn: "cn=users,dc=ad,dc=emich,dc=edu"
+            # The LDAP servers to use for the connection (Queried from DNS if not provided)
+            servers: ["ad.emich.edu"]
+            # The simple name of the user will replace the %%username%%
+            # Double %% needed to escape the normal parameter resolution in Symfony
+            bind_format: "cn=%%username%%,cn=users,dc=ad,dc=emich,dc=edu"
+    security:
+        # Set to null for no role to be assigned by default. Or set it to another role altogether.
+        default_role: ROLE_USER
+        guard:
+            login_path: '/login'
+            default_target_path: '/'
+            always_use_target_path: false
+            target_path_parameter: '_target_path'
+            use_referrer: false
+            failure_path: null
+            failure_forward: false
+            failure_path_parameter: '_failure_path'
+            remember_me: false
+            http_basic: false
+            http_basic_domain: null
+            http_basic_realm: null

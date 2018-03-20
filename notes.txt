@@ -18,12 +18,15 @@ https://github.com/nelmio/NelmioCorsBundle
 
 REST
 https://symfony.com/doc/master/bundles/FOSRestBundle/6-automatic-route-generation_multiple-restful-controllers.html
-
-cas
-https://github.com/PRayno/CasAuthBundle
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-With-The-FOSUserBundle.md
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-Provider.md#guard-redirection
 
 LDAP
 http://symfony.com/doc/current/security/ldap.html
+LDAP Tools Bundle (+ hooking up with FOSUserBundle)
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-With-The-FOSUserBundle.md
+LDAP Role Mapping
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-Provider.md#Successful-Login-Event
 
 JSON Serialization
 http://jmsyst.com/bundles/JMSSerializerBundle
@@ -33,9 +36,6 @@ https://symfony.com/doc/current/frontend/encore/babel.html#creating-a-babelrc-fi
 
 Getting Vue Components to load properly (.default)
 https://github.com/vuejs/vue-router/issues/1882
-
-LDAP
-https://symfony.com/doc/current/security/ldap.html
 
 Axios (Vue) Config + CSRF Config (taken from Laravel docs)
 https://github.com/laravel/laravel/blob/master/resources/assets/js/bootstrap.js#L28-L33

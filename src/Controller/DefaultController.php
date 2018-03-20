@@ -19,9 +19,7 @@ class DefaultController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/login", name="login")
-     */
+
     public function login()
     {
       $authenticationUtils = $this->get('security.authentication_utils');
@@ -40,5 +38,15 @@ class DefaultController extends Controller
                       'error'         => $error,
               )
       );
+    }
+
+
+    public function logout(){}
+
+  
+    public function loginCheck(){
+      $authenticationUtils = $this->get('security.authentication_utils');
+      echo "nemaguskayak!";
+      return;
     }
 }
