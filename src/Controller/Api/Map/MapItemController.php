@@ -33,7 +33,7 @@ class MapItemController extends FOSRestController{
 
   public function getExternalMapitemsAction(){
     $hateoas = HateoasBuilder::create()->build();
-    $mapItems = $this->getDoctrine()->getRepository(MapExhibit::class)->findBy(['id' => 29]);
+    $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([],['name' => 'asc']);
     $serialized = $hateoas->serialize($mapItems, 'json');
 
     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
