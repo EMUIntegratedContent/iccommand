@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello {{ controller_name }}!{% endblock %}
+
+{% block body %}
+
+
+<div id="app">
+
+  <ul>
+      {% for key, role in roles %}
+          <li>{{ key|e }}</li>
+      {% endfor %}
+  </ul>
+  <ul>
+      {% for user in users %}
+          <li>{{ user.username|e }}</li>
+      {% endfor %}
+  </ul>
+
+</div>
+{% endblock %}

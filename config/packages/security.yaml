@@ -3,14 +3,6 @@ security:
     # show full user not found message
     hide_user_not_found: false
     providers:
-        #emu_ldap:
-        #    ldap:
-        #        service: Symfony\Component\Ldap\Ldap
-        #        base_dn: cn=users,dc=ad,dc=emich,dc=edu
-        #        search_dn: "cn=ext_symf,cn=users,dc=ad,dc=emich,dc=edu"
-        #        search_password: sfbe6mea5q8a5sh
-        #        default_roles: ROLE_USER
-        #        uid_key: cn
         fos_userbundle:
             id: fos_user.user_provider.username
         ldap:
@@ -19,23 +11,6 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        #main:
-        #    anonymous: ~
-        #    form_login_ldap:
-        #        login_path: login
-        #        check_path: login
-        #        service: Symfony\Component\Ldap\Ldap
-        #        dn_string: 'cn={username},cn=users,dc=ad,dc=emich,dc=edu'
-        #    logout:
-        #      path: logout
-
-        #main:
-        #    pattern: ^/
-        #    form_login:
-        #        provider: fos_userbundle
-        #        csrf_token_generator: security.csrf.token_manager
-        #    logout:       true
-        #    anonymous:    true
         main:
             anonymous: ~
             pattern: ^/
@@ -60,12 +35,20 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/map, roles: ROLE_USER }
+        - { path: ^/map, roles: [ROLE_MAP_USER, ROLE_GLOBAL_ADMIN] }
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/, role: ROLE_ADMIN }
+        - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
+        - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
+        - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }
 
     role_hierarchy:
-        ROLE_ADMIN:       ROLE_USER
-        ROLE_SUPER_ADMIN: ROLE_ADMIN
+        # Global
+        ROLE_GLOBAL_ADMIN:       ROLE_USER
+        ROLE_GLOBAL_ADMIN_SUPER: ROLE_GLOBAL_ADMIN
+        # Map
+        ROLE_MAP_VIEW:  ROLE_USER
+        ROLE_MAP_CREATE: ROLE_MAP_VIEW
+        ROLE_MAP_EDIT: ROLE_MAP_CREATE
+        ROLE_MAP_DELETE: ROLE_MAP_EDIT
+        ROLE_MAP_IMAGE_UPLOAD: [ROLE_MAP_VIEW, ROLE_MAP_EDIT]
+        ROLE_MAP_ADMIN: [ROLE_MAP_DELETE, ROLE_IMAGE_UPLOAD]

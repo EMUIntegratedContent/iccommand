@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\PersistentCollection;
 use Hateoas\HateoasBuilder;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use FOS\RestBundle\View\View;
 use App\Entity\Map\MapItem;
 use App\Entity\Map\MapBathroom;
@@ -42,6 +43,8 @@ class MapItemController extends FOSRestController{
 
   /**
    * Get all map items
+   *
+   * @Security("has_role('ROLE_MAP_VIEW')")
    */
   public function getMapitemsAction()
   {

@@ -7,9 +7,11 @@ class LdapLoginListener
 {
     public function onLdapLoginSuccess(LdapLoginEvent $event)
     {
-        $hr = "I like bacon";
-        var_dump($hr);
-        die();
+      /*
+        $user = $event->getUser();
+        // Get the credentials they used for the login...
+        $password = $event->getToken()->getCredentials();
         // Do something with the user/password combo...
+        */
     }
 }

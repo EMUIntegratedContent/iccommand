@@ -5,6 +5,9 @@
       <span slot="title">EMU Map Items</span>
     </heading>
     <p v-if="userCanCreate"><a href="/map/items/create" class="btn btn-primary">New Map Item</a></p>
+    <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
+      {{ apiError.message }}
+    </div>
     <div id="accordion">
       <div class="card">
         <div class="card-header" id="headingBuildings">
@@ -238,6 +241,10 @@
       },
       data: function() {
         return {
+          apiError: {
+            message: null,
+            status: null
+          },
           buildings: [],
           busses: [],
           emergencyDevices: [],
@@ -306,7 +313,26 @@
           })
           // fail
           .catch(function (error) {
-            console.log("COULDN'T GET MAP ITEMS!")
+            self.apiError.status = error.response.status
+            switch(error.response.status){
+              case 403:
+                self.apiError.message = "You do not have sufficient privileges to retrieve map items."
+                break
+              case 404:
+                self.apiError.message = "Map items were not found."
+                break
+              case 500:
+                self.apiError.message = "An internal error occurred."
+                break
+              default:
+                self.apiError.message = "An error occurred."
+                break
+            }
+            self.loadingBuildings = false
+            self.loadingBusses = false
+            self.loadingEmergencyDevices = false
+            self.loadingExhibits = false
+            self.loadingParkingLots = false
           })
         },
         setPaginatedBuildings(buildings){

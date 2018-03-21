@@ -4,6 +4,9 @@
     <div v-if="isDataLoaded === false">
       <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..." /></p>
     </div>
+    <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
+      {{ apiError.message }}
+    </div>
     <div v-if="isDeleted === true" class="alert alert-info alert-dismissible fade show" role="alert">
       {{ record.itemType | capitalize }} "{{ record.name }}" item has been deleted.
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -757,6 +760,10 @@
         ],
         mapType: 'terrain',
         /**** end GOOGLE MAPS DOODLING *****/
+        apiError: {
+          message: null,
+          status: null
+        },
         buildings: [], // for multiselect
         buildingTypes: [], // for multiselect
         center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
@@ -900,8 +907,9 @@
             return
           }
         })
-        .catch(() => {
-          console.log("Something went wrong that wasn't validation related.")
+        .catch((error) => {
+          self.apiError.status = 500
+          self.apiError.message = "Something went wrong that wasn't validation related."
         });
       },
       clearMarkers: function(){
@@ -920,7 +928,21 @@
         })
         // fail
         .catch(function (error) {
-          console.log("COULDN'T GET BUILDINGS!")
+          self.apiError.status = error.response.status
+          switch(error.response.status){
+            case 403:
+              self.apiError.message = "You do not have sufficient privileges to retrieve buildings."
+              break
+            case 404:
+              self.apiError.message = "Buildings were not found."
+              break
+            case 500:
+              self.apiError.message = "An internal error occurred."
+              break
+            default:
+              self.apiError.message = "An error occurred."
+              break
+          }
         })
       },
       fetchBuildingTypes(){
@@ -932,7 +954,20 @@
         })
         // fail
         .catch(function (error) {
-          console.log("COULDN'T GET BUILDING TYPES!")
+          switch(error.response.status){
+            case 403:
+              self.apiError.message = "You do not have sufficient privileges to retrieve building types."
+              break
+            case 404:
+              self.apiError.message = "Buildings types were not found."
+              break
+            case 500:
+              self.apiError.message = "An internal error occurred."
+              break
+            default:
+              self.apiError.message = "An error occurred."
+              break
+          }
         })
       },
       fetchEmergencyTypes(){
@@ -944,7 +979,20 @@
         })
         // fail
         .catch(function (error) {
-          console.log("COULDN'T GET EMERGENCY TYPES!")
+          switch(error.response.status){
+            case 403:
+              self.apiError.message = "You do not have sufficient privileges to retrieve emergency types."
+              break
+            case 404:
+              self.apiError.message = "Emergency types were not found."
+              break
+            case 500:
+              self.apiError.message = "An internal error occurred."
+              break
+            default:
+              self.apiError.message = "An error occurred."
+              break
+          }
         })
       },
       fetchExhibitTypes(){
@@ -956,7 +1004,20 @@
         })
         // fail
         .catch(function (error) {
-          console.log("COULDN'T GET EXHIBIT TYPES!")
+          switch(error.response.status){
+            case 403:
+              self.apiError.message = "You do not have sufficient privileges to retrieve exhibit types."
+              break
+            case 404:
+              self.apiError.message = "Exhibit types were not found."
+              break
+            case 500:
+              self.apiError.message = "An internal error occurred."
+              break
+            default:
+              self.apiError.message = "An error occurred."
+              break
+          }
         })
       },
       fetchMapItem(itemId){
@@ -985,7 +1046,20 @@
         })
         // fail
         .catch(function (error) {
-          console.log("COULDN'T GET PARKING TYPES!")
+          switch(error.response.status){
+            case 403:
+              self.apiError.message = "You do not have sufficient privileges to retrieve parking types."
+              break
+            case 404:
+              self.apiError.message = "Parking types were not found."
+              break
+            case 500:
+              self.apiError.message = "An internal error occurred."
+              break
+            default:
+              self.apiError.message = "An error occurred."
+              break
+          }
         })
       },
       filesChange(fieldName, fileList) {
@@ -1095,7 +1169,6 @@
           })
           // fail
           .catch(function (error) {
-            console.log(error)
             let errors = error.response.data
             // Add any validation errors to the vee validator error bag
             errors.forEach(function(error){
@@ -1127,7 +1200,20 @@
           })
           // fail
           .catch(function (error) {
-            console.log(error)
+            switch(error.response.status){
+              case 403:
+                self.apiError.message = "You do not have sufficient privileges to reorder images."
+                break
+              case 404:
+                self.apiError.message = "Images were not found."
+                break
+              case 500:
+                self.apiError.message = "An internal error occurred."
+                break
+              default:
+                self.apiError.message = "An error occurred."
+                break
+            }
           })
       },
       uploadImages: function(formData){
@@ -1156,6 +1242,21 @@
           // fail
           .catch(function (error) {
             self.currentStatus = STATUS_FAILED
+            switch(error.response.status){
+              case 403:
+                self.apiError.message = "You do not have sufficient privileges to upload images."
+                break
+              case 404:
+                self.apiError.message = "Images were not found."
+                break
+              case 500:
+                self.apiError.message = "An internal error occurred."
+                break
+              default:
+                self.apiError.message = "An error occurred."
+                break
+            }
+
           })
       },
       toggleEdit: function(){

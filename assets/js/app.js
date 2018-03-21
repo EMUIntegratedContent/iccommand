@@ -10,9 +10,10 @@ $(document).ready(function() {
 import Vue from 'vue'
 import * as VueGoogleMaps from 'vue2-google-maps'
 import VeeValidate from 'vee-validate'
+import PrettyCheckbox from 'pretty-checkbox-vue'
 
 Vue.use(VeeValidate)
-
+Vue.use(PrettyCheckbox)
 Vue.use(VueGoogleMaps, {
   load: {
     key: 'AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8',
@@ -24,6 +25,7 @@ Vue.use(VueGoogleMaps, {
 })
 
 /** DECLARE COMPONENTS HERE **/
+Vue.component('admin-user-manage', require('./components/admin/UserManage.vue').default)
 Vue.component('map-index', require('./components/map/MapIndex.vue').default)
 Vue.component('new-map-item', require('./components/map/NewMapItem.vue').default)
 Vue.component('map-item-form', require('./components/map/MapItemForm.vue').default)

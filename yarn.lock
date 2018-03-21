@@ -5298,6 +5298,16 @@ prettier@^1.7.0:
   version "1.10.2"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.10.2.tgz#1af8356d1842276a99a5b5529c82dd9e9ad3cc93"
 
+pretty-checkbox-vue@^1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/pretty-checkbox-vue/-/pretty-checkbox-vue-1.1.8.tgz#c52187daf0f151c5971438859d44b153d8c7a3d8"
+  dependencies:
+    pretty-checkbox "^3.0.3"
+
+pretty-checkbox@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/pretty-checkbox/-/pretty-checkbox-3.0.3.tgz#d49c8013a8fc08ee0c2d6ebde453464bfdbc428e"
+
 pretty-error@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/pretty-error/-/pretty-error-2.1.1.tgz#5f4f87c8f91e5ae3f3ba87ab4cf5e03b1a17f1a3"
