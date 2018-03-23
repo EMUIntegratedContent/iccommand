@@ -14,23 +14,129 @@
         <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
         <span slot="title">Configure user {{ username }}</span>
       </heading>
-      <p><button type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button></p>
+      <p>
+        <a href="/admin/users" class="btn btn-info pull-left"><i class="fa fa-arrow-left"></i></a>
+        <button type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button>
+      </p>
       <form class="form" id="permissionsForm" @submit.prevent="checkForm">
-        <template v-if="isEditMode">
-          <h4>Administrative Roles</h4>
-          <p-check v-for="role in rolesAdmin" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-          <h4>Campus Map</h4>
-          <p-check v-for="role in rolesMap" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-          <br />
-          <p-check class="p-switch p-slim" v-model="user.enabled" color="success">{{ user.enabled ? 'Enabled' : 'Disabled' }}</p-check>
-          <button class="btn btn-success spacer-top" type="submit">{{ 'Update ' + username }}</button>
-        </template>
-        <template v-else>
-          <h4>Roles</h4>
-          <p v-for="(role, index) in user.roles">
-            {{ role }}<span v-if="index < (user.roles.length - 1)">, </span>
-          </p>
-        </template>
+        <fieldset>
+          <legend>Basic Information</legend>
+          <div class="form-group row">
+            <div class="col-sm-6">
+              <label>First Name</label>
+              <input
+                data-vv-as="first name"
+                name="firstName"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors.has('firstName'), 'form-control-plaintext': !isEditMode }"
+                :readonly="!isEditMode"
+                v-model="user.firstName">
+              <div class="invalid-feedback">
+                {{ errors.first('firstName') }}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label>Last Name</label>
+              <input
+                data-vv-as="last name"
+                name="lastName"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors.has('lastName'), 'form-control-plaintext': !isEditMode }"
+                :readonly="!isEditMode"
+                v-model="user.lastName">
+              <div class="invalid-feedback">
+                {{ errors.first('lastName') }}
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm-6">
+              <label>Job Title</label>
+              <input
+                data-vv-as="job title"
+                name="jobTitle"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors.has('jobTitle'), 'form-control-plaintext': !isEditMode }"
+                :readonly="!isEditMode"
+                v-model="user.jobTitle">
+              <div class="invalid-feedback">
+                {{ errors.first('jobTitle') }}
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <label>Department</label>
+              <input
+                data-vv-as="department"
+                name="department"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors.has('department'), 'form-control-plaintext': !isEditMode }"
+                :readonly="!isEditMode"
+                v-model="user.department">
+              <div class="invalid-feedback">
+                {{ errors.first('department') }}
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <label>Phone Number</label>
+              <input
+                v-validate="{max: 16}"
+                data-vv-as="phone"
+                name="phone"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors.has('phone'), 'form-control-plaintext': !isEditMode }"
+                :readonly="!isEditMode"
+                v-model="user.phone">
+              <div class="invalid-feedback">
+                {{ errors.first('phone') }}
+              </div>
+            </div>
+          </div>
+          <template v-if="isEditMode">
+            <div class="form-group">
+              <p-check class="p-switch p-slim" v-model="user.enabled" color="success">{{ user.enabled ? 'Enabled' : 'Disabled' }}</p-check>
+            </div>
+          </template>
+          <template v-else>
+            <p>User is {{ user.enabled ? 'enabled' : 'disabled' }}</p>
+          </template>
+        </fieldset>
+        <fieldset>
+          <legend>User Roles</legend>
+          <template v-if="isEditMode">
+            <h4>Administrative</h4>
+            <p-check v-for="role in rolesAdmin" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+            <h4>Campus Map</h4>
+            <p-check v-for="role in rolesMap" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+            <br />
+            <!-- VALIDATION AND SUCCESS/ERROR MESSAGES -->
+            <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
+              You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
+              <ul>
+                <li v-for="error in this.$validator.errors.all()">
+                  <strong>{{ error }}</strong>
+                </li>
+              </ul>
+            </div>
+            <div v-if="success" class="alert alert-success fade show" role="alert">
+              {{ successMessage }}
+            </div>
+            <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">
+              There was an error deleting this item.
+            </div>
+            <!-- ACTION BUTTONS -->
+            <button class="btn btn-success spacer-top" type="submit">{{ 'Update ' + username }}</button>
+          </template>
+          <template v-else>
+            <p v-for="(role, index) in user.roles">
+              {{ role }}<span v-if="index < (user.roles.length - 1)">, </span>
+            </p>
+          </template>
+        </fieldset>
       </form>
     </div>
   </div>
@@ -68,6 +174,7 @@
           roles: [],
           rolesAdmin: [],
           rolesMap: [],
+          success: false,
           user: {
             id: '',
             roles: []
@@ -87,8 +194,30 @@
         },
       },
       methods: {
+        afterSubmitSucceeds: function(){
+          let self = this
+          this.success = true
+          this.successMessage = "Update successful."
+          // remove the message after 3 seconds
+          setTimeout(function(){
+              self.success = false
+          }, 3000)
+        },
+        // Run prior to submitting
         checkForm: function(){
-          this.submitForm()
+          let self = this
+          this.$validator.validateAll()
+          .then((result) => {
+            // if all fields valid, submit the form
+            if (result) {
+              self.submitForm()
+              return
+            }
+          })
+          .catch((error) => {
+            self.apiError.status = 500
+            self.apiError.message = "Something went wrong that wasn't validation related."
+          });
         },
         fetchRoles: function(){
           let self = this
@@ -164,11 +293,10 @@
           })
             // success
             .then(function (response) {
-              console.log("YOU GUH")
+              self.afterSubmitSucceeds()
             })
             // fail
             .catch(function (error) {
-              console.log("NAH FAM")
               let errors = error.response.data
               // Add any validation errors to the vee validator error bag
               errors.forEach(function(error){

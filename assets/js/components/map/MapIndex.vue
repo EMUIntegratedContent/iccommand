@@ -225,7 +225,7 @@
 </style>
 <script>
     import Heading from '../utils/Heading.vue'
-    import Paginator from './Paginator.vue'
+    import Paginator from '../utils/Paginator.vue'
 
     export default {
       created() {},
@@ -265,11 +265,6 @@
       computed: {
         headingIcon: function() {
           return '<i class="fa fa-list"></i>'
-        },
-        isLoadingBusses: function(){
-          if(this.busses.length == 0){
-            this.loadingBusses = false
-          }
         },
         userCanCreate: function(){
           return this.permissions[0].create ? true : false

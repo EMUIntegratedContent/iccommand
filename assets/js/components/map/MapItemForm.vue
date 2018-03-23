@@ -20,7 +20,10 @@
         <span v-if="!itemExists" slot="title">Step 2/2: Provide {{ record.itemType }} information</span>
         <span v-else slot="title">Map {{ record.itemType }}: {{ record.name }}</span>
       </heading>
-      <p><button v-if="itemExists && this.permissions[0].edit" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button></p>
+      <p>
+        <a href="/map/items" class="btn btn-info pull-left"><i class="fa fa-arrow-left"></i></a>
+        <button v-if="itemExists && this.permissions[0].edit" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button>
+      </p>
       <!-- TABS -->
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">

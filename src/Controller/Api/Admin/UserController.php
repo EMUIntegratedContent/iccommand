@@ -15,6 +15,22 @@ use App\Entity\User;
 class UserController extends FOSRestController{
 
   /**
+   * Get all users
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN')")
+   */
+  public function getUsersAction()
+  {
+    $users = $this->getDoctrine()->getRepository(User::class)->findBy([],['username' => 'asc']);
+
+    $serializer = $this->container->get('jms_serializer');
+    $serialized = $serializer->serialize($users, 'json');
+    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+    return $response;
+  }
+
+  /**
    * Return an individual user (by username)
    */
   public function getUserAction($username){
@@ -53,9 +69,17 @@ class UserController extends FOSRestController{
        throw $this->createNotFoundException('The user ' . $username . ' was not found.');
      }
 
+     $user->setFirstName($request->request->get('firstName'));
+     $user->setLastName($request->request->get('lastName'));
+     $user->setJobTitle($request->request->get('jobTitle'));
+     $user->setDepartment($request->request->get('department'));
+     $user->setPhone($request->request->get('phone'));
+
      $updatedRoles = $request->request->get('roles');
      $this->syncUserRoles($user, $updatedRoles);
      $this->setUserEnabledStatus($user, $request->request->get('enabled'));
+
+     $userManager->updateUser($user);
 
      $response = new Response('User ' . $username . ' was updated successfully.', 200, array('Content-Type' => 'application/json'));
      return $response;

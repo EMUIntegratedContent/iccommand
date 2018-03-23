@@ -3,9 +3,7 @@
 {% block title %}Manage Users{% endblock %}
 
 {% block body %}
-
-
 <div id="app">
-  <admin-user-manage username="cpuzzuol"></admin-user-manage>
+  <admin-user-manage username="{{ user.username }}"></admin-user-manage>
 </div>
 {% endblock %}
