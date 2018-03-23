@@ -2,6 +2,7 @@ security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     # show full user not found message
     hide_user_not_found: false
+    always_authenticate_before_granting:  true
     providers:
         fos_userbundle:
             id: fos_user.user_provider.username
@@ -19,7 +20,6 @@ security:
             form_login:
                 login_path: /login
                 check_path: /login_check
-                use_forward: true
             logout: ~
             guard:
                 authenticators:
@@ -37,7 +37,7 @@ security:
     access_control:
         - { path: ^/map, roles: [ROLE_MAP_USER, ROLE_GLOBAL_ADMIN] }
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
+        #- { path: ^/register, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }
 

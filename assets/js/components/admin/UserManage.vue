@@ -22,6 +22,7 @@
           <h4>Campus Map</h4>
           <p-check v-for="role in rolesMap" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
           <br />
+          <p-check class="p-switch p-slim" v-model="user.enabled" color="success">{{ user.enabled ? 'Enabled' : 'Disabled' }}</p-check>
           <button class="btn btn-success spacer-top" type="submit">{{ 'Update ' + username }}</button>
         </template>
         <template v-else>
@@ -87,7 +88,7 @@
       },
       methods: {
         checkForm: function(){
-
+          this.submitForm()
         },
         fetchRoles: function(){
           let self = this
@@ -151,6 +152,31 @@
                 break
             }
           })
+        },
+        // Submit the form via the API
+        submitForm: function(){
+          let self = this // 'this' loses scope within axios
+          // AJAX (axios) submission
+          axios({
+            method: 'put',
+            url: '/api/admin/users/' + this.username,
+            data: self.user
+          })
+            // success
+            .then(function (response) {
+              console.log("YOU GUH")
+            })
+            // fail
+            .catch(function (error) {
+              console.log("NAH FAM")
+              let errors = error.response.data
+              // Add any validation errors to the vee validator error bag
+              errors.forEach(function(error){
+                let key = error.property_path
+                let message = error.message
+                self.$validator.errors.add(key, message)
+              })
+            })
         },
         toggleEdit: function(){
           this.isEditMode === true ? this.isEditMode = false : this.isEditMode = true
