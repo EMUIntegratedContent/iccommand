@@ -23,10 +23,10 @@ ldap_tools:
             always_use_target_path: false
             target_path_parameter: '_target_path'
             use_referrer: true
-            failure_path: null
-            failure_forward: false
-            failure_path_parameter: '_failure_path'
             remember_me: false
-            http_basic: false
-            http_basic_domain: null
-            http_basic_realm: null
+            #failure_path: null
+            #failure_forward: false
+            #failure_path_parameter: '_failure_path'
+            #http_basic: false
+            #http_basic_domain: null
+            #http_basic_realm: null

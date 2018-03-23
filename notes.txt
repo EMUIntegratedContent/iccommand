@@ -84,3 +84,11 @@ https://ourcodeworld.com/articles/read/42/how-to-create-a-php-service-for-symfon
 
 Checkbox styles (npm)
 https://hamed-ehtesham.github.io/pretty-checkbox-vue/
+
+Overriding bundle parts (Symfony 4)
+https://symfony.com/doc/current/bundles/override.html
+Overriding bundle templates (Symfony 4)
+https://symfony.com/doc/current/templating/overriding.html
+
+Redirect after login (FOSUserBundle)
+https://stackoverflow.com/questions/20879164/symfony2-using-referer-after-login-with-fosuserbundle?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
