@@ -33,7 +33,7 @@
     "load-google-maps-api": "^1.2.0",
     "popper.js": "^1.12.9",
     "pretty-checkbox-vue": "^1.1.8",
-    "vee-validate": "^2.0.5",
+    "vee-validate": "^2.0.6",
     "vue-axios": "^2.0.2",
     "vue-js-grid": "^1.0.1",
     "vue-multiselect": "^2.0.8",

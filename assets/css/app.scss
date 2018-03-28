@@ -1,18 +1,13 @@
-$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
-
-// set if you're also including font-awesome
-$fa-font-path: "~font-awesome/fonts";
-
-// customize some Bootstrap variables
-$brand-primary: darken(#428bca, 20%);
+@import 'variables';
+@import 'override';
+@import 'map';
+@import 'mixins';
 
 // the ~ allows you to reference things in node_modules
 // this is BOOTSTRAP 4!
 @import '~bootstrap/scss/bootstrap';
-
 // Font Awesome (CP 2/28/18)
 @import "~font-awesome/scss/font-awesome.scss";
-
 // Pretty checkbox (CP 3/21/18)
 @import '~pretty-checkbox/src/pretty-checkbox.scss';
 
@@ -22,6 +17,19 @@ $brand-primary: darken(#428bca, 20%);
 .spacer-bottom{
   margin-bottom: 20px;
 }
-.hover-cards .card-body:hover{
-  background-color: $brand-primary;
+.hover-cards{
+  .card-body:hover{
+    @include card-box-shadow;
+  }
+}
+
+.card-accent{
+  border-top: 5px solid;
+}
+.card-accent-red{
+  border-top-color: $primary-red;
+}
+
+.btn-info{
+  background-color: black;
 }
