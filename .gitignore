@@ -22,5 +22,6 @@ Vagrantfile
 .vagrant/
 ###< Homestead ###
 
-###> composer ###
+###> misc ###
 composer
+###< Homestead ###
