@@ -39,22 +39,17 @@ class MapBuilding extends MapItem
     private $exhibits;
 
     /**
-     * Many MapItems have Many types.
-     * @ORM\ManyToMany(targetEntity="App\Entity\Map\MapBuildingType", cascade={"remove", "persist"})
-     * @ORM\JoinTable(name="mapbuilding_types",
-     *      joinColumns={@ORM\JoinColumn(name="mapbuilding_id", referencedColumnName="id", onDelete="CASCADE")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="type_id", referencedColumnName="id", onDelete="CASCADE")}
-     *      )
-     * @ORM\OrderBy({"name" = "ASC"})
-     * @Serializer\SerializedName("buildingTypes")
+     * Many buildings have one type.
+     * @ORM\ManyToOne(targetEntity="App\Entity\Map\MapBuildingType")
+     * @ORM\JoinColumn(name="buildingtype_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
+     * @Serializer\SerializedName("buildingType")
      */
-    private $buildingTypes;
+    private $buildingType;
 
     public function __construct() {
         parent::__construct();
         $this->bathrooms = new ArrayCollection();
         $this->emergencyDevices = new ArrayCollection();
-        $this->buildingTypes = new ArrayCollection();
     }
 
     /**
@@ -103,26 +98,13 @@ class MapBuilding extends MapItem
         return $this->exhibits;
     }
 
-    public function getBuildingTypes()
+    public function getBuildingType(): ?MapBuildingType
     {
-        return $this->buildingTypes;
+        return $this->buildingType;
     }
 
-    public function addBuildingType(MapBuildingType $buildingType)
+    public function setBuildingType(MapBuildingType $buildingType = null)
     {
-        if ($this->buildingTypes->contains($buildingType)) {
-            return;
-        }
-        $this->buildingTypes->add($buildingType);
-        $buildingType->addBuilding($this);
-    }
-
-    public function removeBuildingType(MapBuildingType $buildingType)
-    {
-        if (!$this->buildingTypes->contains($buildingType)) {
-            return;
-        }
-        $this->buildingTypes->removeElement($buildingType);
-        $buildingType->removeBuilding($this);
+        $this->buildingType = $buildingType;
     }
 }

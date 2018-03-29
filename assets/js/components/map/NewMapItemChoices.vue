@@ -9,7 +9,7 @@
         <p><a href="/map/items" class="btn btn-primary">Map Items</a></p>
         <div class="row">
           <div class="col-xs-12 col-md-4">
-            <div class="card" @click="setItem('building')">
+            <div class="card card-accent card-accent-red map-item-card" @click="setItem('building')">
               <div class="card-body">
                 <h5 class="card-title">Building</h5>
                 <i class="fa fa-building fa-4x"></i>
@@ -27,7 +27,7 @@
             -->
           </div>
           <div class="col-xs-12 col-md-4">
-            <div class="card" @click="setItem('emergency device')">
+            <div class="card card-accent card-accent-red map-item-card" @click="setItem('emergency device')">
               <div class="card-body">
                 <h5 class="card-title">Emergency Device</h5>
                 <i class="fa fa-ambulance fa-4x"></i>
@@ -37,7 +37,7 @@
         </div>
           <div class="row spacer-top">
               <div class="col-xs-12 col-md-4">
-                  <div class="card" @click="setItem('parking')">
+                  <div class="card card-accent card-accent-red map-item-card" @click="setItem('parking')">
                       <div class="card-body">
                           <h5 class="card-title">Parking</h5>
                           <i class="fa fa-car fa-4x"></i>
@@ -45,7 +45,7 @@
                   </div>
               </div>
               <div class="col-xs-12 col-md-4">
-                  <div class="card" @click="setItem('exhibit')">
+                  <div class="card card-accent card-accent-red map-item-card" @click="setItem('exhibit')">
                       <div class="card-body">
                           <h5 class="card-title">Exhibit</h5>
                           <i class="fa fa-paint-brush fa-4x"></i>
@@ -53,7 +53,7 @@
                   </div>
               </div>
               <div class="col-xs-12 col-md-4">
-                  <div class="card" @click="setItem('bus')">
+                  <div class="card card-accent card-accent-red map-item-card" @click="setItem('bus')">
                       <div class="card-body">
                           <h5 class="card-title">Bus Stop</h5>
                           <i class="fa fa-bus fa-4x"></i>
@@ -67,9 +67,7 @@
 </template>
 
 <style>
-.card{
-  text-align: center;
-}
+
 </style>
 
 <script>

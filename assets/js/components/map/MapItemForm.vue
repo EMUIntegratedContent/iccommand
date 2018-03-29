@@ -327,31 +327,31 @@
                     <div class="form-group col-md-12">
                       <label for="buildingTypes" class="sr-only">Building Type(s)</label>
                       <multiselect
-                        v-model="record.buildingTypes"
+                        v-validate="'required'"
+                        data-vv-as="building type"
+                        v-model="record.buildingType"
                         :options="buildingTypes"
-                        :multiple="true"
+                        :multiple="false"
                         placeholder="What kind of building is this?"
                         label="name"
                         track-by="id"
-                        id="buildingTypes"
+                        id="buildingType"
                         class="form-control"
                         style="padding:0"
-                        name="buildingTypes"
-                        :class="{'is-invalid': errors.has('buildingTypes') }"
+                        name="buildingType"
+                        :class="{'is-invalid': errors.has('buildingType') }"
                         >
                       </multiselect>
                       <div class="invalid-feedback">
-                        {{ errors.first('buildingTypes') }}
+                        {{ errors.first('buildingType') }}
                       </div>
                     </div>
                   </div>
                 </template>
                 <template v-else>
-                  <h5>Building Types</h5>
-                  <ul v-if="record.buildingTypes.length > 0">
-                    <li v-for="buildingType in record.buildingTypes">{{ buildingType.name }}</li>
-                  </ul>
-                  <p v-if="record.buildingTypes.length == 0">None</p>
+                  <h5>Building Type</h5>
+                  <p v-if="record.buildingType">{{ record.buildingType.name }}</p>
+                  <p v-else>None</p>
                 </template>
               </fieldset>
             </template>

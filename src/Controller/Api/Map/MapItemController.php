@@ -166,6 +166,11 @@ class MapItemController extends FOSRestController{
       case "building":
         $mapItem = new MapBuilding();
         $mapItem->setHours($request->request->get('hours'));
+        // Building Type
+        $buildingType = $this->getDoctrine()->getRepository(MapBuildingType::class)->find($request->request->get('buildingType')['id']);
+        if($buildingType){
+          $mapItem->setBuildingType($buildingType);
+        }
         break;
       case "bus":
         $mapItem = new MapBus();
@@ -266,17 +271,6 @@ class MapItemController extends FOSRestController{
           }
           $em->persist($exhibit); // persist but don't save until the end
         }
-
-        // Building Types
-        foreach($request->request->get('buildingTypes') as $type){
-          // find the building type entity
-          $buildingType = $this->getDoctrine()->getRepository(MapBuildingType::class)->find($type['id']);
-          if(!$buildingType){
-            $response = new Response("The building type was not found.", 404, array('Content-Type' => 'application/json'));
-            return $response;
-          }
-          $mapItem->addBuildingType($buildingType);
-        }
         break;
       case "emergency device":
       case "exhibit":
@@ -338,6 +332,11 @@ class MapItemController extends FOSRestController{
         break;
       case "building":
         $mapItem->setHours($request->request->get('hours'));
+        // Building Type
+        $buildingType = $this->getDoctrine()->getRepository(MapBuildingType::class)->find($request->request->get('buildingType')['id']);
+        if($buildingType){
+          $mapItem->setBuildingType($buildingType);
+        }
 
         // Building bathrooms
         foreach($request->request->get('bathrooms') as $bldgBathroom){
@@ -421,9 +420,6 @@ class MapItemController extends FOSRestController{
         }
         // Compare and delete any emergency devices not in the updated list
         $this->service->mapItemCollectionCompare($mapItem->getExhibits(), $request->request->get('exhibits'));
-
-        // Compare and delete any building types not in the updated list
-        $this->service->mapBuildingTypeCompare($mapItem->getBuildingTypes(), $request->request->get('buildingTypes'), $mapItem);
         break;
       case "bus":
         break;

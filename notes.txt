@@ -92,3 +92,7 @@ https://symfony.com/doc/current/templating/overriding.html
 
 Redirect after login (FOSUserBundle)
 https://stackoverflow.com/questions/20879164/symfony2-using-referer-after-login-with-fosuserbundle?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+
+FRONTEND:
+Gmaps.js
+https://hpneo.github.io/gmaps/examples/markers.html

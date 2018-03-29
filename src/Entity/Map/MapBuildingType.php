@@ -33,11 +33,6 @@ class MapBuildingType
    */
   private $name;
 
-  /**
-   * @ORM\ManyToMany(targetEntity="MapBuilding", mappedBy="buildingTypes")
-   */
-  private $buildings;
-
   // Getters and setters
   public function getId()
   {
@@ -52,24 +47,6 @@ class MapBuildingType
   public function setName($name)
   {
       $this->name = $name;
-  }
-
-  public function addBuilding(MapBuilding $building)
-  {
-      if ($this->buildings->contains($building)) {
-          return;
-      }
-      $this->buildings->add($building);
-      $building->addBuildingType($this);
-  }
-
-  public function removeBuilding(MapBuilding $building)
-  {
-      if (!$this->buildings->contains($building)) {
-          return;
-      }
-      $this->buildings->removeElement($building);
-      $building->removeBuildingType($this);
   }
 
   public function __toString(){
