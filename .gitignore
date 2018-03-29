@@ -21,3 +21,6 @@ Homestead.yaml
 Vagrantfile
 .vagrant/
 ###< Homestead ###
+
+###> composer ###
+composer

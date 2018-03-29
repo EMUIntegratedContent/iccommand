@@ -574,8 +574,7 @@
                 Image order has been updated
               </div>
               <div v-if="itemExists && userCanEdit && isEditMode">
-                <!--<draggable v-model="record.images" :options="{}" @start="drag=true" @end="onDragEnd">-->
-                <draggable v-model="record.images" @start="drag=true" @end="drag=false">
+                <draggable v-model="record.images" :options="{'disabled':isModalOpen}" @start="drag=true" @end="onDragEnd">
                   <image-thumbnail-pod
                           v-for="(image, index) in record.images"
                           :key="index"
@@ -700,6 +699,7 @@
   export default {
     created() {},
     mounted() {
+      document.addEventListener('click', this.toggleDragEnable);
       this.resetUploadForm()
       // detect if the form should be in edit mode from the start (default is false)
       if(this.startMode == 'edit'){
@@ -811,6 +811,7 @@
         tempLongitudeSatellite: null,
         uploadedFiles: [],
         uploadErrors: [],
+        isModalOpen: false,
       }
     },
     computed: {
@@ -1264,6 +1265,9 @@
       },
       toggleEdit: function(){
         this.isEditMode === true ? this.isEditMode = false : this.isEditMode = true
+      },
+      toggleDragEnable: function(){
+        $('#deleteImageModal').hasClass('show') || $('#editImageModal').hasClass('show') ? this.isModalOpen = true : this.isModalOpen = false;
       }
     },
     filters: {
