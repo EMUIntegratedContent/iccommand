@@ -20,6 +20,11 @@ class MapBuilding extends MapItem
     private $hours;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $address;
+
+    /**
      * One building has (zero to) many bathrooms.
      * @ORM\OneToMany(targetEntity="MapBathroom", mappedBy="building", cascade={"persist", "remove"}, orphanRemoval=true)
      */
@@ -81,6 +86,16 @@ class MapBuilding extends MapItem
     public function setHours($hours)
     {
         $this->hours = $hours;
+    }
+
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    public function setAddress($address)
+    {
+        $this->address = $address;
     }
 
     public function getBathrooms()

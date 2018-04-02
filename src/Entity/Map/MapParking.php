@@ -4,6 +4,7 @@ namespace App\Entity\Map;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use App\Entity\Map\MapParkingType;
 
@@ -23,6 +24,14 @@ class MapParking extends MapItem
      * @ORM\Column(type="integer", nullable=true)
      */
     private $spaces;
+
+    /**
+     * @ORM\Column(type="boolean")
+     *
+     * @Assert\NotNull(message="Is the bathroom handicap accessible?")
+     * @Serializer\SerializedName("hasHandicapSpaces")
+     */
+    private $hasHandicapSpaces;
 
     /**
      * Many Parking lots have Many types.
@@ -63,6 +72,14 @@ class MapParking extends MapItem
 
     public function setSpaces($spaces){
       $this->spaces = $spaces;
+    }
+
+    public function getHasHandicapSpaces(){
+      return $this->hasHandicapSpaces;
+    }
+
+    public function setHasHandicapSpaces($hasHandicapSpaces){
+      $this->hasHandicapSpaces = $hasHandicapSpaces;
     }
 
     public function getParkingTypes()
