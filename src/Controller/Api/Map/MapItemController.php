@@ -166,6 +166,7 @@ class MapItemController extends FOSRestController{
       case "building":
         $mapItem = new MapBuilding();
         $mapItem->setHours($request->request->get('hours'));
+        $mapItem->setAddress($request->request->get('address'));
         // Building Type
         $buildingType = $this->getDoctrine()->getRepository(MapBuildingType::class)->find($request->request->get('buildingType')['id']);
         if($buildingType){
@@ -185,6 +186,7 @@ class MapItemController extends FOSRestController{
         $mapItem = new MapParking();
         $mapItem->setSpaces($request->request->get('spaces'));
         $mapItem->setHours($request->request->get('hours'));
+        $mapItem->setHasHandicapSpaces($request->request->get('hasHandicapSpaces'));
         break;
       default:
         return new Response("This map item type cannot be created here.", 400, array('Content-Type' => 'application/json'));
@@ -332,6 +334,7 @@ class MapItemController extends FOSRestController{
         break;
       case "building":
         $mapItem->setHours($request->request->get('hours'));
+        $mapItem->setAddress($request->request->get('address'));
         // Building Type
         $buildingType = $this->getDoctrine()->getRepository(MapBuildingType::class)->find($request->request->get('buildingType')['id']);
         if($buildingType){
@@ -447,6 +450,7 @@ class MapItemController extends FOSRestController{
       case "parking":
         $mapItem->setSpaces($request->request->get('spaces'));
         $mapItem->setHours($request->request->get('hours'));
+        $mapItem->setHasHandicapSpaces($request->request->get('hasHandicapSpaces'));
         // Compare and delete any parking lot types not in the updated list
         $this->service->mapParkingLotTypeCompare($mapItem->getParkingTypes(), $request->request->get('parkingTypes'), $mapItem);
         break;

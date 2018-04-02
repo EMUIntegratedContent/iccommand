@@ -124,6 +124,19 @@
               <fieldset>
                 <legend class="sr-only">{{ record.itemType | capitalize }} specific fields</legend>
                 <div class="form-group">
+                  <label>Address</label>
+                  <input
+                    name="address"
+                    type="text"
+                    class="form-control"
+                    :class="{ 'is-invalid': errors.has('address'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                    :readonly="!userCanEdit || !isEditMode"
+                    v-model="record.address">
+                  <div class="invalid-feedback">
+                    {{ errors.first('address') }}
+                  </div>
+                </div>
+                <div class="form-group">
                   <label>Building hours</label>
                   <textarea
                     class="form-control"
@@ -469,59 +482,71 @@
             <template v-if="record.itemType == 'parking'">
               <fieldset>
                 <legend>{{ record.itemType | capitalize }} specific fields</legend>
-                <div v-if="userCanEdit && isEditMode" class="form-row">
-                  <div class="form-group col-md-4">
-                    <label>Lot hours</label>
-                    <textarea
-                      class="form-control"
-                      name="hours"
-                      :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
-                      :readonly="!userCanEdit || !isEditMode"
-                      v-model="record.hours">
-                    </textarea>
-                    <div class="invalid-feedback">
-                      {{ errors.first('hours') }}
-                    </div>
-                  </div>
-                  <div class="form-group col-md-2">
-                    <div class="form-group">
-                      <label>Spaces</label>
-                      <input
-                        name="spaces"
-                        type="number"
-                        min="0"
-                        step="1"
+                <template v-if="userCanEdit && isEditMode" class="form-row">
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label>Lot hours</label>
+                      <textarea
                         class="form-control"
-                        :class="{ 'is-invalid': errors.has('spaces'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                        name="hours"
+                        :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
                         :readonly="!userCanEdit || !isEditMode"
-                        v-model="record.spaces">
+                        v-model="record.hours">
+                      </textarea>
                       <div class="invalid-feedback">
-                        {{ errors.first('spaces') }}
+                        {{ errors.first('hours') }}
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <div class="form-group">
+                        <label>Spaces</label>
+                        <input
+                          name="spaces"
+                          type="number"
+                          min="0"
+                          step="1"
+                          class="form-control"
+                          :class="{ 'is-invalid': errors.has('spaces'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                          :readonly="!userCanEdit || !isEditMode"
+                          v-model="record.spaces">
+                        <div class="invalid-feedback">
+                          {{ errors.first('spaces') }}
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="form-group col-md-6">
-                    <label>Lot type(s)</label>
-                    <multiselect
-                      v-model="record.parkingTypes"
-                      :options="parkingTypes"
-                      :multiple="true"
-                      placeholder="Choose lot types"
-                      label="name"
-                      track-by="id"
-                      id="parkingTypes"
-                      class="form-control"
-                      style="padding:0"
-                      name="parkingTypes"
-                      :class="{'is-invalid': errors.has('parkingTypes') }"
-                      >
-                    </multiselect>
-                    <div class="invalid-feedback">
-                      {{ errors.first('parkingTypes') }}
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label>Lot type(s)</label>
+                      <multiselect
+                        v-model="record.parkingTypes"
+                        :options="parkingTypes"
+                        :multiple="true"
+                        placeholder="Choose lot types"
+                        label="name"
+                        track-by="id"
+                        id="parkingTypes"
+                        class="form-control"
+                        style="padding:0"
+                        name="parkingTypes"
+                        :class="{'is-invalid': errors.has('parkingTypes') }"
+                        >
+                      </multiselect>
+                      <div class="invalid-feedback">
+                        {{ errors.first('parkingTypes') }}
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <div class="form-check">
+                        <input v-model="record.hasHandicapSpaces" class="form-check-input" type="checkbox" id="hasHandicapSpaces">
+                        <label class="form-check-label" for="hasHandicapSpaces">
+                          Handicap parking
+                        </label>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div v-else>
+                </template>
+                <template v-else>
                   <div class="row">
                     <div class="col-md-4">
                       Lot Type(s):
@@ -536,7 +561,7 @@
                       Parking Spaces: {{ record.spaces }}
                     </div>
                   </div>
-                </div>
+                </template>
               </fieldset>
             </template>
             <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
@@ -785,11 +810,13 @@
         parkingTypes: [], // for multiselect
         record: {
           id: '',
+          address: '',
           bathrooms: [],
           building: null,
           description: '',
           emergencyDevices: [],
           exhibits: [],
+          hasHandicapSpaces: false,
           hours: '',
           isGenderNeutral: false,
           images: [],
