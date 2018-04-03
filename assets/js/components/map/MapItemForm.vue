@@ -141,7 +141,7 @@
                   <textarea
                     class="form-control"
                     name="hours"
-                    :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                    :class="{'is-invalid': errors.has('hours'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
                     :readonly="!userCanEdit || !isEditMode"
                     v-model="record.hours">
                   </textarea>
@@ -228,14 +228,14 @@
                           </div>
                           <div class="form-group col-md-3">
                             <label class="sr-only">Hours</label>
-                            <input
+                            <textarea
                               data-vv-as="hours"
-                              v-model="dining.hours"
-                              type="text"
                               class="form-control"
-                              placeholder="Hours"
-                              :name="'dining-hours-' + index"
-                              :class="{'is-invalid': errors.has('dining-hours-' + index) }">
+                              name="hours"
+                              :class="{'is-invalid': errors.has('dining-hours-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                              :readonly="!userCanEdit || !isEditMode"
+                              v-model="dining.hours">
+                            </textarea>
                             <div class="invalid-feedback">
                               {{ errors.first('dining-hours-' + index) }}
                             </div>
