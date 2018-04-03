@@ -23,7 +23,11 @@ class MapItemService
     $this->container = $container;
   }
 
-  // NEEDS TO GO INTO A SERVICE
+  /**
+   * Use the Symfony container's validator to validate fields for a map item
+   * @param App\Entity\Map\MapItem $mapItem
+   * @return array $errors 
+   */
   public function validate($mapItem){
     $validator = $this->container->get('validator');
     $errors = $validator->validate($mapItem);

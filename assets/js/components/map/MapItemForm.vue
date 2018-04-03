@@ -154,6 +154,9 @@
                     <a class="nav-link active" id="pills-bathrooms-tab" data-toggle="pill" href="#pills-bathrooms" role="tab" aria-controls="pills-bathrooms" aria-selected="true">Bathrooms <span class="badge badge-light">{{ record.bathrooms.length }}</span></a>
                   </li>
                   <li class="nav-item">
+                    <a class="nav-link" id="pills-dining-tab" data-toggle="pill" href="#pills-dining" role="tab" aria-controls="pills-dining" aria-selected="true">Dining <span class="badge badge-light">{{ record.diningOptions.length }}</span></a>
+                  </li>
+                  <li class="nav-item">
                     <a class="nav-link" id="pills-emergency-tab" data-toggle="pill" href="#pills-emergency" role="tab" aria-controls="pills-emergency" aria-selected="false">Emergency Devices <span class="badge badge-light">{{ record.emergencyDevices.length }}</span></a>
                   </li>
                   <li class="nav-item">
@@ -200,6 +203,68 @@
                       <div v-if="record.bathrooms.length > 0">
                         <ul>
                           <li v-for="bathroom in record.bathrooms">{{ bathroom.name }} <span v-if="bathroom.isGenderNeutral">(Gender neutral)</span></li>
+                        </ul>
+                      </div>
+                    </template>
+                  </div>
+                  <div class="tab-pane fade" id="pills-dining" role="tabpanel" aria-labelledby="pills-dining-tab">
+                    <template v-if="userCanEdit && isEditMode">
+                      <div v-for="(dining, index) in record.diningOptions">
+                        <div class="form-row">
+                          <div class="form-group col-md-4">
+                            <label class="sr-only">Name *</label>
+                            <input
+                              v-validate="'required'"
+                              data-vv-as="dining option name"
+                              v-model="dining.name"
+                              type="text"
+                              class="form-control"
+                              placeholder="Dining option name"
+                              :name="'dining-name-' + index"
+                              :class="{'is-invalid': errors.has('dining-name-' + index) }">
+                            <div class="invalid-feedback">
+                              {{ errors.first('dining-name-' + index) }}
+                            </div>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label class="sr-only">Hours</label>
+                            <input
+                              data-vv-as="hours"
+                              v-model="dining.hours"
+                              type="text"
+                              class="form-control"
+                              placeholder="Hours"
+                              :name="'dining-hours-' + index"
+                              :class="{'is-invalid': errors.has('dining-hours-' + index) }">
+                            <div class="invalid-feedback">
+                              {{ errors.first('dining-hours-' + index) }}
+                            </div>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label class="sr-only">Description</label>
+                            <textarea
+                              data-vv-as="description"
+                              v-model="dining.description"
+                              class="form-control"
+                              :name="'dining-description-' + index"
+                              :class="{'is-invalid': errors.has('dining-description-' + index) }"
+                              placeholder="Describe this dining option here...">
+                            </textarea>
+                            <div class="invalid-feedback">
+                              {{ errors.first('dining-description-' + index) }}
+                            </div>
+                          </div>
+                          <div class="form-group col-md-2">
+                            <button type="button" @click="removeSubitemFromBuilding('dining', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                          </div>
+                        </div>
+                      </div>
+                      <button @click="addRecordSubitem('dining')" type="button" class="btn btn-sm btn-default">Add Dining Option</button>
+                    </template>
+                    <template v-else>
+                      <div v-if="record.emergencyDevices.length > 0">
+                        <ul>
+                          <li v-for="emergency in record.emergencyDevices">{{ emergency.name }} {{ emergency.type.name }}</li>
                         </ul>
                       </div>
                     </template>
@@ -814,6 +879,7 @@
           bathrooms: [],
           building: null,
           description: '',
+          diningOptions: [],
           emergencyDevices: [],
           exhibits: [],
           hasHandicapSpaces: false,
@@ -895,6 +961,13 @@
               isGenderNeutral: false
             })
             break;
+          case 'dining':
+            this.record.diningOptions.push({
+              name: '',
+              hours: '',
+              description: ''
+            })
+            break
           case 'emergency device':
             this.record.emergencyDevices.push({
               name: '',
@@ -1137,6 +1210,9 @@
         switch(type){
           case 'bathroom':
             this.record.bathrooms.splice(index, 1)
+            break
+          case 'dining':
+            this.record.diningOptions.splice(index, 1)
             break
           case 'emergency device':
             this.record.emergencyDevices.splice(index, 1)

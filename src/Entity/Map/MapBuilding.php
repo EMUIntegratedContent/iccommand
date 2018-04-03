@@ -31,6 +31,13 @@ class MapBuilding extends MapItem
     private $bathrooms;
 
     /**
+     * One building has (zero to) many dining options.
+     * @ORM\OneToMany(targetEntity="MapDining", mappedBy="building", cascade={"persist"})
+     * @Serializer\SerializedName("diningOptions")
+     */
+    private $diningOptions;
+
+    /**
      * One building has (zero to) many emergency devices.
      * @ORM\OneToMany(targetEntity="MapEmergency", mappedBy="building", cascade={"persist"})
      * @Serializer\SerializedName("emergencyDevices")
@@ -43,6 +50,7 @@ class MapBuilding extends MapItem
      */
     private $exhibits;
 
+
     /**
      * Many buildings have one type.
      * @ORM\ManyToOne(targetEntity="App\Entity\Map\MapBuildingType")
@@ -54,7 +62,9 @@ class MapBuilding extends MapItem
     public function __construct() {
         parent::__construct();
         $this->bathrooms = new ArrayCollection();
+        $this->diningOptions = new ArrayCollection();
         $this->emergencyDevices = new ArrayCollection();
+        $this->exhibits = new ArrayCollection();
     }
 
     /**
@@ -68,6 +78,10 @@ class MapBuilding extends MapItem
 
     public function addBathroom(MapBathroom $bathroom = null){
       $this->bathrooms[] = $bathroom;
+    }
+
+    public function addDiningOption(MapDining $diningOption = null){
+      $this->diningOptions[] = $diningOption;
     }
 
     public function addEmergencyDevice(MapEmergency $emergencyDevice = null){
@@ -101,6 +115,11 @@ class MapBuilding extends MapItem
     public function getBathrooms()
     {
         return $this->bathrooms;
+    }
+
+    public function getDiningOptions()
+    {
+        return $this->diningOptions;
     }
 
     public function getEmergencyDevices()

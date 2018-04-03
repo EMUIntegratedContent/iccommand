@@ -16,6 +16,7 @@ use App\Entity\Map\MapBathroom;
 use App\Entity\Map\MapBuilding;
 use App\Entity\Map\MapBuildingType;
 use App\Entity\Map\MapBus;
+use App\Entity\Map\MapDining;
 use App\Entity\Map\MapEmergency;
 use App\Entity\Map\MapEmergencyType;
 use App\Entity\Map\MapExhibit;
@@ -229,6 +230,23 @@ class MapItemController extends FOSRestController{
           $em->persist($bathroom); // persist but don't save until the end
         }
 
+        // Building Dining Options
+        foreach($request->request->get('diningOptions') as $bldgDining){
+          $dining = new MapDining();
+          $dining->setName($bldgDining['name']);
+          $dining->setHours($bldgDining['hours']);
+          $dining->setDescription($bldgDining['description']);
+          $dining->setBuilding($mapItem);
+
+          $diningErrors = $this->service->validate($dining);
+          if (count($diningErrors) > 0) {
+              $serialized = $serializer->serialize($diningErrors, 'json');
+              $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
+              return $response;
+          }
+          $em->persist($dining); // persist but don't save until the end
+        }
+
         // Building Emergency Devices
         foreach($request->request->get('emergencyDevices') as $bldgEmergency){
           // need to find the emergency type entity
@@ -363,6 +381,30 @@ class MapItemController extends FOSRestController{
         }
         // Compare and delete any bathrooms not in the updated list
         $this->service->mapItemCollectionCompare($mapItem->getBathrooms(), $request->request->get('bathrooms'));
+
+        // Building Dining Options
+        foreach($request->request->get('diningOptions') as $bldgDining){
+          // a new bathroom won't have an ID
+          if(isset($bldgDining['id'])){
+            $dining = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgDining['id']);
+          } else {
+            $dining = new MapDining();
+            $dining->setBuilding($mapItem);
+          }
+          $dining->setName($bldgDining['name']);
+          $dining->setDescription($bldgDining['description']);
+          $dining->setHours($bldgDining['hours']);
+
+          $diningErrors = $this->service->validate($dining);
+          if (count($diningErrors) > 0) {
+              $serialized = $serializer->serialize($diningErrors, 'json');
+              $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
+              return $response;
+          }
+          $em->persist($dining); // persist but don't save until the end
+        }
+        // Compare and delete any bathrooms not in the updated list
+        $this->service->mapItemCollectionCompare($mapItem->getDiningOptions(), $request->request->get('diningOptions'));
 
         // Building Emergency Devices
         foreach($request->request->get('emergencyDevices') as $bldgEmergency){
