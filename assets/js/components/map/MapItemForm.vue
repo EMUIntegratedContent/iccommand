@@ -234,7 +234,8 @@
                               name="hours"
                               :class="{'is-invalid': errors.has('dining-hours-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}"
                               :readonly="!userCanEdit || !isEditMode"
-                              v-model="dining.hours">
+                              v-model="dining.hours"
+                              placeholder="Hours go here...">
                             </textarea>
                             <div class="invalid-feedback">
                               {{ errors.first('dining-hours-' + index) }}
