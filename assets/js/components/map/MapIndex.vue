@@ -27,6 +27,7 @@
                   <tr>
                     <th scope="col">Building</th>
                     <th scope="col">Bathrooms</th>
+                    <th scope="col">Dining</th>
                     <th scope="col">Emergency Devices</th>
                     <th scope="col">Exhibits</th>
                     <th scope="col">Images</th>
@@ -37,6 +38,7 @@
                   <tr v-for="item in paginatedBuildings">
                     <th scope="row">{{ item.name }}</th>
                     <td>{{ item.bathrooms.length }}</td>
+                    <td>{{ item.diningOptions.length }}</td>
                     <td>{{ item.emergencyDevices.length }}</td>
                     <td>{{ item.exhibits.length }}</td>
                     <td>{{ item.images.length }}</td>
