@@ -35,10 +35,10 @@ class MapParking extends MapItem
 
     /**
      * Many Parking lots have Many types.
-     * @ORM\ManyToMany(targetEntity="App\Entity\Map\MapParkingType", cascade={"remove", "persist"})
+     * @ORM\ManyToMany(targetEntity="App\Entity\Map\MapParkingType", inversedBy="parkingLots")
      * @ORM\JoinTable(name="mapparking_types",
-     *      joinColumns={@ORM\JoinColumn(name="mapparking_id", referencedColumnName="id", onDelete="CASCADE")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="type_id", referencedColumnName="id", onDelete="CASCADE")}
+     *      joinColumns={@ORM\JoinColumn(name="mapparking_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="type_id", referencedColumnName="id")}
      *      )
      * @ORM\OrderBy({"name" = "ASC"})
      * @Serializer\SerializedName("parkingTypes")

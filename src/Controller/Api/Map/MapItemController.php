@@ -384,7 +384,7 @@ class MapItemController extends FOSRestController{
 
         // Building Dining Options
         foreach($request->request->get('diningOptions') as $bldgDining){
-          // a new bathroom won't have an ID
+          // a new dining option won't have an ID
           if(isset($bldgDining['id'])){
             $dining = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgDining['id']);
           } else {

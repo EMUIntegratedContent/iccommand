@@ -30,6 +30,7 @@ class MapParkingType
 
   /**
    * @ORM\ManyToMany(targetEntity="MapParking", mappedBy="parkingTypes")
+   * @Serializer\Exclude
    */
   private $parkingLots;
 
