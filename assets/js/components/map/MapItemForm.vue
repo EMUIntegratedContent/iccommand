@@ -710,7 +710,7 @@
                   <pre v-for="uploadError in uploadErrors">{{ uploadErrors }}</pre>
                 </div>
                 <!-- UPLOAD FORM -->
-                <form enctype="multipart/form-data" novalidate v-if="isUploadInitial || isUploadSaving">
+                <form enctype="multipart/form-data" novalidate v-if="permissions[0].imageUpload && (isUploadInitial || isUploadSaving)">
                   <fieldset>
                     <legend>Upload Images</legend>
                     <div class="dropbox">

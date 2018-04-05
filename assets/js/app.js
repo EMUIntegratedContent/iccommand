@@ -1,6 +1,11 @@
 require('../css/app.scss')
 require('./bootstrap')
 
+// $.ajaxSetup({
+//         headers: {
+//             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+//         }
+// });
 
 $(document).ready(function() {
     $('[data-toggle="popover"]').popover()

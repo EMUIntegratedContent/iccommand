@@ -4,6 +4,6 @@
 
 {% block body %}
 <div id="app">
-  <map-index :permissions="[{create: true, edit: true, delete: true}]"></map-index>
+  <map-index :permissions="[{{ permissions }}]"></map-index>
 </div>
 {% endblock %}

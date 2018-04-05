@@ -5,6 +5,6 @@
 {% block body %}
 
 <div id="app">
-    <new-map-item :permissions="[{create: true, edit: false, delete: true}]"></new-map-item>
+    <new-map-item :permissions="[{{ permissions }}]"></new-map-item>
 </div>
 {% endblock %}

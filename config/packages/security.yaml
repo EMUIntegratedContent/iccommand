@@ -20,7 +20,12 @@ security:
             form_login:
                 login_path: /login
                 check_path: /login_check
+                csrf_token_generator: security.csrf.token_manager
             logout: ~
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path: /
             guard:
                 authenticators:
                     - ldap_tools.security.ldap_guard_authenticator
@@ -51,4 +56,4 @@ security:
         ROLE_MAP_EDIT: ROLE_MAP_CREATE
         ROLE_MAP_DELETE: ROLE_MAP_EDIT
         ROLE_MAP_IMAGE_UPLOAD: [ROLE_MAP_VIEW, ROLE_MAP_EDIT]
-        ROLE_MAP_ADMIN: [ROLE_MAP_DELETE, ROLE_IMAGE_UPLOAD]
+        ROLE_MAP_ADMIN: [ROLE_MAP_DELETE, ROLE_MAP_IMAGE_UPLOAD]

@@ -23,10 +23,4 @@ ldap_tools:
             always_use_target_path: false
             target_path_parameter: '_target_path'
             use_referrer: true
-            remember_me: false
-            #failure_path: null
-            #failure_forward: false
-            #failure_path_parameter: '_failure_path'
-            #http_basic: false
-            #http_basic_domain: null
-            #http_basic_realm: null
+            remember_me: true # Have to combine this 'remember_me' with the 'remember_me' settings in security.yaml

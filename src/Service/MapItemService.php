@@ -26,7 +26,7 @@ class MapItemService
   /**
    * Use the Symfony container's validator to validate fields for a map item
    * @param App\Entity\Map\MapItem $mapItem
-   * @return array $errors 
+   * @return array $errors
    */
   public function validate($mapItem){
     $validator = $this->container->get('validator');
@@ -109,6 +109,43 @@ class MapItemService
       $item = $this->container->get('doctrine')->getRepository(MapParkingType::class)->find($itemToRemove);
       $item->removeParkingLot($parkingLot);
     }
+  }
+
+  /**
+   *  Fetch the user's permissions for managing map items
+   *  @return array $mapPermissions
+   */
+  public function getUserMapPermissions(){
+    $mapPermissions = array(
+      'create' => false,
+      'edit' => false,
+      'delete' => false,
+      'imageUpload' => false,
+      'admin' => false
+    );
+    if($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_ADMIN') || $this->container->get('security.authorization_checker')->isGranted('ROLE_GLOBAL_ADMIN')){
+      $mapPermissions['create'] = true;
+      $mapPermissions['edit'] = true;
+      $mapPermissions['delete'] = true;
+      $mapPermissions['imageUpload'] = true;
+      $mapPermissions['admin'] = true;
+    }
+    if($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_IMAGE_UPLOAD')){
+      $mapPermissions['edit'] = true;
+      $mapPermissions['imageUpload'] = true;
+    }
+    if($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_DELETE')){
+      $mapPermissions['delete'] = true;
+      $mapPermissions['edit'] = true;
+    }
+    if($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_EDIT')){
+      $mapPermissions['create'] = true;
+      $mapPermissions['edit'] = true;
+    }
+    if($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_CREATE')){
+      $mapPermissions['create'] = true;
+    }
+    return $mapPermissions;
   }
 
   protected function deleteMapItem(MapItem $mapItem)

@@ -6,22 +6,30 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\Map\MapItem;
+use App\Service\MapItemService;
 
 class MapItemController extends Controller
 {
+    private $service;
+
+    public function __construct(MapItemService $service){
+        $this->service = $service;
+    }
     /**
      * @Route("/map/items", name="map_items")
      */
     public function index()
     {
-      return $this->render('map/map_item/index.html.twig', []);
+      $permissions = json_encode($this->service->getUserMapPermissions());
+      return $this->render('map/map_item/index.html.twig', ['permissions' => $permissions]);
     }
 
     /**
      * @Route("/map/items/create", name="map_items_create")
      */
     public function add(){
-      return $this->render('map/map_item/create.html.twig', []);
+      $permissions = json_encode($this->service->getUserMapPermissions());
+      return $this->render('map/map_item/create.html.twig', ['permissions' => $permissions]);
     }
 
     /**
@@ -36,7 +44,8 @@ class MapItemController extends Controller
       }
       $itemType = $item->getItemType();
 
-      return $this->render('map/map_item/show.html.twig', ['id' => $id, 'itemType' => $itemType]);
+      $permissions = json_encode($this->service->getUserMapPermissions());
+      return $this->render('map/map_item/show.html.twig', ['id' => $id, 'itemType' => $itemType, 'permissions' => $permissions]);
     }
 
     /**
@@ -49,6 +58,7 @@ class MapItemController extends Controller
       }
       $itemType = $item->getItemType();
 
-      return $this->render('map/map_item/edit.html.twig', ['id' => $id, 'itemType' => $itemType]);
+      $permissions = json_encode($this->service->getUserMapPermissions());
+      return $this->render('map/map_item/edit.html.twig', ['id' => $id, 'itemType' => $itemType, 'permissions' => $permissions]);
     }
 }
