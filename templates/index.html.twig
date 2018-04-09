@@ -3,7 +3,18 @@
 {% block title %}Welcome to ICCommand{% endblock %}
 
 {% block body %}
-<p style="text-align:center"><img src="{{ asset('images/e-box.png') }}" alt="EMU Box logo"/></p>
+<div class="row">
+  <div class="col-xs-12">
+      <p style="text-align:center"><img src="{{ asset('images/e-box.png') }}" alt="EMU Box logo"/></p>
+  </div>
+</div>
+<div id="app">
+  {% if currentUsername %}
+    <home-page username="{{ currentUsername }}" :userroles="{{ currentUserRoles }}"></home-page>
+  {% else %}
+    <home-page></home-page>
+  {% endif %}
+</div>
 <!--<h1 style="text-align:center">Command</h1>
 <h3>My Google Maps Demo</h3>
 <div id="map"></div>
@@ -29,6 +40,5 @@
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8&callback=initMap">
 </script>-->
-
 
 {% endblock %}

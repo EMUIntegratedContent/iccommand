@@ -112,6 +112,12 @@
             <p-check v-for="role in rolesAdmin" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
             <h4>Campus Map</h4>
             <p-check v-for="role in rolesMap" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+            <h4>Redirect</h4>
+            <p-check v-for="role in rolesRedirect" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+            <h4>Emergency</h4>
+            <p-check v-for="role in rolesEmergency" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+            <h4>Photo Request</h4>
+            <p-check v-for="role in rolesPhoto" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
             <br />
             <!-- VALIDATION AND SUCCESS/ERROR MESSAGES -->
             <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
@@ -173,7 +179,10 @@
           isEditMode: false, // true = make forms editable
           roles: [],
           rolesAdmin: [],
+          rolesEmergency: [],
           rolesMap: [],
+          rolesPhoto: [],
+          rolesRedirect: [],
           success: false,
           user: {
             id: '',
@@ -233,6 +242,15 @@
               }
               if(key.startsWith('ROLE_MAP_')){
                 self.rolesMap.push(key)
+              }
+              if(key.startsWith('ROLE_EMERGENCY_')){
+                self.rolesEmergency.push(key)
+              }
+              if(key.startsWith('ROLE_PHOTO_')){
+                self.rolesPhoto.push(key)
+              }
+              if(key.startsWith('ROLE_REDIRECT_')){
+                self.rolesRedirect.push(key)
               }
             }
           })

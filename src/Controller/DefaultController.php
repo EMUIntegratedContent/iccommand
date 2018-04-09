@@ -16,9 +16,20 @@ class DefaultController extends Controller
      */
     public function index()
     {
-        return $this->render('index.html.twig', [
-            'controller_name' => 'DefaultController',
-        ]);
+      $user = null;
+      $currentUser = null;
+      $currentUserRoles = null;
+
+      if($this->getUser()){
+        $user = $this->getUser();
+        $currentUser = $user->getUsername();
+        $currentUserRoles = json_encode($this->getUser()->getRoles());
+      }
+
+      return $this->render('index.html.twig', [
+          'currentUsername' => $currentUser,
+          'currentUserRoles' => $currentUserRoles,
+      ]);
     }
 
     /**

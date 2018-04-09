@@ -30,6 +30,7 @@ Vue.use(VueGoogleMaps, {
 })
 
 /** DECLARE COMPONENTS HERE **/
+Vue.component('home-page', require('./components/Homepage.vue').default)
 Vue.component('admin-user-index', require('./components/admin/UserIndex.vue').default)
 Vue.component('admin-user-manage', require('./components/admin/UserManage.vue').default)
 Vue.component('map-index', require('./components/map/MapIndex.vue').default)
