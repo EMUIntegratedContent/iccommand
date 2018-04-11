@@ -2,8 +2,13 @@
 
 {% block title %}Create a new map item.{% endblock %}
 
+{% block modulenav %}
+  {% include 'map/base_map.html.twig' %}
+{% endblock %}
+
 {% block body %}
 
+<h1 class="display-1">Create Map Item</h1>
 <div id="app">
     <new-map-item :permissions="[{{ permissions }}]"></new-map-item>
 </div>

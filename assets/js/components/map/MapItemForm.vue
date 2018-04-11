@@ -16,16 +16,17 @@
     <!-- MAIN AREA -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
       <heading>
-        <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
+        <!--<span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>-->
         <span v-if="!itemExists" slot="title">Step 2/2: Provide {{ record.itemType }} information</span>
         <span v-else slot="title">Map {{ record.itemType }}: {{ record.name }}</span>
       </heading>
-      <p>
-        <a href="/map/items" class="btn btn-info pull-left"><i class="fa fa-arrow-left"></i></a>
+      <div class="btn-group" role="group" aria-label="form navigation buttons">
+        <!--<a v-if="!newForm" href="/map/items" class="btn btn-info pull-left" aria-label="back to map items list"><i class="fa fa-arrow-left"></i></a>-->
+        <button v-if="newForm" class="btn btn-info pull-left" @click="goBack()"><i class="fa fa-chevron-circle-left"></i> Step 1</button>
         <button v-if="itemExists && this.permissions[0].edit" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button>
-      </p>
+      </div>
       <!-- TABS -->
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <ul class="nav nav-tabs" id="map-form-tab-list" role="tablist">
         <li class="nav-item">
           <a class="nav-link active" id="home-tab" data-toggle="tab" href="#information" role="tab" aria-controls="information" aria-selected="true">Information</a>
         </li>
@@ -33,7 +34,7 @@
           <a class="nav-link" id="profile-tab" data-toggle="tab" href="#photos" role="tab" aria-controls="photos" aria-selected="false">Photos</a>
         </li>
       </ul>
-      <div class="tab-content" id="mapitemTabContent">
+      <div class="tab-content pt-2" id="mapitemTabContent">
         <div class="tab-pane fade show active" id="information" role="tabpanel" aria-labelledby="information-tab">
           <form class="form" @submit.prevent="checkForm">
             <fieldset>
@@ -83,15 +84,15 @@
               <legend>Set {{ record.itemType }} coordinates</legend>
               <p>Click on the map at the desired location. Use the "Set Location" button to set a marker.</p>
               <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
                   <gmap-map
                     :center="center"
                     :map-type-id.sync="mapType"
-                    :zoom="6"
-                    style="width: 100%; height: 300px"
+                    :zoom="16"
+                    style="width: 100%; height: 500px"
                     @click="setTempPosition"
                   >
-                    <gmap-polygon :paths.sync="plPath" :editable="true" :options="{strokeColor:'#FF0000', fillColor:'#000000'}"></gmap-polygon>
+                    <!--<gmap-polygon :paths.sync="plPath" :editable="true" :options="{strokeColor:'#FF0000', fillColor:'#000000'}"></gmap-polygon>-->
                     <gmap-marker
                       :key="index"
                       v-for="(m, index) in markers"
@@ -103,26 +104,20 @@
 
                   </gmap-map>
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Satellite Coordinates</label>
-                    <input readonly class="form-control-plaintext" :value="record.latitudeSatellite + ', ' + record.longitudeSatellite">
-                  </div>
-                  <div class="form-group">
-                    <label>Illustration Coordinates</label>
-                    <input readonly class="form-control-plaintext" :value="record.latitudeIllustration + ', ' + record.longitudeIllustration">
-                  </div>
+                <div class="col-md-12">
+                  <p><span class="badge">Satellite Coordinates</span>{{ record.latitudeSatellite + ', ' + record.longitudeSatellite }} | <span class="badge">Illustration Coordinates</span>{{ record.latitudeIllustration + ', ' + record.longitudeIllustration }}</p>
                   <template v-if="tempLongitudeSatellite != null && tempLatitudeSatellite != null">
                     <button class="btn btn-success" type="button" @click="setLocation(tempLatitudeSatellite, tempLongitudeSatellite)">Set location</button>
                     <button class="btn btn-default" type="button" @click="clearTempLocation">Clear</button>
                   </template>
+                  <hr />
                 </div>
               </div>
             </fieldset>
             <!-- BUILDING FIELDS -->
             <template v-if="record.itemType == 'building'">
               <fieldset>
-                <legend class="sr-only">{{ record.itemType | capitalize }} specific fields</legend>
+                <legend>Additional Information</legend>
                 <div class="form-group">
                   <label>Address</label>
                   <input
@@ -149,262 +144,10 @@
                     {{ errors.first('hours') }}
                   </div>
                 </div>
-                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                  <li class="nav-item">
-                    <a class="nav-link active" id="pills-bathrooms-tab" data-toggle="pill" href="#pills-bathrooms" role="tab" aria-controls="pills-bathrooms" aria-selected="true">Bathrooms <span class="badge badge-light">{{ record.bathrooms.length }}</span></a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="pills-dining-tab" data-toggle="pill" href="#pills-dining" role="tab" aria-controls="pills-dining" aria-selected="true">Dining <span class="badge badge-light">{{ record.diningOptions.length }}</span></a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="pills-emergency-tab" data-toggle="pill" href="#pills-emergency" role="tab" aria-controls="pills-emergency" aria-selected="false">Emergency Devices <span class="badge badge-light">{{ record.emergencyDevices.length }}</span></a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="pills-exhibits-tab" data-toggle="pill" href="#pills-exhibits" role="tab" aria-controls="pills-exhibits" aria-selected="false">Exhibits <span class="badge badge-light">{{ record.exhibits.length }}</span></a>
-                  </li>
-                </ul>
-                <div class="tab-content" id="pills-tabContent">
-                  <div class="tab-pane fade show active" id="pills-bathrooms" role="tabpanel" aria-labelledby="pills-bathrooms-tab">
-                    <template v-if="userCanEdit && isEditMode">
-                      <div v-for="(bathroom, index) in record.bathrooms">
-                        <div class="form-row">
-                          <div class="form-group col-md-6">
-                            <label for="bathroomLocation" class="sr-only">Location *</label>
-                            <input
-                              v-validate="'required'"
-                              data-vv-as="location"
-                              :name="'bathroom-location-' + index"
-                              :class="{'is-invalid': errors.has('bathroom-location-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode"
-                              v-model="bathroom.name"
-                              type="text"
-                              class="form-control"
-                              id="bathroomLocation"
-                              placeholder="Location">
-                              <div class="invalid-feedback">
-                                {{ errors.first('bathroom-location-' + index) }}
-                              </div>
-                          </div>
-                          <div class="form-group col-md-4">
-                            <div class="form-check">
-                              <input v-model="bathroom.isGenderNeutral" class="form-check-input" type="checkbox" id="bathroomGenderNeutral">
-                              <label class="form-check-label" for="bathroomGenderNeutral">
-                                Gender Neutral
-                              </label>
-                            </div>
-                          </div>
-                          <div class="form-group col-md-2">
-                            <button type="button" @click="removeSubitemFromBuilding('bathroom', index)" class="close"><span aria-hidden="true">&times;</span></button>
-                          </div>
-                        </div>
-                      </div>
-                      <button @click="addRecordSubitem('bathroom')" type="button" class="btn btn-sm btn-default">Add Bathroom</button>
-                    </template>
-                    <template v-else>
-                      <div v-if="record.bathrooms.length > 0">
-                        <ul>
-                          <li v-for="bathroom in record.bathrooms">{{ bathroom.name }} <span v-if="bathroom.isGenderNeutral">(Gender neutral)</span></li>
-                        </ul>
-                      </div>
-                    </template>
-                  </div>
-                  <div class="tab-pane fade" id="pills-dining" role="tabpanel" aria-labelledby="pills-dining-tab">
-                    <template v-if="userCanEdit && isEditMode">
-                      <div v-for="(dining, index) in record.diningOptions">
-                        <div class="form-row">
-                          <div class="form-group col-md-4">
-                            <label class="sr-only">Name *</label>
-                            <input
-                              v-validate="'required'"
-                              data-vv-as="dining option name"
-                              v-model="dining.name"
-                              type="text"
-                              class="form-control"
-                              placeholder="Dining option name"
-                              :name="'dining-name-' + index"
-                              :class="{'is-invalid': errors.has('dining-name-' + index) }">
-                            <div class="invalid-feedback">
-                              {{ errors.first('dining-name-' + index) }}
-                            </div>
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label class="sr-only">Hours</label>
-                            <textarea
-                              data-vv-as="hours"
-                              class="form-control"
-                              name="hours"
-                              :class="{'is-invalid': errors.has('dining-hours-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}"
-                              :readonly="!userCanEdit || !isEditMode"
-                              v-model="dining.hours"
-                              placeholder="Hours go here...">
-                            </textarea>
-                            <div class="invalid-feedback">
-                              {{ errors.first('dining-hours-' + index) }}
-                            </div>
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label class="sr-only">Description</label>
-                            <textarea
-                              data-vv-as="description"
-                              v-model="dining.description"
-                              class="form-control"
-                              :name="'dining-description-' + index"
-                              :class="{'is-invalid': errors.has('dining-description-' + index) }"
-                              placeholder="Describe this dining option here...">
-                            </textarea>
-                            <div class="invalid-feedback">
-                              {{ errors.first('dining-description-' + index) }}
-                            </div>
-                          </div>
-                          <div class="form-group col-md-2">
-                            <button type="button" @click="removeSubitemFromBuilding('dining', index)" class="close"><span aria-hidden="true">&times;</span></button>
-                          </div>
-                        </div>
-                      </div>
-                      <button @click="addRecordSubitem('dining')" type="button" class="btn btn-sm btn-default">Add Dining Option</button>
-                    </template>
-                    <template v-else>
-                      <div v-if="record.emergencyDevices.length > 0">
-                        <ul>
-                          <li v-for="emergency in record.emergencyDevices">{{ emergency.name }} {{ emergency.type.name }}</li>
-                        </ul>
-                      </div>
-                    </template>
-                  </div>
-                  <div class="tab-pane fade" id="pills-emergency" role="tabpanel" aria-labelledby="pills-emergency-tab">
-                    <template v-if="userCanEdit && isEditMode">
-                      <div v-for="(emergency, index) in record.emergencyDevices">
-                        <div class="form-row">
-                          <div class="form-group col-md-7">
-                            <label for="emergencyLocation" class="sr-only">Location *</label>
-                            <input
-                              v-validate="'required'"
-                              data-vv-as="location"
-                              v-model="emergency.name"
-                              type="text"
-                              class="form-control"
-                              id="emergencyLocation"
-                              placeholder="Location"
-                              :name="'emergency-location-' + index"
-                              :class="{'is-invalid': errors.has('emergency-location-' + index) }">
-                            <div class="invalid-feedback">
-                              {{ errors.first('emergency-location-' + index) }}
-                            </div>
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label for="emergencyType" class="sr-only">Type *</label>
-                            <multiselect
-                              v-validate="'required'"
-                              data-vv-as="device type"
-                              v-model="record.emergencyDevices[index].type"
-                              :options="emergencyTypes"
-                              :multiple="false"
-                              placeholder="Choose type"
-                              label="name"
-                              track-by="id"
-                              class="form-control"
-                              style="padding:0"
-                              :name="'emergency-type-' + index"
-                              :class="{'is-invalid': errors.has('emergency-type-' + index) }"
-                              >
-                            </multiselect>
-                            <div class="invalid-feedback">
-                              {{ errors.first('emergency-type-' + index) }}
-                            </div>
-                          </div>
-                          <div class="form-group col-md-2">
-                            <a v-if="emergency.id" target="_blank" :href="'/map/items/' + emergency.id"><i class="fa fa-pencil"></i></a>
-                            <button type="button" @click="removeSubitemFromBuilding('emergency device', index)" class="close"><span aria-hidden="true">&times;</span></button>
-                          </div>
-                        </div>
-                      </div>
-                      <button @click="addRecordSubitem('emergency device')" type="button" class="btn btn-sm btn-default">Add Device</button>
-                    </template>
-                    <template v-else>
-                      <div v-if="record.emergencyDevices.length > 0">
-                        <ul>
-                          <li v-for="emergency in record.emergencyDevices">{{ emergency.name }} {{ emergency.type.name }}</li>
-                        </ul>
-                      </div>
-                    </template>
-                  </div>
-                  <div class="tab-pane fade" id="pills-exhibits" role="tabpanel" aria-labelledby="pills-exhibits-tab">
-                    <template v-if="userCanEdit && isEditMode">
-                      <div v-for="(exhibit, index) in record.exhibits">
-                        <div class="form-row">
-                          <div class="form-group col-md-4">
-                            <label for="exhibitName" class="sr-only">Title *</label>
-                            <input
-                              v-validate="'required'"
-                              data-vv-as="title"
-                              v-model="exhibit.name"
-                              type="text"
-                              class="form-control"
-                              id="exhibitName"
-                              placeholder="Title"
-                              :name="'exhibit-name-' + index"
-                              :class="{'is-invalid': errors.has('exhibit-name-' + index) }">
-                            <div class="invalid-feedback">
-                              {{ errors.first('exhibit-name-' + index) }}
-                            </div>
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label for="exhibitDescription" class="sr-only">Description *</label>
-                            <textarea
-                              v-validate="'required'"
-                              data-vv-as="description"
-                              id="exhibitDescription"
-                              v-model="exhibit.description"
-                              class="form-control"
-                              :name="'exhibit-description-' + index"
-                              :class="{'is-invalid': errors.has('exhibit-description-' + index) }"
-                              placeholder="Describe the exhibit here...">
-                            </textarea>
-                            <div class="invalid-feedback">
-                              {{ errors.first('exhibit-description-' + index) }}
-                            </div>
-                          </div>
-                          <div class="form-group col-md-3">
-                            <label for="exhibitType" class="sr-only">Type *</label>
-                            <multiselect
-                              v-validate="'required'"
-                              data-vv-as="exhibit type"
-                              v-model="record.exhibits[index].type"
-                              :options="exhibitTypes"
-                              :multiple="false"
-                              placeholder="Choose type"
-                              label="name"
-                              track-by="id"
-                              class="form-control"
-                              style="padding:0"
-                              :name="'exhibit-type' + index"
-                              :class="{'is-invalid': errors.has('exhibit-type' + index) }"
-                              >
-                            </multiselect>
-                            <div class="invalid-feedback">
-                              {{ errors.first('exhibit-type' + index) }}
-                            </div>
-                          </div>
-                          <div class="form-group col-md-2">
-                            <a v-if="exhibit.id" target="_blank" :href="'/map/items/' + exhibit.id"><i class="fa fa-pencil"></i></a>
-                            <button type="button" @click="removeSubitemFromBuilding('exhibit', index)" class="close"><span aria-hidden="true">&times;</span></button>
-                          </div>
-                        </div>
-                      </div>
-                      <button @click="addRecordSubitem('exhibit')" type="button" class="btn btn-sm btn-default">Add Exhibit</button>
-                    </template>
-                    <template v-else>
-                      <div v-if="record.exhibits.length > 0">
-                        <ul>
-                          <li v-for="exhibit in record.exhibits">{{ exhibit.name }} {{ exhibit.description }} {{ exhibit.type.name }}</li>
-                        </ul>
-                      </div>
-                    </template>
-                  </div><!-- end .tab-pane -->
-                </div><!-- end .tablist -->
                 <template v-if="userCanEdit && isEditMode">
                   <div class="form-row">
                     <div class="form-group col-md-12">
-                      <label for="buildingTypes" class="sr-only">Building Type(s)</label>
+                      <label for="buildingType">Building Type</label>
                       <multiselect
                         v-validate="'required'"
                         data-vv-as="building type"
@@ -432,6 +175,319 @@
                   <p v-if="record.buildingType">{{ record.buildingType.name }}</p>
                   <p v-else>None</p>
                 </template>
+                <!-- PILLS FOR AUXILARY -->
+                <div class="row mb-4">
+                  <div class="col">
+                    <ul class="nav nav-tabs mb-3" id="pills-tab" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active" id="pills-bathrooms-tab" data-toggle="pill" href="#pills-bathrooms" role="tab" aria-controls="pills-bathrooms" aria-selected="true">Bathrooms <span class="badge badge-light">{{ record.bathrooms.length }}</span></a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="pills-dining-tab" data-toggle="pill" href="#pills-dining" role="tab" aria-controls="pills-dining" aria-selected="true">Dining <span class="badge badge-light">{{ record.diningOptions.length }}</span></a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="pills-emergency-tab" data-toggle="pill" href="#pills-emergency" role="tab" aria-controls="pills-emergency" aria-selected="false">Emergency Devices <span class="badge badge-light">{{ record.emergencyDevices.length }}</span></a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="pills-exhibits-tab" data-toggle="pill" href="#pills-exhibits" role="tab" aria-controls="pills-exhibits" aria-selected="false">Exhibits <span class="badge badge-light">{{ record.exhibits.length }}</span></a>
+                      </li>
+                    </ul>
+                    <div class="tab-content" id="pills-tabContent">
+                      <div class="tab-pane fade show active pl-4" id="pills-bathrooms" role="tabpanel" aria-labelledby="pills-bathrooms-tab">
+                        <template v-if="userCanEdit && isEditMode">
+                          <p v-if="record.bathrooms.length == 0">No bathrooms attributed to this building.</p>
+                          <div v-for="(bathroom, index) in record.bathrooms">
+                            <div class="form-row">
+                              <div class="form-group col-md-6">
+                                <label class="sr-only">Location *</label>
+                                <input
+                                  v-validate="'required'"
+                                  data-vv-as="location"
+                                  :name="'bathroom-location-' + index"
+                                  :class="{'is-invalid': errors.has('bathroom-location-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode"
+                                  v-model="bathroom.name"
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Location">
+                                  <div class="invalid-feedback">
+                                    {{ errors.first('bathroom-location-' + index) }}
+                                  </div>
+                              </div>
+                              <div class="form-group col-md-4">
+                                <div class="form-check">
+                                  <input v-model="bathroom.isGenderNeutral" class="form-check-input" type="checkbox" id="bathroomGenderNeutral">
+                                  <label class="form-check-label" for="bathroomGenderNeutral">
+                                    Gender Neutral
+                                  </label>
+                                </div>
+                              </div>
+                              <div class="form-group col-md-2">
+                                <button type="button" @click="removeSubitemFromBuilding('bathroom', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                              </div>
+                            </div>
+                          </div>
+                          <button @click="addRecordSubitem('bathroom')" type="button" class="btn btn-sm btn-info">Add Bathroom</button>
+                        </template>
+                        <template v-else>
+                          <div v-if="record.bathrooms.length > 0">
+                            <ul>
+                              <li v-for="bathroom in record.bathrooms">{{ bathroom.name }} <span v-if="bathroom.isGenderNeutral">(Gender neutral)</span></li>
+                            </ul>
+                          </div>
+                        </template>
+                      </div>
+                      <div class="tab-pane fade" id="pills-dining" role="tabpanel" aria-labelledby="pills-dining-tab">
+                        <template v-if="userCanEdit && isEditMode">
+                          <div class="row">
+                            <div v-for="(dining, index) in record.diningOptions" class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
+                              <div class="card">
+                                <div class="card-header">
+                                  {{ dining.name }}
+                                  <button type="button" @click="removeSubitemFromBuilding('dining', index)" class="close pull-right"><span aria-hidden="true">&times;</span></button>
+                                </div>
+                                <div class="card-body">
+                                  <div class="form-group">
+                                    <label>Name *</label>
+                                    <input
+                                      v-validate="'required'"
+                                      data-vv-as="dining option name"
+                                      v-model="dining.name"
+                                      type="text"
+                                      class="form-control"
+                                      placeholder="Dining option name"
+                                      :name="'dining-name-' + index"
+                                      :class="{'is-invalid': errors.has('dining-name-' + index) }">
+                                    <div class="invalid-feedback">
+                                      {{ errors.first('dining-name-' + index) }}
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Hours</label>
+                                    <textarea
+                                      data-vv-as="hours"
+                                      class="form-control"
+                                      name="hours"
+                                      :class="{'is-invalid': errors.has('dining-hours-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                                      :readonly="!userCanEdit || !isEditMode"
+                                      v-model="dining.hours"
+                                      placeholder="Hours go here...">
+                                    </textarea>
+                                    <div class="invalid-feedback">
+                                      {{ errors.first('dining-hours-' + index) }}
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea
+                                      data-vv-as="description"
+                                      v-model="dining.description"
+                                      class="form-control"
+                                      :name="'dining-description-' + index"
+                                      :class="{'is-invalid': errors.has('dining-description-' + index) }"
+                                      placeholder="Describe this dining option here...">
+                                    </textarea>
+                                    <div class="invalid-feedback">
+                                      {{ errors.first('dining-description-' + index) }}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <!--<div v-for="(dining, index) in record.diningOptions">
+                            <div class="form-row">
+                              <div class="form-group col-md-4">
+                                <label class="sr-only">Name *</label>
+                                <input
+                                  v-validate="'required'"
+                                  data-vv-as="dining option name"
+                                  v-model="dining.name"
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Dining option name"
+                                  :name="'dining-name-' + index"
+                                  :class="{'is-invalid': errors.has('dining-name-' + index) }">
+                                <div class="invalid-feedback">
+                                  {{ errors.first('dining-name-' + index) }}
+                                </div>
+                              </div>
+                              <div class="form-group col-md-3">
+                                <label class="sr-only">Hours</label>
+                                <textarea
+                                  data-vv-as="hours"
+                                  class="form-control"
+                                  name="hours"
+                                  :class="{'is-invalid': errors.has('dining-hours-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                                  :readonly="!userCanEdit || !isEditMode"
+                                  v-model="dining.hours"
+                                  placeholder="Hours go here...">
+                                </textarea>
+                                <div class="invalid-feedback">
+                                  {{ errors.first('dining-hours-' + index) }}
+                                </div>
+                              </div>
+                              <div class="form-group col-md-3">
+                                <label class="sr-only">Description</label>
+                                <textarea
+                                  data-vv-as="description"
+                                  v-model="dining.description"
+                                  class="form-control"
+                                  :name="'dining-description-' + index"
+                                  :class="{'is-invalid': errors.has('dining-description-' + index) }"
+                                  placeholder="Describe this dining option here...">
+                                </textarea>
+                                <div class="invalid-feedback">
+                                  {{ errors.first('dining-description-' + index) }}
+                                </div>
+                              </div>
+                              <div class="form-group col-md-2">
+                                <button type="button" @click="removeSubitemFromBuilding('dining', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                              </div>
+                            </div>
+                          </div>-->
+                          <p class="pl-2 pt-2"><button @click="addRecordSubitem('dining')" type="button" class="btn btn-sm btn-info">Add Dining Option</button></p>
+                        </template>
+                        <template v-else>
+                          <div v-if="record.diningOptions.length > 0">
+                            <ul>
+                              <li v-for="dining in record.diningOptions">{{ dining.name }}</li>
+                            </ul>
+                          </div>
+                        </template>
+                      </div>
+                      <div class="tab-pane fade" id="pills-emergency" role="tabpanel" aria-labelledby="pills-emergency-tab">
+                        <template v-if="userCanEdit && isEditMode">
+                          <div v-for="(emergency, index) in record.emergencyDevices">
+                            <div class="form-row">
+                              <div class="form-group col-md-7">
+                                <label for="emergencyLocation" class="sr-only">Location *</label>
+                                <input
+                                  v-validate="'required'"
+                                  data-vv-as="location"
+                                  v-model="emergency.name"
+                                  type="text"
+                                  class="form-control"
+                                  id="emergencyLocation"
+                                  placeholder="Location"
+                                  :name="'emergency-location-' + index"
+                                  :class="{'is-invalid': errors.has('emergency-location-' + index) }">
+                                <div class="invalid-feedback">
+                                  {{ errors.first('emergency-location-' + index) }}
+                                </div>
+                              </div>
+                              <div class="form-group col-md-3">
+                                <label for="emergencyType" class="sr-only">Type *</label>
+                                <multiselect
+                                  v-validate="'required'"
+                                  data-vv-as="device type"
+                                  v-model="record.emergencyDevices[index].type"
+                                  :options="emergencyTypes"
+                                  :multiple="false"
+                                  placeholder="Choose type"
+                                  label="name"
+                                  track-by="id"
+                                  class="form-control"
+                                  style="padding:0"
+                                  :name="'emergency-type-' + index"
+                                  :class="{'is-invalid': errors.has('emergency-type-' + index) }"
+                                  >
+                                </multiselect>
+                                <div class="invalid-feedback">
+                                  {{ errors.first('emergency-type-' + index) }}
+                                </div>
+                              </div>
+                              <div class="form-group col-md-2">
+                                <a v-if="emergency.id" target="_blank" :href="'/map/items/' + emergency.id"><i class="fa fa-pencil"></i></a>
+                                <button type="button" @click="removeSubitemFromBuilding('emergency device', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                              </div>
+                            </div>
+                          </div>
+                          <button @click="addRecordSubitem('emergency device')" type="button" class="btn btn-sm btn-info">Add Device</button>
+                        </template>
+                        <template v-else>
+                          <div v-if="record.emergencyDevices.length > 0">
+                            <ul>
+                              <li v-for="emergency in record.emergencyDevices">{{ emergency.name }} – {{ emergency.type.name }}</li>
+                            </ul>
+                          </div>
+                        </template>
+                      </div>
+                      <div class="tab-pane fade" id="pills-exhibits" role="tabpanel" aria-labelledby="pills-exhibits-tab">
+                        <template v-if="userCanEdit && isEditMode">
+                          <div v-for="(exhibit, index) in record.exhibits">
+                            <div class="form-row">
+                              <div class="form-group col-md-4">
+                                <label for="exhibitName" class="sr-only">Title *</label>
+                                <input
+                                  v-validate="'required'"
+                                  data-vv-as="title"
+                                  v-model="exhibit.name"
+                                  type="text"
+                                  class="form-control"
+                                  id="exhibitName"
+                                  placeholder="Title"
+                                  :name="'exhibit-name-' + index"
+                                  :class="{'is-invalid': errors.has('exhibit-name-' + index) }">
+                                <div class="invalid-feedback">
+                                  {{ errors.first('exhibit-name-' + index) }}
+                                </div>
+                              </div>
+                              <div class="form-group col-md-3">
+                                <label for="exhibitDescription" class="sr-only">Description *</label>
+                                <textarea
+                                  v-validate="'required'"
+                                  data-vv-as="description"
+                                  id="exhibitDescription"
+                                  v-model="exhibit.description"
+                                  class="form-control"
+                                  :name="'exhibit-description-' + index"
+                                  :class="{'is-invalid': errors.has('exhibit-description-' + index) }"
+                                  placeholder="Describe the exhibit here...">
+                                </textarea>
+                                <div class="invalid-feedback">
+                                  {{ errors.first('exhibit-description-' + index) }}
+                                </div>
+                              </div>
+                              <div class="form-group col-md-3">
+                                <label for="exhibitType" class="sr-only">Type *</label>
+                                <multiselect
+                                  v-validate="'required'"
+                                  data-vv-as="exhibit type"
+                                  v-model="record.exhibits[index].type"
+                                  :options="exhibitTypes"
+                                  :multiple="false"
+                                  placeholder="Choose type"
+                                  label="name"
+                                  track-by="id"
+                                  class="form-control"
+                                  style="padding:0"
+                                  :name="'exhibit-type' + index"
+                                  :class="{'is-invalid': errors.has('exhibit-type' + index) }"
+                                  >
+                                </multiselect>
+                                <div class="invalid-feedback">
+                                  {{ errors.first('exhibit-type' + index) }}
+                                </div>
+                              </div>
+                              <div class="form-group col-md-2">
+                                <a v-if="exhibit.id" target="_blank" :href="'/map/items/' + exhibit.id"><i class="fa fa-pencil"></i></a>
+                                <button type="button" @click="removeSubitemFromBuilding('exhibit', index)" class="close"><span aria-hidden="true">&times;</span></button>
+                              </div>
+                            </div>
+                          </div>
+                          <button @click="addRecordSubitem('exhibit')" type="button" class="btn btn-sm btn-info">Add Exhibit</button>
+                        </template>
+                        <template v-else>
+                          <div v-if="record.exhibits.length > 0">
+                            <ul>
+                              <li v-for="exhibit in record.exhibits">{{ exhibit.name }} – {{ exhibit.type.name }}</li>
+                            </ul>
+                          </div>
+                        </template>
+                      </div><!-- end .tab-pane -->
+                    </div><!-- end .tablist -->
+                  </div>
+                </div><!-- end auxuilary pills -->
               </fieldset>
             </template>
             <!-- EMERGENCY DEVICE FIELDS -->
@@ -841,6 +897,9 @@
       startMode: {
         type: String,
         required: false
+      },
+      newForm: {
+        default: false
       }
     },
     data: function() {
@@ -1133,6 +1192,7 @@
           self.record = response.data
           self.isDataLoaded = true
           self.setOriginalImages(self.record.images)
+          self.setLocation(self.record.latitudeSatellite, self.record.longitudeSatellite)
         })
         // fail
         .catch(function (error) {
@@ -1179,6 +1239,10 @@
           });
         // save it
         this.uploadImages(formData);
+      },
+      // Emit an event to the parent component telling to go back to the last screen (applies to new item creation)
+      goBack: function(){
+        this.$emit('goBackStep1')
       },
       // Error checking for emergency devices
       isEmergencyError: function(index){

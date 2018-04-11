@@ -1,8 +1,8 @@
 <template>
   <h2 class="page-heading">
-    <slot name="icon">
+    <!--<slot name="icon">
       icon goes here
-    </slot>
+    </slot>-->
     <slot name="title">Title goes here</slot>
   </h2>
 </template>

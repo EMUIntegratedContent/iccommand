@@ -4,7 +4,7 @@
       <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
       <span slot="title">EMU Map Items</span>
     </heading>
-    <p v-if="userCanCreate"><a href="/map/items/create" class="btn btn-primary">New Map Item</a></p>
+    <!--<p v-if="userCanCreate"><a href="/map/items/create" class="btn btn-primary">New Map Item</a></p>-->
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>

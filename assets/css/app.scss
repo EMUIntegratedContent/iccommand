@@ -10,6 +10,15 @@
 @import "~font-awesome/scss/font-awesome.scss";
 // Pretty checkbox (CP 3/21/18)
 @import '~pretty-checkbox/src/pretty-checkbox.scss';
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+body{
+  font-family: 'Lato', sans-serif;
+}
+
+#iccommand-content-container{
+  padding-top:40px;
+}
 
 .spacer-top{
   margin-top: 20px;
@@ -18,9 +27,15 @@
   margin-bottom: 20px;
 }
 .hover-cards{
+  /*
   .card-body:hover{
     @include card-box-shadow;
   }
+  */
+}
+
+.nav-tabs{
+  padding-top: 15px;
 }
 
 .card-accent{
@@ -31,7 +46,7 @@
 }
 
 .btn-info{
-  background-color: black;
+  /*background-color: black;*/
 }
 
 .login-card{
@@ -39,4 +54,23 @@
   .h4{
     padding: 20px 0 30px 0 !important;
   }
+}
+
+h3.module-nav-heading{
+  font-size: 1rem;
+  font-weight: bold;
+  padding-bottom: 5px;
+}
+.module-nav-pills{
+  padding-bottom: 10px;
+  border-bottom: 2px solid #2e456d;
+  margin-bottom: 5px;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link{
+  background-color: #2e456d !important;
+}
+
+.nav-link{
+  color: #2e456d;
 }

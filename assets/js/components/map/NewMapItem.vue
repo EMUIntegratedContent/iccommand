@@ -1,11 +1,8 @@
 <template>
   <div>
-    <div v-if="this.permissions[0].create" id="toReplace">
-      <template v-if="previousStep">
-        <button class="btn btn-info" @click="swapComponent(previousStep)"><i class="fa fa-chevron-circle-left"></i> Previous</button>
-      </template>
+    <div v-if="this.permissions[0].create">
       <!-- :is = a magic vue word -->
-      <div :is="currentComponent" @mapItemChosen="setItemType" :itemType="itemType" :itemExists="false" :permissions="this.permissions" startMode="edit"></div>
+      <div :is="currentComponent" @mapItemChosen="setItemType" @goBackStep1="swapComponent(previousStep)" :itemType="itemType" :itemExists="false" :permissions="this.permissions" :newForm="true" startMode="edit"></div>
       <div v-show="!currentComponent" v-for="component in componentsArray">
         <button @click="swapComponent(component)">{{component}}</button>
       </div>
@@ -17,9 +14,6 @@
 </template>
 
 <style>
-.card{
-  text-align: center;
-}
 </style>
 
 <script>
