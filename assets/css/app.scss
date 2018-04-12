@@ -33,6 +33,29 @@ body{
   }
   */
 }
+.btn-success{
+  background-color: $success-emu !important;
+  border-color: transparent !important;
+  &:hover{
+    background-color: lighten($success-emu, 10%) !important;
+  }
+}
+
+.btn-danger{
+  background-color: $danger-emu !important;
+  border-color: transparent !important;
+  &:hover{
+    background-color: lighten($danger-emu, 10%) !important;
+  }
+}
+
+.btn-info{
+  background-color: $info-emu !important;
+  border-color: transparent !important;
+  &:hover{
+    background-color: lighten($info-emu, 10%) !important;
+  }
+}
 
 .nav-tabs{
   padding-top: 15px;
@@ -42,7 +65,7 @@ body{
   border-top: 5px solid;
 }
 .card-accent-red{
-  border-top-color: $primary-red;
+  border-top-color: $danger-emu;
 }
 
 .btn-info{
@@ -68,9 +91,17 @@ h3.module-nav-heading{
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link{
-  background-color: #2e456d !important;
+  background-color: $primary !important;
 }
 
 .nav-link{
   color: #2e456d;
+}
+.mapitem-add-aux{
+  text-align: center;
+  border: 5px dashed #cccccc;
+  color: #cccccc;
+  &:hover{
+    color: #888888;
+  }
 }

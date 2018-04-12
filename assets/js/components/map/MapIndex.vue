@@ -22,7 +22,7 @@
         <div id="collapseBuildings" class="collapse show" aria-labelledby="headingBuildings" data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingBuildings" class="table-responsive">
-              <table class="table table-hover">
+              <table class="table table-hover table-sm">
                 <thead>
                   <tr>
                     <th scope="col">Building</th>
@@ -67,7 +67,7 @@
         <div id="collapseBusses" class="collapse" aria-labelledby="headingBusses" data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingBusses" class="table-responsive">
-              <table class="table table-hover">
+              <table class="table table-hover table-sm">
                 <thead>
                   <tr>
                     <th scope="col">Location</th>
@@ -104,7 +104,7 @@
         <div id="collapseEmergencyDevices" class="collapse" aria-labelledby="headingEmergencyDevices" data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingEmergencyDevices" class="table-responsive">
-              <table class="table table-hover">
+              <table class="table table-hover table-sm">
                 <thead>
                   <tr>
                     <th scope="col">Device</th>
@@ -146,7 +146,7 @@
         <div id="collapseExhibits" class="collapse" aria-labelledby="headingExhibits" data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingExhibits" class="table-responsive">
-              <table class="table table-hover">
+              <table class="table table-hover table-sm">
                 <thead>
                   <tr>
                     <th scope="col">Title</th>
@@ -190,7 +190,7 @@
         <div id="collapseParking" class="collapse" aria-labelledby="headingParking" data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingParkingLots" class="table-responsive">
-              <table class="table table-hover">
+              <table class="table table-hover table-sm">
                 <thead>
                   <tr>
                     <th scope="col">Lot</th>
