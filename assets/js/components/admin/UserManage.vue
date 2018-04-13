@@ -14,10 +14,10 @@
         <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
         <span slot="title">Configure user {{ username }}</span>
       </heading>
-      <p>
+      <div class="button-holder" role="group">
         <a href="/admin/users" class="btn btn-info pull-left"><i class="fa fa-arrow-left"></i></a>
         <button type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button>
-      </p>
+      </div>
       <form class="form" id="permissionsForm" @submit.prevent="checkForm">
         <fieldset>
           <legend>Basic Information</legend>
@@ -148,6 +148,9 @@
   </div>
 </template>
 <style>
+.button-holder{
+  height: 50px;
+}
 </style>
 <script>
     import Heading from '../utils/Heading.vue'

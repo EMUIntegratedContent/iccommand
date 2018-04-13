@@ -4,12 +4,12 @@
       <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
       <span slot="title">Registered Users</span>
     </heading>
-    <p><a href="/register" class="btn btn-primary">New User</a></p>
+    <p><a href="/register" class="btn btn-info">New User</a></p>
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>
     <div v-if="!loadingUsers" class="table-responsive">
-      <table class="table table-hover">
+      <table class="table table-hover table-sm">
         <thead>
           <tr>
             <th scope="col">User name</th>
