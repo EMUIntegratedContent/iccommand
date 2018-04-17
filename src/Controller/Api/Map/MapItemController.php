@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\PersistentCollection;
 use Hateoas\HateoasBuilder;
+use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use FOS\RestBundle\View\View;
 use App\Entity\Map\MapItem;
@@ -67,8 +68,14 @@ class MapItemController extends FOSRestController{
       $response = new Response("The map item you requested was not found.", 404, array('Content-Type' => 'application/json'));
       return $response;
     }
+
+    // Need to return NULL fields too (latitude and longitude don't have to have a value)
+    // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
+    $context = new SerializationContext();
+    $context->setSerializeNull(true);
+
     $serializer = $this->container->get('jms_serializer');
-    $serialized = $serializer->serialize($mapItem, 'json');
+    $serialized = $serializer->serialize($mapItem, 'json', $context);
     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
     return $response;

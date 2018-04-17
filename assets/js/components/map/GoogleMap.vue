@@ -27,19 +27,23 @@
       mounted() {
         /** TUTORIAL: http://jsfiddle.net/fatihacet/CKegk/ **/
         const self = this
-        const element = document.getElementById(this.mapName)
+        const element = document.getElementById(this.mapName) // caputre the element that will contain the map
+        // options for non-illustrated mode (road, hybrid, etc)
         const defaultOptions = {
       		center: new google.maps.LatLng(42.250570, -83.620748),
       		zoom: 16,
       		streetViewControl: true
       	}
+        // options for illustrated mode
       	const illustratedOptions = {
       		center: new google.maps.LatLng(61.70025812425445, -112.138671875),
       		zoom: 4,
       		streetViewControl: false
       	}
+        // additional options for illustrated mode
       	const illustratedTypeOptions = {
       		getTileUrl: function(coord, zoom) {
+            // File is in the public folder
       			return '/tile.php?zoom=' + zoom + '&x=' + coord.x + '&y=' + coord.y
       		},
       		maxZoom: 6,
@@ -47,6 +51,7 @@
       		tileSize: new google.maps.Size(256, 256),
       		name: 'EMU Illustrated'
       	}
+        // create the illustrated map type using the options
         const illustratedMapType = new google.maps.ImageMapType(illustratedTypeOptions)
         const options = {
           zoom: 16,
@@ -55,7 +60,10 @@
           	mapTypeIds : ["hybrid", "roadmap", "satellite", "illustrated"]
         	},
         }
+
+        // CREATE THE GOOGLE MAP
         const map = new google.maps.Map(element, options)
+        // include our custom illustrated type
         map.mapTypes.set('illustrated', illustratedMapType);
 
         // Add markers based on lat/lng values passed to this component
@@ -84,7 +92,7 @@
 
         // Whenever the map is clicked, move the marker to that location
         google.maps.event.addListener(map, 'click', function(event) {
-          self.placeMarker(event.latLng, map, map.getMapTypeId());
+          self.placeMarker(event.latLng, map);
           self.showButtons = true
         });
       },
@@ -96,18 +104,22 @@
         },
         latitudeSatellite:{
           type: Number,
+          default: null,
           required: false
         },
         longitudeSatellite:{
           type: Number,
+          default: null,
           required: false
         },
         latitudeIllustration:{
           type: Number,
+          default: null,
           required: false
         },
         longitudeIllustration:{
           type: Number,
+          default: null,
           required: false
         },
       },
@@ -139,28 +151,25 @@
         bindMarkerEvents: function(marker, mapType) {
             const self = this
             google.maps.event.addListener(marker, "rightclick", function (point) {
-              self.deleteMarker(marker, mapType); // remove marker
+              self.deleteMarker(marker, mapType) // remove marker
             });
         },
         deleteMarker: function(marker, markerId) {
           this.hideMarker(markerId)
           delete this.markers[markerId]
+          this.showButtons = true
         },
         hideMarker(markerId){
           if(this.markers[markerId] != undefined){
             this.markers[markerId].setMap(null)
           }
         },
-        placeMarker: function(location, map, mapType) {
-          let mapTypeString = 'satellite'
-          if(mapType == 'illustrated'){
-            mapTypeString = 'illustrated'
-          }
-          if (this.markers[mapTypeString] == undefined){
-            this.addMarker(location, map, mapTypeString)
+        placeMarker: function(location, map) {
+          if (this.markers[this.currentMapType] == undefined){
+            this.addMarker(location, map, this.currentMapType)
           }
           else{
-            this.markers[mapTypeString].setPosition(location);
+            this.markers[this.currentMapType].setPosition(location);
           }
           map.setCenter(location);
         },
@@ -174,10 +183,17 @@
           this.showButtons = false // hide the set and rest buttons
         },
         setLocation: function(){
+          let position = null // if a map marker was deleted, null should be sent to parent
           if(this.currentMapType == 'illustrated'){
-            this.$emit('illustrationMarkerUpdated', this.markers['illustrated'].position)
+            if(this.markers['illustrated'] != undefined){
+              position = this.markers['illustrated'].position
+            }
+            this.$emit('illustrationMarkerUpdated', position)
           } else {
-            this.$emit('satelliteMarkerUpdated', this.markers['satellite'].position)
+            if(this.markers['satellite'] != undefined){
+              position = this.markers['satellite'].position
+            }
+            this.$emit('satelliteMarkerUpdated', position)
           }
           this.showButtons = false // hide the set and rest buttons
         },

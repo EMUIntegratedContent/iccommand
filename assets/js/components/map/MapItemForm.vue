@@ -1159,7 +1159,6 @@
           self.record = response.data
           self.isDataLoaded = true
           self.setOriginalImages(self.record.images)
-          self.setLocation(self.record.latitudeSatellite, self.record.longitudeSatellite)
         })
         // fail
         .catch(function (error) {
@@ -1265,16 +1264,26 @@
           this.uploadErrors = [];
       },
       setIllustratedLocation: function(position){
-        this.record.latitudeIllustration = position.lat()
-        this.record.longitudeIllustration = position.lng()
+        if(position){
+          this.record.latitudeIllustration = position.lat()
+          this.record.longitudeIllustration = position.lng()
+        } else {
+          this.record.latitudeIllustration = null
+          this.record.longitudeIllustration = null
+        }
       },
       // JSON.stringify the original image order in case a user wants to reset the drag and drop order
       setOriginalImages: function(imageArr){
         this.originalImageOrder = JSON.parse(JSON.stringify(imageArr))
       },
       setSatelliteLocation: function(position){
-        this.record.latitudeSatellite = position.lat()
-        this.record.longitudeSatellite = position.lng()
+        if(position){
+          this.record.latitudeSatellite = position.lat()
+          this.record.longitudeSatellite = position.lng()
+        } else {
+          this.record.latitudeSatellite = null
+          this.record.longitudeSatellite = null
+        }
       },
       // Called as a result of $emit from child component
       spliceDeletedImage: function(image){
