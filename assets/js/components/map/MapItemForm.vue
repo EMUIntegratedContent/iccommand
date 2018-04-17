@@ -85,32 +85,15 @@
               <p>Click on the map at the desired location. Use the "Set Location" button to set a marker.</p>
               <div class="row">
                 <div class="col-md-12">
-                  <gmap-map
-                    :center="center"
-                    :map-type-id.sync="mapType"
-                    :zoom="16"
-                    style="width: 100%; height: 500px"
-                    @click="setTempPosition"
-                  >
-                    <!--<gmap-polygon :paths.sync="plPath" :editable="true" :options="{strokeColor:'#FF0000', fillColor:'#000000'}"></gmap-polygon>-->
-                    <gmap-marker
-                      :key="index"
-                      v-for="(m, index) in markers"
-                      :position="m.position"
-                      :clickable="true"
-                      :draggable="true"
-                      @click="center=m.position"
-                    ></gmap-marker>
-
-                  </gmap-map>
-                </div>
-                <div class="col-md-12">
-                  <p><span class="badge">Satellite Coordinates</span>{{ record.latitudeSatellite + ', ' + record.longitudeSatellite }} | <span class="badge">Illustration Coordinates</span>{{ record.latitudeIllustration + ', ' + record.longitudeIllustration }}</p>
-                  <template v-if="tempLongitudeSatellite != null && tempLatitudeSatellite != null">
-                    <button class="btn btn-success" type="button" @click="setLocation(tempLatitudeSatellite, tempLongitudeSatellite)">Set location</button>
-                    <button class="btn btn-default" type="button" @click="clearTempLocation">Clear</button>
-                  </template>
-                  <hr />
+                  <google-map
+                    name="campusmap"
+                    :latitudeSatellite="record.latitudeSatellite"
+                    :longitudeSatellite="record.longitudeSatellite"
+                    :latitudeIllustration="record.latitudeIllustration"
+                    :longitudeIllustration="record.longitudeIllustration"
+                    @illustrationMarkerUpdated="setIllustratedLocation"
+                    @satelliteMarkerUpdated="setSatelliteLocation">
+                  </google-map>
                 </div>
               </div>
             </fieldset>
@@ -841,6 +824,7 @@
   import Multiselect from 'vue-multiselect'
   import NotFound from '../utils/NotFound.vue'
   import Draggable from 'vuedraggable'
+  import GoogleMap from './GoogleMap.vue'
 
   const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3;
 
@@ -877,7 +861,7 @@
         this.fetchParkingTypes()
       }
     },
-    components: {Heading, Multiselect, MapitemDeleteModal, MapitemImageDeleteModal, MapitemImageEditModal, ImageThumbnailPod, NotFound, Draggable},
+    components: {Heading, Multiselect, MapitemDeleteModal, MapitemImageDeleteModal, MapitemImageEditModal, ImageThumbnailPod, NotFound, Draggable, GoogleMap},
     props:{
       itemType: {
         type: String,
@@ -905,22 +889,12 @@
     },
     data: function() {
       return {
-        /***** GOOGLE MAPS DOODLING *****/
-        plPath: [
-          {lat: 25.774, lng: -80.190},
-          {lat: 18.466, lng: -66.118},
-          {lat: 32.321, lng: -64.757},
-          {lat: 25.774, lng: -80.190}
-        ],
-        mapType: 'terrain',
-        /**** end GOOGLE MAPS DOODLING *****/
         apiError: {
           message: null,
           status: null
         },
         buildings: [], // for multiselect
         buildingTypes: [], // for multiselect
-        center: {lat: 42.24782481187385, lng: -83.62301669499783}, // center coordinates for google map
         currentStatus: null,
         emergencyTypes: [], // for multiselect
         exhibitTypes: [], // for multiselect
@@ -931,7 +905,6 @@
         isEditMode: false, // true = make forms editable
         isImageOrderChanged: false,
         isImageOrderUpdated: false,
-        markers: [], // google map markers
         originalImageOrder: [], // when order of images is being re-arranged, put the initial images, in order, here
         parkingTypes: [], // for multiselect
         record: {
@@ -1076,13 +1049,6 @@
           self.apiError.status = 500
           self.apiError.message = "Something went wrong that wasn't validation related."
         });
-      },
-      clearMarkers: function(){
-        this.markers = []
-      },
-      clearTempLocation: function(){
-        this.tempLatitudeSatellite = null
-        this.tempLongitudeSatellite = null
       },
       fetchBuildings(){
         let self = this
@@ -1298,26 +1264,17 @@
           this.uploadedFiles = [];
           this.uploadErrors = [];
       },
-      setLocation: function(lat, lng){
-        this.clearMarkers() // get rid of existing markers
-        this.record.latitudeSatellite = lat
-        this.record.longitudeSatellite = lng
-        // make a new marker for these coordinates
-        this.markers.push({
-          position: {
-            lat: lat,
-            lng: lng,
-          }
-        })
-        this.clearTempLocation()
+      setIllustratedLocation: function(position){
+        this.record.latitudeIllustration = position.lat()
+        this.record.longitudeIllustration = position.lng()
       },
       // JSON.stringify the original image order in case a user wants to reset the drag and drop order
       setOriginalImages: function(imageArr){
         this.originalImageOrder = JSON.parse(JSON.stringify(imageArr))
       },
-      setTempPosition: function(e){
-        this.tempLatitudeSatellite = e.latLng.lat()
-        this.tempLongitudeSatellite = e.latLng.lng()
+      setSatelliteLocation: function(position){
+        this.record.latitudeSatellite = position.lat()
+        this.record.longitudeSatellite = position.lng()
       },
       // Called as a result of $emit from child component
       spliceDeletedImage: function(image){

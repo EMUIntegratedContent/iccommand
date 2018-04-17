@@ -104,52 +104,40 @@
         </main>
         {% block javascripts %}
           <script src="{{ asset('build/app.js') }}"></script>
-          <script>
-
-            // function CoordMapType(tileSize) {
-            //   this.tileSize = tileSize;
-            // }
-            //
-            // CoordMapType.prototype.maxZoom = 19;
-            // CoordMapType.prototype.name = 'Tile #s';
-            // CoordMapType.prototype.alt = 'Tile Coordinate Map Type';
-            //
-            // CoordMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-            //   var div = ownerDocument.createElement('div');
-            //   div.innerHTML = coord;
-            //   div.style.width = this.tileSize.width + 'px';
-            //   div.style.height = this.tileSize.height + 'px';
-            //   div.style.fontSize = '10';
-            //   div.style.borderStyle = 'solid';
-            //   div.style.borderWidth = '1px';
-            //   div.style.borderColor = '#AAAAAA';
-            //   div.style.backgroundColor = '#E5E3DF';
-            //   return div;
-            // };
-            //
-            // window.initMap = function() {
-            //   var map = new google.maps.Map(document.getElementById('map-canvas'), {
-            //     zoom: 10,
-            //     center: {lat: 41.850, lng: -87.650},
-            //     streetViewControl: false,
-            //     mapTypeId: 'coordinate',
-            //     mapTypeControlOptions: {
-            //       mapTypeIds: ['coordinate', 'roadmap'],
-            //       style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
-            //     }
-            //   });
-            //
-            //   map.addListener('maptypeid_changed', function() {
-            //     var showStreetViewControl = map.getMapTypeId() !== 'coordinate';
-            //     map.setOptions({
-            //       streetViewControl: showStreetViewControl
-            //     });
-            //   });
-            //
-            //   // Now attach the coordinate map type to the map's registry.
-            //   map.mapTypes.set('coordinate', new CoordMapType(new google.maps.Size(256, 256)));
-            // }
-          </script>
+          <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8"></script>
+          <!--<script>
+            $(document).ready(function () {
+              emu_map = new GMaps({
+            		div: '#map',
+            	  	lat: 42.250570,
+            	  	lng: -83.620748,
+                  	zoom: 16,
+            	  	mapTypeControlOptions: {
+                    	mapTypeIds : ["hybrid", "roadmap", "satellite", "terrain", "illustrated"]
+                  	},
+            	  	maptypeid_changed: function(ev){
+            			var mapType = this.getMapTypeId()
+            	        if (mapType == 'illustrated') {
+                	        this.setOptions(illustratedOptions)
+            				// Make new markers
+            				refreshAllMarkersIfChecked(mapType)
+            				$('#directions-form-container').addClass('hidden')
+                    	} else {
+                        	if (currType == 'illustrated') {
+                            	this.setOptions(defaultOptions)
+            					// Make new markers
+            					refreshAllMarkersIfChecked(mapType)
+                        	}
+            				$('#directions-form-container').removeClass('hidden')
+                    	}
+                    	$(window).trigger('resize');
+                    	currType = mapType;
+            	  },
+            	});
+            	emu_map.addMapType("illustrated", illustratedTypeOptions);
+            	emu_map.setMapTypeId("illustrated");
+            });
+          </script>-->
 
         {% endblock %}
 

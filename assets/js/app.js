@@ -13,21 +13,11 @@ $(document).ready(function() {
 
 /** VUE SETUP **/
 import Vue from 'vue'
-import * as VueGoogleMaps from 'vue2-google-maps'
 import VeeValidate from 'vee-validate'
 import PrettyCheckbox from 'pretty-checkbox-vue'
 
 Vue.use(VeeValidate)
 Vue.use(PrettyCheckbox)
-Vue.use(VueGoogleMaps, {
-  load: {
-    key: 'AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8',
-    //libraries: 'places', // This is required if you use the Autocomplete plugin
-    // OR: libraries: 'places,drawing'
-    libraries: 'places,drawing,visualization'
-    // (as you require)
-  }
-})
 
 /** DECLARE COMPONENTS HERE **/
 Vue.component('home-page', require('./components/Homepage.vue').default)
