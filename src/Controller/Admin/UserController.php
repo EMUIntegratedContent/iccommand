@@ -19,7 +19,6 @@ class UserController extends Controller
     $userManager = $this->container->get('fos_user.user_manager');
     $users = $userManager->findUsers();
     return $this->render('admin/users/index.html.twig', [
-        'controller_name' => 'PermissionController',
         'roles' => $roles,
         'users' => $users,
     ]);
@@ -35,7 +34,6 @@ class UserController extends Controller
       throw $this->createNotFoundException('The user name ' . $username . ' was not found.');
     }
     return $this->render('admin/users/show.html.twig', [
-        'controller_name' => 'PermissionController',
         'user' => $user,
     ]);
   }

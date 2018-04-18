@@ -8,95 +8,49 @@
         {% endblock %}
     </head>
     <body>
-        <!-- <div id="map-canvas" style="width: 500px; height: 500px;"></div> -->
-        <!--<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-          <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="/">IC Command</a>
-          <ul class="navbar-nav px-3">
-            {% if is_granted('ROLE_GLOBAL_ADMIN') %}
-            <li class="nav-item text-nowrap">
-                <a class="nav-link" href="/admin">Admin</a>
-          	</li>
-            {% endif %}
-          	<li class="nav-item text-nowrap">
-              {% if app.user %}
-                <a class="nav-link" href="/logout">Log Out</a>
-              {% else %}
-                <a class="nav-link" href="/login">Log In</a>
-              {% endif %}
-          	</li>
-          </ul>
-        </nav>-->
         <nav class="navbar navbar-dark sticky-top bg-dark navbar-expand-lg">
           <a class="navbar-brand" href="/">IC Command</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
 
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <!--
+          <div class="collapse navbar-collapse" id="iccommand-mainnav-container">
             <ul class="navbar-nav mr-auto">
-              <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              <li class="nav-item">
+                <a class="nav-link" href="/map/items">Campus Map</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Dropdown
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <a class="dropdown-item" href="#">Action</a>
-                  <a class="dropdown-item" href="#">Another action</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="#">Something else here</a>
-                </div>
+                <a class="nav-link">Emergency App</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link disabled" href="#">Disabled</a>
+                <a class="nav-link">Photo Requests</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link">Redirects</a>
               </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+            <ul class="navbar-nav ml-auto">
+              {% if is_granted('ROLE_GLOBAL_ADMIN') %}
+              <li class="nav-item text-nowrap">
+                  <a class="nav-link" href="/admin">Admin</a>
+            	</li>
+              {% endif %}
+              {% if app.user %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {{ app.user.username}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="#">My Profile</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="/logout">Log Out</a>
+                </div>
+              </li>
+              {% else %}
+                <a class="nav-link" href="/login">Log In</a>
+              {% endif %}
+            </ul>
           </div>
-          -->
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="/map/items">Campus Map</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link">Emergency App</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link">Photo Requests</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link">Redirects</a>
-            </li>
-          </ul>
-          <ul class="navbar-nav ml-auto">
-            {% if is_granted('ROLE_GLOBAL_ADMIN') %}
-            <li class="nav-item text-nowrap">
-                <a class="nav-link" href="/admin">Admin</a>
-          	</li>
-            {% endif %}
-            {% if app.user %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{ app.user.username}}
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">My Profile</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/logout">Log Out</a>
-              </div>
-            </li>
-            {% else %}
-              <a class="nav-link" href="/login">Log In</a>
-            {% endif %}
-          </ul>
         </nav>
         <main role="main" class="container" id="iccommand-content-container">
         {% block modulenav %}{% endblock %}
@@ -105,40 +59,6 @@
         {% block javascripts %}
           <script src="{{ asset('build/app.js') }}"></script>
           <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8"></script>
-          <!--<script>
-            $(document).ready(function () {
-              emu_map = new GMaps({
-            		div: '#map',
-            	  	lat: 42.250570,
-            	  	lng: -83.620748,
-                  	zoom: 16,
-            	  	mapTypeControlOptions: {
-                    	mapTypeIds : ["hybrid", "roadmap", "satellite", "terrain", "illustrated"]
-                  	},
-            	  	maptypeid_changed: function(ev){
-            			var mapType = this.getMapTypeId()
-            	        if (mapType == 'illustrated') {
-                	        this.setOptions(illustratedOptions)
-            				// Make new markers
-            				refreshAllMarkersIfChecked(mapType)
-            				$('#directions-form-container').addClass('hidden')
-                    	} else {
-                        	if (currType == 'illustrated') {
-                            	this.setOptions(defaultOptions)
-            					// Make new markers
-            					refreshAllMarkersIfChecked(mapType)
-                        	}
-            				$('#directions-form-container').removeClass('hidden')
-                    	}
-                    	$(window).trigger('resize');
-                    	currType = mapType;
-            	  },
-            	});
-            	emu_map.addMapType("illustrated", illustratedTypeOptions);
-            	emu_map.setMapTypeId("illustrated");
-            });
-          </script>-->
-
         {% endblock %}
 
     </body>

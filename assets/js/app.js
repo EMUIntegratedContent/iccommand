@@ -9,6 +9,18 @@ require('./bootstrap')
 
 $(document).ready(function() {
     $('[data-toggle="popover"]').popover()
+
+    // Set active main nav class
+    let urlPath = window.location.pathname
+    $('#iccommand-mainnav-container li.nav-item').each(function(index){
+      // Match a path where the urlPath at least starts with this nav item's path
+      let urlPathRegExp = new RegExp('^' + $('a', this).attr('href') + '*?')
+      if(urlPathRegExp.test(urlPath)){
+        $(this).addClass('active')
+      } else {
+        $(this).removeClass('active')
+      }
+    })
 });
 
 /** VUE SETUP **/

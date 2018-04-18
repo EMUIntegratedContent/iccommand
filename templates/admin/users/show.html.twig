@@ -2,6 +2,10 @@
 
 {% block title %}Manage Users{% endblock %}
 
+{% block modulenav %}
+  {% include 'admin/nav_admin.html.twig' %}
+{% endblock %}
+
 {% block body %}
 <div id="app">
   <admin-user-manage username="{{ user.username }}"></admin-user-manage>
