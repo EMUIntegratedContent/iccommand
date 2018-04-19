@@ -8,6 +8,6 @@
 
 {% block body %}
 <div id="app">
-  <admin-user-manage username="{{ user.username }}"></admin-user-manage>
+  <admin-user-manage username="{{ user.username }}" logged-in-user="{{ app.user.username }}"></admin-user-manage>
 </div>
 {% endblock %}

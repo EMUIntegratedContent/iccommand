@@ -33,6 +33,14 @@ class DefaultController extends Controller
     }
 
     /**
+     * @Route("/profile", name="user_profile")
+     */
+    public function profile()
+    {
+      return $this->render('profile.html.twig', []);
+    }
+
+    /**
      * @Route("/unittest", name="unit_test")
      */
     public function unitTest()

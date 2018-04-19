@@ -826,7 +826,7 @@
   import Draggable from 'vuedraggable'
   import GoogleMap from './GoogleMap.vue'
 
-  const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3;
+  const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3
 
   export default {
     created() {},

@@ -96,52 +96,72 @@
               </div>
             </div>
           </div>
-          <template v-if="isEditMode">
-            <div class="form-group">
-              <p-check class="p-switch p-slim" v-model="user.enabled" color="success">{{ user.enabled ? 'Enabled' : 'Disabled' }}</p-check>
-            </div>
-          </template>
-          <template v-else>
-            <p>User is {{ user.enabled ? 'enabled' : 'disabled' }}</p>
-          </template>
+          <div class="form-group">
+            <p-check :disabled="!isEditMode || (username == loggedInUser)"class="p-switch p-slim" v-model="user.enabled" color="success">{{ user.enabled ? 'Enabled' : 'Disabled' }} {{ (username == loggedInUser) && isEditMode ? '(you cannot disable your own account)' : '' }}</p-check>
+          </div>
         </fieldset>
         <fieldset>
           <legend>User Roles</legend>
-          <template v-if="isEditMode">
-            <h4>Administrative</h4>
-            <p-check v-for="role in rolesAdmin" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-            <h4>Campus Map</h4>
-            <p-check v-for="role in rolesMap" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-            <h4>Redirect</h4>
-            <p-check v-for="role in rolesRedirect" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-            <h4>Emergency</h4>
-            <p-check v-for="role in rolesEmergency" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-            <h4>Photo Request</h4>
-            <p-check v-for="role in rolesPhoto" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-            <br />
-            <!-- VALIDATION AND SUCCESS/ERROR MESSAGES -->
-            <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
-              You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
-              <ul>
-                <li v-for="error in this.$validator.errors.all()">
-                  <strong>{{ error }}</strong>
-                </li>
-              </ul>
+          <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
+              <div class="card card-accent card-accent-red">
+                <div class="card-header">Administrative</div>
+                <div class="card-body">
+                  <p v-if="username == loggedInUser">You cannot change your own administrative settings.</p>
+                  <p-check v-for="role in rolesAdmin" :disabled="(username == loggedInUser) || !isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+                </div>
+              </div>
             </div>
-            <div v-if="success" class="alert alert-success fade show" role="alert">
-              {{ successMessage }}
+            <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
+              <div class="card card-accent card-accent-blue">
+                <div class="card-header">Campus Map</div>
+                <div class="card-body">
+                  <p-check v-for="role in rolesMap" :disabled="!isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+                </div>
+              </div>
             </div>
-            <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">
-              There was an error deleting this item.
+            <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
+              <div class="card card-accent card-accent-blue">
+                <div class="card-header">Redirect</div>
+                <div class="card-body">
+                  <p-check v-for="role in rolesRedirect" :disabled="!isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+                </div>
+              </div>
             </div>
-            <!-- ACTION BUTTONS -->
-            <button class="btn btn-success spacer-top" type="submit">{{ 'Update ' + username }}</button>
-          </template>
-          <template v-else>
-            <p v-for="(role, index) in user.roles">
-              {{ role }}<span v-if="index < (user.roles.length - 1)">, </span>
-            </p>
-          </template>
+            <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
+              <div class="card card-accent card-accent-blue">
+                <div class="card-header">Emergency</div>
+                <div class="card-body">
+                  <p-check v-for="role in rolesEmergency" :disabled="!isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
+              <div class="card card-accent card-accent-blue">
+                <div class="card-header">Photo Request</div>
+                <div class="card-body">
+                  <p-check v-for="role in rolesPhoto" :disabled="!isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- VALIDATION AND SUCCESS/ERROR MESSAGES -->
+          <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
+            You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
+            <ul>
+              <li v-for="error in this.$validator.errors.all()">
+                <strong>{{ error }}</strong>
+              </li>
+            </ul>
+          </div>
+          <div v-if="success" class="alert alert-success fade show" role="alert">
+            {{ successMessage }}
+          </div>
+          <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">
+            There was an error deleting this item.
+          </div>
+          <!-- ACTION BUTTONS -->
+          <button v-if="isEditMode" class="btn btn-success spacer-top" type="submit">{{ 'Update ' + username }}</button>
         </fieldset>
       </form>
     </div>
@@ -168,6 +188,10 @@
           type: String,
           required: true
         },
+        loggedInUser:{
+          type: String,
+          required: true
+        }
       },
       data: function() {
         return {

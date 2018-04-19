@@ -32,6 +32,8 @@ class UserController extends FOSRestController{
 
   /**
    * Return an individual user (by username)
+   *
+   * @Security("has_role('ROLE_USER')")
    */
   public function getUserAction($username){
     $userManager = $this->container->get('fos_user.user_manager');
@@ -46,6 +48,8 @@ class UserController extends FOSRestController{
 
   /**
    * Return all defined roles
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN')")
    */
   public function getRolesAction(){
     $roles = $this->container->getParameter('security.role_hierarchy.roles');
@@ -59,6 +63,8 @@ class UserController extends FOSRestController{
 
   /**
    * Update a user's information and roles
+   *
+   * @Security("has_role('ROLE_USER')")
    */
    public function putUserAction(Request $request, $username){
 

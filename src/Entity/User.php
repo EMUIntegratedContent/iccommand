@@ -6,6 +6,7 @@ use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
+use App\Entity\UserImage;
 
 /**
  * @ORM\Entity
@@ -56,6 +57,13 @@ class User extends BaseUser
      * )
      */
     protected $groups;
+
+    /**
+     * One user has One Image.
+     * @ORM\OneToOne(targetEntity="App\Entity\UserImage")
+     * @ORM\JoinColumn(name="image_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
+     */
+    protected $image;
 
     public function __construct()
     {
@@ -116,5 +124,16 @@ class User extends BaseUser
     public function getPhone()
     {
         return $this->phone;
+    }
+
+    public function setImage(UserImage $image)
+    {
+        $this->image = $image;
+        return $this;
+    }
+
+    public function getImage()
+    {
+        return $this->image;
     }
 }

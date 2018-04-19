@@ -108,7 +108,7 @@ class MapItemImageController extends FOSRestController{
   {
     // Make sure user is uploading a JPG, PNG, or GIF and not
     if($this->isValidImage($image)){
-      $existingImage = $this->getDoctrine()->getRepository(MapitemImage::class)->findOneBy(['name' => $image->getClientOriginalName()]);
+      $existingImage = $this->getDoctrine()->getRepository(MapitemImage::class)->findOneBy(['path' => $image->getClientOriginalName()]);
 
       // only process images that don't match an existing image name
       if(!$existingImage){

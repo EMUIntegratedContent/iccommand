@@ -15,23 +15,17 @@
 body{
   font-family: 'Lato', sans-serif;
 }
-
 #iccommand-content-container{
   padding-top:40px;
 }
-
 .spacer-top{
   margin-top: 20px;
 }
 .spacer-bottom{
   margin-bottom: 20px;
 }
-.hover-cards{
-  /*
-  .card-body:hover{
-    @include card-box-shadow;
-  }
-  */
+#iccommand-mainnav-container li.active {
+    border-bottom: solid 2px $info-emu;
 }
 .btn-success{
   background-color: $success-emu !important;
@@ -40,7 +34,6 @@ body{
     background-color: lighten($success-emu, 10%) !important;
   }
 }
-
 .btn-danger{
   background-color: $danger-emu !important;
   border-color: transparent !important;
@@ -48,7 +41,6 @@ body{
     background-color: lighten($danger-emu, 10%) !important;
   }
 }
-
 .btn-info{
   background-color: $info-emu !important;
   border-color: transparent !important;
@@ -56,29 +48,20 @@ body{
     background-color: lighten($info-emu, 10%) !important;
   }
 }
-
 .nav-tabs{
   padding-top: 15px;
 }
-
 .card-accent{
   border-top: 5px solid;
 }
 .card-accent-red{
   border-top-color: $danger-emu;
 }
-
-.btn-info{
-  /*background-color: black;*/
-}
-
 .login-card{
-  /*width: 22rem;*/
   .h4{
     padding: 20px 0 30px 0 !important;
   }
 }
-
 h3.module-nav-heading{
   font-size: 1rem;
   font-weight: bold;
@@ -89,11 +72,9 @@ h3.module-nav-heading{
   border-bottom: 2px solid #2e456d;
   margin-bottom: 5px;
 }
-
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link{
   background-color: $primary !important;
 }
-
 .nav-link{
   color: #2e456d;
 }

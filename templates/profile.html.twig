@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ app.user.username }}'s profile{% endblock %}
+
+{% block body %}
+<div id="app">
+  {% if app.user.username %}
+    <user-profile username="{{ app.user.username }}"></user-profile>
+  {% else %}
+    <p>You must be registered and <a href="/login">logged in</a> to view your profile.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

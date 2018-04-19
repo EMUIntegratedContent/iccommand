@@ -48,3 +48,17 @@ liip_imagine:
                     size:     [103, 103]
                     position: center
                     color:    '#fff'
+        profile:
+            # set your image quality defaults
+            jpeg_quality:          85
+            png_compression_level: 8
+
+            filters:
+                thumbnail:
+                    size:           [200,300]
+                    mode:           outbound
+                    allow_upscale:  true
+                background:
+                    size:     [205, 305]
+                    position: center
+                    color:    '#fff'
