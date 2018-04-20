@@ -38,7 +38,8 @@
               {% if app.user %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  {{ app.user.username}}
+                  <img src="{{ app.user.image ? '/media/cache/resolve/navbar_profile/uploads/profile/' ~ app.user.image.path : '/media/cache/resolve/navbar_profile/images/no-profile-image.png' }}" width="25px" height="25px" class="rounded-circle" alt="profile image" />
+                  {{ app.user.username }}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <a class="dropdown-item" href="/profile">My Profile</a>

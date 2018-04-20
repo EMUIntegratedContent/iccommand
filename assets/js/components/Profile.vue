@@ -18,20 +18,19 @@
         <button type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button>
       </div>
       <div class="row">
-        <div class="col-sm-12 col-md-5 col-lg-4">
-           <img style="width:100%" :src="imageResizedURL + user.image.path" class="rounded-circle" :alt="username + '\'s profile image'">
-           <!--<img style="width:100%" :src="user.image.subdir + '/' + user.image.path" class="rounded-circle" :alt="username + '\'s profile image'">-->
-           <form enctype="multipart/form-data" novalidate v-if="isEditMode">
-             <fieldset>
-               <legend>Change Image</legend>
-               <label>
-                 <input type="file" name="uploadProfileImage" id="profilefile" accept="image/*" :disabled="isUploadSaving" @change="filesChange($event.target.name, $event.target.files);">
-                 <span class="custom-file-control"></span>
-               </label>
-             </fieldset>
-           </form>
+        <div class="col-sm-12 col-md-4 col-lg-3">
+          <div class="profile-image-container">
+            <button v-if="user.image" type="button" id="delete-image-button" class="btn btn-sm btn-danger" @click="deleteProfileImage"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <img width="205px" height="305px" :src="user.image ? imageResizedURL + user.image.path : '/images/no-profile-image.png'" :alt="username + '\'s profile image'">
+          </div>
+          <form enctype="multipart/form-data" novalidate v-if="isEditMode">
+            <label>
+              <input type="file" name="uploadProfileImage" id="profilefile" class="form-control-file" accept="image/*" :disabled="isUploadSaving" @change="filesChange($event.target.name, $event.target.files);">
+              <span class="custom-file-control"></span>
+            </label>
+          </form>
         </div>
-        <div class="col-sm-12 col-md-7 col-lg-8">
+        <div class="col-sm-12 col-md-8 col-lg-9">
           <form class="form" id="permissionsForm" @submit.prevent="checkForm">
             <fieldset>
               <legend>Basic Information</legend>
@@ -126,7 +125,7 @@
                 There was an error deleting this item.
               </div>
               <!--IMAGE UPLOAD SUCCESS-->
-              <div v-if="isUploadSuccess && isEditMode">
+              <div v-if="isUploadSuccess">
                 <div v-if="uploadErrors.length == 0" class="alert alert-success" role="alert">
                   <p><strong>Your profile picture was uploaded successfully.</strong></p>
                 </div>
@@ -137,8 +136,20 @@
                   </ul>
                 </div>
               </div>
+              <!--IMAGE DELETED SUCCESS-->
+              <div v-if="isUploadDeleted">
+                <div v-if="uploadErrors.length == 0" class="alert alert-success" role="alert">
+                  <p><strong>Your profile picture was deleted.</strong></p>
+                </div>
+                <div v-else class="alert alert-warning" role="alert">
+                  <p><strong>Your profile image was not deleted.</strong></p>
+                  <ul>
+                    <li v-for="uploadError in uploadErrors">{{ uploadError }}</li>
+                  </ul>
+                </div>
+              </div>
               <!--IMAGE UPLOAD FAILED-->
-              <div v-if="isUploadFailed && isEditMode" class="alert alert-danger" role="alert">
+              <div v-if="isUploadFailed" class="alert alert-danger" role="alert">
                 <p><strong>Upload failed.</strong></p>
                 <pre v-for="uploadError in uploadErrors">{{ uploadErrors }}</pre>
               </div>
@@ -152,12 +163,17 @@
   </div>
 </template>
 <style>
+#delete-image-button{
+  position: absolute;
+  top:5px;
+  left:20px;
+}
 </style>
 <script>
     import Heading from './utils/Heading.vue'
     import NotFound from './utils/NotFound.vue'
 
-    const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3
+    const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3, STATUS_DELETED = 4
 
     export default {
       created() {},
@@ -178,6 +194,7 @@
             status: null
           },
           currentStatus: null,
+          deleteConfirm: null,
           is404: false,
           isDataLoaded: false,
           isDeleted: false,
@@ -216,6 +233,9 @@
         isUploadFailed() {
           return this.currentStatus === STATUS_FAILED
         },
+        isUploadDeleted() {
+          return this.currentStatus === STATUS_DELETED
+        },
         // -end PHOTOS
       },
       methods: {
@@ -243,6 +263,35 @@
             self.apiError.status = 500
             self.apiError.message = "Something went wrong that wasn't validation related."
           });
+        },
+        deleteProfileImage: function() {
+          let self = this
+          this.currentStatus = STATUS_SAVING
+          axios.delete('/api/userimages/' + this.user.image.id)
+          .then(function(response) {
+            self.currentStatus = STATUS_DELETED
+            // remove the message after 3 seconds
+            setTimeout(function(){
+                self.currentStatus = STATUS_INITIAL
+            }, 3000)
+          })
+          .catch(function(error) {
+            self.apiError.status = error.response.status
+            switch(error.response.status){
+              case 403:
+                self.apiError.message = "You do not have sufficient privileges to delete this photo."
+                break
+              case 404:
+                self.apiError.message = "Photo was not found."
+                break
+              case 500:
+                self.apiError.message = "An internal error occurred."
+                break
+              default:
+                self.apiError.message = "An error occurred."
+                break
+            }
+          })
         },
         fetchUser: function(){
           let self = this
