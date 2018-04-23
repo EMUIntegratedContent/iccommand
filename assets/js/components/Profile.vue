@@ -20,7 +20,7 @@
       <div class="row">
         <div class="col-sm-12 col-md-4 col-lg-3">
           <div class="profile-image-container">
-            <button v-if="user.image" type="button" id="delete-image-button" class="btn btn-sm btn-danger" @click="deleteProfileImage"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <button v-if="user.image && isEditMode" type="button" id="delete-image-button" class="btn btn-sm btn-danger" @click="deleteProfileImage"><i class="fa fa-times" aria-hidden="true"></i></button>
             <img width="205px" height="305px" :src="user.image ? imageResizedURL + user.image.path : '/images/no-profile-image.png'" :alt="username + '\'s profile image'">
           </div>
           <form enctype="multipart/form-data" novalidate v-if="isEditMode">
@@ -270,6 +270,7 @@
           axios.delete('/api/userimages/' + this.user.image.id)
           .then(function(response) {
             self.currentStatus = STATUS_DELETED
+            self.user.image = null
             // remove the message after 3 seconds
             setTimeout(function(){
                 self.currentStatus = STATUS_INITIAL

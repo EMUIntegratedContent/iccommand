@@ -40,7 +40,7 @@ class UserImageController extends FOSRestController{
 
   public function deleteUserimageAction($id) : Response
   {
-    $image = $this->getDoctrine()->getRepository(UserImage::class)->find($id); // find the matching image
+    $image = $this->getDoctrine()->getRepository(UserImage::class)->findOneBy(['id' => $id]); // find the matching image
 
     if(!$image){
         $response = new Response("That image was not found. Deletion not executed.", 404, array('Content-Type' => 'application/json'));
