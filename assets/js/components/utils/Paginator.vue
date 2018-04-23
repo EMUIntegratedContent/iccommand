@@ -42,6 +42,7 @@
           currentPage: 1,
           itemsPerPage: 10,
           itemsPerPageOptions: [
+            { text: 1, value: 1 },
             { text: 5, value: 5 },
             { text: 10, value: 10 },
             { text: 25, value: 25 },

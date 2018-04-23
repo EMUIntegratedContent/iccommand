@@ -86,3 +86,26 @@ h3.module-nav-heading{
     color: #888888;
   }
 }
+.heading-primary{
+    color: $success-emu;
+}
+.hand{
+  cursor: pointer;
+}
+.iccommand-thumb-container{
+  border-top: 1px solid rgba(0,0,0,0.125) !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+.iccommand-thumb-image{
+  width:103px;
+  float:left;
+  margin-right:10px;
+}
+.iccommand-thumb-hamburger{
+  width: 40px;
+  float: left;
+  position: relative;
+  top: 40px;
+}

@@ -1,20 +1,20 @@
 <template>
     <div>
-        <li class="list-group-item" :class="{'image-deleted-border': isImageDeleted, 'image-edited-border': isImageEdited}">
+        <li class="list-group-item iccommand-thumb-container" :class="{'image-deleted-border': isImageDeleted, 'image-edited-border': isImageEdited}">
             <div v-if="isImageEditedError || isImageDeletedError" class="alert alert-danger" role="alert">
                 <p>{{ actionType }} failed! Please try again.</p>
             </div>
             <div class="row">
-                <div class="col-sm-9">
-                    <h6 class="box-title"><i v-if="this.$vnode.key == 0" class="fa fa-star" aria-hidden="true"></i> {{ imageName }} <span @click="openEditImageModal(image)"><i class="fa fa-pencil" aria-hidden="true"></i></span></h6>
-                </div><!-- /.col-md-12 -->
-                <div class="col-sm-3">
-                    <button type="button" class="btn btn-sm btn-danger pull-right" @click="openDeleteImageModal(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
-                </div><!-- /.col-md-12 -->
-            </div><!-- /.row -->
-            <div class="row">
                 <div class="col-sm-12">
-                    <img :src="uploadsThumbnailURL + image.path" :alt="image.name" class="rounded" />
+                    <div v-if="isEditMode" class="iccommand-thumb-hamburger">
+                      <i class="fa fa-bars"></i>
+                    </div>
+                    <div class="iccommand-thumb-image">
+                      <img width="103px" height="103px" :src="uploadsThumbnailURL + image.path" :alt="image.name" />
+                    </div>
+                    <button v-if="isEditMode" type="button" class="btn btn-sm btn-danger pull-right" @click="openDeleteImageModal(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
+                    <h6 class="box-title heading-primary"><i v-if="this.$vnode.key == 0" class="fa fa-star" aria-hidden="true"></i> {{ imageName }}</h6>
+                    <p v-if="isEditMode" class="hand"><span @click="openEditImageModal(image)"><i class="fa fa-pencil" aria-hidden="true"></i> Edit name</span></p>
                     <p><a :href="image.subdir + '/' + image.path" target="_blank">Full Size</a></p>
                 </div>
             </div>
@@ -51,6 +51,7 @@
 .image-edited-border{
     border: 3px solid green;
 }
+
 </style>
 
 <script>
@@ -67,6 +68,9 @@
         type: Object,
         required: true
       },
+      isEditMode: {
+        default: false
+      }
     },
     data: function() {
       return {

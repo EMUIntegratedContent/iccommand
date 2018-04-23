@@ -49,7 +49,7 @@ class UserController extends FOSRestController{
   /**
    * Return all defined roles
    *
-   * @Security("has_role('ROLE_GLOBAL_ADMIN')")
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
    */
   public function getRolesAction(){
     $roles = $this->container->getParameter('security.role_hierarchy.roles');
@@ -88,6 +88,21 @@ class UserController extends FOSRestController{
      $userManager->updateUser($user);
 
      $response = new Response('User ' . $username . ' was updated successfully.', 200, array('Content-Type' => 'application/json'));
+     return $response;
+   }
+
+   /**
+    * Return all users of the map application (by username)
+    *
+    * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
+    */
+   public function getMapusersAction(){
+     $mapAppUsers = $this->getDoctrine()->getRepository(User::class)->findByRole('ROLE_MAP_');
+
+     $serializer = $this->container->get('jms_serializer');
+     $serialized = $serializer->serialize($mapAppUsers, 'json');
+     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
      return $response;
    }
 

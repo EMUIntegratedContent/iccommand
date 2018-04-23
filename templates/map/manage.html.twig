@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Map Application Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'map/nav_map.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-1">Map app management</h1>
+  <map-app-manage role-prefix="ROLE_MAP_" app-slug="map" app-name="Map App"></map-app-manage>
+</div>
+
+
+{% endblock %}

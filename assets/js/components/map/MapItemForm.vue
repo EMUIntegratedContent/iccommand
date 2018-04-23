@@ -31,7 +31,7 @@
           <a class="nav-link active" id="home-tab" data-toggle="tab" href="#information" role="tab" aria-controls="information" aria-selected="true">Information</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="profile-tab" data-toggle="tab" href="#photos" role="tab" aria-controls="photos" aria-selected="false">Photos</a>
+          <a class="nav-link" id="profile-tab" data-toggle="tab" href="#photos" role="tab" aria-controls="photos" aria-selected="false">Photos ({{ record.images.length }})</a>
         </li>
       </ul>
       <div class="tab-content pt-2" id="mapitemTabContent">
@@ -704,18 +704,30 @@
               <div v-if="isImageOrderUpdated" class="alert alert-success fade show" role="alert">
                 Image order has been updated
               </div>
-              <div v-if="itemExists && userCanEdit && isEditMode">
+              <template v-if="itemExists && userCanEdit && isEditMode">
                 <draggable v-model="record.images" :options="{'disabled':isModalOpen}" @start="drag=true" @end="onDragEnd">
                   <image-thumbnail-pod
                           v-for="(image, index) in record.images"
                           :key="index"
                           :image="image"
                           v-model="record.images"
+                          :isEditMode="true"
                           @imageDeleteRequested="spliceDeletedImage"
                   >
                   </image-thumbnail-pod>
                 </draggable>
-              </div>
+              </template>
+              <template v-else>
+                <image-thumbnail-pod
+                        v-for="(image, index) in record.images"
+                        :key="index"
+                        :image="image"
+                        v-model="record.images"
+                        :isEditMode="false"
+                        @imageDeleteRequested="spliceDeletedImage"
+                >
+                </image-thumbnail-pod>
+              </template>
             </div><!-- end .col-md-6 (images)-->
             <div class="col-xs-12 col-md-6">
               <h5>Primary Photo</h5>
