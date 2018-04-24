@@ -92,12 +92,29 @@ class UserController extends FOSRestController{
    }
 
    /**
-    * Return all users of the map application (by username)
+    * Return all users of an application
     *
+    * $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
     */
-   public function getMapusersAction(){
-     $mapAppUsers = $this->getDoctrine()->getRepository(User::class)->findByRole('ROLE_MAP_');
+   public function getAppusersAction($rolePrefix){
+     $mapAppUsers = $this->getDoctrine()->getRepository(User::class)->findByRole($rolePrefix);
+
+     $serializer = $this->container->get('jms_serializer');
+     $serialized = $serializer->serialize($mapAppUsers, 'json');
+     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+     return $response;
+   }
+
+   /**
+    * Return all users that are NOT part of an application
+    *
+    * $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
+    * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
+    */
+   public function getAppusersNotAction($rolePrefix){
+     $mapAppUsers = $this->getDoctrine()->getRepository(User::class)->findByRole($rolePrefix, true);
 
      $serializer = $this->container->get('jms_serializer');
      $serialized = $serializer->serialize($mapAppUsers, 'json');

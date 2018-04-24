@@ -96,3 +96,6 @@ https://stackoverflow.com/questions/20879164/symfony2-using-referer-after-login-
 FRONTEND:
 How to integrate Google Maps with Vue
 https://medium.com/founders-factory/building-a-custom-google-map-component-with-vue-js-d1c01ddd0b0a
+
+Remove multiple items from javascript object with splice (reverse for-loop)
+https://gist.github.com/chad3814/2924672

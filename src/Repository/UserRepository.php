@@ -21,17 +21,20 @@ class UserRepository extends ServiceEntityRepository
 
     /**
      * @param $rolePrefix (e.g. "ROLE_MAP_")
+     * @param $not
      * @return User[] Returns an array of User objects
      */
-    public function findByRole($rolePrefix)
+    public function findByRole($rolePrefix, $not = false)
     {
-        return $this->createQueryBuilder('u')
-            ->where('u.roles LIKE :rolePrefix')
-            ->setParameter('rolePrefix', '%'.$rolePrefix.'%')
-            ->orderBy('u.username', 'ASC')
-            ->getQuery()
-            ->getResult()
-        ;
+         $query = $this->createQueryBuilder('u');
+         if($not){
+           $query->where('u.roles NOT LIKE :rolePrefix');
+         } else {
+           $query->where('u.roles LIKE :rolePrefix');
+         }
+         $query->setParameter('rolePrefix', '%'.$rolePrefix.'%')
+            ->orderBy('u.username', 'ASC');
+        return $query->getQuery()->getResult();
     }
 
     /*

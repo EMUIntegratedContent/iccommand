@@ -43,15 +43,6 @@
   border: 2px solid black;
   padding: 5px;
 }
-
-.image-deleted-border{
-    border: 3px solid red;
-}
-
-.image-edited-border{
-    border: 3px solid green;
-}
-
 </style>
 
 <script>
