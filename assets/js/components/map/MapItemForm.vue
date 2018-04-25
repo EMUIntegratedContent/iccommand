@@ -713,6 +713,7 @@
                           v-model="record.images"
                           :isEditMode="true"
                           @imageDeleteRequested="spliceDeletedImage"
+                          @imageRenamed="renameImage"
                   >
                   </image-thumbnail-pod>
                 </draggable>
@@ -724,7 +725,6 @@
                         :image="image"
                         v-model="record.images"
                         :isEditMode="false"
-                        @imageDeleteRequested="spliceDeletedImage"
                 >
                 </image-thumbnail-pod>
               </template>
@@ -1265,6 +1265,14 @@
             break
         }
       },
+      // Called as a result of $emit from child component
+      renameImage: function(image){
+        for (let i = this.record.images.length - 1; i >= 0; i--) {
+          if (this.record.images[i].id == image.id) {
+            this.record.images[i].name = image.name
+          }
+        }
+      },
       resetImageOrder: function(){
           this.record.images = this.originalImageOrder
           this.isImageOrderChanged = false
@@ -1299,8 +1307,11 @@
       },
       // Called as a result of $emit from child component
       spliceDeletedImage: function(image){
-        this.record.images.splice(this.record.images.indexOf(image) - 1, 1) // splice the deleted item from the record
-        this.setOriginalImages(this.record.images)
+        for (let i = this.record.images.length - 1; i >= 0; i--) {
+          if (this.record.images[i].id == image.id) {
+            this.record.images.splice(i, 1) // splice the deleted item from the record
+          }
+        }
       },
       // Submit the form via the API
       submitForm: function(){
@@ -1414,7 +1425,7 @@
         this.isEditMode === true ? this.isEditMode = false : this.isEditMode = true
       },
       toggleDragEnable: function(){
-        $('#deleteImageModal').hasClass('show') || $('#editImageModal').hasClass('show') ? this.isModalOpen = true : this.isModalOpen = false;
+        $('.deleteImageModal').hasClass('show') || $('.editImageModal').hasClass('show') ? this.isModalOpen = true : this.isModalOpen = false;
       }
     },
     filters: {

@@ -10,33 +10,37 @@
     </div>
     <div v-if="!loadingUsers" class="row">
       <div v-for="(user, index) in paginatedUsers" class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
-        <div class="card card-accent card-accent-red" :class="{'image-edited-border' : isCardSaved(index), 'image-deleted-border' : isCardDeleted(index)}">
-          <div class="card-header">
+        <div class="card card-accent card-accent-blue" :class="{'card-accent-green' : isCardSaved(index), 'card-accent-yellow' : isCardDeleted(index), 'card-accent-red' : isCardError(index)}">
+          <div class="card-header" :class="{'alert-success' : isCardSaved(index), 'alert-warning' : isCardDeleted(index), 'alert-danger' : isCardError(index)}">
             {{ user.username }}
-            <!--<button type="button" @click="removeUserFromApp(user, index); flagCardModified(index)" class="close pull-right"><span aria-hidden="true">&times;</span></button>-->
-            <button type="button" @click="openDeleteModal(user, index)" class="close pull-right"><span aria-hidden="true">&times;</span></button>
+            <button v-if="currentUser != user.username" type="button" @click="openDeleteModal(user, index)" class="close pull-right"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="card-body">
-            <template v-if="isCardDeleted(index)">
-              <div class="alert alert-warning fade show" role="alert">
-                User's privileges have been revoked for this application.
-              </div>
+            <template v-if="currentUser == user.username">
+              <p>You are an admin for this application.</p>
             </template>
             <template v-else>
-              <p-check v-for="role in roles" v-model="user.roles" :key="role" :value="role" @change="flagCardModified(index)" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-              <div v-if="isCardModified(index) && isCardError(index)" class="alert alert-danger fade show mt-4" role="alert">
-                There was a problem saving this user.
-              </div>
-              <div class="user-card-buttons pt-4" :class="{'d-none' : !isCardModified(index)}">
-                <button class="btn btn-success" type="submit" @click="saveUser(user, index)"><i class="fa fa-save"></i></button>
-                <button class="btn btn-default ml-2" @click="resetUser(user.id, index)"><i class="fa fa-undo"></i></button>
-              </div>
+              <template v-if="isCardDeleted(index)">
+                <div class="alert alert-warning fade show" role="alert">
+                  User's privileges have been revoked for this application.
+                </div>
+              </template>
+              <template v-else>
+                <p-check v-for="role in roles" v-model="user.roles" :key="role" :value="role" @change="flagCardModified(index)" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+                <div v-if="isCardModified(index) && isCardError(index)" class="alert alert-danger fade show mt-4" role="alert">
+                  There was a problem saving this user.
+                </div>
+                <div class="user-card-buttons pt-4" :class="{'d-none' : !isCardModified(index)}">
+                  <button class="btn btn-success" type="submit" @click="saveUser(user, index)"><i class="fa fa-save"></i></button>
+                  <button class="btn btn-default ml-2" @click="resetUser(user.id, index)"><i class="fa fa-undo"></i></button>
+                </div>
+              </template>
             </template>
           </div>
         </div>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-4">
-        <div class="card card-accent card-accent-blue">
+        <div class="card card-accent card-accent-orange">
           <div class="card-header">
             Add User
           </div>
@@ -124,6 +128,10 @@
           type: String,
           required: true
         },
+        currentUser: {
+          type: String,
+          required: true
+        },
         rolePrefix: {
           type: String,
           required: true
@@ -134,6 +142,9 @@
           apiError: {
             message: null,
             status: null
+          },
+          cardClasses: {
+            'card card-accent card-accent-red' : true,
           },
           deleteConfirm: null,
           deletedCards: [],
@@ -346,13 +357,14 @@
           this.originalUserRoles.push(userObj)
         },
         removeUserFromApp: function(user, index){
+          this.deleteModalData.user = null; // reset delete modal user
+          this.deleteModalData.index = null; // reset delete modal index
           // do NOT remove the user if 'delete' is not typed into the delete modal (if attempting delete)
           if(this.deleteConfirm != 'delete'){
             this.deleteConfirm = null; // reset delete text
-            this.deleteModalData.user = null; // reset delete modal user
-            this.deleteModalData.index = null; // reset delete modal index
             return
           }
+          this.deleteConfirm = null; // reset delete text
 
           // Eliminate all user roles pertaining to this app from the current user object
           // TUTORIAL: https://gist.github.com/chad3814/2924672 (removing multiple items via splice)
@@ -396,7 +408,14 @@
                     self.users.splice(self.users.indexOf(user), 1)
                 }, 5000)
               } else {
+                // add to saved cards
                 self.savedCards.push(index)
+                // remove modified card
+                self.modifiedCards.forEach(function(card){
+                  if(card == index){
+                    self.modifiedCards.splice(self.modifiedCards.indexOf(index))
+                  }
+                })
                 // remove from the saved cards array after 5 seconds
                 setTimeout(function(){
                     self.savedCards.splice(self.savedCards.indexOf(index), 1)

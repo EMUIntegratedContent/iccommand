@@ -27,6 +27,12 @@ body{
 #iccommand-mainnav-container li.active {
     border-bottom: solid 2px $info-emu;
 }
+.iccommand-thumb-container{
+  padding: 0 !important;
+  > .row{
+    padding: 1.25rem 0;
+  }
+}
 .btn-success{
   background-color: $success-emu !important;
   border-color: transparent !important;
@@ -51,11 +57,74 @@ body{
 .nav-tabs{
   padding-top: 15px;
 }
+
 .card-accent{
   border-top: 5px solid;
 }
+.card-accent-blue{
+  border-top-color: $success-emu;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(216, 217, 239, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+.card-accent-green{
+  border-top-color: #155724;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(216, 239, 230, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+.card-accent-orange{
+  border-top-color: $info-emu;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(240, 222, 209, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+}
 .card-accent-red{
   border-top-color: $danger-emu;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(239, 216, 216, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+.card-accent-yellow{
+  border-top-color: #856404;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(237, 239, 209, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
 }
 .login-card{
   .h4{
@@ -108,10 +177,4 @@ h3.module-nav-heading{
   float: left;
   position: relative;
   top: 40px;
-}
-.image-deleted-border{
-    border: 3px solid red;
-}
-.image-edited-border{
-    border: 3px solid green;
 }

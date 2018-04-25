@@ -1,10 +1,10 @@
 <template>
     <div>
-        <li class="list-group-item iccommand-thumb-container" :class="{'image-deleted-border': isImageDeleted, 'image-edited-border': isImageEdited}">
+        <li class="list-group-item iccommand-thumb-container">
             <div v-if="isImageEditedError || isImageDeletedError" class="alert alert-danger" role="alert">
                 <p>{{ actionType }} failed! Please try again.</p>
             </div>
-            <div class="row">
+            <div class="row" :class="{'alert-danger': isImageDeleted, 'alert-success': isImageEdited}">
                 <div class="col-sm-12">
                     <div v-if="isEditMode" class="iccommand-thumb-hamburger">
                       <i class="fa fa-bars"></i>
@@ -21,16 +21,21 @@
         </li><!-- /li -->
         <!-- DELETE IMAGE MODAL -->
         <mapitem-image-delete-modal
-                id="deleteImageModal"
+                :podIndex="this.$vnode.key"
+                :id="'deleteImageModal-' + this.$vnode.key"
+                class="deleteImageModal"
                 :image="deleteImageModalData"
                 @imageDeleteRequested="deleteImage(deleteImageModalData)"
+                @imageDeleteCanceled="resetImageInformation('delete')"
         ></mapitem-image-delete-modal>
         <!-- EDIT IMAGE MODAL -->
         <mapitem-image-edit-modal
-                id="editImageModal"
+                :podIndex="this.$vnode.key"
+                :id="'editImageModal-' + this.$vnode.key"
+                class="editImageModal"
                 :image="editImageModalDataCopy"
                 @imageEditRequested="editImage(editImageModalDataCopy)"
-                @imageEditCanceled="resetImageInformation"
+                @imageEditCanceled="resetImageInformation('edit')"
         ></mapitem-image-edit-modal>
     </div>
 </template>
@@ -50,9 +55,7 @@
     import MapitemImageEditModal from './MapitemImageEditModal.vue'
 
   export default {
-    mounted() {
-      console.log('Image mounted.')
-    },
+    mounted() {},
     components: {MapitemImageDeleteModal, MapitemImageEditModal},
     props:{
       image: {
@@ -91,7 +94,12 @@
     methods: {
         deleteImage: function(image){
             let self = this
-
+            self.isImageDeleted = true
+            setTimeout(function(){
+                self.imageDeleteRequested() // function to emit notice of deletion to parent
+                self.isImageDeleted = false
+            }, 1500)
+            /*
             axios.delete('/api/mapitemimages/' + image.id)
                 .then(function(response){
                     // mark the deleted image in a colored border for 1.5 seconds, then remove it from the record
@@ -107,6 +115,7 @@
                         self.isImageDeletedError = false
                     }, 5000)
                 })
+                */
         },
         editImage: function(image){
             let self = this
@@ -115,14 +124,14 @@
                 .then(function(response){
                     // mark the updated image in a colored border for 1.5 seconds, then remove the border
                     self.isImageEdited = true
-                    //self.imageDeleteRequested()
+                    self.$emit('imageRenamed', image)
                     setTimeout(function(){
                         self.isImageEdited = false
                     }, 3000)
                 })
                 .catch(function(error){
                     // restore original image information
-                    self.resetImageInformation()
+                    self.resetImageInformation('edit')
                     self.isImageEditedError = true
                     setTimeout(function(){
                         self.isImageEditedError = false
@@ -130,19 +139,25 @@
                 })
         },
         imageDeleteRequested: function(){
-            this.$emit('imageDeleteRequested', this.editImageModalDataCopy)
+            this.$emit('imageDeleteRequested', this.deleteImageModalData)
         },
         openDeleteImageModal(image){
             this.deleteImageModalData = JSON.parse(JSON.stringify(image))
-            $('#deleteImageModal').modal('show')
+            $('#deleteImageModal-' + this.$vnode.key).modal('show')
         },
         openEditImageModal(image){
             this.editImageModalDataCopy = JSON.parse(JSON.stringify(image))
-            $('#editImageModal').modal('show')
+            // this.$vnode.key is the :key property on the component
+            // TUTORIAL: https://stackoverflow.com/questions/47783396/access-key-from-child-component-in-vue
+            $('#editImageModal-' + this.$vnode.key).modal('show')
         },
-        resetImageInformation: function(){
+        resetImageInformation: function(type){
             // clear the temp data
-            this.editImageModalDataCopy = null
+            if(type == 'edit'){
+              this.editImageModalDataCopy = null
+            } else {
+              this.deleteImageModalData = null
+            }
         },
     }
   }

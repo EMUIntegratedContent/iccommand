@@ -46,7 +46,7 @@ class MapItemController extends FOSRestController{
   /**
    * Get all map items
    *
-   * @Security("has_role('ROLE_MAP_VIEW')")
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
    */
   public function getMapitemsAction()
   {

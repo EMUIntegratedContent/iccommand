@@ -9,7 +9,7 @@
 {% block body %}
 <div id="app">
   <h1 class="display-1">Map app management</h1>
-  <map-app-manage role-prefix="ROLE_MAP_" app-slug="map" app-name="Map App"></map-app-manage>
+  <app-manage role-prefix="ROLE_MAP_" app-slug="map" app-name="Map App" current-user="{{ app.user.username }}"></app-manage>
 </div>
 
 

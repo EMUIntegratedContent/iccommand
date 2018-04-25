@@ -1,6 +1,6 @@
 <template>
   <!-- Modal -->
-  <div v-if="this.image" id="deleteImageModal" class="modal" tabindex="-1" role="dialog">
+  <div v-if="this.image" :id="'deleteImageModal-' + podIndex" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-default" @click="imageDeleteCanceled">Cancel</button>
           <button type="button" class="btn btn-danger" data-dismiss="modal" @click="imageDeleteRequested" :disabled="deleteConfirm != 'delete'">Delete image</button>
         </div>
       </div>
@@ -31,7 +31,15 @@
 export default {
   directives: {},
   components: {},
-  props: ['image'],
+  props: {
+    image: {
+        type: Object,
+        required: false
+    },
+    podIndex: {
+      default: 0
+    }
+  },
   data: function() {
     return {
       deleteConfirm: null,
@@ -46,8 +54,17 @@ export default {
   methods: {
     // Emit an event to the parent component telling it to delete the image
     imageDeleteRequested: function(){
-      this.$emit('imageDeleteRequested')
+      if(this.deleteConfirm == 'delete'){
+        this.$emit('imageDeleteRequested')
+        this.deleteConfirm = null // reset text field
+      }
     },
+    // restore original image info and close modal
+    imageDeleteCanceled: function(){
+        this.$emit('imageDeleteCanceled')
+        this.deleteConfirm = null // reset text field
+        $('#deleteImageModal-' + this.podIndex).modal('hide')
+    }
   },
   filters: {
 
