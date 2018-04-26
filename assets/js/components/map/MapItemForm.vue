@@ -712,6 +712,7 @@
                           :image="image"
                           v-model="record.images"
                           :isEditMode="true"
+                          :userCanDelete="permissions[0].delete"
                           @imageDeleteRequested="spliceDeletedImage"
                           @imageRenamed="renameImage"
                   >

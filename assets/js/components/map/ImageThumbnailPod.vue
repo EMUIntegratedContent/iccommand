@@ -12,7 +12,7 @@
                     <div class="iccommand-thumb-image">
                       <img width="103px" height="103px" :src="uploadsThumbnailURL + image.path" :alt="image.name" />
                     </div>
-                    <button v-if="isEditMode" type="button" class="btn btn-sm btn-danger pull-right" @click="openDeleteImageModal(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
+                    <button v-if="isEditMode && userCanDelete" type="button" class="btn btn-sm btn-danger pull-right" @click="openDeleteImageModal(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
                     <h6 class="box-title heading-primary"><i v-if="this.$vnode.key == 0" class="fa fa-star" aria-hidden="true"></i> {{ imageName }}</h6>
                     <p v-if="isEditMode" class="hand"><span @click="openEditImageModal(image)"><i class="fa fa-pencil" aria-hidden="true"></i> Edit name</span></p>
                     <p><a :href="image.subdir + '/' + image.path" target="_blank">Full Size</a></p>
@@ -63,6 +63,9 @@
         required: true
       },
       isEditMode: {
+        default: false
+      },
+      userCanDelete: {
         default: false
       }
     },

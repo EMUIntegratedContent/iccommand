@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\UserImage;
 use App\Entity\User;
 
@@ -16,6 +17,8 @@ class UserImageController extends FOSRestController{
 
   /**
    * Process new image uploads
+   *
+   * @Security("has_role('ROLE_USER')")
    */
   public function postUserimageUploadAction(Request $request) : Response
   {
@@ -25,7 +28,7 @@ class UserImageController extends FOSRestController{
 
     $newImage = $this->storeImage($image, $request->request->get('user_id')); // store the image to the database
     if($newImage){
-      $this->linkImageToMapItem($newImage, $request->request->get('user_id')); // associate the new image with the map item
+      $this->linkImageToUser($newImage, $request->request->get('user_id')); // associate the new image with the map item
       $processedImage = $newImage;
     } else {
       $errors[] = "The file " . $image->getClientOriginalName() . " was not uploaded because it either already exists or is not a JPG, PNG, or GIF.";
@@ -38,6 +41,11 @@ class UserImageController extends FOSRestController{
     return $response;
   }
 
+  /**
+   * Delete a user's profile image
+   *
+   * @Security("has_role('ROLE_USER')")
+   */
   public function deleteUserimageAction($id) : Response
   {
     $image = $this->getDoctrine()->getRepository(UserImage::class)->findOneBy(['id' => $id]); // find the matching image
@@ -55,6 +63,9 @@ class UserImageController extends FOSRestController{
     return $response;
   }
 
+  /**
+   * PROTECTED: Store a user's image
+   */
   protected function storeImage(UploadedFile $image, $user_id) : ?UserImage
   {
     // Make sure user is uploading a JPG, PNG, or GIF and not
@@ -84,7 +95,10 @@ class UserImageController extends FOSRestController{
     return null;
   }
 
-  protected function linkImageToMapItem(UserImage $image, $userId) : bool
+  /**
+   * PROTECTED: associate a new image with the appropriate user
+   */
+  protected function linkImageToUser(UserImage $image, $userId) : bool
   {
     $user = $this->getDoctrine()->getRepository(User::class)->find($userId);
     if(!$user){

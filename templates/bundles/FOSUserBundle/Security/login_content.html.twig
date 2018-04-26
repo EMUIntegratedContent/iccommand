@@ -9,7 +9,12 @@
     <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
 {% endif %}
 
-<h1 class="display-1 mb-4" style="text-align:center">Log in to IC Command</h1>
+<div class="row pb-4">
+  <div class="col">
+    <div class="float-left pr-4"><img src="/images/e-box.png" width="100px" height="100px" /></div>
+    <h1>EMU Web Communications Application Suite</h1>
+  </div>
+</div>
 <div class="row">
   <div class="col-sm-12 col-md-4 offset-md-4">
     <div class="card login-card card-accent card-accent-blue">
@@ -18,7 +23,7 @@
             {% if csrf_token %}
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
             {% endif %}
-            <p class="h4 text-center">Welcome!</p>
+            <p class="h4 text-center">Login</p>
             <div class="form-row align-items-center">
               <div class="col-sm-12">
                 <label class="sr-only" for="username">NetID</label>
@@ -26,7 +31,7 @@
                   <div class="input-group-prepend">
                     <div class="input-group-text"><i class="fa fa-user-circle-o" aria-hidden="true"></i></div>
                   </div>
-                  <input type="text" class="form-control" id="username" name="_username" value="{{ last_username }}" required="required" autocomplete="username" />
+                  <input type="text" class="form-control" id="username" name="_username" value="{{ last_username }}" required="required" autocomplete="username" placeholder="NetID" />
                 </div>
               </div>
               <div class="col-sm-12">
@@ -35,7 +40,7 @@
                   <div class="input-group-prepend">
                     <div class="input-group-text"><i class="fa fa-key"></i></div>
                   </div>
-                  <input type="password" class="form-control" id="password" name="_password" required="required" autocomplete="current-password" />
+                  <input type="password" class="form-control" id="password" name="_password" required="required" autocomplete="current-password" placeholder="Password" />
                 </div>
               </div>
               <div class="col-auto">

@@ -15,6 +15,14 @@
 body{
   font-family: 'Lato', sans-serif;
 }
+.app-hero{
+  position: relative;
+  > h1{
+    position: absolute;
+    bottom: 0rem;
+    left: 2rem;
+  }
+}
 #iccommand-content-container{
   padding-top:40px;
 }
@@ -30,7 +38,7 @@ body{
 .iccommand-thumb-container{
   padding: 0 !important;
   > .row{
-    padding: 1.25rem 0;
+    padding: 1rem 0.25rem;
   }
 }
 .btn-success{
@@ -57,7 +65,6 @@ body{
 .nav-tabs{
   padding-top: 15px;
 }
-
 .card-accent{
   border-top: 5px solid;
 }

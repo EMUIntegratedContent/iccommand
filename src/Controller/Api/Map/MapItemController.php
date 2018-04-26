@@ -48,7 +48,7 @@ class MapItemController extends FOSRestController{
    *
    * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
    */
-  public function getMapitemsAction()
+  public function getMapitemsAction() : Response
   {
     $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([],['name' => 'asc']);
 
@@ -61,8 +61,11 @@ class MapItemController extends FOSRestController{
 
   /**
    * Get a single map item
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
    */
-  public function getMapitemAction($id){
+  public function getMapitemAction($id) : Response
+  {
     $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->findOneBy(['id' => $id]);
     if(!$mapItem){
       $response = new Response("The map item you requested was not found.", 404, array('Content-Type' => 'application/json'));
@@ -83,6 +86,8 @@ class MapItemController extends FOSRestController{
 
   /**
    * Get buildings
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
    */
    public function getMapbuildingsAction()
    {
@@ -99,6 +104,8 @@ class MapItemController extends FOSRestController{
 
    /**
     * Get building types
+    *
+    * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
     */
     public function getMapbuildingtypesAction()
     {
@@ -115,6 +122,8 @@ class MapItemController extends FOSRestController{
 
   /**
    * Get emergency types
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
    */
    public function getMapemergencytypesAction()
    {
@@ -129,8 +138,10 @@ class MapItemController extends FOSRestController{
 
    /**
     * Get emergency types
+    *
+    * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
     */
-    public function getMapexhibittypesAction()
+    public function getMapexhibittypesAction() : Response
     {
       $exhibitTypes = $this->getDoctrine()->getRepository(MapExhibitType::class)->findAll();
 
@@ -143,8 +154,10 @@ class MapItemController extends FOSRestController{
 
   /**
    * Get parking types
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
    */
-   public function getMapparkingtypesAction()
+   public function getMapparkingtypesAction() : Response
    {
      $parkingTypes = $this->getDoctrine()->getRepository(MapParkingType::class)->findAll();
 
@@ -157,8 +170,10 @@ class MapItemController extends FOSRestController{
 
   /**
    * Save a map item to the database
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_CREATE')")
    */
-  public function postMapitemAction(Request $request)
+  public function postMapitemAction(Request $request) : Response
   {
     $itemType = $request->request->get('itemType');
 
@@ -344,8 +359,10 @@ class MapItemController extends FOSRestController{
 
   /**
    * Update a map item to the database
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_EDIT')")
    */
-  public function putMapitemAction(Request $request)
+  public function putMapitemAction(Request $request) : Response
   {
     $itemType = $request->request->get('itemType');
 
@@ -534,8 +551,10 @@ class MapItemController extends FOSRestController{
 
   /**
    * Delete a map item from the database
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_DELETE')")
    */
-  public function deleteMapitemAction($id)
+  public function deleteMapitemAction($id) : Response
   {
     $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($id);
 

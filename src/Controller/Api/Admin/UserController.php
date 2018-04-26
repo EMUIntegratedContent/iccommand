@@ -10,16 +10,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use FOS\RestBundle\View\View;
 use App\Entity\User;
+use App\Service\UserService;
 
 
 class UserController extends FOSRestController{
+
+  private $service;
+
+  public function __construct(UserService $service){
+    $this->service = $service;
+  }
 
   /**
    * Get all users
    *
    * @Security("has_role('ROLE_GLOBAL_ADMIN')")
    */
-  public function getUsersAction()
+  public function getUsersAction() : Response
   {
     $users = $this->getDoctrine()->getRepository(User::class)->findBy([],['username' => 'asc']);
 
@@ -35,7 +42,8 @@ class UserController extends FOSRestController{
    *
    * @Security("has_role('ROLE_USER')")
    */
-  public function getUserAction($username){
+  public function getUserAction($username) : Response
+  {
     $userManager = $this->container->get('fos_user.user_manager');
     $user = $userManager->findUserByUsername($username);
 
@@ -51,7 +59,8 @@ class UserController extends FOSRestController{
    *
    * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
    */
-  public function getRolesAction(){
+  public function getRolesAction() : Response
+  {
     $roles = $this->container->getParameter('security.role_hierarchy.roles');
 
     $serializer = $this->container->get('jms_serializer');
@@ -66,7 +75,8 @@ class UserController extends FOSRestController{
    *
    * @Security("has_role('ROLE_USER')")
    */
-   public function putUserAction(Request $request, $username){
+   public function putUserAction(Request $request, $username) : Response
+   {
 
      $userManager = $this->container->get('fos_user.user_manager');
      $user = $userManager->findUserByUsername($username);
@@ -82,8 +92,8 @@ class UserController extends FOSRestController{
      $user->setPhone($request->request->get('phone'));
 
      $updatedRoles = $request->request->get('roles');
-     $this->syncUserRoles($user, $updatedRoles);
-     $this->setUserEnabledStatus($user, $request->request->get('enabled'));
+     $this->service->syncUserRoles($user, $updatedRoles);
+     $this->service->setUserEnabledStatus($user, $request->request->get('enabled'));
 
      $userManager->updateUser($user);
 
@@ -94,10 +104,11 @@ class UserController extends FOSRestController{
    /**
     * Return all users of an application
     *
-    * $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
+    * @param String $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
     */
-   public function getAppusersAction($rolePrefix){
+   public function getAppusersAction($rolePrefix) : Response
+   {
      $mapAppUsers = $this->getDoctrine()->getRepository(User::class)->findByRole($rolePrefix);
 
      $serializer = $this->container->get('jms_serializer');
@@ -110,10 +121,11 @@ class UserController extends FOSRestController{
    /**
     * Return all users that are NOT part of an application
     *
-    * $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
+    * @param String $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
     */
-   public function getAppusersNotAction($rolePrefix){
+   public function getAppusersNotAction($rolePrefix) : Response
+   {
      $mapAppUsers = $this->getDoctrine()->getRepository(User::class)->findByRole($rolePrefix, true);
 
      $serializer = $this->container->get('jms_serializer');
@@ -121,33 +133,5 @@ class UserController extends FOSRestController{
      $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
      return $response;
-   }
-
-   // PUT IN A SERVICE
-   public function syncUserRoles(User $user, $updatedRoles){
-     $userManager = $this->container->get('fos_user.user_manager');
-     $currentRoles = $user->getRoles();
-
-     $rolesToRemove = array_diff($currentRoles, $updatedRoles); // result is the items that do NOT appear in the updated roles array
-
-     // Find and remove any roles that do NOT appear in the updated roles
-     foreach($rolesToRemove as $role){
-       $user->removeRole($role);
-     }
-     // Add roles (must be done second!)
-     foreach($updatedRoles as $role){
-       $user->addRole($role);
-     }
-     $userManager->updateUser($user);
-   }
-
-   // PUT IN A SERVICE
-   public function setUserEnabledStatus(User $user, $status){
-     $userManager = $this->container->get('fos_user.user_manager');
-     // Only change the status if the current and new status are different
-     if($user->isEnabled() !== $status){
-       $user->setEnabled($status);
-       $userManager->updateUser($user);
-     }
    }
 }

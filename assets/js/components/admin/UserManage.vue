@@ -130,14 +130,6 @@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
               <div class="card card-accent card-accent-blue">
-                <div class="card-header">Emergency</div>
-                <div class="card-body">
-                  <p-check v-for="role in rolesEmergency" :disabled="!isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
-                </div>
-              </div>
-            </div>
-            <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
-              <div class="card card-accent card-accent-blue">
                 <div class="card-header">Photo Request</div>
                 <div class="card-body">
                   <p-check v-for="role in rolesPhoto" :disabled="!isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
@@ -206,7 +198,6 @@
           isEditMode: false, // true = make forms editable
           roles: [],
           rolesAdmin: [],
-          rolesEmergency: [],
           rolesMap: [],
           rolesPhoto: [],
           rolesRedirect: [],
@@ -269,9 +260,6 @@
               }
               if(key.startsWith('ROLE_MAP_')){
                 self.rolesMap.push(key)
-              }
-              if(key.startsWith('ROLE_EMERGENCY_')){
-                self.rolesEmergency.push(key)
               }
               if(key.startsWith('ROLE_PHOTO_')){
                 self.rolesPhoto.push(key)

@@ -2,6 +2,7 @@
 namespace App\Service;
 
 use Symfony\Component\DependencyInjection\ContainerInterface as Container;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
 use App\Entity\Map\MapItem;
 use App\Entity\Map\MapBathroom;
@@ -28,10 +29,10 @@ class MapItemService
    * @param App\Entity\Map\MapItem $mapItem
    * @return array $errors
    */
-  public function validate($mapItem){
+  public function validate($mapItem) : ConstraintViolationList
+  {
     $validator = $this->container->get('validator');
     $errors = $validator->validate($mapItem);
-
     return $errors;
   }
 

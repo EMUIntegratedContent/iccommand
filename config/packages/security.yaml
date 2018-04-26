@@ -40,8 +40,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/map, roles: [ROLE_MAP_USER, ROLE_GLOBAL_ADMIN] }
-        - { path: ^/notices, roles: [ROLE_EMERGENCY_USER, ROLE_GLOBAL_ADMIN] }
+        - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/photorequests, roles: [ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
@@ -61,9 +60,6 @@ security:
         ROLE_MAP_DELETE: ROLE_MAP_EDIT
         ROLE_MAP_IMAGE_UPLOAD: [ROLE_MAP_VIEW, ROLE_MAP_EDIT]
         ROLE_MAP_ADMIN: [ROLE_MAP_DELETE, ROLE_MAP_IMAGE_UPLOAD]
-        # Emergency Notice Application
-        ROLE_EMERGENCY_USER: ROLE_USER
-        ROLE_EMERGENCY_ADMIN: ROLE_EMERGENCY_USER
         # Redirect Application
         ROLE_REDIRECT_USER: ROLE_USER
         ROLE_REDIRECT_ADMIN: ROLE_REDIRECT_USER

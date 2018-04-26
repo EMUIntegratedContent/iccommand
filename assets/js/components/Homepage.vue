@@ -1,15 +1,25 @@
 <template>
-  <div class="row">
-    <template v-for="module in userModules">
-      <div v-if="module.display" class="card col-sm-6 col-md-4">
-        <img class="card-img-top" src="" alt="Card image cap">
-        <div class="card-body">
-          <h5 class="card-title">{{ module.title }}</h5>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-          <a :href="module.buttonLink" class="btn btn-primary">{{ module.buttonText }}</a>
-        </div>
+  <div>
+    <div class="row">
+      <div class="col-xs-12">
+        <h2>My Applications</h2>
       </div>
-    </template>
+    </div>
+    <div class="row">
+      <template v-for="module in userModules">
+        <div v-if="module.display" class="card col-sm-6 col-md-4">
+          <img class="card-img-top" src="" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">{{ module.title }}</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <a :href="module.buttonLink" class="btn btn-primary">{{ module.buttonText }}</a>
+          </div>
+        </div>
+      </template>
+      <template v-if="userModules.length = 0">
+        <p>You do not currently belong to any applications.</p>
+      </template>
+    </div>
   </div>
 </template>
 <style>
@@ -40,13 +50,6 @@
       data: function() {
         return {
           userModules: {
-            emergency: {
-              title: "Emergency Notice",
-              description: "The emergency notice application is used to display alerts in the event of severe weather and dangerous situations.",
-              buttonText: "Manage Notices",
-              buttonLink: "/notices",
-              display: false,
-            },
             map: {
               title: "Campus Map",
               description: "The campus map application contains all points of interest at EMU. These items are displayed at emich.edu/maps.",
@@ -76,9 +79,6 @@
       methods: {
         // Based on permissions passed to this component, enable module display for appropriate system applications
         registerUserModule: function(role){
-          if(role.includes('ROLE_EMERGENCY_')){
-            this.userModules.emergency.display = true
-          }
           if(role.includes('ROLE_MAP_')){
             this.userModules.map.display = true
           }
