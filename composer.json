@@ -39,7 +39,7 @@
         "willdurand/hateoas": "^2.12"
     },
     "require-dev": {
-        "laravel/homestead": "^7.3",
+        "laravel/homestead": "^7.4",
         "symfony/browser-kit": "^4.0",
         "symfony/css-selector": "^4.0",
         "symfony/dotenv": "^4.0",
