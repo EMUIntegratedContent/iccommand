@@ -130,9 +130,9 @@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
               <div class="card card-accent card-accent-blue">
-                <div class="card-header">Photo Request</div>
+                <div class="card-header">Multimedia Request</div>
                 <div class="card-body">
-                  <p-check v-for="role in rolesPhoto" :disabled="!isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+                  <p-check v-for="role in rolesMultimedia" :disabled="!isEditMode" v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
                 </div>
               </div>
             </div>
@@ -199,7 +199,7 @@
           roles: [],
           rolesAdmin: [],
           rolesMap: [],
-          rolesPhoto: [],
+          rolesMultimedia: [],
           rolesRedirect: [],
           success: false,
           user: {
@@ -261,8 +261,8 @@
               if(key.startsWith('ROLE_MAP_')){
                 self.rolesMap.push(key)
               }
-              if(key.startsWith('ROLE_PHOTO_')){
-                self.rolesPhoto.push(key)
+              if(key.startsWith('ROLE_MULTIMEDIA_')){
+                self.rolesMultimedia.push(key)
               }
               if(key.startsWith('ROLE_REDIRECT_')){
                 self.rolesRedirect.push(key)

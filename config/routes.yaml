@@ -21,6 +21,11 @@ mapitemImages:
     resource: App\Controller\Api\Map\MapItemImageController
     prefix: /api/
 
+multimediaRequestAssignees:
+    type: rest
+    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
+    prefix: /api/
+
 userImages:
     type: rest
     resource: App\Controller\Api\UserImageController

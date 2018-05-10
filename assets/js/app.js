@@ -38,6 +38,8 @@ Vue.component('admin-user-manage', require('./components/admin/UserManage.vue').
 Vue.component('app-manage', require('./components/admin/AppManage.vue').default)
 Vue.component('map-index', require('./components/map/MapIndex.vue').default)
 Vue.component('map-item-form', require('./components/map/MapItemForm.vue').default)
+Vue.component('multimedia-assignee-form', require('./components/multimediarequest/AssigneeForm.vue').default)
+Vue.component('multimedia-request-index', require('./components/multimediarequest/MultimediaRequestIndex.vue').default)
 Vue.component('new-map-item', require('./components/map/NewMapItem.vue').default)
 Vue.component('user-profile', require('./components/Profile.vue').default)
 

@@ -57,11 +57,11 @@
               buttonLink: "/map/items",
               display: false
             },
-            photo: {
-              title: "Photo Requests",
-              description: "The photo requests application is a scheduler for photographer inquiries on campus.",
+            multimedia: {
+              title: "Multimedia Requests",
+              description: "The photo requests application is a scheduler for photographer/videographer/graphic designer inquiries on campus.",
               buttonText: "See Requests",
-              buttonLink: "/photorequests",
+              buttonLink: "/multimediarequests",
               display: false
             },
             redirect: {
@@ -92,8 +92,8 @@
           if(role.includes('ROLE_MAP_')){
             this.userModules.map.display = true
           }
-          if(role.includes('ROLE_PHOTO_')){
-            this.userModules.photo.display = true
+          if(role.includes('ROLE_MULTIMEDIA_')){
+            this.userModules.multimedia.display = true
           }
           if(role.includes('ROLE_REDIRECT_')){
             this.userModules.redirect.display = true
