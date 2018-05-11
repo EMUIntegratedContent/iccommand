@@ -36,13 +36,10 @@ class MultimediaRequestAssigneeController extends Controller
      * @Route("/multimediarequests/assignees/{id}", name="multimediarequests_assignee_show")
      */
     public function show($id){
-      $item = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($id);
-      if (!$item) {
-        // Just a shortcut for:
-        // throw new NotFoundHttpException();
+      $assignee = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($id);
+      if (!$assignee) {
         throw $this->createNotFoundException('This assignee does not exist.');
       }
-      $itemType = $item->getItemType();
 
       $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());
       return $this->render('multimedia_request/assignees/show.html.twig', ['id' => $id, 'permissions' => $permissions]);
@@ -52,8 +49,8 @@ class MultimediaRequestAssigneeController extends Controller
      * @Route("/multimediarequests/assignees/{id}/edit", name="multimediarequests_assignee_edit")
      */
     public function edit($id){
-      $item = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($id);
-      if (!$item) {
+      $assignee = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($id);
+      if (!$assignee) {
         throw $this->createNotFoundException('This assignee does not exist.');
       }
 

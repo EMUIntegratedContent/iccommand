@@ -6,9 +6,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
+use App\Entity\MultimediaRequest\MultimediaRequestAssigneeStatus;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequestAssigneeRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\MultimediaRequestAssigneeRepository")
  * @Serializer\XmlRoot("multimediaAssignee")
  */
 class MultimediaRequestAssignee
@@ -37,7 +38,7 @@ class MultimediaRequestAssignee
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="You must provide a valid email address.")
+     * @Assert\Email(message="'{{ value }}' is not a valid email.")
      */
     private $email;
 
@@ -47,8 +48,9 @@ class MultimediaRequestAssignee
     private $phone;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="You must provide a status.")
+     * @ORM\ManyToOne(targetEntity="MultimediaRequestAssigneeStatus")
+     * @ORM\JoinColumn(name="status_id", referencedColumnName="id", onDelete="SET NULL")
+     * @Serializer\SerializedName("status")
      */
     private $status;
 
@@ -134,7 +136,7 @@ class MultimediaRequestAssignee
         return $this->status;
     }
 
-    public function setStatus(string $status): self
+    public function setStatus(MultimediaRequestAssigneeStatus $status): self
     {
         $this->status = $status;
 

@@ -13,6 +13,7 @@ use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use FOS\RestBundle\View\View;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
+use App\Entity\MultimediaRequest\MultimediaRequestAssigneeStatus;
 use App\Service\MultimediaRequestService;
 
 class MultimediaRequestAssigneeController extends FOSRestController{
@@ -30,7 +31,7 @@ class MultimediaRequestAssigneeController extends FOSRestController{
    */
   public function getMultimediaassigneesAction() : Response
   {
-    $assignees = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->findBy([],['name' => 'asc']);
+    $assignees = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->findBy([],['lastName' => 'asc']);
 
     $serializer = $this->container->get('jms_serializer');
     $serialized = $serializer->serialize($assignees, 'json');
@@ -52,6 +53,11 @@ class MultimediaRequestAssigneeController extends FOSRestController{
       return $response;
     }
 
+    // Need to return NULL fields too (status doesn't have to have a value)
+    // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
+    $context = new SerializationContext();
+    $context->setSerializeNull(true);
+
     $serializer = $this->container->get('jms_serializer');
     $serialized = $serializer->serialize($assignee, 'json', $context);
     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
@@ -59,6 +65,21 @@ class MultimediaRequestAssigneeController extends FOSRestController{
     return $response;
   }
 
+  /**
+   * Get all status options for a multimedia request assignee
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+   */
+  public function getMultimediaassigneeStatusesAction() : Response
+  {
+    $statuses = $this->getDoctrine()->getRepository(MultimediaRequestAssigneeStatus::class)->findBy([],['statusSlug' => 'asc']);
+
+    $serializer = $this->container->get('jms_serializer');
+    $serialized = $serializer->serialize($statuses, 'json');
+    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+    return $response;
+  }
 
   /**
    * Save a multimedia request assignee to the database
@@ -77,8 +98,12 @@ class MultimediaRequestAssigneeController extends FOSRestController{
     $assignee->setLastName($request->request->get('lastName'));
     $assignee->setEmail($request->request->get('email'));
     $assignee->setPhone($request->request->get('phone'));
-    $assignee->setStatus($request->request->get('status'));
     $assignee->setAssignableForRequestType($request->request->get('assginableRequestTypes'));
+    // status
+    $status = $this->getDoctrine()->getRepository(MultimediaRequestAssigneeStatus::class)->find($request->request->get('status')['id']);
+    if($status){
+      $assignee->setStatus($status);
+    }
 
     // validate assignee
     $errors = $this->service->validate($assignee);
@@ -115,8 +140,12 @@ class MultimediaRequestAssigneeController extends FOSRestController{
     $assignee->setLastName($request->request->get('lastName'));
     $assignee->setEmail($request->request->get('email'));
     $assignee->setPhone($request->request->get('phone'));
-    $assignee->setStatus($request->request->get('status'));
     $assignee->setAssignableForRequestType($request->request->get('assginableRequestTypes'));
+    // status
+    $status = $this->getDoctrine()->getRepository(MultimediaRequestAssigneeStatus::class)->find($request->request->get('status')['id']);
+    if($status){
+      $assignee->setStatus($status);
+    }
 
     // validate assignee
     $errors = $this->service->validate($assignee);

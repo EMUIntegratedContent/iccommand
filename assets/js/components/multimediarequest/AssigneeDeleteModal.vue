@@ -49,7 +49,7 @@ export default {
       // word 'delete' must be typed in modal
       if(this.deleteConfirm == 'delete'){
         this.deleteConfirm = null; // reset delete text
-        axios.delete('/api/multimediarequests/assignees/' + this.mapitem.id)
+        axios.delete('/api/multimediaassignees/' + this.assignee.id)
         .then(function(response) {
           self.itemDeleted() // fire delete event to parent
         })

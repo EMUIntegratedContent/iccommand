@@ -2,7 +2,7 @@
 
 namespace App\Repository\MultimediaRequest;
 
-use App\Entity\MultimediaRequestAssignee;
+use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 

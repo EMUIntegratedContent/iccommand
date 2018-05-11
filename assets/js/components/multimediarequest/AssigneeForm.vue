@@ -8,7 +8,7 @@
       {{ apiError.message }}
     </div>
     <div v-if="isDeleted === true" class="alert alert-info fade show" role="alert">
-      This request assginee has been deleted. You will now be redirected to the assginees list page.
+      This request assginee has been deleted. You will now be redirected to the asssignees list page.
     </div>
     <!-- MAIN AREA -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
@@ -51,6 +51,56 @@
               {{ errors.first('lastName') }}
             </div>
           </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input
+              name="email"
+              v-validate="'required|email'"
+              data-vv-as="email address"
+              type="text"
+              class="form-control"
+              :class="{ 'is-invalid': errors.has('email'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+              :readonly="!userCanEdit || !isEditMode"
+              v-model="record.email">
+            <div class="invalid-feedback">
+              {{ errors.first('email') }}
+            </div>
+          </div>
+          <template v-if="userCanEdit && isEditMode">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label for="status">Status *</label>
+                <multiselect
+                  v-validate="'required'"
+                  data-vv-as="status"
+                  v-model="record.status"
+                  :options="statusOptions"
+                  :multiple="false"
+                  placeholder="What is the status of this person?"
+                  label="status"
+                  track-by="id"
+                  id="status"
+                  class="form-control"
+                  style="padding:0"
+                  name="status"
+                  :class="{'is-invalid': errors.has('status') }"
+                  >
+                </multiselect>
+                <div class="invalid-feedback">
+                  {{ errors.first('status') }}
+                </div>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <label>Status *</label>
+            <input
+              name="status"
+              type="text"
+              class="form-control form-control-plaintext"
+              readonly
+              :value="record.status ? record.status.status: 'not set'">
+          </template>
         </fieldset>
         <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
           You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
@@ -106,6 +156,7 @@
         // fetch the existing record using the prop itemId
         this.fetchAssignee(this.itemId)
       }
+      this.fetchStatusOptions()
     },
     components: {AssigneeDeleteModal, Heading, Multiselect, NotFound},
     props:{
@@ -150,6 +201,7 @@
           phone: '',
           status: '',
         },
+        statusOptions: [],
         success: false,
         successMessage: '',
         isModalOpen: false,
@@ -182,7 +234,7 @@
         if(!this.itemExists){
           this.success = true
           this.successMessage = "Assginee created."
-          let newurl = '/multimediaassginees/' + this.record.id
+          let newurl = '/multimediarequests/assignees/' + this.record.id
           document.location = newurl
         } else {
           this.success = true
@@ -211,12 +263,11 @@
       },
       fetchAssignee(itemId){
         let self = this
-        axios.get('/api/multimediaassginees/' + itemId)
+        axios.get('/api/multimediaassignees/' + itemId)
         // success
         .then(function (response) {
           self.record = response.data
           self.isDataLoaded = true
-          self.setOriginalImages(self.record.images)
         })
         // fail
         .catch(function (error) {
@@ -226,13 +277,25 @@
           }
         })
       },
+      fetchStatusOptions(){
+        let self = this
+        axios.get('/api/multimediaassignee/statuses')
+        // success
+        .then(function (response) {
+          self.statusOptions = response.data
+        })
+        // fail
+        .catch(function (error) {
+          console.log("ERROR FETCHING STATUS OPTIONS!")
+        })
+      },
       // Called from the @itemDeleted event emission from the Delete Modal
       markItemDeleted: function () {
         this.isDeleteError = false
         this.isDeleted = true
         setTimeout(function(){
           // This record doesn't exist anymore, so send the user back to the assignees list page
-          window.location.replace('/multimediaassginees')
+          window.location.replace('/multimediarequests/assignees')
         }, 3000)
       },
       markItemDeleteError: function(){

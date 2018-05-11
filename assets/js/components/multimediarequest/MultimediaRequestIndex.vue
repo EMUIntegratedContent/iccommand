@@ -2,7 +2,7 @@
   <div>
     <heading>
       <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
-      <span slot="title">Photo Requests</span>
+      <span slot="title">Multimedia Requests</span>
     </heading>
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
