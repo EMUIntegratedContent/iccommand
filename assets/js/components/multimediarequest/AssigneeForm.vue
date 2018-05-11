@@ -67,40 +67,61 @@
             </div>
           </div>
           <template v-if="userCanEdit && isEditMode">
-            <div class="form-row">
-              <div class="form-group col-md-12">
-                <label for="status">Status *</label>
-                <multiselect
-                  v-validate="'required'"
-                  data-vv-as="status"
-                  v-model="record.status"
-                  :options="statusOptions"
-                  :multiple="false"
-                  placeholder="What is the status of this person?"
-                  label="status"
-                  track-by="id"
-                  id="status"
-                  class="form-control"
-                  style="padding:0"
-                  name="status"
-                  :class="{'is-invalid': errors.has('status') }"
-                  >
-                </multiselect>
-                <div class="invalid-feedback">
-                  {{ errors.first('status') }}
-                </div>
+            <div class="form-group">
+              <label for="status">Status *</label>
+              <multiselect
+                v-validate="'required'"
+                data-vv-as="status"
+                v-model="record.status"
+                :options="statusOptions"
+                :multiple="false"
+                placeholder="What is the status of this person?"
+                label="status"
+                track-by="id"
+                id="status"
+                class="form-control"
+                style="padding:0"
+                name="status"
+                :class="{'is-invalid': errors.has('status') }"
+                >
+              </multiselect>
+              <div class="invalid-feedback">
+                {{ errors.first('status') }}
               </div>
             </div>
           </template>
           <template v-else>
-            <label>Status *</label>
-            <input
-              name="status"
-              type="text"
-              class="form-control form-control-plaintext"
-              readonly
-              :value="record.status ? record.status.status: 'not set'">
+            <div class="form-group">
+              <label>Status *</label>
+              <input
+                name="status"
+                type="text"
+                class="form-control form-control-plaintext"
+                readonly
+                :value="record.status ? record.status.status: 'not set'">
+            </div>
           </template>
+          <div class="form-group">
+            <p>I am available for: </p>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="graphic" id="chk-graphic" :disabled="!isEditMode" v-model="record.assignableRequestTypes">
+              <label class="form-check-label" for="chk-graphic">
+                Graphic design
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="photo" id="chk-photo" :disabled="!isEditMode" v-model="record.assignableRequestTypes">
+              <label class="form-check-label" for="chk-photo">
+                Photo shoots
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="video" id="chk-video" :disabled="!isEditMode" v-model="record.assignableRequestTypes">
+              <label class="form-check-label" for="chk-video">
+                Video shoots
+              </label>
+            </div>
+          </div>
         </fieldset>
         <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
           You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:

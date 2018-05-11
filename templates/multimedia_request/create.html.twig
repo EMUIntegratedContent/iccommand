@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create a new multimedia request.{% endblock %}
+
+{% block modulenav %}
+  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
+{% endblock %}
+
+{% block body %}
+
+<h1 class="display-1">Create Multimedia Request</h1>
+<h2>THIS WILL EVENTUALLY BE A PUBLIC OPTION ONLY!</h2>
+<div id="app">
+    <multimedia-request-form :item-exists="false" start-mode="edit" :permissions="[{{ permissions }}]"></multimedia-request-form>
+</div>
+{% endblock %}

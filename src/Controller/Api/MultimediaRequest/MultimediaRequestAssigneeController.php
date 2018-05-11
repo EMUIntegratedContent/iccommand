@@ -98,7 +98,7 @@ class MultimediaRequestAssigneeController extends FOSRestController{
     $assignee->setLastName($request->request->get('lastName'));
     $assignee->setEmail($request->request->get('email'));
     $assignee->setPhone($request->request->get('phone'));
-    $assignee->setAssignableForRequestType($request->request->get('assginableRequestTypes'));
+    $assignee->setAssignableForRequestType($request->request->get('assignableRequestTypes'));
     // status
     $status = $this->getDoctrine()->getRepository(MultimediaRequestAssigneeStatus::class)->find($request->request->get('status')['id']);
     if($status){
@@ -140,7 +140,7 @@ class MultimediaRequestAssigneeController extends FOSRestController{
     $assignee->setLastName($request->request->get('lastName'));
     $assignee->setEmail($request->request->get('email'));
     $assignee->setPhone($request->request->get('phone'));
-    $assignee->setAssignableForRequestType($request->request->get('assginableRequestTypes'));
+    $assignee->setAssignableForRequestType($request->request->get('assignableRequestTypes'));
     // status
     $status = $this->getDoctrine()->getRepository(MultimediaRequestAssigneeStatus::class)->find($request->request->get('status')['id']);
     if($status){

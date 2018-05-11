@@ -22,4 +22,38 @@ class MultimediaRequestController extends Controller
         $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());
         return $this->render('multimedia_request/index.html.twig', ['permissions' => $permissions]);
     }
+
+    /**
+     * @Route("/multimediarequests/create", name="multimediarequests_create")
+     */
+    public function add(){
+      $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());
+      return $this->render('multimedia_request/create.html.twig', ['permissions' => $permissions]);
+    }
+
+    /**
+     * @Route("/multimediarequests/{id}", name="multimediarequests_show")
+     */
+    public function show($id){
+      $multimediaRequest = $this->getDoctrine()->getRepository(MultimediaRequest::class)->find($id);
+      if (!$multimediaRequest) {
+        throw $this->createNotFoundException('This multimedia request does not exist.');
+      }
+
+      $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());
+      return $this->render('multimedia_request/show.html.twig', ['id' => $id, 'permissions' => $permissions]);
+    }
+
+    /**
+     * @Route("/multimediarequests/{id}/edit", name="multimediarequests_edit")
+     */
+    public function edit($id){
+      $multimediaRequest = $this->getDoctrine()->getRepository(MultimediaRequest::class)->find($id);
+      if (!$multimediaRequest) {
+        throw $this->createNotFoundException('This request does not exist.');
+      }
+
+      $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());
+      return $this->render('multimedia_request/edit.html.twig', ['id' => $id, 'permissions' => $permissions]);
+    }
 }

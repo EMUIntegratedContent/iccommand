@@ -2,6 +2,9 @@
 
 namespace App\Entity\MultimediaRequest;
 
+use App\Entity\MultimediaRequest\MultimediaRequest;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -56,9 +59,15 @@ class MultimediaRequestAssignee
 
     /**
      * @ORM\Column(type="array")
-     * @Serializer\SerializedName("assginableRequestTypes")
+     * @Serializer\SerializedName("assignableRequestTypes")
      */
     private $assignableForRequestType;
+
+    /**
+     * @ORM\OneToMany(targetEntity="MultimediaRequest", mappedBy="assignee")
+     * @Serializer\Exclude
+     */
+    private $multimediaRequests;
 
     /**
      * @Gedmo\Timestampable(on="create")
@@ -77,6 +86,11 @@ class MultimediaRequestAssignee
      * @Gedmo\Timestampable(on="change", field={"title", "body"})
      */
     private $contentChanged;
+
+    public function __construct()
+    {
+        $this->multimediaRequests = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -151,6 +165,37 @@ class MultimediaRequestAssignee
     public function setAssignableForRequestType(array $assignableForRequestType): self
     {
         $this->assignableForRequestType = $assignableForRequestType;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|MultimediaRequest[]
+     */
+    public function getMultimediaRequests(): Collection
+    {
+        return $this->multimediaRequests;
+    }
+
+    public function addMultimediaRequest(MultimediaRequest $multimediaRequest): self
+    {
+        if (!$this->multimediaRequests->contains($multimediaRequest)) {
+            $this->multimediaRequests[] = $multimediaRequest;
+            $multimediaRequest->setAssigneeId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMultimediaRequest(MultimediaRequest $multimediaRequest): self
+    {
+        if ($this->multimediaRequests->contains($multimediaRequest)) {
+            $this->multimediaRequests->removeElement($multimediaRequest);
+            // set the owning side to null (unless already changed)
+            if ($multimediaRequest->getAssigneeId() === $this) {
+                $multimediaRequest->setAssigneeId(null);
+            }
+        }
 
         return $this;
     }

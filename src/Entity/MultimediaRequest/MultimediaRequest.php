@@ -1,0 +1,208 @@
+<?php
+
+namespace App\Entity\MultimediaRequest;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as Serializer;
+use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
+use App\Entity\MultimediaRequest\MultimediaRequestStatus;
+
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequestRepository")
+ * @Serializer\XmlRoot("multimediaRequest")
+ */
+class MultimediaRequest
+{
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Serializer\SerializedName("firstName")
+     * @Assert\NotBlank(message="You must provide a first name for the requester.")
+     */
+    private $firstName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Serializer\SerializedName("lastName")
+     * @Assert\NotBlank(message="You must provide a last name for the requester.")
+     */
+    private $lastName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Serializer\SerializedName("email")
+     * @Assert\Email(message="You must provide valid email address for the requester.")
+     */
+    private $email;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $phone;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $department;
+
+    /**
+     * Upon public submission, this should be set to 'new' in the POST function
+     * @ORM\ManyToOne(targetEntity="MultimediaRequestStatus")
+     */
+    private $status;
+
+    /**
+     * One request has (zero to) many status notes.
+     * @ORM\OneToMany(targetEntity="MultimediaRequestStatusNote", mappedBy="multimediaRequest", cascade={"persist"})
+     */
+    private $statusNotes;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="MultimediaRequestAssignee", inversedBy="multimediaRequests")
+     */
+    private $assignee;
+
+    /**
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(type="datetime")
+    */
+    private $created;
+
+    /**
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(type="datetime")
+    */
+    private $updated;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Gedmo\Timestampable(on="change", field={"title", "body"})
+     */
+    private $contentChanged;
+
+    public function __construct() {
+        parent::__construct();
+        $this->statusNotes = new ArrayCollection();
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): self
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getDepartment(): ?string
+    {
+        return $this->department;
+    }
+
+    public function setDepartment(string $department): self
+    {
+        $this->department = $department;
+
+        return $this;
+    }
+
+    public function getStatusNotes(): ArrayCollection
+    {
+        return $this->statusNotes;
+    }
+
+    public function addStatusNote(MultimediaRequestStatusNote $note = null){
+        $this->statusNotes[] = $note;
+    }
+
+    public function getStatus(): ?MultimediaRequestStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?MultimediaRequestStatus $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getAssignee(): ?MultimediaRequestAssignee
+    {
+        return $this->assignee;
+    }
+
+    public function setAssignee(?MultimediaRequestAssignee $assignee): self
+    {
+        $this->assignee = $assignee;
+
+        return $this;
+    }
+
+    /** GEDMO FIELDS **/
+
+    public function getCreated(){
+        return $this->created;
+    }
+
+    public function getUpdated(){
+        return $this->updated;
+    }
+
+    public function getContentChanged(){
+        return $this->contentChanged;
+    }
+}
