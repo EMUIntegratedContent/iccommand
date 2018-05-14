@@ -9,17 +9,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequestStatus;
+use Hateoas\Configuration\Annotation as Hateoas;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequestRepository")
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"multimediarequest" = "MultimediaRequest", "graphicrequest" = "GraphicRequest", "photorequest" = "PhotoRequest", "videorequest", "VideoRequest"})
  * @Serializer\XmlRoot("multimediaRequest")
+ * @Hateoas\Relation("self", href = "expr('/api/multimediarequests/' ~ object.getId())")
  */
-class MultimediaRequest
+abstract class MultimediaRequest
 {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Serializer\XmlAttribute
      */
     private $id;
 
@@ -53,6 +60,11 @@ class MultimediaRequest
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $department;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $description;
 
     /**
      * Upon public submission, this should be set to 'new' in the POST function
@@ -155,6 +167,18 @@ class MultimediaRequest
     public function setDepartment(string $department): self
     {
         $this->department = $department;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }
