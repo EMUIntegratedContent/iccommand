@@ -30,6 +30,12 @@ class PhotoRequest extends MultimediaRequest
     private $location;
 
     /**
+     * Many photo requests can have one type (e.g. "headshot" or "event photo shoot")
+     * @ORM\ManyToOne(targetEntity="PhotoRequestType")
+     */
+    private $type;
+
+    /**
      * @ORM\Column(type="string", length=20, nullable=true)
      * @Assert\Length(
      *      max = 20,
@@ -85,4 +91,17 @@ class PhotoRequest extends MultimediaRequest
 
         return $this;
     }
+
+    public function getType(): ?PhotoRequestType
+    {
+        return $this->type;
+    }
+
+    public function setType(?PhotoRequestType $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
 }
