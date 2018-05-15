@@ -26,6 +26,11 @@ multimediaRequestAssignees:
     resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
     prefix: /api/
 
+multimediaRequests:
+    type: rest
+    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController
+    prefix: /api/
+
 userImages:
     type: rest
     resource: App\Controller\Api\UserImageController

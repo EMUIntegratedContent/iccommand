@@ -5,7 +5,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface as Container;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
-//use App\Entity\MultimediaRequest\MultimediaRequest;
+use App\Entity\MultimediaRequest\MultimediaRequest;
 
 class MultimediaRequestService
 {
@@ -18,13 +18,13 @@ class MultimediaRequestService
 
   /**
    * Use the Symfony container's validator to validate fields for an assignee
-   * @param App\Entity\MultimediaRequest\MultimediaRequestAssignee $assignee
+   * @param App\Entity\MultimediaRequest\* $item
    * @return array $errors
    */
-  public function validate($assignee) : ConstraintViolationList
+  public function validate($item) : ConstraintViolationList
   {
     $validator = $this->container->get('validator');
-    $errors = $validator->validate($assignee);
+    $errors = $validator->validate($item);
     return $errors;
   }
 
@@ -59,12 +59,11 @@ class MultimediaRequestService
     return $multimediaRequestPermissions;
   }
 
-/*
+
   protected function deleteMultimediaRequest(MultimediaRequest $multimediaRequest)
   {
     $em = $this->container->get('doctrine')->getManager();
-    $em->remove($photoRequest);
+    $em->remove($multimediaRequest);
     $em->flush();
   }
-*/
 }

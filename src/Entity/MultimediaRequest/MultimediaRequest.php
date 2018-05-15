@@ -13,10 +13,10 @@ use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequestRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\MultimediaRequestRepository")
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"multimediarequest" = "MultimediaRequest", "graphicrequest" = "GraphicRequest", "photorequest" = "PhotoRequest", "videorequest", "VideoRequest"})
+ * @ORM\DiscriminatorMap({"multimediarequest" = "MultimediaRequest", "graphicrequest" = "GraphicRequest", "photorequest" = "PhotoRequest", "videorequest" = "VideoRequest"})
  * @Serializer\XmlRoot("multimediaRequest")
  * @Hateoas\Relation("self", href = "expr('/api/multimediarequests/' ~ object.getId())")
  */
@@ -46,7 +46,6 @@ abstract class MultimediaRequest
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\SerializedName("email")
      * @Assert\Email(message="You must provide valid email address for the requester.")
      */
     private $email;
@@ -75,6 +74,7 @@ abstract class MultimediaRequest
     /**
      * One request has (zero to) many status notes.
      * @ORM\OneToMany(targetEntity="MultimediaRequestStatusNote", mappedBy="multimediaRequest", cascade={"persist"})
+     * @Serializer\SerializedName("statusNotes")
      */
     private $statusNotes;
 
@@ -102,7 +102,6 @@ abstract class MultimediaRequest
     private $contentChanged;
 
     public function __construct() {
-        parent::__construct();
         $this->statusNotes = new ArrayCollection();
     }
 

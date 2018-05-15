@@ -3,7 +3,6 @@
 namespace App\Entity\MultimediaRequest;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\MultimediaRequest\MultimediaRequest;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -12,6 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class GraphicRequest extends MultimediaRequest
 {
+    const REQUEST_TYPE = 'graphic';
 
     /**
      * @ORM\Column(type="datetime")
@@ -19,6 +19,13 @@ class GraphicRequest extends MultimediaRequest
      */
     private $completionDate;
 
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function getRequestType(){
+        return constant("self::REQUEST_TYPE");
+    }
 
     public function getCompletionDate(): ?\DateTimeInterface
     {

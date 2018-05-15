@@ -3,7 +3,6 @@
 namespace App\Entity\MultimediaRequest;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\MultimediaRequest\MultimediaRequest;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -12,15 +11,21 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class PhotoRequest extends MultimediaRequest
 {
-    /**
-     * @ORM\Column(type="datetime")
-     * @Assert\DateTime(message="You must provide a valid starting date and time.")
-     */
-    private $startDate;
+    const REQUEST_TYPE = 'photo';
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true))
+     * @Assert\DateTime(message="You must provide a valid starting date and time.")
+     * @Serializer\Type("DateTime<'Y-m-d H:i:s'>")
+     * @Serializer\SerializedName("startTime")
+     */
+    private $startTime;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
      * @Assert\DateTime(message="You must provide a valid ending date and time.")
+     * @Serializer\Type("DateTime<'Y-m-d H:i:s'>")
+     * @Serializer\SerializedName("endTime")
      */
     private $endTime;
 
@@ -32,8 +37,9 @@ class PhotoRequest extends MultimediaRequest
     /**
      * Many photo requests can have one type (e.g. "headshot" or "event photo shoot")
      * @ORM\ManyToOne(targetEntity="PhotoRequestType")
+     * @Serializer\SerializedName("photoRequestType")
      */
-    private $type;
+    private $photoRequestType;
 
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
@@ -44,14 +50,22 @@ class PhotoRequest extends MultimediaRequest
      */
     private $intendedUse;
 
-    public function getStartDate(): ?\DateTimeInterface
-    {
-        return $this->startDate;
+    public function __construct() {
+        parent::__construct();
     }
 
-    public function setStartDate(\DateTimeInterface $startDate): self
+    public function getRequestType(){
+        return constant("self::REQUEST_TYPE");
+    }
+
+    public function getStartTime(): ?\DateTimeInterface
     {
-        $this->startDate = $startDate;
+        return $this->startTime;
+    }
+
+    public function setStartTime(\DateTimeInterface $startTime): self
+    {
+        $this->startTime = $startTime;
 
         return $this;
     }
@@ -92,14 +106,14 @@ class PhotoRequest extends MultimediaRequest
         return $this;
     }
 
-    public function getType(): ?PhotoRequestType
+    public function getPhotoRequestType(): ?PhotoRequestType
     {
-        return $this->type;
+        return $this->photoRequestType;
     }
 
-    public function setType(?PhotoRequestType $type): self
+    public function setPhotoRequestType(?PhotoRequestType $photoRequestType): self
     {
-        $this->type = $type;
+        $this->photoRequestType = $photoRequestType;
 
         return $this;
     }

@@ -3,7 +3,6 @@
 namespace App\Entity\MultimediaRequest;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\MultimediaRequest\MultimediaRequest;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -12,11 +11,21 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class VideoRequest extends MultimediaRequest
 {
+    const REQUEST_TYPE = 'video';
+
     /**
      * @ORM\Column(type="datetime")
      * @Assert\DateTime(message="You must provide a valid completion date and time.")
      */
     private $completionDate;
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function getRequestType(){
+        return constant("self::REQUEST_TYPE");
+    }
 
     public function getCompletionDate(): ?\DateTimeInterface
     {
