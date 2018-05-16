@@ -8,14 +8,14 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20180515185913 extends AbstractMigration
+class Version20180516213940 extends AbstractMigration
 {
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE photo_request CHANGE start_time start_time DATETIME DEFAULT NULL, CHANGE end_time end_time DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE multimedia_request_status_note CHANGE created_by created_by VARCHAR(255) DEFAULT NULL');
     }
 
     public function down(Schema $schema)
@@ -23,6 +23,6 @@ class Version20180515185913 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE photo_request CHANGE start_time start_time DATETIME NOT NULL, CHANGE end_time end_time DATETIME NOT NULL');
+        $this->addSql('ALTER TABLE multimedia_request_status_note CHANGE created_by created_by VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci');
     }
 }

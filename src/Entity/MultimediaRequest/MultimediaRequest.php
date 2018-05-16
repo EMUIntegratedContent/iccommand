@@ -4,6 +4,7 @@ namespace App\Entity\MultimediaRequest;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
@@ -182,7 +183,7 @@ abstract class MultimediaRequest
         return $this;
     }
 
-    public function getStatusNotes(): ArrayCollection
+    public function getStatusNotes(): PersistentCollection
     {
         return $this->statusNotes;
     }

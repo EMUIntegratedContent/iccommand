@@ -169,6 +169,11 @@ class MultimediaRequestAssignee
         return $this;
     }
 
+    public function hasAssignableRequestType($type): bool
+    {
+        return in_array(strtolower($type), $this->getAssignableForRequestType(), true);
+    }
+
     /**
      * @return Collection|MultimediaRequest[]
      */
@@ -212,5 +217,10 @@ class MultimediaRequestAssignee
 
     public function getContentChanged(){
         return $this->contentChanged;
+    }
+
+    public function __toString()
+    {
+        return $this->getFirstName() . ' ' . $this->getLastName();
     }
 }

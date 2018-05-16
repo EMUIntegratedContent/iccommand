@@ -4,9 +4,6 @@
         <div v-if="isDataLoaded === false">
             <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
         </div>
-        <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
-            {{ apiError.message }}
-        </div>
         <div v-if="isDeleted === true" class="alert alert-info fade show" role="alert">
             This request has been deleted. You will now be redirected to the requests list page.
         </div>
@@ -25,275 +22,391 @@
                     <option value="video">Video Request</option>
                     <option value="graphic">Graphic Design Request</option>
                 </select>
-                <fieldset>
-                    <!-- COMMON FIELDS -->
-                    <legend>Requester Information</legend>
-                    <div class="form-group">
-                        <label>First Name *</label>
-                        <input
-                                data-vv-as="first name"
-                                name="firstName"
-                                type="text"
-                                class="form-control"
-                                :class="{ 'is-invalid': errors.has('firstName'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
-                                :readonly="!userCanEdit || !isEditMode"
-                                v-model="record.firstName">
-                        <div class="invalid-feedback">
-                            {{ errors.first('firstName') }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name *</label>
-                        <input
-                                v-validate="'required'"
-                                data-vv-as="last name"
-                                name="lastName"
-                                type="text"
-                                class="form-control"
-                                :class="{ 'is-invalid': errors.has('lastName'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
-                                :readonly="!userCanEdit || !isEditMode"
-                                v-model="record.lastName">
-                        <div class="invalid-feedback">
-                            {{ errors.first('lastName') }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input
-                                name="email"
-                                v-validate="'required|email'"
-                                data-vv-as="email address"
-                                type="text"
-                                class="form-control"
-                                :class="{ 'is-invalid': errors.has('email'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
-                                :readonly="!userCanEdit || !isEditMode"
-                                v-model="record.email">
-                        <div class="invalid-feedback">
-                            {{ errors.first('email') }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input
-                                name="phone"
-                                data-vv-as="phone number"
-                                type="text"
-                                class="form-control"
-                                :class="{ 'is-invalid': errors.has('phone'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
-                                :readonly="!userCanEdit || !isEditMode"
-                                v-model="record.phone">
-                        <div class="invalid-feedback">
-                            {{ errors.first('phone') }}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Department</label>
-                        <input
-                                name="department"
-                                data-vv-as="department"
-                                type="text"
-                                class="form-control"
-                                :class="{ 'is-invalid': errors.has('department'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
-                                :readonly="!userCanEdit || !isEditMode"
-                                v-model="record.department">
-                        <div class="invalid-feedback">
-                            {{ errors.first('department') }}
-                        </div>
-                    </div>
-                    <!--
-                  <template v-if="userCanEdit && isEditMode">
-                    <div class="form-group">
-                      <label for="status">Status *</label>
-                      <multiselect
-                        v-validate="'required'"
-                        data-vv-as="status"
-                        v-model="record.status"
-                        :options="statusOptions"
-                        :multiple="false"
-                        placeholder="What is the status of this person?"
-                        label="status"
-                        track-by="id"
-                        id="status"
-                        class="form-control"
-                        style="padding:0"
-                        name="status"
-                        :class="{'is-invalid': errors.has('status') }"
-                        >
-                      </multiselect>
-                      <div class="invalid-feedback">
-                        {{ errors.first('status') }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="form-group">
-                      <label>Status *</label>
-                      <input
-                        name="status"
-                        type="text"
-                        class="form-control form-control-plaintext"
-                        readonly
-                        :value="record.status ? record.status.status: 'not set'">
-                    </div>
-                  </template>
-                  <div class="form-group">
-                    <p>I am available for: </p>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="graphic" id="chk-graphic" :disabled="!isEditMode" v-model="record.assignableRequestTypes">
-                      <label class="form-check-label" for="chk-graphic">
-                        Graphic design
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="photo" id="chk-photo" :disabled="!isEditMode" v-model="record.assignableRequestTypes">
-                      <label class="form-check-label" for="chk-photo">
-                        Photo shoots
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="video" id="chk-video" :disabled="!isEditMode" v-model="record.assignableRequestTypes">
-                      <label class="form-check-label" for="chk-video">
-                        Video shoots
-                      </label>
-                    </div>
-                  </div>
-                  -->
-                </fieldset>
-                <fieldset>
-                    <!-- TYPE-SPECIFIC FIELDS -->
-                    <legend>{{ record.requestType }} request information</legend>
-                    <!-- PHOTO SHOOT -->
-                    <template v-if="record.requestType == 'photo'">
-                        <div class="form-group">
-                            <p>Type of photo shoot *</p>
-                            <div class="form-check">
+                <div class="row">
+                    <div class="col-md-8">
+                        <fieldset>
+                            <!-- COMMON FIELDS -->
+                            <legend>Requester Information</legend>
+                            <div class="form-group">
+                                <label>First Name *</label>
+                                <input
+                                        data-vv-as="first name"
+                                        name="firstName"
+                                        type="text"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': errors.has('firstName'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                        :readonly="!userCanEdit || !isEditMode"
+                                        v-model="record.firstName">
+                                <div class="invalid-feedback">
+                                    {{ errors.first('firstName') }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name *</label>
                                 <input
                                         v-validate="'required'"
-                                        data-vv-as="photo shoot type"
-                                        id="radio-headshot"
-                                        name="photoRequestType"
-                                        type="radio"
-                                        value="1"
-                                        class="form-check-input"
-                                        :class="{ 'is-invalid': errors.has('photoRequestType'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
-                                        :disabled="!isEditMode"
-                                        v-model="record.photoRequestType.id">
-                                <label class="form-check-label" for="radio-headshot">
-                                    Headshot
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input
-                                        name="photoRequestType"
-                                        type="radio"
-                                        value="2"
-                                        id="radio-group"
-                                        class="form-check-input"
-                                        :disabled="!isEditMode"
-                                        v-model="record.photoRequestType.id">
-                                <label class="form-check-label" for="radio-group">
-                                    Group Shot
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input
-                                        name="photoRequestType"
-                                        type="radio"
-                                        value="3"
-                                        id="radio-editorial"
-                                        class="form-check-input"
-                                        :disabled="!isEditMode"
-                                        v-model="record.photoRequestType.id">
-                                <label class="form-check-label" for="radio-editorial">
-                                    Editorial
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input
-                                        name="photoRequestType"
-                                        type="radio"
-                                        value="4"
-                                        id="radio-event"
-                                        class="form-check-input"
-                                        :disabled="!isEditMode"
-                                        v-model="record.photoRequestType.id">
-                                <label class="form-check-label" for="radio-event">
-                                    Event
-                                </label>
-                            </div>
-                        </div>
-                        <div class="invalid-feedback">
-                            {{ errors.first('photoRequestType') }}
-                        </div>
-                        <div class="row">
-                            <div class="form-group col-md-6">
-                                <label>Starting date and time</label>
-                                <div class="input-group">
-                                    <flatpickr
-                                            v-model="record.startTime"
-                                            id="startTimePicker"
-                                            :config="flatpickrStartTimeConfig"
-                                            class="form-control"
-                                            placeholder="Starting time"
-                                            name="startingTime"
-                                            @on-open="startTimeOpened"
-                                            @on-change="startTimeChanged"
-                                            >
-                                    </flatpickr>
-                                    <div class="input-group-btn">
-                                        <button class="btn btn-default" type="button" title="Toggle" data-toggle>
-                                            <i class="fa fa-calendar">
-                                                <span aria-hidden="true" class="sr-only">Toggle</span>
-                                            </i>
-                                        </button>
-                                        <button class="btn btn-default" type="button" title="Clear" data-clear>
-                                            <i class="fa fa-times">
-                                                <span aria-hidden="true" class="sr-only">Clear</span>
-                                            </i>
-                                        </button>
-                                    </div>
+                                        data-vv-as="last name"
+                                        name="lastName"
+                                        type="text"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': errors.has('lastName'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                        :readonly="!userCanEdit || !isEditMode"
+                                        v-model="record.lastName">
+                                <div class="invalid-feedback">
+                                    {{ errors.first('lastName') }}
                                 </div>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label>Ending date and time</label>
-                                <div class="input-group">
-                                    <flatpickr
-                                            v-model="record.endTime"
-                                            id="endTimePicker"
-                                            :config="flatpickrEndTimeConfig"
-                                            class="form-control"
-                                            placeholder="Ending time"
-                                            name="endingTime"
-                                            @on-open="endTimeOpened"
-                                            @on-change="endTimeChanged"
-                                            >
-                                    </flatpickr>
-                                    <div class="input-group-btn">
-                                        <button class="btn btn-default" type="button" title="Toggle" data-toggle>
-                                            <i class="fa fa-calendar">
-                                                <span aria-hidden="true" class="sr-only">Toggle</span>
-                                            </i>
-                                        </button>
-                                        <button class="btn btn-default" type="button" title="Clear" data-clear>
-                                            <i class="fa fa-times">
-                                                <span aria-hidden="true" class="sr-only">Clear</span>
-                                            </i>
-                                        </button>
-                                    </div>
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input
+                                        name="email"
+                                        v-validate="'required|email'"
+                                        data-vv-as="email address"
+                                        type="text"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': errors.has('email'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                        :readonly="!userCanEdit || !isEditMode"
+                                        v-model="record.email">
+                                <div class="invalid-feedback">
+                                    {{ errors.first('email') }}
                                 </div>
                             </div>
-                        </div>
-                        <pre>Starting date/time is - {{record.startTime}}</pre>
-                        <pre>Ending date/time is - {{record.endTime}}</pre>
-                        <!-- HEADSHOT-SPECIFIC FIELDS -->
-                    </template>
-                    <template v-if="record.requestType == 'video'">
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input
+                                        name="phone"
+                                        data-vv-as="phone number"
+                                        type="text"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': errors.has('phone'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                        :readonly="!userCanEdit || !isEditMode"
+                                        v-model="record.phone">
+                                <div class="invalid-feedback">
+                                    {{ errors.first('phone') }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Department</label>
+                                <input
+                                        name="department"
+                                        data-vv-as="department"
+                                        type="text"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': errors.has('department'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                        :readonly="!userCanEdit || !isEditMode"
+                                        v-model="record.department">
+                                <div class="invalid-feedback">
+                                    {{ errors.first('department') }}
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <!-- TYPE-SPECIFIC FIELDS -->
+                            <legend>{{ record.requestType }} request information</legend>
+                            <!-- PHOTO SHOOT -->
+                            <template v-if="record.requestType == 'photo'">
+                                <div class="row">
+                                    <div class="form-group col-md-7">
+                                        <label>Description *</label>
+                                        <textarea
+                                                v-validate="'required'"
+                                                name="description"
+                                                class="form-control"
+                                                :class="{ 'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                :readonly="!userCanEdit || !isEditMode"
+                                                v-model="record.description">
+                                            {{ record.description}}
+                                        </textarea>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('description') }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-5">
+                                        <label>Location</label>
+                                        <input
+                                                name="location"
+                                                type="text"
+                                                class="form-control"
+                                                :class="{ 'is-invalid': errors.has('location'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                :readonly="!userCanEdit || !isEditMode"
+                                                v-model="record.location">
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('location') }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-6">
+                                        <template v-if="isEditMode">
+                                            <p>Type of photo shoot *</p>
+                                            <div class="form-check">
+                                                <input
+                                                        v-validate="'required'"
+                                                        data-vv-as="photo shoot type"
+                                                        id="radio-headshot"
+                                                        name="photoRequestType"
+                                                        type="radio"
+                                                        value="1"
+                                                        class="form-check-input"
+                                                        :class="{ 'is-invalid': errors.has('photoRequestType'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                        :disabled="!isEditMode"
+                                                        v-model="record.photoRequestType.id">
+                                                <label class="form-check-label" for="radio-headshot">
+                                                    Headshot
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input
+                                                        name="photoRequestType"
+                                                        type="radio"
+                                                        value="2"
+                                                        id="radio-group"
+                                                        class="form-check-input"
+                                                        :disabled="!isEditMode"
+                                                        v-model="record.photoRequestType.id">
+                                                <label class="form-check-label" for="radio-group">
+                                                    Group Shot
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input
+                                                        name="photoRequestType"
+                                                        type="radio"
+                                                        value="3"
+                                                        id="radio-editorial"
+                                                        class="form-check-input"
+                                                        :disabled="!isEditMode"
+                                                        v-model="record.photoRequestType.id">
+                                                <label class="form-check-label" for="radio-editorial">
+                                                    Editorial
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input
+                                                        name="photoRequestType"
+                                                        type="radio"
+                                                        value="4"
+                                                        id="radio-event"
+                                                        class="form-check-input"
+                                                        :disabled="!isEditMode"
+                                                        v-model="record.photoRequestType.id">
+                                                <label class="form-check-label" for="radio-event">
+                                                    Event
+                                                </label>
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                {{ errors.first('photoRequestType') }}
+                                            </div>
+                                        </template>
+                                        <template v-else>
+                                            <p>Type of photo shoot: {{ record.photoRequestType.request_type }}</p>
+                                        </template>
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <template v-if="isEditMode">
+                                            <p>Intended Use *</p>
+                                            <div class="form-check">
+                                                <input
+                                                        v-validate="'required'"
+                                                        data-vv-as="intended use"
+                                                        id="radio-web"
+                                                        name="intendedUse"
+                                                        type="radio"
+                                                        value="web"
+                                                        class="form-check-input"
+                                                        :class="{ 'is-invalid': errors.has('intendedUse'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                        v-model="record.intendedUse">
+                                                <label class="form-check-label" for="radio-headshot">
+                                                    Web
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input
+                                                        name="intendedUse"
+                                                        type="radio"
+                                                        value="2"
+                                                        id="radio-print"
+                                                        class="form-check-input"
+                                                        v-model="record.intendedUse">
+                                                <label class="form-check-label" for="radio-group">
+                                                    Print
+                                                </label>
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                {{ errors.first('intendedUse') }}
+                                            </div>
+                                        </template>
+                                        <template v-else>
+                                            <p>Intended use: {{ record.intendedUse ? record.intendedUse : 'not specified'}}</p>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label>Starting date and time</label>
+                                        <div class="input-group" v-if="isEditMode">
+                                            <flatpickr
+                                                    v-model="record.startTime"
+                                                    id="startTimePicker"
+                                                    :config="flatpickrStartTimeConfig"
+                                                    class="form-control"
+                                                    placeholder="Starting time"
+                                                    name="startingTime"
+                                                    @on-open="startTimeOpened"
+                                                    @on-change="startTimeChanged"
+                                            >
+                                            </flatpickr>
+                                            <div class="input-group-btn" >
+                                                <button class="btn btn-default" type="button" title="Toggle" data-toggle>
+                                                    <i class="fa fa-calendar">
+                                                        <span aria-hidden="true" class="sr-only">Toggle</span>
+                                                    </i>
+                                                </button>
+                                                <button class="btn btn-default" type="button" title="Clear" data-clear>
+                                                    <i class="fa fa-times">
+                                                        <span aria-hidden="true" class="sr-only">Clear</span>
+                                                    </i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            {{ record.startTime }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label>Ending date and time</label>
+                                        <div class="input-group" v-if="isEditMode">
+                                            <flatpickr
+                                                    v-model="record.endTime"
+                                                    id="endTimePicker"
+                                                    :config="flatpickrEndTimeConfig"
+                                                    class="form-control"
+                                                    placeholder="Ending time"
+                                                    name="endingTime"
+                                                    @on-open="endTimeOpened"
+                                                    @on-change="endTimeChanged"
+                                            >
+                                            </flatpickr>
+                                            <div class="input-group-btn" v-if="isEditMode">
+                                                <button class="btn btn-default" type="button" title="Toggle" data-toggle>
+                                                    <i class="fa fa-calendar">
+                                                        <span aria-hidden="true" class="sr-only">Toggle</span>
+                                                    </i>
+                                                </button>
+                                                <button class="btn btn-default" type="button" title="Clear" data-clear>
+                                                    <i class="fa fa-times">
+                                                        <span aria-hidden="true" class="sr-only">Clear</span>
+                                                    </i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            {{ record.endTime }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- HEADSHOT-SPECIFIC FIELDS -->
+                            </template>
+                            <template v-if="record.requestType == 'video'">
 
-                    </template>
-                    <template v-if="record.requestType == 'graphic'">
+                            </template>
+                            <template v-if="record.requestType == 'graphic'">
 
-                    </template>
-                </fieldset>
+                            </template>
+                        </fieldset>
+                    </div><!-- /end .col-md-8 -->
+                    <div class="col-md-4">
+                        <fieldset v-if="itemExists">
+                            <!-- STATUS FIELDS -->
+                            <legend>Status</legend>
+                            <template v-if="userCanEdit && isEditMode">
+                                <div class="row">
+                                    <!-- Status select -->
+                                    <div class="form-group col-sm-12">
+                                        <label for="status">Status *</label>
+                                        <multiselect
+                                                v-validate="'required'"
+                                                data-vv-as="status"
+                                                v-model="record.status"
+                                                :options="statusOptions"
+                                                :multiple="false"
+                                                placeholder="What is the status of this request?"
+                                                label="status"
+                                                track-by="id"
+                                                id="status"
+                                                class="form-control"
+                                                style="padding:0"
+                                                name="status"
+                                                :class="{'is-invalid': errors.has('status') }"
+                                        >
+                                        </multiselect>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('status') }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <!-- Assignee select -->
+                                        <div class="form-group">
+                                            <label for="status">Assigned to</label>
+                                            <multiselect
+                                                    data-vv-as="assignee"
+                                                    v-model="record.assignee"
+                                                    :options="assignees"
+                                                    :multiple="false"
+                                                    placeholder="Who will be fulfilling this request?"
+                                                    label="lastName"
+                                                    track-by="id"
+                                                    id="assignee"
+                                                    class="form-control"
+                                                    style="padding:0"
+                                                    name="status"
+                                                    :class="{'is-invalid': errors.has('assignee') }"
+                                            >
+                                            </multiselect>
+                                            <div class="invalid-feedback">
+                                                {{ errors.first('assignee') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <template v-if="record.statusNotes.length > 0">
+                                    <p><strong>Notes about this request.</strong></p>
+                                    <!-- Request notes (backend only) -->
+                                    <aside v-for="(note, index) in record.statusNotes" class="status-note">
+                                        <!-- Existing notes cannot be edited, only removed -->
+                                        <template v-if="note.id">
+                                            <p>{{ note.note }}</p>
+                                            <p class="text-right note-meta">{{ note.created_by }} at {{ note.created | commentDateFormat }}  <button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
+                                        </template>
+                                        <!-- New notes -->
+                                        <template v-else>
+                                            <textarea v-model="note.note" class="form-control" placeholder="What would you like to say?"></textarea>
+                                            <p class="text-right note-meta"><button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
+                                        </template>
+                                    </aside>
+                                    <div class="card mapitem-add-aux" @click="addStatusNote">
+                                        <div class="card-body">
+                                            <i class="fa fa-plus fa-5x"></i><br />
+                                            Add note
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else></template>
+                            </template>
+                            <template v-else>
+                                <div class="row">
+                                    <div class="form-group col-sm-6">
+                                        <p>Status: {{ record.status != null ? record.status.status : 'not set' }}</p>
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <p>Assigned to: {{ record.assignee != null ? record.assignee.firstName : 'not set' }}</p>
+                                    </div>
+                                </div>
+                            </template>
+                        </fieldset>
+                    </div><!-- /end .col-md-4 -->
+                </div><!-- /end .row -->
+                <!-- ERROR / SUCCESS NOTIFICATION AREA -->
                 <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
                     You have <strong>{{ this.$validator.errors.count() }} error<span
                         v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
@@ -302,6 +415,9 @@
                             <strong>{{ error }}</strong>
                         </li>
                     </ul>
+                </div>
+                <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
+                    {{ apiError.message }}
                 </div>
                 <div v-if="success" class="alert alert-success fade show" role="alert">
                     {{ successMessage }}
@@ -325,9 +441,12 @@
         ></assignee-delete-modal>
     </div>
 </template>
-<style>
+<style scoped>
     .list-group-item, .list-group-item:hover {
         z-index: auto;
+    }
+    .note-meta{
+        font-size: 0.8rem;
     }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
@@ -355,7 +474,7 @@
                 this.fetchRequest(this.itemId)
             }
             this.fetchStatusOptions()
-            this.setupDatePickers()
+            this.fetchAssignees()
         },
         components: {AssigneeDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
         props: {
@@ -389,6 +508,7 @@
                     message: null,
                     status: null
                 },
+                assignees: [],
                 currentStatus: null,
                 startTimePicker: null,
                 endTimePicker: null,
@@ -461,6 +581,11 @@
             }
         },
         methods: {
+            addStatusNote: function(){
+                this.record.statusNotes.push({
+                    note: '',
+                })
+            },
             afterSubmitSucceeds: function () {
                 let self = this
                 // New item has been submitted, go to edit
@@ -511,9 +636,26 @@
                         }
                     })
             },
-            fetchStatusOptions() {
+            fetchAssignees: function() {
                 let self = this
-                axios.get('/api/multimediaassignee/statuses')
+
+                let url = '/api/multimediaassignees'
+                if(this.requestType != ''){
+                    url += '/' + this.requestType
+                }
+                axios.get(url)
+                // success
+                    .then(function (response) {
+                        self.assignees = response.data
+                    })
+                    // fail
+                    .catch(function (error) {
+                        console.log("ERROR FETCHING ASSIGNEES!")
+                    })
+            },
+            fetchStatusOptions: function() {
+                let self = this
+                axios.get('/api/multimediarequest/statuses')
                 // success
                     .then(function (response) {
                         self.statusOptions = response.data
@@ -540,50 +682,8 @@
                     self.isDeleteError = false
                 }, 5000)
             },
-            setupDatePickers:function() {
-                var self = this;
-                if (this.record.startTime === '') {
-                    // this.flatpickrConfig.startDateMin = this.currentDate;
-                    // this.dateObject.startDateDefault = null;
-                    //
-                    // this.dateObject.endDateMin = null;
-                    // this.dateObject.endDateDefault = null;
-                } else {
-                    // this.flatpickrConfig.minDate = moment(this.record.startTime, "YYYY-MM-DD h:mm a").format("YYYY-MM-DD")
-                    // this.dateObject.startDateDefault = this.record.start_date;
-                    // this.dateObject.endDateMin = this.record.start_date;
-                    // this.dateObject.endDateDefault = this.record.end_date;
-                    // this.dateObject.startTimeDefault = this.record.start_time;
-                    // this.dateObject.endTimeDefault = this.record.end_time;
-                    // this.dateObject.regDateMin = this.record.start_date;
-                    // this.dateObject.regDateDefault = this.record.reg_deadline;
-                }
-                // this.startTimePicker = flatpickr(document.getElementById("startTimePicker"), {
-                //     defaultDate: this.currentDate.format("YYYY-MM-DD"),
-                //     wrap: true, // set wrap to true only when using 'input-group'
-                //     enableTime: true,
-                //     altFormat: "m-d-Y h:i K",
-                //     altInput: true,
-                //     onChange(dateObject, dateString) {
-                //         //self.endTimePicker.set("minDate", dateObject);
-                //         //self.record.start_date = dateString;
-                //         //self.startdatePicker.value = dateString;
-                //     }
-                //
-                // });
-                //
-                // this.endTimePicker = flatpickr(document.getElementById("endTimePicker"), {
-                //     defaultDate: this.currentDate.format("YYYY-MM-DD"),
-                //     wrap: true, // set wrap to true only when using 'input-group'
-                //     enableTime: true,
-                //     altFormat: "m-d-Y h:i K",
-                //     altInput: true,
-                //     onChange(dateObject, dateString) {
-                //         //self.startTimePicker.set("maxDate", dateObject);
-                //         //self.record.end_date = dateString;
-                //         //self.enddatePicker.value = dateString;
-                //     }
-                // });
+            removeStatusNote: function(note){
+                this.record.statusNotes.splice(this.record.statusNotes.indexOf(note), 1)
             },
             startTimeOpened: function(dateObj, dateStr){
                 // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
@@ -620,13 +720,29 @@
                     // fail
                     .catch(function (error) {
                         let errors = error.response.data
-                        console.log(error.response)
                         // Add any validation errors to the vee validator error bag
-                        errors.forEach(function (error) {
-                            let key = error.property_path
-                            let message = error.message
-                            self.$validator.errors.add(key, message)
-                        })
+                        if(errors.length > 0){
+                            errors.forEach(function (error) {
+                                let key = error.property_path
+                                let message = error.message
+                                self.$validator.errors.add(key, message)
+                            })
+                        }
+                        self.apiError.status = error.response.status
+                        switch(error.response.status){
+                            case 403:
+                                self.apiError.message = "You do not have sufficient privileges to retrieve multimedia requests."
+                                break
+                            case 404:
+                                self.apiError.message = "Multimedia request was not found."
+                                break
+                            case 500:
+                                self.apiError.message = "An internal error occurred."
+                                break
+                            default:
+                                self.apiError.message = "An error occurred."
+                                break
+                        }
                     })
             },
             toggleEdit: function () {
@@ -638,6 +754,9 @@
                 if (!value) return ''
                 value = value.toString()
                 return value.charAt(0).toUpperCase() + value.slice(1)
+            },
+            commentDateFormat: function(dateStr){
+                return moment(dateStr).format('M/D/YY h:mm a')
             }
         }
     }

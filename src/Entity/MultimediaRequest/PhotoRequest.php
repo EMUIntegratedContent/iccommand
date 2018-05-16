@@ -47,6 +47,7 @@ class PhotoRequest extends MultimediaRequest
      *      max = 20,
      *      maxMessage = "Intended use cannot be longer than {{ limit }} characters"
      * )
+     * @Serializer\SerializedName("intendedUse")
      */
     private $intendedUse;
 
