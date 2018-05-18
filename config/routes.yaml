@@ -11,6 +11,11 @@ admin_users:
     resource: App\Controller\Api\Admin\UserController
     prefix: /api/admin/
 
+calendar:
+    type: rest
+    resource: App\Controller\Api\CalendarController
+    prefix: /api/calendar/
+
 mapitems:
     type: rest
     resource: App\Controller\Api\Map\MapItemController

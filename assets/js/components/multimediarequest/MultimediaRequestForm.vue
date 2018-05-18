@@ -102,8 +102,8 @@
                         </fieldset>
                         <fieldset>
                             <!-- TYPE-SPECIFIC FIELDS -->
-                            <legend>{{ record.requestType }} request information</legend>
-                            <!-- PHOTO SHOOT -->
+                            <legend>{{ record.requestType | capitalize }} request information</legend>
+                            <!-- PHOTO REQUEST FIELDS -->
                             <template v-if="record.requestType == 'photo'">
                                 <div class="row">
                                     <div class="form-group col-md-7">
@@ -137,7 +137,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-sm-6">
-                                        <template v-if="isEditMode">
+                                        <!-- Vue will throw an error if photoRequestType isn't present, so check for its existence, too -->
+                                        <template v-if="isEditMode && record.photoRequestType">
                                             <p>Type of photo shoot *</p>
                                             <div class="form-check">
                                                 <input
@@ -224,7 +225,7 @@
                                                 <input
                                                         name="intendedUse"
                                                         type="radio"
-                                                        value="2"
+                                                        value="print"
                                                         id="radio-print"
                                                         class="form-check-input"
                                                         v-model="record.intendedUse">
@@ -270,7 +271,7 @@
                                             </div>
                                         </div>
                                         <div v-else>
-                                            {{ record.startTime }}
+                                            {{ record.startTime | commentDateFormat}}
                                         </div>
                                     </div>
                                     <div class="form-group col-md-6">
@@ -301,21 +302,111 @@
                                             </div>
                                         </div>
                                         <div v-else>
-                                            {{ record.endTime }}
+                                            {{ record.endTime | commentDateFormat }}
                                         </div>
                                     </div>
                                 </div>
                                 <!-- HEADSHOT-SPECIFIC FIELDS -->
                             </template>
+                            <!-- VIDEO REQUEST FIELDS -->
                             <template v-if="record.requestType == 'video'">
-
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea
+                                            name="description"
+                                            class="form-control"
+                                            :class="{ 'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                            :readonly="!userCanEdit || !isEditMode"
+                                            v-model="record.description">
+                                            {{ record.description }}
+                                        </textarea>
+                                    <div class="invalid-feedback">
+                                        {{ errors.first('description') }}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Desired completion date</label>
+                                    <div class="input-group" v-if="isEditMode">
+                                        <flatpickr
+                                                v-validate="'required'"
+                                                data-vv-as="completion date"
+                                                v-model="record.completionDate"
+                                                id="videoCompletionDate"
+                                                :config="flatpickrCompletionDateConfig"
+                                                class="form-control"
+                                                placeholder="Desired completion date"
+                                                name="videoCompletionDate"
+                                        >
+                                        </flatpickr>
+                                        <div class="input-group-btn" >
+                                            <button class="btn btn-default" type="button" title="Toggle" data-toggle>
+                                                <i class="fa fa-calendar">
+                                                    <span aria-hidden="true" class="sr-only">Toggle</span>
+                                                </i>
+                                            </button>
+                                            <button class="btn btn-default" type="button" title="Clear" data-clear>
+                                                <i class="fa fa-times">
+                                                    <span aria-hidden="true" class="sr-only">Clear</span>
+                                                </i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-else>
+                                        {{ record.completionDate | dateOnlyFormat }}
+                                    </div>
+                                </div>
                             </template>
+                            <!-- GRAPHIC DESIGN REQUEST FIELDS -->
                             <template v-if="record.requestType == 'graphic'">
-
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea
+                                            name="description"
+                                            class="form-control"
+                                            :class="{ 'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                            :readonly="!userCanEdit || !isEditMode"
+                                            v-model="record.description">
+                                            {{ record.description }}
+                                        </textarea>
+                                    <div class="invalid-feedback">
+                                        {{ errors.first('description') }}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Desired completion date *</label>
+                                    <div class="input-group" v-if="isEditMode">
+                                        <flatpickr
+                                                v-validate="'required'"
+                                                data-vv-as="completion date"
+                                                v-model="record.completionDate"
+                                                id="graphicCompletionDate"
+                                                :config="flatpickrCompletionDateConfig"
+                                                class="form-control"
+                                                placeholder="Desired completion date"
+                                                name="graphicCompletionDate"
+                                        >
+                                        </flatpickr>
+                                        <div class="input-group-btn" >
+                                            <button class="btn btn-default" type="button" title="Toggle" data-toggle>
+                                                <i class="fa fa-calendar">
+                                                    <span aria-hidden="true" class="sr-only">Toggle</span>
+                                                </i>
+                                            </button>
+                                            <button class="btn btn-default" type="button" title="Clear" data-clear>
+                                                <i class="fa fa-times">
+                                                    <span aria-hidden="true" class="sr-only">Clear</span>
+                                                </i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-else>
+                                        {{ record.completionDate | dateOnlyFormat}}
+                                    </div>
+                                </div>
                             </template>
                         </fieldset>
                     </div><!-- /end .col-md-8 -->
-                    <div class="col-md-4">
+                    <div class="col-md-4 status-container">
                         <fieldset v-if="itemExists">
                             <!-- STATUS FIELDS -->
                             <legend>Status</legend>
@@ -371,37 +462,52 @@
                                 </div>
                                 <template v-if="record.statusNotes.length > 0">
                                     <p><strong>Notes about this request.</strong></p>
-                                    <!-- Request notes (backend only) -->
-                                    <aside v-for="(note, index) in record.statusNotes" class="status-note">
-                                        <!-- Existing notes cannot be edited, only removed -->
-                                        <template v-if="note.id">
-                                            <p>{{ note.note }}</p>
-                                            <p class="text-right note-meta">{{ note.created_by }} at {{ note.created | commentDateFormat }}  <button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
-                                        </template>
-                                        <!-- New notes -->
-                                        <template v-else>
-                                            <textarea v-model="note.note" class="form-control" placeholder="What would you like to say?"></textarea>
-                                            <p class="text-right note-meta"><button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
-                                        </template>
-                                    </aside>
-                                    <div class="card mapitem-add-aux" @click="addStatusNote">
-                                        <div class="card-body">
-                                            <i class="fa fa-plus fa-5x"></i><br />
-                                            Add note
-                                        </div>
+                                    <div class="status-note-container">
+                                        <!-- Request notes (backend only) -->
+                                        <aside v-for="(note, index) in record.statusNotes" class="status-note">
+                                            <!-- Existing notes cannot be edited, only removed -->
+                                            <template v-if="note.id">
+                                                <p>{{ note.note }}</p>
+                                                <p class="text-right note-meta">{{ note.created_by }} at {{ note.created | commentDateFormat }}  <button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
+                                            </template>
+                                            <!-- New notes -->
+                                            <template v-else>
+                                                <textarea v-model="note.note" class="form-control" placeholder="What would you like to say?"></textarea>
+                                                <p class="text-right note-meta"><button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
+                                            </template>
+                                        </aside>
                                     </div>
                                 </template>
-                                <template v-else></template>
-                            </template>
-                            <template v-else>
-                                <div class="row">
-                                    <div class="form-group col-sm-6">
-                                        <p>Status: {{ record.status != null ? record.status.status : 'not set' }}</p>
-                                    </div>
-                                    <div class="form-group col-sm-6">
-                                        <p>Assigned to: {{ record.assignee != null ? record.assignee.firstName : 'not set' }}</p>
+                                <template v-else>
+                                    <p>It doesn't look like there are any notes...</p>
+                                </template>
+                                <div class="card mapitem-add-aux" @click="addStatusNote">
+                                    <div class="card-body">
+                                        <i class="fa fa-plus fa-5x"></i><br />
+                                        Add note
                                     </div>
                                 </div>
+                            </template>
+                            <template v-else>
+                                <div class="form-group">
+                                    <p>Status: {{ record.status != null ? record.status.status : 'not set' }}</p>
+                                </div>
+                                <div class="form-group">
+                                    <p>Assigned to: {{ record.assignee != null ? record.assignee.firstName : 'nobody' }}</p>
+                                </div>
+                                <template v-if="record.statusNotes.length > 0">
+                                    <p><strong>Notes about this request.</strong></p>
+                                    <div class="status-note-container">
+                                        <!-- Request notes (backend only) -->
+                                        <aside v-for="(note, index) in record.statusNotes" class="status-note">
+                                            <p>{{ note.note }}</p>
+                                            <p class="text-right note-meta">{{ note.created_by }} at {{ note.created | commentDateFormat }}</p>
+                                        </aside>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <p>It doesn't look like there are any notes...</p>
+                                </template>
                             </template>
                         </fieldset>
                     </div><!-- /end .col-md-4 -->
@@ -442,8 +548,12 @@
     </div>
 </template>
 <style scoped>
-    .list-group-item, .list-group-item:hover {
-        z-index: auto;
+    .status-container{
+        background-color: #efefef;
+    }
+    .status-note-container{
+        max-height: 300px;
+        overflow-y: scroll;
     }
     .note-meta{
         font-size: 0.8rem;
@@ -510,9 +620,15 @@
                 },
                 assignees: [],
                 currentStatus: null,
-                startTimePicker: null,
-                endTimePicker: null,
-                flatpickrStartTimeConfig: {
+                flatpickrCompletionDateConfig: {
+                    wrap: true, // set wrap to true only when using 'input-group'
+                    enableTime: false,
+                    altFormat: "m-d-Y", // format the user sees
+                    altInput: true,
+                    minDate: null,
+                    dateFormat: "Y-m-d H:i:S", // format sumbitted to the API
+                },
+                flatpickrEndTimeConfig: {
                     wrap: true, // set wrap to true only when using 'input-group'
                     enableTime: true,
                     altFormat: "m-d-Y h:i K", // format the user sees
@@ -520,7 +636,7 @@
                     minDate: null,
                     dateFormat: "Y-m-d H:i:S", // format sumbitted to the API
                 },
-                flatpickrEndTimeConfig: {
+                flatpickrStartTimeConfig: {
                     wrap: true, // set wrap to true only when using 'input-group'
                     enableTime: true,
                     altFormat: "m-d-Y h:i K", // format the user sees
@@ -714,7 +830,8 @@
                 })
                 // success
                     .then(function (response) {
-                        self.record.id = response.data.id // set the item's ID
+                        self.record = response.data
+                        self.record.requestType = self.requestType
                         self.afterSubmitSucceeds()
                     })
                     // fail
@@ -757,6 +874,9 @@
             },
             commentDateFormat: function(dateStr){
                 return moment(dateStr).format('M/D/YY h:mm a')
+            },
+            dateOnlyFormat: function(dateStr){
+                return moment(dateStr).format('M/D/YY')
             }
         }
     }

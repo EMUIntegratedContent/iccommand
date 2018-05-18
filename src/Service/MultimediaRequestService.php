@@ -6,7 +6,6 @@ use App\Entity\MultimediaRequest\MultimediaRequestStatusNote;
 use Symfony\Component\DependencyInjection\ContainerInterface as Container;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
-use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequest;
 
 class MultimediaRequestService

@@ -5,6 +5,7 @@ namespace App\Entity\MultimediaRequest;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
+use Doctrine\Common\Collections\Collection;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
@@ -75,6 +76,7 @@ abstract class MultimediaRequest
     /**
      * One request has (zero to) many status notes.
      * @ORM\OneToMany(targetEntity="MultimediaRequestStatusNote", mappedBy="multimediaRequest", cascade={"persist"})
+     * @ORM\OrderBy({"created" = "DESC"})
      * @Serializer\SerializedName("statusNotes")
      */
     private $statusNotes;

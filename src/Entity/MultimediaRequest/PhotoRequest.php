@@ -14,7 +14,7 @@ class PhotoRequest extends MultimediaRequest
     const REQUEST_TYPE = 'photo';
 
     /**
-     * @ORM\Column(type="datetime", nullable=true))
+     * @ORM\Column(type="datetime", nullable=true)
      * @Assert\DateTime(message="You must provide a valid starting date and time.")
      * @Serializer\Type("DateTime<'Y-m-d H:i:s'>")
      * @Serializer\SerializedName("startTime")

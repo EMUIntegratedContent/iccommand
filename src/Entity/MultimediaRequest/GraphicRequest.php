@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\GraphicRequestRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\GraphicRequestRepository")
  */
 class GraphicRequest extends MultimediaRequest
 {
@@ -16,6 +16,8 @@ class GraphicRequest extends MultimediaRequest
     /**
      * @ORM\Column(type="datetime")
      * @Assert\DateTime(message="You must provide a valid completion date and time.")
+     * @Serializer\Type("DateTime<'Y-m-d H:i:s'>")
+     * @Serializer\SerializedName("completionDate")
      */
     private $completionDate;
 

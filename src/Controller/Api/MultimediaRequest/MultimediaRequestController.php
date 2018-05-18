@@ -5,6 +5,7 @@ namespace App\Controller\Api\MultimediaRequest;
 use App\Entity\MultimediaRequest\GraphicRequest;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequestStatusNote;
+use App\Entity\MultimediaRequest\PhotoHeadshotDate;
 use App\Entity\MultimediaRequest\PhotoRequest;
 use App\Entity\MultimediaRequest\PhotoRequestType;
 use App\Entity\MultimediaRequest\VideoRequest;
@@ -22,6 +23,7 @@ use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use FOS\RestBundle\View\View;
 use App\Service\MultimediaRequestService;
+use Carbon\Carbon;
 
 class MultimediaRequestController extends FOSRestController
 {
@@ -123,6 +125,24 @@ class MultimediaRequestController extends FOSRestController
     }
 
     /**
+     * Get photo shoot time slots for a specific date
+     *
+     * @Rest\Get("/api/multimediarequests/headshotdates/{year}/{month}/{day}", defaults={})
+     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     */
+    public function getMultimediarequestHeadshotdatesAction($year, $month, $day) : Response
+    {
+        $dateOfShoot = Carbon::parse($year. '-' . $month . '-' . $day);
+        $timeSlots = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->findBy(['dateOfShoot' => $dateOfShoot],['startTime' => 'asc']);
+
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($timeSlots, 'json');
+        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+        return $response;
+    }
+
+    /**
      * Save a multimedia request assignee to the database
      *
      * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_CREATE')")
@@ -137,7 +157,6 @@ class MultimediaRequestController extends FOSRestController
         // Determine which type of Multimedia Request to create based on type & set type-specific fields
         switch($request->request->get('requestType')){
             case 'photo':
-
                 $mmRequest = new PhotoRequest();
                 $mmRequest->setStartTime(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('startTime')));
                 $mmRequest->setEndTime(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('endTime')));
@@ -154,9 +173,13 @@ class MultimediaRequestController extends FOSRestController
                 break;
             case 'video':
                 $mmRequest = new VideoRequest();
+                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('completionDate')));
+                $mmRequest->setDescription($request->request->get('description'));
                 break;
             case 'graphic':
                 $mmRequest = new GraphicRequest();
+                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('completionDate')));
+                $mmRequest->setDescription($request->request->get('description'));
                 break;
             default:
                 throw $this->createNotFoundException('You passed an invalid request type.');
@@ -222,10 +245,12 @@ class MultimediaRequestController extends FOSRestController
                 }
                 break;
             case 'video':
-                $mmRequest = new VideoRequest();
+                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('completionDate')));
+                $mmRequest->setDescription($request->request->get('description'));
                 break;
             case 'graphic':
-                $mmRequest = new GraphicRequest();
+                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('completionDate')));
+                $mmRequest->setDescription($request->request->get('description'));
                 break;
             default:
                 throw $this->createNotFoundException('You passed an invalid request type.');
