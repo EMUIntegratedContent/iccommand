@@ -18,32 +18,52 @@
                     <div v-for="(timeSlot, index) in timeSlots" class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
                         <div class="card">
                             <div class="card-header">
-                                {{ timeSlot.startTime }} - {{ timeSlot.endTime }}
+                                {{ timeSlot.startTime | amPmFormat }} - {{ timeSlot.endTime | amPmFormat }}
                                 <button type="button" @click="removeTimeSlot(timeSlot)" class="close pull-right"><span aria-hidden="true">&times;</span></button>
                             </div>
                             <div class="card-body">
-                                {{ timeSlot.startTime }} - {{ timeSlot.endTime }}
-                                <!--<div class="form-group">
-                                    <label :for="'timeslot-' + index">Start Time *</label>
-                                    <input
+                                <!-- Start time -->
+                                <div class="form-group">
+                                    <label :for="'startTime-' + index">Start time *</label>
+                                    <multiselect
                                             v-validate="'required'"
-                                            data-vv-as="location"
-                                            :id="'timeslot-' + index"
-                                            :name="'timeslot' + index"
-                                            :class="{'is-invalid': errors.has('timeslot-' + index), 'form-control-plaintext': !userCanEdit || !isEditMode}" :readonly="!userCanEdit || !isEditMode"
-                                            v-model="timeslot.startTime"
-                                            type="text"
+                                            data-vv-as="start time"
+                                            v-model="timeSlot.startTime"
+                                            :options="timeSlots"
+                                            :multiple="false"
+                                            placeholder="Start time"
+                                            :id="'startTime-' + index"
                                             class="form-control"
-                                            placeholder="Location">
+                                            style="padding:0"
+                                            :name="'startTime-' + index"
+                                            :class="{'is-invalid': errors.has('startTime-' + index) }"
+                                    >
+                                    </multiselect>
                                     <div class="invalid-feedback">
-                                        {{ errors.first('bathroom-location-' + index) }}
+                                        {{ errors.first('startTime-' + index) }}
                                     </div>
                                 </div>
+                                <!-- Start time -->
                                 <div class="form-group">
-                                    <div class="form-check">
-                                        <p-check :id="'bathroomGenderNeutral-' + index" class="p-switch p-slim" v-model="bathroom.isGenderNeutral" color="success">Gender neutral</p-check>
+                                    <label :for="'endTime-' + index">End time *</label>
+                                    <multiselect
+                                            v-validate="'required'"
+                                            data-vv-as="end time"
+                                            v-model="timeSlot.endTime"
+                                            :options="timeSlots"
+                                            :multiple="false"
+                                            placeholder="End time"
+                                            :id="'endTime-' + index"
+                                            class="form-control"
+                                            style="padding:0"
+                                            :name="'endTime-' + index"
+                                            :class="{'is-invalid': errors.has('endTime-' + index) }"
+                                    >
+                                    </multiselect>
+                                    <div class="invalid-feedback">
+                                        {{ errors.first('endTime-' + index) }}
                                     </div>
-                                </div>-->
+                                </div>
                             </div>
                         </div>
                     </div><!-- end foreach timeSlot -->
@@ -55,13 +75,14 @@
 <style scoped>
 
 </style>
-
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
     import moment from 'moment'
     import CalendarEventPicker from '../utils/CalendarEventPicker'
+    import Multiselect from 'vue-multiselect'
 
     export default {
-        components: {CalendarEventPicker},
+        components: {CalendarEventPicker, Multiselect},
         props: {
 
         },
@@ -70,7 +91,14 @@
                 isDataLoaded: true,
                 now: moment(),
                 selectedDate: moment(),
-                timeSlots: [],
+                timeSlots: [
+                    '12:00 am','12:30 am', '1:00 am', '1:30 am', '2:00 am', '2:30 am', '3:00 am', '3:30 am',
+                    '4:00 am', '4:30 am', '5:00 am', '5:30 am', '6:00 am', '6:30 am', '7:00 am', '7:30 am',
+                    '8:00 am', '8:30 am', '9:00 am', '9:30 am', '10:00 am', '10:30 am', '11:00 am', '11:30 am',
+                    '12:00 pm', '12:30 pm', '1:00 pm', '1:30 pm', '2:00 pm', '2:30 pm', '3:00 pm', '3:30 pm',
+                    '4:00 pm', '4:30 pm', '5:00 pm', '5:30 pm', '6:00 pm', '6:30 pm', '7:00 pm', '7:30 pm',
+                    '8:00 pm', '8:30 pm', '9:00 pm', '9:30 pm', '10:00 pm', '10:30 pm', '11:00 pm', '11:30 pm',
+                ],
             }
         },
         created: function () {
@@ -112,7 +140,9 @@
         watch: {},
         events: {},
         filters: {
-
+            amPmFormat: function(dateStr){
+                return moment(dateStr).format('h:mm a')
+            }
         },
     };
 </script>
