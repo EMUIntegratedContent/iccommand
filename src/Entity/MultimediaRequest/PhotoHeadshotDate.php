@@ -28,12 +28,14 @@ class PhotoHeadshotDate
     /**
      * @ORM\Column(type="time")
      * @Serializer\SerializedName("startTime")
+     * @Serializer\Type("DateTime<'g:i a'>")
      */
     private $startTime;
 
     /**
      * @ORM\Column(type="time")
      * @Serializer\SerializedName("endTime")
+     * @Serializer\Type("DateTime<'g:i a'>")
      */
     private $endTime;
 

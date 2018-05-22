@@ -820,8 +820,7 @@
             // Submit the form via the API
             submitForm: function () {
                 let self = this // 'this' loses scope within axios
-                let method = (this.itemExists) ? 'put' : 'post'
-                let route = (this.itemExists) ? '/api/multimediarequest' : '/api/multimediarequests'
+                will
                 // AJAX (axios) submission
                 axios({
                     method: method,

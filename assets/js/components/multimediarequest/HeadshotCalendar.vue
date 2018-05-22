@@ -15,59 +15,22 @@
             <div v-else>
                 <h1>Head shot time slots for {{ selectedDate.format('MMM D, YYYY') }}</h1>
                 <div class="row">
-                    <div v-for="(timeSlot, index) in timeSlots" class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
-                        <div class="card">
-                            <div class="card-header">
-                                {{ timeSlot.startTime | amPmFormat }} - {{ timeSlot.endTime | amPmFormat }}
-                                <button type="button" @click="removeTimeSlot(timeSlot)" class="close pull-right"><span aria-hidden="true">&times;</span></button>
-                            </div>
-                            <div class="card-body">
-                                <!-- Start time -->
-                                <div class="form-group">
-                                    <label :for="'startTime-' + index">Start time *</label>
-                                    <multiselect
-                                            v-validate="'required'"
-                                            data-vv-as="start time"
-                                            v-model="timeSlot.startTime"
-                                            :options="timeSlots"
-                                            :multiple="false"
-                                            placeholder="Start time"
-                                            :id="'startTime-' + index"
-                                            class="form-control"
-                                            style="padding:0"
-                                            :name="'startTime-' + index"
-                                            :class="{'is-invalid': errors.has('startTime-' + index) }"
-                                    >
-                                    </multiselect>
-                                    <div class="invalid-feedback">
-                                        {{ errors.first('startTime-' + index) }}
-                                    </div>
-                                </div>
-                                <!-- Start time -->
-                                <div class="form-group">
-                                    <label :for="'endTime-' + index">End time *</label>
-                                    <multiselect
-                                            v-validate="'required'"
-                                            data-vv-as="end time"
-                                            v-model="timeSlot.endTime"
-                                            :options="timeSlots"
-                                            :multiple="false"
-                                            placeholder="End time"
-                                            :id="'endTime-' + index"
-                                            class="form-control"
-                                            style="padding:0"
-                                            :name="'endTime-' + index"
-                                            :class="{'is-invalid': errors.has('endTime-' + index) }"
-                                    >
-                                    </multiselect>
-                                    <div class="invalid-feedback">
-                                        {{ errors.first('endTime-' + index) }}
-                                    </div>
-                                </div>
-                            </div>
+                    <template v-if="timeSlots">
+                        <headshot-timeslot-pod
+                            v-for="(timeSlot, index) in timeSlots"
+                            :time-slot="timeSlot"
+                            :key="timeSlot.id"
+                            @updateTimeSlot="updateTimeSlot"
+                            @removeTimeSlot="removeTimeSlot">
+                        </headshot-timeslot-pod>
+                    </template>
+                    <div class="card mapitem-add-aux col-xs-12 col-sm-6 col-md-4 pl-4 pb-2" @click="addTimeSlot">
+                        <div class="card-body">
+                            <i class="fa fa-plus fa-5x"></i><br />
+                            Add time slot
                         </div>
-                    </div><!-- end foreach timeSlot -->
-                </div>
+                    </div>
+                </div><!-- end .row -->
             </div>
         </div>
     </div>
@@ -80,18 +43,23 @@
     import moment from 'moment'
     import CalendarEventPicker from '../utils/CalendarEventPicker'
     import Multiselect from 'vue-multiselect'
+    import HeadshotTimeslotPod from "./HeadshotTimeslotPod";
 
     export default {
-        components: {CalendarEventPicker, Multiselect},
+        components: {HeadshotTimeslotPod, CalendarEventPicker, Multiselect},
         props: {
 
         },
         data: function () {
             return {
                 isDataLoaded: true,
+                // In order for the v-for to track records properly, we need to give new records a 'placeholder' ID.
+                // And we need to make it a negative number (starting at -1) so as not to cause conflicts with real IDs
+                nextBlankId: -1,
                 now: moment(),
                 selectedDate: moment(),
-                timeSlots: [
+                timeSlots: null,
+                timeSlotOptions: [
                     '12:00 am','12:30 am', '1:00 am', '1:30 am', '2:00 am', '2:30 am', '3:00 am', '3:30 am',
                     '4:00 am', '4:30 am', '5:00 am', '5:30 am', '6:00 am', '6:30 am', '7:00 am', '7:30 am',
                     '8:00 am', '8:30 am', '9:00 am', '9:30 am', '10:00 am', '10:30 am', '11:00 am', '11:30 am',
@@ -107,8 +75,20 @@
         mounted: function () {
             this.fetchPhotoshootsForDate(moment())
         },
-        computed: {},
+        computed: {
+
+        },
         methods: {
+            addTimeSlot: function(){
+                this.timeSlots.push({
+                    id: this.nextBlankId,
+                    dateOfShoot: this.selectedDate.format('YYYY-MM-DD'),
+                    startTime: null,
+                    endTime: null,
+                })
+
+                this.nextBlankId-- // decrement our placeholder id
+            },
             fetchPhotoshootsForDate: function(moment){
                 let self = this
 
@@ -135,6 +115,10 @@
             },
             setSelectedDate: function(moment){
                 this.selectedDate = moment
+            },
+            updateTimeSlot: function(timeSlot){
+                // replace the old time slot (at the appropriate index) with the new time slot
+                this.timeSlots.splice(this.timeSlots.indexOf(timeSlot), 1, timeSlot)
             }
         },
         watch: {},

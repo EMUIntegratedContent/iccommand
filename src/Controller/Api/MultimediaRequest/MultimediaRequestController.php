@@ -217,6 +217,39 @@ class MultimediaRequestController extends FOSRestController
     }
 
     /**
+     * Add a headshot time slot to the database
+     *
+     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     */
+    public function postMultimediarequestHeadshotdateAction(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+        $serializer = $this->container->get('jms_serializer');
+
+        $headshotDate = new PhotoHeadshotDate();
+
+        $headshotDate->setDateOfShoot(\DateTime::createFromFormat('Y-m-d', $request->request->get('dateOfShoot')));
+        $headshotDate->setStartTime(\DateTime::createFromFormat('g:i a', $request->request->get('startTime')));
+        $headshotDate->setEndTime(\DateTime::createFromFormat('g:i a', $request->request->get('endTime')));
+
+        // validate request
+        $errors = $this->service->validate($headshotDate);
+        if (count($errors) > 0) {
+            $serialized = $serializer->serialize($errors, 'json');
+            $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
+            return $response;
+        }
+
+        // save the assignee
+        $em->persist($headshotDate);
+        $em->flush();
+
+        $serialized = $serializer->serialize($headshotDate, 'json');
+        $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
+        return $response;
+    }
+
+    /**
      * Update a multimedia request to the database
      *
      * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_EDIT')")
@@ -318,6 +351,39 @@ class MultimediaRequestController extends FOSRestController
     }
 
     /**
+     * Update a headshot time slot to the database
+     *
+     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     */
+    public function putMultimediarequestHeadshotdateAction(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+        $serializer = $this->container->get('jms_serializer');
+
+        $headshotDate = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->find($request->request->get('id'));
+
+
+        $headshotDate->setStartTime(\DateTime::createFromFormat('g:i a', $request->request->get('startTime')));
+        $headshotDate->setEndTime(\DateTime::createFromFormat('g:i a', $request->request->get('endTime')));
+
+        // validate request
+        $errors = $this->service->validate($headshotDate);
+        if (count($errors) > 0) {
+            $serialized = $serializer->serialize($errors, 'json');
+            $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
+            return $response;
+        }
+
+        // save the assignee
+        $em->persist($headshotDate);
+        $em->flush();
+
+        $serialized = $serializer->serialize($headshotDate, 'json');
+        $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
+        return $response;
+    }
+
+    /**
      * Delete a multimedia request from the database
      *
      * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_DELETE')")
@@ -331,6 +397,23 @@ class MultimediaRequestController extends FOSRestController
         $em->flush();
 
         $response = new Response('Multimedia request has been deleted.', 204, array('Content-Type' => 'application/json'));
+        return $response;
+    }
+
+    /**
+     * Delete a headshot time slot from the database
+     *
+     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     */
+    public function deleteMultimediarequestHeadshotdateAction($id): Response
+    {
+        $timeSlot = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->find($id);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($timeSlot);
+        $em->flush();
+
+        $response = new Response('Headshot time slot has been deleted.', 204, array('Content-Type' => 'application/json'));
         return $response;
     }
 }
