@@ -19,17 +19,27 @@ class MapItemRepository extends ServiceEntityRepository
         parent::__construct($registry, MapItem::class);
     }
 
-    /*
-    public function findBySomething($value)
+    /**
+     * Return the item type ("discr" field). Need to use raw SQL since discr is not mapped by Doctrine
+     * TUTORIAL: https://symfony.com/doc/current/doctrine.html#querying-with-dql-or-sql
+     */
+    public function findItemType($id)
     {
-        return $this->createQueryBuilder('m')
-            ->where('m.something = :value')->setParameter('value', $value)
-            ->orderBy('m.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+      $conn = $this->getEntityManager()->getConnection();
+
+      $sql = '
+          SELECT m.discr FROM map_item m
+          WHERE m.id = :id
+          ';
+      $stmt = $conn->prepare($sql);
+      $stmt->execute(['id' => $id]);
+
+      $mapItem = $stmt->fetchAll();
+      if($mapItem){
+        return $mapItem[0]['discr'];
+      }
+
+      return null;
     }
-    */
 
 }

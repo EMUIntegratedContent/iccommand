@@ -1,24 +1,72 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    # show full user not found message
+    hide_user_not_found: false
+    always_authenticate_before_granting:  true
     providers:
-        in_memory: { memory: ~ }
+        fos_userbundle:
+            id: fos_user.user_provider.username
+        ldap:
+            id: ldap_tools.security.user.ldap_user_provider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: true
+            anonymous: ~
+            pattern: ^/
+            # Use the default LDAP user provider defined above
+            provider: fos_userbundle
+            form_login:
+                login_path: /login
+                check_path: /login_check
+                csrf_token_generator: security.csrf.token_manager
+            logout: ~
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path: /
+            guard:
+                authenticators:
+                    - ldap_tools.security.ldap_guard_authenticator
+        login:
+            pattern: ^/login$
+            anonymous: ~
 
-            # activate different ways to authenticate
-
-            # http_basic: true
-            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-
-            # form_login: true
-            # https://symfony.com/doc/current/security/form_login_setup.html
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
+        LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
+        - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_MULTIMEDIA_ADMIN] }
+        - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
+        - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
+        - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }
+        - { path: ^/profile, role: ROLE_USER }
+        - { path: ^/, role: ROLE_USER }
+
+    role_hierarchy:
+        # Global
+        ROLE_GLOBAL_ADMIN:       ROLE_USER
+        ROLE_GLOBAL_ADMIN_SUPER: ROLE_GLOBAL_ADMIN
+        # Map Application
+        ROLE_MAP_VIEW:  ROLE_USER
+        ROLE_MAP_CREATE: ROLE_MAP_VIEW
+        ROLE_MAP_EDIT: ROLE_MAP_CREATE
+        ROLE_MAP_DELETE: ROLE_MAP_EDIT
+        ROLE_MAP_IMAGE_UPLOAD: [ROLE_MAP_VIEW, ROLE_MAP_EDIT]
+        ROLE_MAP_ADMIN: [ROLE_MAP_DELETE, ROLE_MAP_IMAGE_UPLOAD]
+        # Redirect Application
+        ROLE_REDIRECT_USER: ROLE_USER
+        ROLE_REDIRECT_ADMIN: ROLE_REDIRECT_USER
+        # Multimedia Request Application
+        ROLE_MULTIMEDIA_VIEW:  ROLE_USER
+        ROLE_MULTIMEDIA_CREATE: ROLE_MULTIMEDIA_VIEW
+        ROLE_MULTIMEDIA_EDIT: ROLE_MULTIMEDIA_CREATE
+        ROLE_MULTIMEDIA_DELETE: ROLE_MULTIMEDIA_EDIT
+        ROLE_MULTIMEDIA_ADMIN: ROLE_MULTIMEDIA_DELETE

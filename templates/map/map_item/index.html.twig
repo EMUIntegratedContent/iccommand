@@ -2,6 +2,12 @@
 
 {% block title %}Map Items{% endblock %}
 
+{% block modulenav %}
+  {% include 'map/nav_map.html.twig' %}
+{% endblock %}
+
 {% block body %}
-Map items index
+<div id="app">
+  <map-index :permissions="[{{ permissions }}]"></map-index>
+</div>
 {% endblock %}

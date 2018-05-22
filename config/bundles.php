@@ -18,4 +18,6 @@ return [
     FOS\RestBundle\FOSRestBundle::class => ['all' => true],
     Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],
     Liip\ImagineBundle\LiipImagineBundle::class => ['all' => true],
+    LdapTools\Bundle\LdapToolsBundle\LdapToolsBundle::class => ['all' => true],
+    FOS\UserBundle\FOSUserBundle::class => ['all' => true],
 ];

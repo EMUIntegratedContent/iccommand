@@ -3,6 +3,7 @@
 namespace App\Entity\Map;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -14,12 +15,8 @@ use App\Entity\Map\MapitemImage;
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"mapitem" = "MapItem", "mapbathroom" = "MapBathroom", "mapparking" = "MapParking"})
- * @UniqueEntity(
- *    fields={"name", "slug"},
- *    errorPath="slug",
- *    message="There is already a map item with this slug."
- * )
+ * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "dining" = "MapDining", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking"})
+ * @Serializer\XmlRoot("mapItem")
  * @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
  */
 abstract class MapItem
@@ -33,23 +30,19 @@ abstract class MapItem
     private $id;
 
     /**
-     * @ORM\Column(type="string", precision=10, scale=7)
-     *
+     * @ORM\Column(type="string")
      * @Assert\NotBlank(message="You must provide a name for this item.")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", precision=10, scale=7)
-     *
-     * @Assert\NotBlank(message="You must provide a slug for this item.")
+     * @Gedmo\Slug(fields={"name"})
+     * @ORM\Column(length=128, unique=true)
      */
     private $slug;
 
     /**
-     * @ORM\Column(type="text", precision=10, scale=7)
-     *
-     * @Assert\NotBlank(message="You must provide a description for this item.")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
@@ -88,6 +81,24 @@ abstract class MapItem
      */
     private $images;
 
+    /**
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(type="datetime")
+    */
+    private $created;
+
+    /**
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(type="datetime")
+    */
+    private $updated;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Gedmo\Timestampable(on="change", field={"title", "body"})
+     */
+    private $contentChanged;
+
     public function __construct(){
       $this->images = new \Doctrine\Common\Collections\ArrayCollection();
     }
@@ -111,11 +122,6 @@ abstract class MapItem
     public function getSlug()
     {
         return $this->slug;
-    }
-
-    public function setSlug($slug)
-    {
-        $this->slug = $slug;
     }
 
     public function getDescription()
@@ -175,5 +181,23 @@ abstract class MapItem
 
     public function addImage(MapitemImage $image = null){
       $this->images[] = $image;
+    }
+
+    /** GEDMO FIELDS **/
+
+    public function getCreated(){
+        return $this->created;
+    }
+
+    public function getUpdated(){
+        return $this->updated;
+    }
+
+    public function getContentChanged(){
+        return $this->contentChanged;
+    }
+
+    public function __toString(){
+        return $this->getName();
     }
 }

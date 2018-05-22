@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\Map\MapitemImage;
 use App\Entity\Map\MapItem;
 
@@ -16,6 +17,8 @@ class MapItemImageController extends FOSRestController{
 
   /**
    * Process new image uploads
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_IMAGE_UPLOAD')")
    */
   public function postMapitemimageUploadAction(Request $request) : Response
   {
@@ -40,6 +43,11 @@ class MapItemImageController extends FOSRestController{
     return $response;
   }
 
+  /**
+   * Reorder the images for a map item
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_EDIT')")
+   */
   public function putMapitemimageReorderAction(Request $request) : Response
   {
     $idArray = $request->request->get('imageIds');
@@ -64,6 +72,11 @@ class MapItemImageController extends FOSRestController{
     return $response;
   }
 
+  /**
+   * Rename a single image for a map item
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_EDIT')")
+   */
   public function putMapitemimageRenameAction(Request $request) : Response
   {
     $imageArr = $request->request->get('image');
@@ -86,6 +99,11 @@ class MapItemImageController extends FOSRestController{
     return $response;
   }
 
+  /**
+   * Delete a single image for a map item
+   *
+   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_DELETE')")
+   */
   public function deleteMapitemimageAction($id) : Response
   {
     $image = $this->getDoctrine()->getRepository(MapitemImage::class)->find($id); // find the matching image
@@ -101,14 +119,13 @@ class MapItemImageController extends FOSRestController{
 
       $response = new Response("Image deleted successfully.", 204, array('Content-Type' => 'application/json'));
       return $response;
-
   }
 
   protected function storeImage(UploadedFile $image) : ?MapitemImage
   {
     // Make sure user is uploading a JPG, PNG, or GIF and not
     if($this->isValidImage($image)){
-      $existingImage = $this->getDoctrine()->getRepository(MapitemImage::class)->findOneBy(['name' => $image->getClientOriginalName()]);
+      $existingImage = $this->getDoctrine()->getRepository(MapitemImage::class)->findOneBy(['path' => $image->getClientOriginalName()]);
 
       // only process images that don't match an existing image name
       if(!$existingImage){

@@ -18,9 +18,15 @@ https://github.com/nelmio/NelmioCorsBundle
 
 REST
 https://symfony.com/doc/master/bundles/FOSRestBundle/6-automatic-route-generation_multiple-restful-controllers.html
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-With-The-FOSUserBundle.md
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-Provider.md#guard-redirection
 
-cas
-https://github.com/PRayno/CasAuthBundle
+LDAP
+http://symfony.com/doc/current/security/ldap.html
+LDAP Tools Bundle (+ hooking up with FOSUserBundle)
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-With-The-FOSUserBundle.md
+LDAP Role Mapping
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-Provider.md#Successful-Login-Event
 
 JSON Serialization
 http://jmsyst.com/bundles/JMSSerializerBundle
@@ -31,14 +37,15 @@ https://symfony.com/doc/current/frontend/encore/babel.html#creating-a-babelrc-fi
 Getting Vue Components to load properly (.default)
 https://github.com/vuejs/vue-router/issues/1882
 
-LDAP
-https://symfony.com/doc/current/security/ldap.html
-
 Axios (Vue) Config + CSRF Config (taken from Laravel docs)
 https://github.com/laravel/laravel/blob/master/resources/assets/js/bootstrap.js#L28-L33
 
 Vue2-Google-Maps: how to get latitude and longitude and how to set a marker
 http://xkjyeah.github.io/vue-google-maps/index-app.html#/03CurvedLine
+https://github.com/GuillaumeLeclerc/vue-google-maps-example/blob/gh-pages/src/app.vue
+https://medium.com/founders-factory/building-a-custom-google-map-component-with-vue-js-d1c01ddd0b0a
+Custom map types (Google Docs)
+https://developers.google.com/maps/documentation/javascript/maptypes
 
 Validation
 https://symfony.com/doc/current/validation.html
@@ -69,3 +76,26 @@ https://github.com/symfony/symfony/issues/26364
 Flickering Modal when in list-item-group FIX:
 .list-group-item, .list-group-item:hover{ z-index: auto; }
 https://github.com/twbs/bootstrap/issues/25206
+
+Services - autowiring
+https://symfony.com/doc/current/service_container.html#service-container-creating-service
+Services - passing container into service
+https://ourcodeworld.com/articles/read/42/how-to-create-a-php-service-for-symfony-2-3-with-entity-manager-and-service-container
+
+Checkbox styles (npm)
+https://hamed-ehtesham.github.io/pretty-checkbox-vue/
+
+Overriding bundle parts (Symfony 4)
+https://symfony.com/doc/current/bundles/override.html
+Overriding bundle templates (Symfony 4)
+https://symfony.com/doc/current/templating/overriding.html
+
+Redirect after login (FOSUserBundle)
+https://stackoverflow.com/questions/20879164/symfony2-using-referer-after-login-with-fosuserbundle?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+
+FRONTEND:
+How to integrate Google Maps with Vue
+https://medium.com/founders-factory/building-a-custom-google-map-component-with-vue-js-d1c01ddd0b0a
+
+Remove multiple items from javascript object with splice (reverse for-loop)
+https://gist.github.com/chad3814/2924672

@@ -1,24 +1,187 @@
-$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
-
-// set if you're also including font-awesome
-$fa-font-path: "~font-awesome/fonts";
-
-// customize some Bootstrap variables
-$brand-primary: darken(#428bca, 20%);
+@import 'variables';
+@import 'override';
+@import 'map';
+@import 'mixins';
 
 // the ~ allows you to reference things in node_modules
 // this is BOOTSTRAP 4!
 @import '~bootstrap/scss/bootstrap';
-
 // Font Awesome (CP 2/28/18)
 @import "~font-awesome/scss/font-awesome.scss";
+// Pretty checkbox (CP 3/21/18)
+@import '~pretty-checkbox/src/pretty-checkbox.scss';
+@import url('https://fonts.googleapis.com/css?family=Lato');
 
+body {
+  font-family: 'Lato', sans-serif;
+}
+.app-hero{
+  position: relative;
+  > h1{
+    position: absolute;
+    bottom: 0;
+    left: 2rem;
+  }
+}
+#iccommand-content-container{
+  padding-top:40px;
+}
 .spacer-top{
   margin-top: 20px;
 }
 .spacer-bottom{
   margin-bottom: 20px;
 }
-.hover-cards .card-body:hover{
-  background-color: $brand-primary;
+#iccommand-mainnav-container li.active {
+    border-bottom: solid 2px $info-emu;
+}
+.iccommand-thumb-container{
+  padding: 0 !important;
+  > .row{
+    padding: 1rem 0.25rem;
+  }
+}
+.btn-success{
+  background-color: $success-emu !important;
+  border-color: transparent !important;
+  &:hover{
+    background-color: lighten($success-emu, 10%) !important;
+  }
+}
+.btn-danger{
+  background-color: $danger-emu !important;
+  border-color: transparent !important;
+  &:hover{
+    background-color: lighten($danger-emu, 10%) !important;
+  }
+}
+.btn-info{
+  background-color: $info-emu !important;
+  border-color: transparent !important;
+  &:hover{
+    background-color: lighten($info-emu, 10%) !important;
+  }
+}
+.nav-tabs{
+  padding-top: 15px;
+}
+.card-accent{
+  border-top: 5px solid;
+}
+.card-accent-blue{
+  border-top-color: $success-emu;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(216, 217, 239, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+.card-accent-green{
+  border-top-color: #155724;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(216, 239, 230, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+.card-accent-orange{
+  border-top-color: $info-emu;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(240, 222, 209, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+.card-accent-red{
+  border-top-color: $danger-emu;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, .2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(239, 216, 216, .1) 50%,
+    rgba(255, 255, 255, .2) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+.card-accent-yellow {
+  border-top-color: #856404;
+  background: linear-gradient(
+                  -45deg,
+                  rgba(255, 255, 255, .2) 25%,
+                  transparent 25%,
+                  transparent 50%,
+                  rgba(237, 239, 209, .1) 50%,
+                  rgba(255, 255, 255, .2) 75%,
+                  transparent 75%,
+                  transparent
+  );
+}
+.login-card{
+  .h4{
+    padding: 20px 0 30px 0 !important;
+  }
+}
+h3.module-nav-heading{
+  font-size: 1rem;
+  font-weight: bold;
+  padding-bottom: 5px;
+}
+.module-nav-pills{
+  padding-bottom: 10px;
+  border-bottom: 2px solid #2e456d;
+  margin-bottom: 5px;
+}
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link{
+  background-color: $primary !important;
+}
+.nav-link{
+  color: #2e456d;
+}
+.mapitem-add-aux{
+  text-align: center;
+  border: 5px dashed #cccccc;
+  color: #cccccc;
+  &:hover{
+    color: #888888;
+  }
+}
+.heading-primary{
+    color: $success-emu;
+}
+.hand{
+  cursor: pointer;
+}
+.iccommand-thumb-container{
+  border-top: 1px solid rgba(0,0,0,0.125) !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+.iccommand-thumb-image{
+  width:103px;
+  float:left;
+  margin-right:10px;
+}
+.iccommand-thumb-hamburger{
+  width: 40px;
+  float: left;
+  position: relative;
+  top: 40px;
 }

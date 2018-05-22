@@ -1,14 +1,10 @@
 <template>
-  <div class="row">
-    <div class="col">
-      <h2 class="page-heading">
-        <slot name="icon">
-          icon goes here
-        </slot>
-        <slot name="title">Title goes here</slot>
-      </h2>
-    </div>
-  </div>
+  <h2 class="page-heading">
+    <!--<slot name="icon">
+      icon goes here
+    </slot>-->
+    <slot name="title">Title goes here</slot>
+  </h2>
 </template>
 <style>
   .page-heading{
@@ -20,8 +16,6 @@
 </style>
 <script>
     export default {
-        mounted() {
-            console.log('Heading mounted.')
-        }
+        mounted() {}
     }
 </script>

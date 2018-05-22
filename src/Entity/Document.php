@@ -13,7 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\HasLifecycleCallbacks
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"document" = "Document", "image" = "Image", "mapitemimage" = "App\Entity\Map\MapitemImage"})
+ * @ORM\DiscriminatorMap({"document" = "Document", "image" = "Image", "mapitemimage" = "App\Entity\Map\MapitemImage", "userimage" = "App\Entity\UserImage"})
 */
  abstract class Document
  {
@@ -54,6 +54,24 @@ use JMS\Serializer\Annotation as Serializer;
      private $subdir;
 
      private $temp;
+
+     /**
+      * @Gedmo\Timestampable(on="create")
+      * @ORM\Column(type="datetime")
+     */
+     private $created;
+
+     /**
+      * @Gedmo\Timestampable(on="update")
+      * @ORM\Column(type="datetime")
+     */
+     private $updated;
+
+     /**
+      * @ORM\Column(type="datetime", nullable=true)
+      * @Gedmo\Timestampable(on="change", field={"title", "body"})
+      */
+     private $contentChanged;
 
      /**
       * Get id
@@ -266,5 +284,19 @@ use JMS\Serializer\Annotation as Serializer;
 
      public function __toString(){
          return $this->getName();
+     }
+
+     /** GEDMO FIELDS **/
+
+     public function getCreated(){
+         return $this->created;
+     }
+
+     public function getUpdated(){
+         return $this->updated;
+     }
+
+     public function getContentChanged(){
+         return $this->contentChanged;
      }
  }

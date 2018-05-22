@@ -2,6 +2,9 @@
     "behat/transliterator": {
         "version": "v1.2.0"
     },
+    "chadsikorra/php-simple-enum": {
+        "version": "1.0.0"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -83,6 +86,9 @@
             "ref": "258300d52be6ad59b32a888d5ddafbf9638540ff"
         }
     },
+    "friendsofsymfony/user-bundle": {
+        "version": "v2.1.2"
+    },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.33"
     },
@@ -113,6 +119,12 @@
     "laravel/homestead": {
         "version": "v7.1.2"
     },
+    "ldaptools/ldaptools": {
+        "version": "v0.25.2"
+    },
+    "ldaptools/ldaptools-bundle": {
+        "version": "0.9.0"
+    },
     "liip/imagine-bundle": {
         "version": "1.8",
         "recipe": {
@@ -134,11 +146,20 @@
             "ref": "7b6cbc842f8cd3d550815247d12294f6f304a8c4"
         }
     },
+    "nesbot/carbon": {
+        "version": "1.27.0"
+    },
+    "nikic/php-parser": {
+        "version": "v4.0.0"
+    },
     "ocramius/package-versions": {
         "version": "1.3.0"
     },
     "ocramius/proxy-manager": {
         "version": "2.1.1"
+    },
+    "paragonie/random_compat": {
+        "version": "v2.0.11"
     },
     "phpcollection/phpcollection": {
         "version": "0.5.0"
@@ -169,6 +190,9 @@
     },
     "psr/simple-cache": {
         "version": "1.0.0"
+    },
+    "ramsey/uuid": {
+        "version": "3.7.3"
     },
     "sensio/framework-extra-bundle": {
         "version": "4.0",
@@ -296,6 +320,9 @@
     "symfony/intl": {
         "version": "v4.0.4"
     },
+    "symfony/ldap": {
+        "version": "v4.0.6"
+    },
     "symfony/lts": {
         "version": "4-dev"
     },
@@ -376,6 +403,9 @@
             "version": "3.3",
             "ref": "f8a63faa0d9521526499c0a8f403c9964ecb0527"
         }
+    },
+    "symfony/security-csrf": {
+        "version": "v4.0.7"
     },
     "symfony/serializer": {
         "version": "v4.0.4"

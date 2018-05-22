@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage users{% endblock %}
+
+{% block modulenav %}
+  {% include 'admin/nav_admin.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <admin-user-index></admin-user-index>
+</div>
+{% endblock %}

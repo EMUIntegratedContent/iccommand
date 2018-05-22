@@ -1,6 +1,6 @@
 <template>
   <!-- Modal -->
-  <div v-if="this.image" id="editImageModal" class="modal" tabindex="-1" role="dialog">
+  <div v-if="this.image" :id="'editImageModal-' + podIndex" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -35,6 +35,9 @@ export default {
         type: Object,
         required: false
     },
+    podIndex: {
+      default: 0
+    }
   },
   data: function() {
     return {
@@ -55,7 +58,7 @@ export default {
       // restore original image info and close modal
       imageEditCanceled: function(){
           this.$emit('imageEditCanceled')
-          $('#editImageModal').modal('hide')
+          $('#editImageModal-' + this.podIndex).modal('hide')
       }
 
   },

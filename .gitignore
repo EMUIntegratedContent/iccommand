@@ -1,7 +1,9 @@
 
 ###> symfony/framework-bundle ###
 .env
-#/public/bundles/
+/public/bundles/
+/public/media/
+/public/uploads/
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
@@ -20,4 +22,9 @@
 Homestead.yaml
 Vagrantfile
 .vagrant/
+###< Homestead ###
+
+###> misc ###
+composer
+.idea
 ###< Homestead ###

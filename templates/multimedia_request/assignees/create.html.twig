@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create a new request assignee.{% endblock %}
+
+{% block modulenav %}
+  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
+{% endblock %}
+
+{% block body %}
+
+<h1 class="display-1">Create Assignee</h1>
+<div id="app">
+    <multimedia-assignee-form :item-exists="false" start-mode="edit" :permissions="[{{ permissions }}]"></multimedia-assignee-form>
+</div>
+{% endblock %}

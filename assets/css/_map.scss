@@ -1,0 +1,12 @@
+@import '~bootstrap/scss/bootstrap';
+
+.map-item-card{
+  text-align: center;
+}
+
+// Large screens and up (TUTORIAL: https://getbootstrap.com/docs/4.0/layout/overview/)
+@include media-breakpoint-up(md) {
+  .map-item-card{
+    min-height: 300px;
+  }
+}

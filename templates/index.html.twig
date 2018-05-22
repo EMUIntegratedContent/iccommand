@@ -1,34 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Welcome to ICCommand{% endblock %}
+{% block title %}EMU Web Communications Applications Suite{% endblock %}
 
 {% block body %}
-<p style="text-align:center"><img src="{{ asset('images/e-box.png') }}" alt="EMU Box logo"/></p>
-<!--<h1 style="text-align:center">Command</h1>
-<h3>My Google Maps Demo</h3>
-<div id="map"></div>
-<script>
-  function initMap() {
-    var uluru = {lat: -25.363, lng: 131.044};
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 4,
-      center: uluru
-    });
-    var marker = new google.maps.Marker({
-      position: uluru,
-      map: map
-    });
-    google.maps.event.addListener(map, "click", function (e) {
-
-      //lat and lng is available in e object
-      var latLng = e.latLng;
-      alert(latLng);
-    });
-  }
-</script>
-<script async defer
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8&callback=initMap">
-</script>-->
-
+<div class="row pb-4">
+  <div class="col">
+    <div class="float-left pr-4"><img src="/images/e-box.png" width="100px" height="100px" /></div>
+    <h1>EMU Web Communications Application Suite</h1>
+  </div>
+</div>
+<div id="app">
+  {% if currentUsername %}
+    <home-page username="{{ currentUsername }}" :userroles="{{ currentUserRoles }}"></home-page>
+  {% else %}
+    <home-page></home-page>
+  {% endif %}
+</div>
 
 {% endblock %}
