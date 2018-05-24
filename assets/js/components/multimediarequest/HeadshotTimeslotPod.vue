@@ -9,6 +9,7 @@
                 <div v-if="isUpdatedError || isDeletedError" class="alert alert-danger" role="alert">
                     <p>{{ actionType }} failed! Please try again.</p>
                 </div>
+                {{ currentTimeSlot.id }}
                 <!-- Start time -->
                 <div class="form-group">
                     <label :for="'startTime-' + this.$vnode.key">Start time *</label>
@@ -66,7 +67,7 @@
                 class="deleteModal"
                 :timeSlot="this.currentTimeSlot"
                 @timeslotDeleteRequested="deleteTimeSlot"
-        ></headshot-timeslot-delete-modal>
+        />
     </div>
 </template>
 <style scoped>
@@ -148,12 +149,13 @@
             },
             deleteTimeSlot: function(){
                 let self = this
+
                 axios.delete('/api/multimediarequests/' + this.currentTimeSlot.id + '/headshotdate')
                     .then(function(response) {
                         self.isDeleted = true
                         setTimeout(function(){
                             self.isDeleted = false
-                            self.$emit('removeTimeSlot', this.currentTimeSlot)
+                            self.$emit('removeTimeSlot', self.currentTimeSlot)
                         }, 3000)
                     })
                     .catch(function(error) {
@@ -164,8 +166,13 @@
                     })
             },
             openDeleteTimeslotModal: function(){
-                this.deleteTimeslotData = JSON.parse(JSON.stringify(this.currentTimeSlot))
-                $('#deleteModal-' + this.$vnode.key).modal('show')
+                // time slots with an id less than 0 are new. When these are clicked for deletion, just delete the time slot without calling the modal
+                if(this.currentTimeSlot.id < 0){
+                    this.$emit('removeTimeSlot', this.currentTimeSlot)
+                } else {
+                    this.deleteTimeslotData = JSON.parse(JSON.stringify(this.currentTimeSlot))
+                    $('#deleteModal-' + this.$vnode.key).modal('show')
+                }
             },
             // take the original time slot data and make it the current data
             resetTimeSlot: function(){
@@ -174,8 +181,9 @@
             },
             submitTimeSlot: function(){
                 let self = this
-                let method = (this.currentTimeSlot.id > 0) ? 'put' : 'post'  //new time will have a NEGATIVE placeholder ID (value set in parent component)
-                let route = (this.currentTimeSlot.id > 0) ? '/api/multimediarequest/headshotdate' : '/api/multimediarequests/headshotdates'
+                let timeSlotBeforeSubmit = this.currentTimeSlot
+                let method = (timeSlotBeforeSubmit.id > 0) ? 'put' : 'post'  //new time will have a NEGATIVE placeholder ID (value set in parent component)
+                let route = (timeSlotBeforeSubmit.id > 0) ? '/api/multimediarequest/headshotdate' : '/api/multimediarequests/headshotdates'
                 axios({
                     method: method,
                     url: route,
@@ -187,7 +195,16 @@
                         self.isUpdated = true
                         self.isModified = false
                         setTimeout(function(){
-                            self.$emit('updateTimeSlot', self.currentTimeSlot)
+                            if(timeSlotBeforeSubmit.id > 0){
+                                // emit update
+                                self.$emit('updateTimeSlot', self.currentTimeSlot)
+                            } else {
+                                // emit add
+                                self.$emit('addTimeSlot', {
+                                    'oldSlot': timeSlotBeforeSubmit,
+                                    'newSlot': self.currentTimeSlot
+                                })
+                            }
                             self.isUpdated = false
                         }, 3000)
                     })

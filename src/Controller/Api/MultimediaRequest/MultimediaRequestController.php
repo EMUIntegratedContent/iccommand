@@ -413,7 +413,7 @@ class MultimediaRequestController extends FOSRestController
         $em->remove($timeSlot);
         $em->flush();
 
-        $response = new Response('Headshot time slot has been deleted.', 204, array('Content-Type' => 'application/json'));
+        $response = new Response("Headshot time slot {$id} has been deleted.", 204, array('Content-Type' => 'application/json'));
         return $response;
     }
 }

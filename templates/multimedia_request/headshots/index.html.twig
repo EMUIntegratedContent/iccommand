@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Headshot time slots{% endblock %}
+
+{% block modulenav %}
+    {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <div id="app">
+        <multimedia-headshot-calendar></multimedia-headshot-calendar>
+    </div>
+{% endblock %}

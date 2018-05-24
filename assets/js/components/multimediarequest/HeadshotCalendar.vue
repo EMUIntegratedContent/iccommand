@@ -17,14 +17,15 @@
                 <div class="row">
                     <template v-if="timeSlots">
                         <headshot-timeslot-pod
-                            v-for="(timeSlot, index) in timeSlots"
+                            v-for="timeSlot in timeSlots"
                             :time-slot="timeSlot"
                             :key="timeSlot.id"
+                            @addTimeSlot="placeNewTimeSlot"
                             @updateTimeSlot="updateTimeSlot"
                             @removeTimeSlot="removeTimeSlot">
                         </headshot-timeslot-pod>
                     </template>
-                    <div class="card mapitem-add-aux col-xs-12 col-sm-6 col-md-4 pl-4 pb-2" @click="addTimeSlot">
+                    <div v-show="!isTimeSlotAdded" class="card mapitem-add-aux col-xs-12 col-sm-6 col-md-4 pl-4 pb-2" @click="addTimeSlot">
                         <div class="card-body">
                             <i class="fa fa-plus fa-5x"></i><br />
                             Add time slot
@@ -53,9 +54,7 @@
         data: function () {
             return {
                 isDataLoaded: true,
-                // In order for the v-for to track records properly, we need to give new records a 'placeholder' ID.
-                // And we need to make it a negative number (starting at -1) so as not to cause conflicts with real IDs
-                nextBlankId: -1,
+                isTimeSlotAdded: false,
                 now: moment(),
                 selectedDate: moment(),
                 timeSlots: null,
@@ -81,13 +80,12 @@
         methods: {
             addTimeSlot: function(){
                 this.timeSlots.push({
-                    id: this.nextBlankId,
+                    id: -1,
                     dateOfShoot: this.selectedDate.format('YYYY-MM-DD'),
                     startTime: null,
                     endTime: null,
                 })
-
-                this.nextBlankId-- // decrement our placeholder id
+                this.isTimeSlotAdded = true
             },
             fetchPhotoshootsForDate: function(moment){
                 let self = this
@@ -110,15 +108,47 @@
                         }
                     })
             },
+            placeNewTimeSlot: function(timeSlotObj){
+                // replace the old time slot (at the appropriate index) with the new time slot
+                this.timeSlots.splice(this.timeSlots.indexOf(timeSlotObj.oldSlot), 1, timeSlotObj.newSlot)
+                this.rearrangeTimeSlotsByStartTime()
+
+                // Allow user to add a new time slot
+                this.isTimeSlotAdded = false
+
+                // Emit an event so the calendar widget knows a time slot has been added
+                this.$emit('eventQuantityChanged')
+            },
+            // times should always be shown with the earliest start time first
+            rearrangeTimeSlotsByStartTime: function(){
+                this.timeSlots.sort(function (a, b) {
+                    // TUTORIAL: https://stackoverflow.com/questions/17064603/sort-string-array-containing-time-in-format-0900-am/17064665
+                    return new Date('1970/01/01 ' + a.startTime) - new Date('1970/01/01 ' + b.startTime)
+                })
+            },
             removeTimeSlot: function(timeSlot){
                 this.timeSlots.splice(this.timeSlots.indexOf(timeSlot), 1)
+
+                // Allow user to add a new time slot, because the one that was deleted was a new one
+                if(timeSlot.id < 0){
+                    this.isTimeSlotAdded = false
+                }
+
+                // Emit an event so the calendar widget knows a time slot has been removed
+                this.$emit('eventQuantityChanged')
             },
             setSelectedDate: function(moment){
                 this.selectedDate = moment
             },
             updateTimeSlot: function(timeSlot){
-                // replace the old time slot (at the appropriate index) with the new time slot
-                this.timeSlots.splice(this.timeSlots.indexOf(timeSlot), 1, timeSlot)
+                // Slot cannot be directly found by indexOf, because the updated object contains different values
+                // Therefore, loop through until the slot's id is found, and then do indexOf
+                for(let i = this.timeSlots.length - 1; i >= 0; i--){
+                    if(this.timeSlots[i].id == timeSlot.id){
+                        this.timeSlots[i] = timeSlot
+                    }
+                }
+                this.rearrangeTimeSlotsByStartTime()
             }
         },
         watch: {},
