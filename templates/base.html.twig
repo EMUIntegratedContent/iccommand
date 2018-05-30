@@ -21,9 +21,9 @@
                 <a class="nav-link" href="/map">Campus Map</a>
               </li>
               {% endif %}
-              {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') %}
+              {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW') %}
               <li class="nav-item">
-                <a class="nav-link">Photo Requests</a>
+                <a class="nav-link" href="/multimediarequests">Multimedia Requests</a>
               </li>
               {% endif %}
               {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') %}

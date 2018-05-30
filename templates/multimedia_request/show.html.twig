@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit request.{% endblock %}
+
+{% block modulenav %}
+  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <multimedia-request-form :item-exists="true" request-type="{{ requestType }}" start-mode="show" item-id="{{ id }}" :permissions="[{{ permissions }}]"></multimedia-request-form>
+</div>
+{% endblock %}

@@ -146,6 +146,9 @@
             "ref": "7b6cbc842f8cd3d550815247d12294f6f304a8c4"
         }
     },
+    "nesbot/carbon": {
+        "version": "1.27.0"
+    },
     "nikic/php-parser": {
         "version": "v4.0.0"
     },
@@ -359,6 +362,9 @@
             "ref": "179470cb6492db92dffee208cfdb436f175c93b4"
         }
     },
+    "symfony/polyfill-ctype": {
+        "version": "v1.8.0"
+    },
     "symfony/polyfill-intl-icu": {
         "version": "v1.7.0"
     },
@@ -388,9 +394,6 @@
             "version": "4.0",
             "ref": "cda8b550123383d25827705d05a42acf6819fe4e"
         }
-    },
-    "symfony/security": {
-        "version": "v4.0.4"
     },
     "symfony/security-bundle": {
         "version": "3.3",

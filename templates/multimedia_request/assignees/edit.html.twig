@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit request assignee.{% endblock %}
+
+{% block modulenav %}
+  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <multimedia-assignee-form :item-exists="true" start-mode="edit" item-id="{{ id }}" :permissions="[{{ permissions }}]"></multimedia-assignee-form>
+</div>
+{% endblock %}
