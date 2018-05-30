@@ -12,14 +12,14 @@
 @import '~pretty-checkbox/src/pretty-checkbox.scss';
 @import url('https://fonts.googleapis.com/css?family=Lato');
 
-body{
+body {
   font-family: 'Lato', sans-serif;
 }
 .app-hero{
   position: relative;
   > h1{
     position: absolute;
-    bottom: 0rem;
+    bottom: 0;
     left: 2rem;
   }
 }
@@ -120,17 +120,17 @@ body{
     transparent
   );
 }
-.card-accent-yellow{
+.card-accent-yellow {
   border-top-color: #856404;
   background: linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, .2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(237, 239, 209, .1) 50%,
-    rgba(255, 255, 255, .2) 75%,
-    transparent 75%,
-    transparent
+                  -45deg,
+                  rgba(255, 255, 255, .2) 25%,
+                  transparent 25%,
+                  transparent 50%,
+                  rgba(237, 239, 209, .1) 50%,
+                  rgba(255, 255, 255, .2) 75%,
+                  transparent 75%,
+                  transparent
   );
 }
 .login-card{

@@ -32,22 +32,37 @@ security:
         login:
             pattern: ^/login$
             anonymous: ~
-
     encoders:
         FOS\UserBundle\Model\UserInterface: bcrypt
         LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
+
+# CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
+#    providers:
+#      fos_userbundle:
+#        id: fos_user.user_provider.username
+#    firewalls:
+#      main:
+#          pattern: ^/
+#          form_login:
+#              provider: fos_userbundle
+#              #csrf_provider: security.csrf.token_manager # Use form.csrf_provider instead for Symfony <2.4
+#          logout:       true
+#          anonymous:    true
+#    encoders:
+#      FOS\UserBundle\Model\UserInterface: bcrypt
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
-        - { path: ^/photorequests, roles: [ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN] }
+        - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_MULTIMEDIA_ADMIN] }
         - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/profile, role: ROLE_USER }
+        - { path: ^/, role: ROLE_USER }
 
     role_hierarchy:
         # Global
@@ -63,9 +78,9 @@ security:
         # Redirect Application
         ROLE_REDIRECT_USER: ROLE_USER
         ROLE_REDIRECT_ADMIN: ROLE_REDIRECT_USER
-        # Photo Request Application
-        ROLE_PHOTO_VIEW:  ROLE_USER
-        ROLE_PHOTO_CREATE: ROLE_PHOTO_VIEW
-        ROLE_PHOTO_EDIT: ROLE_PHOTO_CREATE
-        ROLE_PHOTO_DELETE: ROLE_PHOTO_EDIT
-        ROLE_PHOTO_ADMIN: ROLE_PHOTO_DELETE
+        # Multimedia Request Application
+        ROLE_MULTIMEDIA_VIEW:  ROLE_USER
+        ROLE_MULTIMEDIA_CREATE: ROLE_MULTIMEDIA_VIEW
+        ROLE_MULTIMEDIA_EDIT: ROLE_MULTIMEDIA_CREATE
+        ROLE_MULTIMEDIA_DELETE: ROLE_MULTIMEDIA_EDIT
+        ROLE_MULTIMEDIA_ADMIN: ROLE_MULTIMEDIA_DELETE

@@ -7,11 +7,8 @@
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>
-    <div v-if="isDeleted === true" class="alert alert-info alert-dismissible fade show" role="alert">
-      {{ record.itemType | capitalize }} "{{ record.name }}" item has been deleted.
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
+    <div v-if="isDeleted === true" class="alert alert-info fade show" role="alert">
+      {{ record.itemType | capitalize }} "{{ record.name }}" item has been deleted. You will now be redirected to the map items list page.
     </div>
     <!-- MAIN AREA -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
@@ -1236,6 +1233,10 @@
       markItemDeleted: function () {
         this.isDeleteError = false
         this.isDeleted = true
+        setTimeout(function(){
+          // This record doesn't exist anymore, so send the user back to the map items list page 
+          window.location.replace('/map/items')
+        }, 3000)
       },
       markItemDeleteError: function(){
         let self = this
