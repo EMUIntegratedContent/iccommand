@@ -9,7 +9,6 @@
                 <div v-if="isUpdatedError || isDeletedError" class="alert alert-danger" role="alert">
                     <p>{{ actionType }} failed! Please try again.</p>
                 </div>
-                {{ currentTimeSlot.id }}
                 <!-- Start time -->
                 <div class="form-group">
                     <label :for="'startTime-' + this.$vnode.key">Start time *</label>
