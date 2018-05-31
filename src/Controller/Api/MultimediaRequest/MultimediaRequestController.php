@@ -36,6 +36,80 @@ class MultimediaRequestController extends FOSRestController
     }
 
     /**
+     * EXTERNAL API ENDPOINT. Handle new multimedia request.
+     * @Rest\Post("external/multimediarequests")
+     * @return Response
+     */
+    public function postExternalMultimediarequestAction(Request $request)
+    {
+        $mmRequest = null;
+
+        $serializer = $this->container->get('jms_serializer');
+        $em = $this->getDoctrine()->getManager();
+
+        // Determine which type of Multimedia Request to create based on type & set type-specific fields
+        switch($request->request->get('requestType')){
+            case 'photo':
+                $mmRequest = new PhotoRequest();
+                $mmRequest->setStartTime(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('startTime')));
+                $mmRequest->setEndTime(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('endTime')));
+                $mmRequest->setLocation($request->request->get('location'));
+                $mmRequest->setIntendedUse($request->request->get('intendedUse'));
+                $mmRequest->setDescription($request->request->get('description'));
+
+                if($request->request->get('photoRequestType')){
+                    $photoRequestType = $this->getDoctrine()->getRepository(PhotoRequestType::class)->find($request->request->get('photoRequestType')['id']);
+                    if($photoRequestType){
+                        $mmRequest->setPhotoRequestType($photoRequestType);
+                    }
+                }
+                break;
+            case 'video':
+                $mmRequest = new VideoRequest();
+                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('completionDate')));
+                $mmRequest->setDescription($request->request->get('description'));
+                break;
+            case 'graphic':
+                $mmRequest = new GraphicRequest();
+                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('completionDate')));
+                $mmRequest->setDescription($request->request->get('description'));
+                break;
+            default:
+                throw $this->createNotFoundException('You passed an invalid request type.');
+        }
+
+        // set common fields
+        $mmRequest->setFirstName($request->request->get('firstName'));
+        $mmRequest->setLastName($request->request->get('lastName'));
+        $mmRequest->setEmail($request->request->get('email'));
+        $mmRequest->setPhone($request->request->get('phone'));
+        $mmRequest->setDepartment($request->request->get('department'));
+
+        // set request status to 'new'
+        $status = $this->getDoctrine()->getRepository(MultimediaRequestStatus::class)->findOneBy(['statusSlug' => 'new']);
+        if($status){
+            $mmRequest->setStatus($status);
+        }
+
+        // validate request
+        $errors = $this->service->validate($mmRequest);
+        if (count($errors) > 0) {
+            $serialized = $serializer->serialize($errors, 'json');
+            $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
+
+            return $response;
+        }
+
+        // persist the assignee and commit
+        $em->persist($mmRequest);
+        $em->flush();
+
+        $serialized = $serializer->serialize($mmRequest, 'json');
+        $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
+        return $response;
+    }
+
+    /**
      * Get all multimedia requests (by optional type)
      *
      * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
@@ -127,7 +201,7 @@ class MultimediaRequestController extends FOSRestController
     /**
      * Get photo shoot time slots for a specific date
      *
-     * @Rest\Get("/api/multimediarequests/headshotdates/{year}/{month}/{day}", defaults={})
+     * @Rest\Get("multimediarequests/headshotdates/{year}/{month}/{day}", defaults={})
      * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function getMultimediarequestHeadshotdatesAction($year, $month, $day) : Response
