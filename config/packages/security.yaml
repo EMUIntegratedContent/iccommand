@@ -65,7 +65,7 @@ security:
         - { path: ^/$, role: ROLE_USER }
 
         # EXTERNAL API - Routes that must be publicly accessible!
-        - { path: ^/api/external, role: IS_AUTHENTICATED_ANONYMOUSLY, host: webstage.emich.edu }
+        - { path: ^/api/external, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
     role_hierarchy:
         # Global
