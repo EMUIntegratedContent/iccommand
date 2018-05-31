@@ -25,6 +25,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use FOS\RestBundle\View\View;
 use App\Service\MultimediaRequestService;
 use Carbon\Carbon;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MultimediaRequestController extends FOSRestController
 {
@@ -65,7 +66,7 @@ class MultimediaRequestController extends FOSRestController
                 // Get the photo request type
                 $photoRequestType = $this->getDoctrine()->getRepository(PhotoRequestType::class)->findOneBy(['slug' => $request->request->get('photoRequestType')]);
                 if(!$photoRequestType){
-                    throw $this->createNotFoundException('You passed an invalid photo request type.');
+                    throw new HttpException(400, "An invalid photo request type was passed");
                 }
                 $mmRequest->setPhotoRequestType($photoRequestType);
                 $mmRequest->setStartTime(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('startTime')));
