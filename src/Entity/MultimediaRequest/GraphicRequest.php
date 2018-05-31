@@ -16,7 +16,7 @@ class GraphicRequest extends MultimediaRequest
     /**
      * @ORM\Column(type="date")
      * @Assert\DateTime(message="You must provide a valid completion date.")
-     * @Serializer\Type("Date<'Y-m-d'>")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      * @Serializer\SerializedName("completionDate")
      */
     private $completionDate;

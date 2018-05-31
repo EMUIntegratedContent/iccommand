@@ -16,7 +16,7 @@ class VideoRequest extends MultimediaRequest
     /**
      * @ORM\Column(type="date")
      * @Assert\Date(message="You must provide a valid completion date.")
-     * @Serializer\Type("Date<'Y-m-d'>")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      * @Serializer\SerializedName("completionDate")
      */
     private $completionDate;
