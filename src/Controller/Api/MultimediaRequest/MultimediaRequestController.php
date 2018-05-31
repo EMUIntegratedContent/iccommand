@@ -78,12 +78,12 @@ class MultimediaRequestController extends FOSRestController
                 break;
             case 'video':
                 $mmRequest = new VideoRequest();
-                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('completionDate')));
+                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
             case 'graphic':
                 $mmRequest = new GraphicRequest();
-                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('completionDate')));
+                $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
             default:
