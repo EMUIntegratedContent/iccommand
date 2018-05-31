@@ -54,7 +54,7 @@ class MultimediaRequestController extends FOSRestController
                 $mmRequest = new HeadshotRequest();
 
                 // Get the time slot
-                $timeSlot = $this->getDoctrine()->getRepository(PhotoRequestType::class)->find($request->request->get('headshotTimeSlot'));
+                $timeSlot = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->find($request->request->get('headshotTimeSlot'));
                 if($timeSlot){
                     $mmRequest->setTimeSlot($timeSlot);
                 }
