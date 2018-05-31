@@ -11,11 +11,17 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class HeadshotRequest extends MultimediaRequest
 {
+    const REQUEST_TYPE = 'headshot';
+
     /**
      * @ORM\ManyToOne(targetEntity="PhotoHeadshotDate", inversedBy="headshotRequests")
      * @Serializer\SerializedName("timeSlot")
      */
     private $timeSlot;
+
+    public function getRequestType(){
+        return constant("self::REQUEST_TYPE");
+    }
 
     public function getTimeSlot(): ?PhotoHeadshotDate
     {
