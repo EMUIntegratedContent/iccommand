@@ -18,7 +18,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\MultimediaRequestRepository")
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"multimediarequest" = "MultimediaRequest", "graphicrequest" = "GraphicRequest", "photorequest" = "PhotoRequest", "videorequest" = "VideoRequest"})
+ * @ORM\DiscriminatorMap({"multimediarequest" = "MultimediaRequest", "headshotrequest" = "HeadshotRequest", "graphicrequest" = "GraphicRequest", "photorequest" = "PhotoRequest", "videorequest" = "VideoRequest"})
  * @Serializer\XmlRoot("multimediaRequest")
  * @Hateoas\Relation("self", href = "expr('/api/multimediarequests/' ~ object.getId())")
  */

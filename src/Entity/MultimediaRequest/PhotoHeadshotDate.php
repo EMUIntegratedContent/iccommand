@@ -40,6 +40,12 @@ class PhotoHeadshotDate
     private $endTime;
 
     /**
+     * @ORM\OneToMany(targetEntity="HeadshotRequest", mappedBy="timeSlot")
+     * @Serializer\Exclude
+     */
+    private $headshotRequests;
+
+    /**
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
@@ -94,6 +100,37 @@ class PhotoHeadshotDate
     public function setEndTime(\DateTimeInterface $endTime): self
     {
         $this->endTime = $endTime;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|HeadshotRequest[]
+     */
+    public function getHeadshotRequests(): Collection
+    {
+        return $this->headshotRequests;
+    }
+
+    public function addHeadshotRequest(HeadshotRequest $headshotRequest): self
+    {
+        if (!$this->headshotRequests->contains($headshotRequest)) {
+            $this->headshotRequests[] = $headshotRequest;
+            $headshotRequest->setTimeSlot($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHeadshotRequest(HeadshotRequest $headshotRequest): self
+    {
+        if ($this->headshotRequests->contains($headshotRequest)) {
+            $this->headshotRequests->removeElement($headshotRequest);
+            // set the owning side to null (unless already changed)
+            if ($headshotRequest->getTimeSlot() === $this) {
+                $headshotRequest->setTimeSlot(null);
+            }
+        }
 
         return $this;
     }

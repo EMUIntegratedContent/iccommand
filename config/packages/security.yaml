@@ -62,8 +62,10 @@ security:
         - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/profile, role: ROLE_USER }
-        - { path: ^/api/external, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, role: ROLE_USER }
+
+        # EXTERNAL API - Routes that must be publicly accessible!
+        - { path: ^/api/external, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
     role_hierarchy:
         # Global

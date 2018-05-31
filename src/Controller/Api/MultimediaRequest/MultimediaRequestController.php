@@ -3,6 +3,7 @@
 namespace App\Controller\Api\MultimediaRequest;
 
 use App\Entity\MultimediaRequest\GraphicRequest;
+use App\Entity\MultimediaRequest\HeadshotRequest;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequestStatusNote;
 use App\Entity\MultimediaRequest\PhotoHeadshotDate;
@@ -49,20 +50,30 @@ class MultimediaRequestController extends FOSRestController
 
         // Determine which type of Multimedia Request to create based on type & set type-specific fields
         switch($request->request->get('requestType')){
+            case 'headshot':
+                $mmRequest = new HeadshotRequest();
+
+                // Get the time slot
+                $timeSlot = $this->getDoctrine()->getRepository(PhotoRequestType::class)->find($request->request->get('headshotTimeSlot'));
+                if($timeSlot){
+                    $mmRequest->setTimeSlot($timeSlot);
+                }
+                break;
             case 'photo':
                 $mmRequest = new PhotoRequest();
+
+                // Get the photo request type
+                $photoRequestType = $this->getDoctrine()->getRepository(PhotoRequestType::class)->findOneBy(['slug' => $request->request->get('photoRequestType')]);
+                if(!$photoRequestType){
+                    throw $this->createNotFoundException('You passed an invalid photo request type.');
+                }
+                $mmRequest->setPhotoRequestType($photoRequestType);
                 $mmRequest->setStartTime(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('startTime')));
                 $mmRequest->setEndTime(\DateTime::createFromFormat('Y-m-d H:i:s', $request->request->get('endTime')));
                 $mmRequest->setLocation($request->request->get('location'));
                 $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setDescription($request->request->get('description'));
 
-                if($request->request->get('photoRequestType')){
-                    $photoRequestType = $this->getDoctrine()->getRepository(PhotoRequestType::class)->find($request->request->get('photoRequestType')['id']);
-                    if($photoRequestType){
-                        $mmRequest->setPhotoRequestType($photoRequestType);
-                    }
-                }
                 break;
             case 'video':
                 $mmRequest = new VideoRequest();
