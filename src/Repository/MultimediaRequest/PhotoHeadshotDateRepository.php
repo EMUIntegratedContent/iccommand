@@ -47,4 +47,15 @@ class PhotoHeadshotDateRepository extends ServiceEntityRepository
         return $query;
     }
 
+    public function findByFutureDatetime(){
+        $now = new \DateTime();
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.dateOfShoot >= :now')
+            ->setParameter('now', $now->format('Y-m-d'))
+            ->orderBy('p.dateOfShoot', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
 }
