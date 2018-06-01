@@ -103,6 +103,53 @@
                         <fieldset>
                             <!-- TYPE-SPECIFIC FIELDS -->
                             <legend>{{ record.requestType | capitalize }} request information</legend>
+                            <!-- HEADSHOT REQUEST FIELDS -->
+                            <template v-if="record.requestType == 'headshot'">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label>Description</label>
+                                        <textarea
+                                                name="description"
+                                                class="form-control"
+                                                :class="{ 'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                :readonly="!userCanEdit || !isEditMode"
+                                                v-model="record.description">
+                                            {{ record.description}}
+                                        </textarea>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('description') }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <!-- Time slot select -->
+                                        <div v-if="isEditMode" class="form-group">
+                                            <label for="status">Time slot</label>
+                                            <multiselect
+                                                    data-vv-as="time slot"
+                                                    v-model="record.timeSlot"
+                                                    :options="timeSlots"
+                                                    :multiple="false"
+                                                    placeholder="When will the headshot be taken?"
+                                                    label="displayStr"
+                                                    track-by="id"
+                                                    id="timeSlot"
+                                                    class="form-control"
+                                                    style="padding:0"
+                                                    name="timeSlot"
+                                                    :class="{'is-invalid': errors.has('timeSlot') }"
+                                            >
+                                            </multiselect>
+                                            <div class="invalid-feedback">
+                                                {{ errors.first('timeSlot') }}
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            <p v-if="record.timeSlot != null">Time slot: {{ record.timeSlot.displayStr }}</p>
+                                            <p v-else>No time slot selected.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
                             <!-- PHOTO REQUEST FIELDS -->
                             <template v-if="record.requestType == 'photo'">
                                 <div class="row">
@@ -306,7 +353,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- HEADSHOT-SPECIFIC FIELDS -->
                             </template>
                             <!-- VIDEO REQUEST FIELDS -->
                             <template v-if="record.requestType == 'video'">
@@ -445,7 +491,7 @@
                                                     :options="assignees"
                                                     :multiple="false"
                                                     placeholder="Who will be fulfilling this request?"
-                                                    label="lastName"
+                                                    label="displayStr"
                                                     track-by="id"
                                                     id="assignee"
                                                     class="form-control"
@@ -493,7 +539,7 @@
                                     <p>Status: {{ record.status != null ? record.status.status : 'not set' }}</p>
                                 </div>
                                 <div class="form-group">
-                                    <p>Assigned to: {{ record.assignee != null ? record.assignee.firstName : 'nobody' }}</p>
+                                    <p>Assigned to: {{ record.assignee != null ? record.assignee.displayStr : 'nobody' }}</p>
                                 </div>
                                 <template v-if="record.statusNotes.length > 0">
                                     <p><strong>Notes about this request.</strong></p>
@@ -540,11 +586,11 @@
             </form>
         </div>
         <!-- DELETE ITEM MODAL -->
-        <assignee-delete-modal
-                :assignee="record"
+        <multimediarequest-delete-modal
+                :request="record"
                 @itemDeleted="markItemDeleted"
                 @itemDeleteError="markItemDeleteError"
-        ></assignee-delete-modal>
+        ></multimediarequest-delete-modal>
     </div>
 </template>
 <style scoped>
@@ -561,7 +607,7 @@
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
-    import AssigneeDeleteModal from './AssigneeDeleteModal.vue'
+    import MultimediarequestDeleteModal from './MultimediarequestDeleteModal.vue'
     import Heading from '../utils/Heading.vue'
     import Multiselect from 'vue-multiselect'
     import NotFound from '../utils/NotFound.vue'
@@ -585,8 +631,9 @@
             }
             this.fetchStatusOptions()
             this.fetchAssignees()
+            this.fetchTimeSlots()
         },
-        components: {AssigneeDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
+        components: {MultimediarequestDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
         props: {
             itemExists: {
                 type: Boolean,
@@ -626,7 +673,7 @@
                     altFormat: "m-d-Y", // format the user sees
                     altInput: true,
                     minDate: null,
-                    dateFormat: "Y-m-d H:i:S", // format sumbitted to the API
+                    dateFormat: "Y-m-d", // format sumbitted to the API
                 },
                 flatpickrEndTimeConfig: {
                     wrap: true, // set wrap to true only when using 'input-group'
@@ -673,6 +720,7 @@
                 statusOptions: [],
                 success: false,
                 successMessage: '',
+                timeSlots: [],
                 isModalOpen: false,
             }
         },
@@ -714,6 +762,16 @@
                     this.success = true
                     this.successMessage = "Update successful."
                 }
+
+                //  time slots need a human-readable date/time field
+                if(self.requestType == 'headshot' && self.record.timeSlot){
+                    self.concatTimeSlotData(self.record.timeSlot)
+                }
+                //  assignees need a human-readable first/last name field
+                if(self.record.assignee) {
+                    self.concatAssigneeName(self.record.assignee)
+                }
+
                 // remove the message after 3 seconds
                 setTimeout(function () {
                     self.success = false
@@ -731,9 +789,20 @@
                         }
                     })
                     .catch((error) => {
+                        console.log(error)
                         self.apiError.status = 500
                         self.apiError.message = "Something went wrong that wasn't validation related."
                     });
+            },
+            // Concatenate time slot date and time fields
+            concatAssigneeName: function(assignee){
+                let displayName = assignee.firstName + ' ' + assignee.lastName
+                assignee.displayStr = displayName
+            },
+            // Concatenate time slot date and time fields
+            concatTimeSlotData: function(timeSlot){
+                let displayDate = moment(timeSlot.dateOfShoot).local().format("ddd, MMM D, YYYY") // uses moment.js library
+                timeSlot.displayStr =  displayDate + " from " + timeSlot.startTime + " to " + timeSlot.endTime
             },
             fetchRequest(itemId) {
                 let self = this
@@ -743,6 +812,15 @@
                         self.record = response.data
                         self.record.requestType = self.requestType
                         self.isDataLoaded = true
+
+                        //  time slots need a human-readable date/time field
+                        if(self.requestType == 'headshot' && self.record.timeSlot){
+                            self.concatTimeSlotData(self.record.timeSlot)
+                        }
+                        //  assignees need a human-readable first/last name field
+                        if(self.record.assignee) {
+                            self.concatAssigneeName(self.record.assignee)
+                        }
                     })
                     // fail
                     .catch(function (error) {
@@ -763,6 +841,10 @@
                 // success
                     .then(function (response) {
                         self.assignees = response.data
+                        // Prepare a user-readable first/last name of all assignees
+                        self.assignees.forEach(function(assignee){
+                            self.concatAssigneeName(assignee)
+                        })
                     })
                     // fail
                     .catch(function (error) {
@@ -781,13 +863,31 @@
                         console.log("ERROR FETCHING STATUS OPTIONS!")
                     })
             },
+            fetchTimeSlots: function() {
+                let self = this
+
+                let url = '/api/multimediarequests/headshotdates/slots'
+                axios.get(url)
+                // success
+                    .then(function (response) {
+                        self.timeSlots = response.data
+                        // Prepare a user-readable date/time of each slot
+                        self.timeSlots.forEach(function(timeSlot){
+                            self.concatTimeSlotData(timeSlot)
+                        })
+                    })
+                    // fail
+                    .catch(function (error) {
+                        console.log("ERROR FETCHING TIME SLOTS!")
+                    })
+            },
             // Called from the @itemDeleted event emission from the Delete Modal
             markItemDeleted: function () {
                 this.isDeleteError = false
                 this.isDeleted = true
                 setTimeout(function () {
                     // This record doesn't exist anymore, so send the user back to the assignees list page
-                    window.location.replace('/multimediarequests/assignees')
+                    window.location.replace('/multimediarequests')
                 }, 3000)
             },
             markItemDeleteError: function () {
@@ -820,7 +920,10 @@
             // Submit the form via the API
             submitForm: function () {
                 let self = this // 'this' loses scope within axios
-                will
+
+                let method = (this.itemExists) ? 'put' : 'post'
+                let route = (this.itemExists) ? '/api/multimediarequest' : '/api/multimediarequests'
+
                 // AJAX (axios) submission
                 axios({
                     method: method,

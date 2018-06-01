@@ -78,6 +78,7 @@ class MultimediaRequestController extends FOSRestController
                 if ($timeSlot) {
                     $mmRequest->setTimeSlot($timeSlot);
                 }
+                $mmRequest->setDescription($request->request->get('description'));
                 break;
             case 'photo':
                 $mmRequest = new PhotoRequest();
@@ -151,6 +152,9 @@ class MultimediaRequestController extends FOSRestController
     {
         $mmRequests = null;
         switch ($type) {
+            case 'headshot':
+                $mmRequests = $this->getDoctrine()->getRepository(HeadshotRequest::class)->findBy([], ['created' => 'asc']);
+                break;
             case 'photo':
                 $mmRequests = $this->getDoctrine()->getRepository(PhotoRequest::class)->findBy([], ['created' => 'asc']);
                 break;
@@ -230,7 +234,7 @@ class MultimediaRequestController extends FOSRestController
     }
 
     /**
-     * Get photo shoot time slots for a specific date
+     * Get headshot time slots for a specific date
      *
      * @Rest\Get("multimediarequests/headshotdates/{year}/{month}/{day}", defaults={})
      * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
@@ -244,6 +248,32 @@ class MultimediaRequestController extends FOSRestController
         $serialized = $serializer->serialize($timeSlots, 'json');
         $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
+        return $response;
+    }
+
+    /**
+     * Get headshot time slots
+     * @Rest\Get("multimediarequests/headshotdates/slots/{withPast?}")
+     * @param boolean $withPast  If true, get past time slots. If false, just get future slots
+     * @return Response
+     */
+    public function getMultimediarequestHeadshottimeslotsAction($withPast = false)
+    {
+        // Get all future headshot time slots (query in repository).
+        if($withPast){
+            $timeSlots = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->findBy([], ['dateOfShoot', 'ASC']);
+        } else {
+            $timeSlots = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->findByFutureDateTime();
+        }
+
+        if (!$timeSlots) {
+            throw $this->createNotFoundException('No time slots were found.');
+        }
+
+        $serializer = $this->container->get('jms_serializer');
+
+        $serialized = $serializer->serialize($timeSlots, 'json');
+        $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
         return $response;
     }
 
@@ -296,10 +326,11 @@ class MultimediaRequestController extends FOSRestController
         switch ($request->request->get('requestType')) {
             case 'headshot':
                 // Get the time slot
-                $timeSlot = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->find($request->request->get('headshotTimeSlot'));
+                $timeSlot = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->find($request->request->get('timeSlot')['id']);
                 if ($timeSlot) {
                     $mmRequest->setTimeSlot($timeSlot);
                 }
+                $mmRequest->setDescription($request->request->get('description'));
                 break;
             case 'photo':
                 // Get the photo request type
@@ -344,9 +375,12 @@ class MultimediaRequestController extends FOSRestController
         // Update request assignee
         if ($request->request->get('assignee')) {
             $assignee = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($request->request->get('assignee')['id']);
-            if ($photoRequestType) {
+            // Only try to set the assignee if he/she is found.
+            if ($assignee) {
                 $mmRequest->setAssignee($assignee);
             }
+        } else {
+            $mmRequest->setAssignee(null);
         }
 
         // Status notes

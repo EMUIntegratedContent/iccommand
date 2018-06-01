@@ -2,6 +2,8 @@
 
 namespace App\Entity\MultimediaRequest;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -22,6 +24,7 @@ class PhotoHeadshotDate
     /**
      * @ORM\Column(type="date")
      * @Serializer\SerializedName("dateOfShoot")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $dateOfShoot;
 
@@ -62,6 +65,11 @@ class PhotoHeadshotDate
      * @Gedmo\Timestampable(on="change", field={"title", "body"})
      */
     private $contentChanged;
+
+    public function __construct()
+    {
+        $this->headshotRequests = new ArrayCollection();
+    }
 
     public function getId()
     {

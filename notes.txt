@@ -4,6 +4,9 @@ http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/inher
 Doctrine field types
 http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html
 
+If you get a 500 error where it says "Field {field} does not exist"
+Delete the var/cache directory
+
 Yarn commands
 https://symfony.com/doc/current/frontend/encore/simple-example.html
 yarn run encore dev

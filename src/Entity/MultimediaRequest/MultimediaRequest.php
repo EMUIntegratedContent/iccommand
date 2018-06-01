@@ -213,7 +213,11 @@ abstract class MultimediaRequest
 
     public function setAssignee(?MultimediaRequestAssignee $assignee): self
     {
-        $this->assignee = $assignee;
+        if(!$assignee){
+            $this->assignee = null;
+        } else {
+            $this->assignee = $assignee;
+        }
 
         return $this;
     }
