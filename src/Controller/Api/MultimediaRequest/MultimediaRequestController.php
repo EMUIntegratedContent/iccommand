@@ -145,10 +145,11 @@ class MultimediaRequestController extends FOSRestController
      * Get all multimedia requests (by optional type)
      *
      * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Rest\Get("multimediarequests/list/{type?}")
      * @param String $type Photo, video, graphic, etc.
      * @return Response
      */
-    public function getMultimediarequests($type = null): Response
+    public function getMultimediarequestsListAction($type = null): Response
     {
         $mmRequests = null;
         switch ($type) {
