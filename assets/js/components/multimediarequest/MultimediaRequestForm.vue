@@ -452,14 +452,14 @@
                             </template>
                         </fieldset>
                     </div><!-- /end .col-md-8 -->
-                    <div class="col-md-4 status-container">
+                    <div class="col-md-4">
                         <fieldset v-if="itemExists">
                             <!-- STATUS FIELDS -->
-                            <legend>Status</legend>
+                            <legend class="sr-only">Status Fields</legend>
                             <template v-if="userCanEdit && isEditMode">
                                 <div class="row">
                                     <!-- Status select -->
-                                    <div class="form-group col-sm-12">
+                                    <div class="form-group col-sm-12 status-container">
                                         <label for="status">Status *</label>
                                         <multiselect
                                                 v-validate="'required'"
@@ -481,7 +481,8 @@
                                             {{ errors.first('status') }}
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-12">
+
+                                    <div class="col-sm-12 status-container">
                                         <!-- Assignee select -->
                                         <div class="form-group">
                                             <label for="status">Assigned to</label>
@@ -505,41 +506,62 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <template v-if="record.statusNotes.length > 0">
-                                    <p><strong>Notes about this request.</strong></p>
-                                    <div class="status-note-container">
-                                        <!-- Request notes (backend only) -->
-                                        <aside v-for="(note, index) in record.statusNotes" class="status-note">
-                                            <!-- Existing notes cannot be edited, only removed -->
-                                            <template v-if="note.id">
-                                                <p>{{ note.note }}</p>
-                                                <p class="text-right note-meta">{{ note.created_by }} at {{ note.created | commentDateFormat }}  <button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
-                                            </template>
-                                            <!-- New notes -->
-                                            <template v-else>
-                                                <textarea v-model="note.note" class="form-control" placeholder="What would you like to say?"></textarea>
-                                                <p class="text-right note-meta"><button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
-                                            </template>
-                                        </aside>
+                                    <div class="col-sm-12 status-container">
+                                        <!-- Email Assignee (show only if somebody is assigned to this request, and an email wasn't sent already, and there was no send errors) -->
+                                        <div v-if="record.assignee && !reminderEmailStatus.isSent && !reminderEmailStatus.isError">
+                                            Before sending a notification, make sure the information for this request is accurate and saved.
+                                            <div class="form-group">
+                                                <textarea type="text" class="form-control" v-model="reminderEmailBody" :placeholder="'Optional custom message to ' + record.assignee.firstName"></textarea>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-info" @click="sendAssigneeEmailNotification">Notify {{ record.assignee.firstName }}</button>
+                                        </div>
+                                        <!-- Email success/error notifications -->
+                                        <div v-if="reminderEmailStatus.isError" class="alert alert-danger fade show" role="alert">
+                                            There was an error sending the email.
+                                        </div>
+                                        <div v-if="reminderEmailStatus.isSent" class="alert alert-success fade show" role="alert">
+                                            Email was sent.
+                                        </div>
                                     </div>
-                                </template>
-                                <template v-else>
-                                    <p>It doesn't look like there are any notes...</p>
-                                </template>
-                                <div class="card mapitem-add-aux" @click="addStatusNote">
-                                    <div class="card-body">
-                                        <i class="fa fa-plus fa-5x"></i><br />
-                                        Add note
+                                </div>
+                                <div class="row pt-4">
+                                    <div class="col-sm-12 status-container">
+                                        <template v-if="record.statusNotes.length > 0">
+                                            <p><strong>Notes about this request.</strong></p>
+                                            <div class="status-note-container">
+                                                <!-- Request notes (backend only) -->
+                                                <aside v-for="(note, index) in record.statusNotes" class="status-note">
+                                                    <!-- Existing notes cannot be edited, only removed -->
+                                                    <template v-if="note.id">
+                                                        <p>{{ note.note }}</p>
+                                                        <p class="text-right note-meta">{{ note.created_by }} at {{ note.created | commentDateFormat }}  <button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
+                                                    </template>
+                                                    <!-- New notes -->
+                                                    <template v-else>
+                                                        <textarea v-model="note.note" class="form-control" placeholder="What would you like to say?"></textarea>
+                                                        <p class="text-right note-meta"><button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
+                                                    </template>
+                                                </aside>
+                                            </div>
+                                        </template>
+                                        <template v-else>
+                                            <p>It doesn't look like there are any notes...</p>
+                                        </template>
+                                        <div class="card mapitem-add-aux pt-2" @click="addStatusNote">
+                                            <div class="card-body">
+                                                <i class="fa fa-plus fa-5x"></i><br />
+                                                Add note
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
                             <template v-else>
                                 <div class="form-group">
-                                    <p>Status: {{ record.status != null ? record.status.status : 'not set' }}</p>
+                                    <p><strong>Status &ndash; </strong>{{ record.status != null ? record.status.status : 'not set' }}</p>
                                 </div>
                                 <div class="form-group">
-                                    <p>Assigned to: {{ record.assignee != null ? record.assignee.displayStr : 'nobody' }}</p>
+                                    <p><strong>Assigned to &ndash; </strong>{{ record.assignee != null ? record.assignee.displayStr : 'nobody' }}</p>
                                 </div>
                                 <template v-if="record.statusNotes.length > 0">
                                     <p><strong>Notes about this request.</strong></p>
@@ -596,9 +618,10 @@
 <style scoped>
     .status-container{
         background-color: #efefef;
+        padding:10px;
     }
     .status-note-container{
-        max-height: 300px;
+        max-height: 400px;
         overflow-y: scroll;
     }
     .note-meta{
@@ -717,6 +740,11 @@
                     statusNotes: [],
                     requestType: '', // for testing only...this will be a property eventually
                 },
+                reminderEmailBody: '',
+                reminderEmailStatus: {
+                    isSent: false,
+                    isError: false,
+                },
                 statusOptions: [],
                 success: false,
                 successMessage: '',
@@ -803,6 +831,14 @@
             concatTimeSlotData: function(timeSlot){
                 let displayDate = moment(timeSlot.dateOfShoot).local().format("ddd, MMM D, YYYY") // uses moment.js library
                 timeSlot.displayStr =  displayDate + " from " + timeSlot.startTime + " to " + timeSlot.endTime
+            },
+            endTimeChanged: function(dateObj, dateStr){
+                // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
+                this.$set(this.flatpickrStartTimeConfig, 'maxDate', dateStr)
+            },
+            endTimeOpened: function(dateObj, dateStr){
+                // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
+                this.$set(this.flatpickrStartTimeConfig, 'maxDate', dateStr)
             },
             fetchRequest(itemId) {
                 let self = this
@@ -901,21 +937,36 @@
             removeStatusNote: function(note){
                 this.record.statusNotes.splice(this.record.statusNotes.indexOf(note), 1)
             },
-            startTimeOpened: function(dateObj, dateStr){
-                // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
-                this.$set(this.flatpickrEndTimeConfig, 'minDate', dateStr)
-            },
-            endTimeOpened: function(dateObj, dateStr){
-                // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
-                this.$set(this.flatpickrStartTimeConfig, 'maxDate', dateStr)
-            },
             startTimeChanged: function(dateObj, dateStr){
                 // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
                 this.$set(this.flatpickrEndTimeConfig, 'minDate', dateStr)
             },
-            endTimeChanged: function(dateObj, dateStr){
+            startTimeOpened: function(dateObj, dateStr){
                 // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
-                this.$set(this.flatpickrStartTimeConfig, 'maxDate', dateStr)
+                this.$set(this.flatpickrEndTimeConfig, 'minDate', dateStr)
+            },
+            sendAssigneeEmailNotification: function(){
+                if(confirm("Are you sure you want to send this email?")){
+                    let self = this
+                    axios({
+                        method: 'POST',
+                        url: '/api/sendemail/multimediaassigneenotify',
+                        data: {
+                            recipient: self.record.assignee.email,
+                            customBody: self.reminderEmailBody,
+                            record: self.record,
+                        }
+                    })
+                    // success
+                        .then(function (response) {
+                            // hide the email form until the page is reloaded to prevent spamming
+                            self.reminderEmailStatus.isSent = true
+                        })
+                        // fail
+                        .catch(function (error) {
+                            self.reminderEmailStatus.isError = true
+                        })
+                }
             },
             // Submit the form via the API
             submitForm: function () {

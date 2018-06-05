@@ -43,18 +43,18 @@
                                 <thead>
                                 <tr>
                                     <th scope="col">
+                                        <span class="col-sortable" @click="sortBy(sortHeadshotsRequests, 'created')">Submission Date</span>
+                                        <i v-if="sortHeadshotsRequests.sortKey == 'created' && sortHeadshotsRequests.reverse == false"
+                                           class="fa fa-sort-up"></i>
+                                        <i v-if="sortHeadshotsRequests.sortKey == 'created' && sortHeadshotsRequests.reverse == true"
+                                           class="fa fa-sort-down"></i>
+                                    </th>
+                                    <th scope="col">
                                         <span class="col-sortable"
                                               @click="sortBy(sortHeadshotsRequests, 'status.statusSlug')">Status</span>
                                         <i v-if="sortHeadshotsRequests.sortKey == 'status.statusSlug' && sortHeadshotsRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
                                         <i v-if="sortHeadshotsRequests.sortKey == 'status.statusSlug' && sortHeadshotsRequests.reverse == true"
-                                           class="fa fa-sort-down"></i>
-                                    </th>
-                                    <th scope="col">
-                                        <span class="col-sortable" @click="sortBy(sortHeadshotsRequests, 'created')">Submission Date</span>
-                                        <i v-if="sortHeadshotsRequests.sortKey == 'created' && sortHeadshotsRequests.reverse == false"
-                                           class="fa fa-sort-up"></i>
-                                        <i v-if="sortHeadshotsRequests.sortKey == 'created' && sortHeadshotsRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
@@ -88,8 +88,8 @@
                                 <template v-for="item in orderedHeadshotRequests">
                                     <!-- only show items that meet the current filter restrictions -->
                                     <tr v-if="headshotRequestStatuses.includes(item.status.statusSlug)">
-                                        <th scope="row">{{ item.status.status }}</th>
-                                        <th>{{ item.created | dateOnlyFormat }}</th>
+                                        <td scope="row">{{ item.created | dateOnlyFormat }}</td>
+                                        <td>{{ item.status.status }}</td>
                                         <td>{{ item.firstName }} {{ item.lastName }}</td>
                                         <td>{{ item.timeSlot.dateOfShoot | dateOnlyFormat }} {{ item.timeSlot.startTime
                                             }} - {{ item.timeSlot.endTime }}
@@ -147,18 +147,18 @@
                                 <thead>
                                 <tr>
                                     <th scope="col">
+                                        <span class="col-sortable" @click="sortBy(sortPhotoshootRequests, 'created')">Submission Date</span>
+                                        <i v-if="sortPhotoshootRequests.sortKey == 'created' && sortPhotoshootRequests.reverse == false"
+                                           class="fa fa-sort-up"></i>
+                                        <i v-if="sortPhotoshootRequests.sortKey == 'created' && sortPhotoshootRequests.reverse == true"
+                                           class="fa fa-sort-down"></i>
+                                    </th>
+                                    <th scope="col">
                                         <span class="col-sortable"
                                               @click="sortBy(sortPhotoshootRequests, 'status.statusSlug')">Status</span>
                                         <i v-if="sortPhotoshootRequests.sortKey == 'status.statusSlug' && sortPhotoshootRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
                                         <i v-if="sortPhotoshootRequests.sortKey == 'status.statusSlug' && sortPhotoshootRequests.reverse == true"
-                                           class="fa fa-sort-down"></i>
-                                    </th>
-                                    <th scope="col">
-                                        <span class="col-sortable" @click="sortBy(sortPhotoshootRequests, 'created')">Submission Date</span>
-                                        <i v-if="sortPhotoshootRequests.sortKey == 'created' && sortPhotoshootRequests.reverse == false"
-                                           class="fa fa-sort-up"></i>
-                                        <i v-if="sortPhotoshootRequests.sortKey == 'created' && sortPhotoshootRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
@@ -192,8 +192,8 @@
                                 <template v-for="item in orderedPhotoshootRequests">
                                     <!-- only show items that meet the current filter restrictions -->
                                     <tr v-if="photoshootRequestStatuses.includes(item.status.statusSlug)">
-                                        <th scope="row">{{ item.status.status }}</th>
-                                        <th>{{ item.created | dateOnlyFormat }}</th>
+                                        <td scope="row">{{ item.created | dateOnlyFormat }}</td>
+                                        <td>{{ item.status.status }}</td>
                                         <td>{{ item.firstName }} {{ item.lastName }}</td>
                                         <td>{{ item.startTime | dateOnlyFormat }}</td>
                                         <td>{{ item.assignee ? item.assignee.firstName + ' ' + item.assignee.lastName :
@@ -249,18 +249,18 @@
                                 <thead>
                                 <tr>
                                     <th scope="col">
+                                        <span class="col-sortable" @click="sortBy(sortVideoRequests, 'created')">Submission Date</span>
+                                        <i v-if="sortVideoRequests.sortKey == 'created' && sortVideoRequests.reverse == false"
+                                           class="fa fa-sort-up"></i>
+                                        <i v-if="sortVideoRequests.sortKey == 'created' && sortVideoRequests.reverse == true"
+                                           class="fa fa-sort-down"></i>
+                                    </th>
+                                    <th scope="col">
                                         <span class="col-sortable"
                                               @click="sortBy(sortVideoRequests, 'status.statusSlug')">Status</span>
                                         <i v-if="sortVideoRequests.sortKey == 'status.statusSlug' && sortVideoRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
                                         <i v-if="sortVideoRequests.sortKey == 'status.statusSlug' && sortVideoRequests.reverse == true"
-                                           class="fa fa-sort-down"></i>
-                                    </th>
-                                    <th scope="col">
-                                        <span class="col-sortable" @click="sortBy(sortVideoRequests, 'created')">Submission Date</span>
-                                        <i v-if="sortVideoRequests.sortKey == 'created' && sortVideoRequests.reverse == false"
-                                           class="fa fa-sort-up"></i>
-                                        <i v-if="sortVideoRequests.sortKey == 'created' && sortVideoRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
@@ -293,8 +293,8 @@
                                 <template v-for="item in orderedVideoshootRequests">
                                     <!-- only show items that meet the current filter restrictions -->
                                     <tr v-if="videoRequestStatuses.includes(item.status.statusSlug)">
-                                        <th scope="row">{{ item.status.status }}</th>
-                                        <th>{{ item.created | dateOnlyFormat }}</th>
+                                        <td scope="row">{{ item.created | dateOnlyFormat }}</td>
+                                        <td>{{ item.status.status }}</td>
                                         <td>{{ item.firstName }} {{ item.lastName }}</td>
                                         <td>{{ item.completionDate | dateOnlyFormat }}</td>
                                         <td>{{ item.assignee ? item.assignee.firstName + ' ' + item.assignee.lastName :
@@ -350,18 +350,18 @@
                                 <thead>
                                 <tr>
                                     <th scope="col">
+                                        <span class="col-sortable" @click="sortBy(sortGraphicsRequests, 'created')">Submission Date</span>
+                                        <i v-if="sortGraphicsRequests.sortKey == 'created' && sortGraphicsRequests.reverse == false"
+                                           class="fa fa-sort-up"></i>
+                                        <i v-if="sortGraphicsRequests.sortKey == 'created' && sortGraphicsRequests.reverse == true"
+                                           class="fa fa-sort-down"></i>
+                                    </th>
+                                    <th scope="col">
                                         <span class="col-sortable"
                                               @click="sortBy(sortGraphicsRequests, 'status.statusSlug')">Status</span>
                                         <i v-if="sortGraphicsRequests.sortKey == 'status.statusSlug' && sortGraphicsRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
                                         <i v-if="sortGraphicsRequests.sortKey == 'status.statusSlug' && sortGraphicsRequests.reverse == true"
-                                           class="fa fa-sort-down"></i>
-                                    </th>
-                                    <th scope="col">
-                                        <span class="col-sortable" @click="sortBy(sortGraphicsRequests, 'created')">Submission Date</span>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'created' && sortGraphicsRequests.reverse == false"
-                                           class="fa fa-sort-up"></i>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'created' && sortGraphicsRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
@@ -395,8 +395,8 @@
                                 <template v-for="item in orderedGraphicsRequests">
                                     <!-- only show items that meet the current filter restrictions -->
                                     <tr v-if="graphicsRequestStatuses.includes(item.status.statusSlug)">
-                                        <th scope="row">{{ item.status.status }}</th>
-                                        <th>{{ item.created | dateOnlyFormat }}</th>
+                                        <td scope="row">{{ item.created | dateOnlyFormat }}</td>
+                                        <td>{{ item.status.status }}</td>
                                         <td>{{ item.firstName }} {{ item.lastName }}</td>
                                         <td>{{ item.completionDate | dateOnlyFormat }}</td>
                                         <td>{{ item.assignee ? item.assignee.firstName + ' ' + item.assignee.lastName :
