@@ -116,6 +116,13 @@
                             </label>
                         </div>
                         <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="headshot" id="chk-headshot"
+                                   :disabled="!isEditMode" v-model="record.assignableRequestTypes">
+                            <label class="form-check-label" for="chk-headshot">
+                                Head shots
+                            </label>
+                        </div>
+                        <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="video" id="chk-video"
                                    :disabled="!isEditMode" v-model="record.assignableRequestTypes">
                             <label class="form-check-label" for="chk-video">
