@@ -223,7 +223,7 @@
                 isEditMode: false, // true = make forms editable
                 record: {
                     id: '',
-                    assginableRequestTypes: [],
+                    assignableRequestTypes: [],
                     email: '',
                     firstName: '',
                     lastName: '',
