@@ -369,7 +369,8 @@
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
-                                        <span class="col-sortable" @click="sortBy(sortGraphicsRequests, 'completionDate')">Due Date</span>
+                                        <span class="col-sortable"
+                                              @click="sortBy(sortGraphicsRequests, 'completionDate')">Due Date</span>
                                         <i v-if="sortGraphicsRequests.sortKey == 'completionDate' && sortGraphicsRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
                                         <i v-if="sortGraphicsRequests.sortKey == 'completionDate' && sortGraphicsRequests.reverse == true"
@@ -492,32 +493,33 @@
             orderedGraphicsRequests: function () {
                 // Uses LODASH to order columns (https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter)
                 // "order the paginated video requests by the sort key as defined in the sortVideoRequests data object"
-                if (this.sortGraphicsRequests.reverse) {
-                    return _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey).reverse()
-                } else {
-                    return _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey)
+                // Dates are ordered by earliest first, but we want latest first. So watch for date cases and reverse the logic
+                if (this.sortGraphicsRequests.sortKey == "created" || this.sortGraphicsRequests.sortKey == "completionDate") {
+                    return this.sortGraphicsRequests.reverse ? _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey) : _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey).reverse()
                 }
+
+                return this.sortGraphicsRequests.reverse ? _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey).reverse() : _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey)
             },
             orderedHeadshotRequests: function () {
-                if (this.sortHeadshotsRequests.reverse) {
-                    return _.orderBy(this.paginatedHeadshotRequests, this.sortHeadshotsRequests.sortKey).reverse()
-                } else {
-                    return _.orderBy(this.paginatedHeadshotRequests, this.sortHeadshotsRequests.sortKey)
+                if (this.sortHeadshotsRequests.sortKey == "created" || this.sortHeadshotsRequests.sortKey == "timeSlot.dateOfShoot") {
+                    return this.sortHeadshotsRequests.reverse ? _.orderBy(this.paginatedHeadshotRequests, this.sortHeadshotsRequests.sortKey) : _.orderBy(this.paginatedHeadshotRequests, this.sortHeadshotsRequests.sortKey).reverse()
                 }
+
+                return this.sortHeadshotsRequests.reverse ? _.orderBy(this.paginatedHeadshotRequests, this.sortHeadshotsRequests.sortKey).reverse() : _.orderBy(this.paginatedHeadshotRequests, this.sortHeadshotsRequests.sortKey)
             },
             orderedPhotoshootRequests: function () {
-                if (this.sortPhotoshootRequests.reverse) {
-                    return _.orderBy(this.paginatedPhotoshootRequests, this.sortPhotoshootRequests.sortKey).reverse()
-                } else {
-                    return _.orderBy(this.paginatedPhotoshootRequests, this.sortPhotoshootRequests.sortKey)
+                if (this.sortPhotoshootRequests.sortKey == "created" || this.sortPhotoshootRequests.sortKey == "startTime") {
+                    return this.sortPhotoshootRequests.reverse ? _.orderBy(this.paginatedPhotoshootRequests, this.sortPhotoshootRequests.sortKey) : _.orderBy(this.paginatedPhotoshootRequests, this.sortPhotoshootRequests.sortKey).reverse()
                 }
+
+                return this.sortPhotoshootRequests.reverse ? _.orderBy(this.paginatedPhotoshootRequests, this.sortPhotoshootRequests.sortKey).reverse() : _.orderBy(this.paginatedPhotoshootRequests, this.sortPhotoshootRequests.sortKey)
             },
             orderedVideoshootRequests: function () {
-                if (this.sortVideoRequests.reverse) {
-                    return _.orderBy(this.paginatedVideoRequests, this.sortVideoRequests.sortKey).reverse()
-                } else {
-                    return _.orderBy(this.paginatedVideoRequests, this.sortVideoRequests.sortKey)
+                if (this.sortVideoRequests.sortKey == "created" || this.sortVideoRequests.sortKey == "completionDate") {
+                    return this.sortVideoRequests.reverse ? _.orderBy(this.paginatedVideoRequests, this.sortVideoRequests.sortKey) : _.orderBy(this.paginatedVideoRequests, this.sortVideoRequests.sortKey).reverse()
                 }
+
+                return this.sortVideoRequests.reverse ? _.orderBy(this.paginatedVideoRequests, this.sortVideoRequests.sortKey).reverse() : _.orderBy(this.paginatedVideoRequests, this.sortVideoRequests.sortKey)
             },
             userCanCreate: function () {
                 return this.permissions[0].create ? true : false
