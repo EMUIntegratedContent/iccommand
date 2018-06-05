@@ -8,7 +8,7 @@
             {{ apiError.message }}
         </div>
         <div id="accordion">
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header" id="headingHeadshotRequests">
                     <h5 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapseHeadshotRequests"
@@ -26,6 +26,7 @@
                             <!-- FILTER BY STATUS -->
                             <div class="row">
                                 <div class="col-xs-12">
+                                    <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
                                                :class="{ active : headshotRequestStatuses.includes(status.statusSlug) }"
@@ -111,7 +112,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header" id="headingPhotoRequests">
                     <h5 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapsePhotoRequests"
@@ -129,6 +130,7 @@
                             <!-- FILTER BY STATUS -->
                             <div class="row">
                                 <div class="col-xs-12">
+                                    <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
                                                :class="{ active : photoshootRequestStatuses.includes(status.statusSlug) }"
@@ -212,7 +214,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header" id="headingVideoRequests">
                     <h5 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapseVideoRequests"
@@ -230,6 +232,7 @@
                             <!-- FILTER BY STATUS -->
                             <div class="row">
                                 <div class="col-xs-12">
+                                    <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
                                                :class="{ active : videoRequestStatuses.includes(status.statusSlug) }"
@@ -312,7 +315,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header" id="headingGraphicsRequests">
                     <h5 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapseGraphicsRequests"
@@ -330,6 +333,7 @@
                             <!-- FILTER BY STATUS -->
                             <div class="row">
                                 <div class="col-xs-12">
+                                    <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
                                                :class="{ active : graphicsRequestStatuses.includes(status.statusSlug) }"
