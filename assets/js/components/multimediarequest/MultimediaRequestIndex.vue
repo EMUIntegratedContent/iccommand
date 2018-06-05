@@ -84,7 +84,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <template v-for="item in paginatedHeadshotRequests">
+                                <template v-for="item in orderedHeadshotRequests">
                                     <!-- only show items that meet the current filter restrictions -->
                                     <tr v-if="headshotRequestStatuses.includes(item.status.statusSlug)">
                                         <th scope="row">{{ item.status.status }}</th>
@@ -187,7 +187,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <template v-for="item in paginatedPhotoshootRequests">
+                                <template v-for="item in orderedPhotoshootRequests">
                                     <!-- only show items that meet the current filter restrictions -->
                                     <tr v-if="photoshootRequestStatuses.includes(item.status.statusSlug)">
                                         <th scope="row">{{ item.status.status }}</th>
@@ -387,7 +387,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <template v-for="item in paginatedGraphicsRequests">
+                                <template v-for="item in orderedGraphicsRequests">
                                     <!-- only show items that meet the current filter restrictions -->
                                     <tr v-if="graphicsRequestStatuses.includes(item.status.statusSlug)">
                                         <th scope="row">{{ item.status.status }}</th>
@@ -489,9 +489,30 @@
             headingIcon: function () {
                 return '<i class="fa fa-list"></i>'
             },
-            orderedVideoshootRequests: function () {
+            orderedGraphicsRequests: function () {
                 // Uses LODASH to order columns (https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter)
                 // "order the paginated video requests by the sort key as defined in the sortVideoRequests data object"
+                if (this.sortGraphicsRequests.reverse) {
+                    return _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey).reverse()
+                } else {
+                    return _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey)
+                }
+            },
+            orderedHeadshotRequests: function () {
+                if (this.sortHeadshotsRequests.reverse) {
+                    return _.orderBy(this.paginatedHeadshotRequests, this.sortHeadshotsRequests.sortKey).reverse()
+                } else {
+                    return _.orderBy(this.paginatedHeadshotRequests, this.sortHeadshotsRequests.sortKey)
+                }
+            },
+            orderedPhotoshootRequests: function () {
+                if (this.sortPhotoshootRequests.reverse) {
+                    return _.orderBy(this.paginatedPhotoshootRequests, this.sortPhotoshootRequests.sortKey).reverse()
+                } else {
+                    return _.orderBy(this.paginatedPhotoshootRequests, this.sortPhotoshootRequests.sortKey)
+                }
+            },
+            orderedVideoshootRequests: function () {
                 if (this.sortVideoRequests.reverse) {
                     return _.orderBy(this.paginatedVideoRequests, this.sortVideoRequests.sortKey).reverse()
                 } else {
