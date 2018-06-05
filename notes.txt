@@ -102,3 +102,9 @@ https://medium.com/founders-factory/building-a-custom-google-map-component-with-
 
 Remove multiple items from javascript object with splice (reverse for-loop)
 https://gist.github.com/chad3814/2924672
+
+Order columns in Vue table
+https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter (used in /assets/js/multimediarequest/MultimediaRequestIndex.vue)
+
+Sort columns in Vue table (caution: for ordering columns, see the "Order columns in Vue table" note)
+https://codepen.io/pespantelis/pen/ojwgPB
