@@ -609,7 +609,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12 status-container">
+                                    <div v-if="userCanEmail" class="col-sm-12 status-container">
                                         <!-- Email Assignee (show only if somebody is assigned to this request, and an email wasn't sent already, and there was no send errors) -->
                                         <div v-if="record.assignee && !reminderEmailStatus.isSent && !reminderEmailStatus.isError">
                                             Before sending a notification, make sure the information for this request is accurate and saved.
@@ -875,6 +875,10 @@
             userCanEdit: function () {
                 // An existing record can be edited by a user with edit permissions, a new record can be created by a user with create permissions
                 return this.itemExists && this.permissions[0].edit || !this.itemExists && this.permissions[0].create ? true : false
+            },
+            userCanEmail: function () {
+                // An email can be sent by a user with email permissions
+                return this.itemExists && this.permissions[0].email
             }
         },
         methods: {

@@ -27,6 +27,15 @@ class MultimediaRequestController extends Controller
     }
 
     /**
+     * @Route("/multimediarequests/requests", name="multimediarequest_list")
+     */
+    public function list()
+    {
+        $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());
+        return $this->render('multimedia_request/list.html.twig', ['permissions' => $permissions]);
+    }
+
+    /**
      * @Route("/multimediarequests/create", name="multimediarequests_create")
      */
     public function add()

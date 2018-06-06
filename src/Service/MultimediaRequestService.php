@@ -73,7 +73,12 @@ class MultimediaRequestService
             $multimediaRequestPermissions['create'] = true;
             $multimediaRequestPermissions['edit'] = true;
             $multimediaRequestPermissions['delete'] = true;
+            $multimediaRequestPermissions['email'] = true;
             $multimediaRequestPermissions['admin'] = true;
+        }
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MULTIMEDIA_EMAIL')) {
+            $multimediaRequestPermissions['email'] = true;
+            $multimediaRequestPermissions['edit'] = true;
         }
         if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MULTIMEDIA_DELETE')) {
             $multimediaRequestPermissions['delete'] = true;
