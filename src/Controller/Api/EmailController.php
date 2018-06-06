@@ -27,14 +27,13 @@ class EmailController extends FOSRestController
     /**
      * MULTIMEDIA REQUEST APP. Send notification email to an assignee of a request.
      * @Rest\Post("sendemail/multimediaassigneenotify")
-     * @Security("has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("has_role('ROLE_MULTIMEDIA_EMAIL') or has_role('ROLE_GLOBAL_ADMIN')")
      */
     public function postSendemailMultimediaassigneenotifyAction(Request $request): Response
     {
         $message = (new \Swift_Message('Hello Email'))
             ->setFrom('admin@iccommand.emich.edu')
-            //->setTo($request->request->get('recipient'))
-            ->setTo('cpuzzuol@emich.edu')
+            ->setTo($request->request->get('recipient'))
             ->setBody(
                 $this->renderView(
                     'multimedia_request/assignees/email.html.twig',

@@ -2,13 +2,14 @@
 
 namespace App\Controller\Api\MultimediaRequest;
 
-use App\Entity\MultimediaRequest\GraphicRequest;
 use App\Entity\MultimediaRequest\HeadshotRequest;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequestStatusNote;
 use App\Entity\MultimediaRequest\PhotoHeadshotDate;
 use App\Entity\MultimediaRequest\PhotoRequest;
 use App\Entity\MultimediaRequest\PhotoRequestType;
+use App\Entity\MultimediaRequest\PublicationRequest;
+use App\Entity\MultimediaRequest\PublicationRequestType;
 use App\Entity\MultimediaRequest\VideoRequest;
 use App\Entity\MultimediaRequest\MultimediaRequest;
 use App\Entity\MultimediaRequest\MultimediaRequestStatus;
@@ -38,7 +39,7 @@ class MultimediaRequestController extends FOSRestController
     }
 
     /**
-     * EXTERNAL API ENDPOINT. Handle new multimedia request.
+     * EXTERNAL API ENDPOINT. Get headshot time slots.
      * @return Response
      */
     public function getExternalMultimediarequestHeadshotdatesAction()
@@ -53,6 +54,21 @@ class MultimediaRequestController extends FOSRestController
 
         $serialized = $serializer->serialize($futureTimeSlots, 'json');
         $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
+        return $response;
+    }
+
+    /**
+     * EXTERNAL API ENDPOINT. Get publication types.
+     * @return Response
+     */
+    public function getExternalMultimediarequestPublicationtypesAction()
+    {
+        $types = $this->getDoctrine()->getRepository(PublicationRequestType::class)->findBy([], ['slug' => 'asc']);
+
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($types, 'json');
+        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
         return $response;
     }
 
@@ -101,10 +117,18 @@ class MultimediaRequestController extends FOSRestController
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
-            case 'graphic':
-                $mmRequest = new GraphicRequest();
+            case 'publication':
+                $mmRequest = new PublicationRequest();
+
+                // Get the publication request type
+                $publicationRequestType = $this->getDoctrine()->getRepository(PublicationRequestType::class)->findOneBy(['slug' => $request->request->get('publicationRequestType')]);
+                if (!$publicationRequestType) {
+                    throw new HttpException(400, "An invalid publication request type was passed");
+                }
+                $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
+                $mmRequest->setIsPhotographyRequired($request->request->get('isPotographyRequired'));
                 break;
             default:
                 throw $this->createNotFoundException('You passed an invalid request type.');
@@ -146,7 +170,7 @@ class MultimediaRequestController extends FOSRestController
      *
      * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
      * @Rest\Get("multimediarequests/list/{type?}")
-     * @param String $type Photo, video, graphic, etc.
+     * @param String $type Photo, video, publication, headshot, etc.
      * @return Response
      */
     public function getMultimediarequestsListAction($type = null): Response
@@ -162,8 +186,8 @@ class MultimediaRequestController extends FOSRestController
             case 'video':
                 $mmRequests = $this->getDoctrine()->getRepository(VideoRequest::class)->findBy([], ['created' => 'asc']);
                 break;
-            case 'graphic':
-                $mmRequests = $this->getDoctrine()->getRepository(GraphicRequest::class)->findBy([], ['created' => 'asc']);
+            case 'publication':
+                $mmRequests = $this->getDoctrine()->getRepository(PublicationRequest::class)->findBy([], ['created' => 'asc']);
                 break;
             default:
                 $mmRequests = $this->getDoctrine()->getRepository(MultimediaRequest::class)->findBy([], ['created' => 'asc']);
@@ -210,6 +234,22 @@ class MultimediaRequestController extends FOSRestController
     public function getPhotorequestTypesAction(): Response
     {
         $types = $this->getDoctrine()->getRepository(PhotoRequestType::class)->findBy([], ['slug' => 'asc']);
+
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($types, 'json');
+        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+        return $response;
+    }
+
+    /**
+     * Get all publication request types
+     *
+     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     */
+    public function getPublicationrequestTypesAction(): Response
+    {
+        $types = $this->getDoctrine()->getRepository(PublicationRequestType::class)->findBy([], ['slug' => 'asc']);
 
         $serializer = $this->container->get('jms_serializer');
         $serialized = $serializer->serialize($types, 'json');
@@ -350,9 +390,16 @@ class MultimediaRequestController extends FOSRestController
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
-            case 'graphic':
+            case 'publication':
+                // Get the publication request type
+                $publicationRequestType = $this->getDoctrine()->getRepository(PublicationRequestType::class)->findOneBy(['slug' => $request->request->get('publicationRequestType')]);
+                if (!$publicationRequestType) {
+                    throw new HttpException(400, "An invalid publication request type was passed");
+                }
+                $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
+                $mmRequest->setIsPhotographyRequired($request->request->get('isPotographyRequired'));
                 break;
             default:
                 throw $this->createNotFoundException('You passed an invalid request type.');

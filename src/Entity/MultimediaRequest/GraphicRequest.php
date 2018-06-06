@@ -9,16 +9,18 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\GraphicRequestRepository")
  */
-class GraphicRequest extends MultimediaRequest
+/*
+class GraphicRequest
 {
     const REQUEST_TYPE = 'graphic';
 
     /**
-     * @ORM\Column(type="date")
-     * @Assert\DateTime(message="You must provide a valid completion date.")
-     * @Serializer\Type("DateTime<'Y-m-d'>")
-     * @Serializer\SerializedName("completionDate")
+     * //@ORM\Column(type="date")
+     * //@Assert\DateTime(message="You must provide a valid completion date.")
+     * //@Serializer\Type("DateTime<'Y-m-d'>")
+     * //@Serializer\SerializedName("completionDate")
      */
+/*
     private $completionDate;
 
     public function __construct() {
@@ -41,3 +43,4 @@ class GraphicRequest extends MultimediaRequest
         return $this;
     }
 }
+*/
