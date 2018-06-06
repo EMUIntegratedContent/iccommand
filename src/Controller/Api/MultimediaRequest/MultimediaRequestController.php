@@ -121,7 +121,7 @@ class MultimediaRequestController extends FOSRestController
                 $mmRequest = new PublicationRequest();
 
                 // Get the publication request type
-                $publicationRequestType = $this->getDoctrine()->getRepository(PublicationRequestType::class)->findOneBy(['slug' => $request->request->get('publicationRequestType')]);
+                $publicationRequestType = $this->getDoctrine()->getRepository(PublicationRequestType::class)->find($request->request->get('publicationRequestType'));
                 if (!$publicationRequestType) {
                     throw new HttpException(400, "An invalid publication request type was passed");
                 }
