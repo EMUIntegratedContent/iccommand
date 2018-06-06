@@ -128,7 +128,7 @@ class MultimediaRequestController extends FOSRestController
                 $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
-                $mmRequest->setIsPhotographyRequired($request->request->get('isPotographyRequired'));
+                $mmRequest->setIsPhotographyRequired($request->request->get('isPhotographyRequired'));
                 break;
             default:
                 throw $this->createNotFoundException('You passed an invalid request type.');
@@ -399,7 +399,7 @@ class MultimediaRequestController extends FOSRestController
                 $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
-                $mmRequest->setIsPhotographyRequired($request->request->get('isPotographyRequired'));
+                $mmRequest->setIsPhotographyRequired($request->request->get('isPhotographyRequired'));
                 break;
             default:
                 throw $this->createNotFoundException('You passed an invalid request type.');
