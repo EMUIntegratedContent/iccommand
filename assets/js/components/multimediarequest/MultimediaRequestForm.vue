@@ -20,7 +20,7 @@
                 <select v-if="!itemExists" v-model="record.requestType">
                     <option value="photo">Photo Request</option>
                     <option value="video">Video Request</option>
-                    <option value="graphic">Graphic Design Request</option>
+                    <option value="publication">Publication Request</option>
                 </select>
                 <div class="row">
                     <div class="col-md-8">
@@ -402,8 +402,37 @@
                                     </div>
                                 </div>
                             </template>
-                            <!-- GRAPHIC DESIGN REQUEST FIELDS -->
-                            <template v-if="record.requestType == 'graphic'">
+                            <!-- PUBLICATION REQUEST FIELDS -->
+                            <template v-if="record.requestType == 'publication'">
+                                <div class="form-group">
+                                    <!-- Publication type select -->
+                                    <div v-if="isEditMode" class="form-group">
+                                        <label for="status">Publication type*</label>
+                                        <multiselect
+                                                v-validate="'required'"
+                                                data-vv-as="publication type"
+                                                v-model="record.publicationRequestType"
+                                                :options="publicationTypes"
+                                                :multiple="false"
+                                                placeholder="What type of publication is this?"
+                                                label="requestType"
+                                                track-by="id"
+                                                id="pubRequestType"
+                                                class="form-control"
+                                                style="padding:0"
+                                                name="publicationRequestType"
+                                                :class="{'is-invalid': errors.has('publicationRequestType') }"
+                                        >
+                                        </multiselect>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('publicationRequestType') }}
+                                        </div>
+                                    </div>
+                                    <div v-else>
+                                        <p v-if="record.publicationRequestType != null">Publication type: {{ record.publicationRequestType.requestType }}</p>
+                                        <p v-else>No publication type selected.</p>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label>Description</label>
                                     <textarea
@@ -419,17 +448,91 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <template v-if="isEditMode">
+                                        <p>Intended Use *</p>
+                                        <div class="form-check">
+                                            <input
+                                                    v-validate="'required'"
+                                                    data-vv-as="intended use"
+                                                    id="publication-radio-web"
+                                                    name="intendedUse"
+                                                    type="radio"
+                                                    value="web"
+                                                    class="form-check-input"
+                                                    :class="{ 'is-invalid': errors.has('intendedUse'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                    v-model="record.intendedUse">
+                                            <label class="form-check-label" for="radio-headshot">
+                                                Web
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input
+                                                    name="intendedUse"
+                                                    type="radio"
+                                                    value="print"
+                                                    id="publication-radio-print"
+                                                    class="form-check-input"
+                                                    v-model="record.intendedUse">
+                                            <label class="form-check-label" for="radio-group">
+                                                Print
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input
+                                                    name="intendedUse"
+                                                    type="radio"
+                                                    value="print and web"
+                                                    id="publication-radio-both"
+                                                    class="form-check-input"
+                                                    v-model="record.intendedUse">
+                                            <label class="form-check-label" for="radio-group">
+                                                Both
+                                            </label>
+                                        </div>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('intendedUse') }}
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <p>Intended use: {{ record.intendedUse ? record.intendedUse : 'not specified'}}</p>
+                                    </template>
+                                </div>
+                                <div class="form-group">
+                                    <template v-if="isEditMode">
+                                        <div class="form-check">
+                                            <input
+                                                    data-vv-as="photography"
+                                                    id="publication-photography"
+                                                    name="isPhotographyRequired"
+                                                    type="checkbox"
+                                                    value="1"
+                                                    class="form-check-input"
+                                                    :class="{ 'is-invalid': errors.has('isPhotographyRequired'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                    v-model="record.isPhotographyRequired">
+                                            <label class="form-check-label" for="radio-headshot">
+                                                Photography required?
+                                            </label>
+                                        </div>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('isPhotographyRequired') }}
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <p>{{ record.isPhotographyRequired ? 'Photography required' : 'Photography not required'}}</p>
+                                    </template>
+                                </div>
+                                <div class="form-group">
                                     <label>Desired completion date *</label>
                                     <div class="input-group" v-if="isEditMode">
                                         <flatpickr
                                                 v-validate="'required'"
                                                 data-vv-as="completion date"
                                                 v-model="record.completionDate"
-                                                id="graphicCompletionDate"
+                                                id="publicationCompletionDate"
                                                 :config="flatpickrCompletionDateConfig"
                                                 class="form-control"
                                                 placeholder="Desired completion date"
-                                                name="graphicCompletionDate"
+                                                name="publicationCompletionDate"
                                         >
                                         </flatpickr>
                                         <div class="input-group-btn" >
@@ -655,6 +758,7 @@
             this.fetchStatusOptions()
             this.fetchAssignees()
             this.fetchTimeSlots()
+            this.fetchPublicationTypes()
         },
         components: {MultimediarequestDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
         props: {
@@ -719,6 +823,7 @@
                 isDeleted: false,
                 isDeleteError: false,
                 isEditMode: false, // true = make forms editable
+                publicationTypes: [],
                 record: {
                     id: '',
                     assignee: null,
@@ -885,6 +990,20 @@
                     // fail
                     .catch(function (error) {
                         console.log("ERROR FETCHING ASSIGNEES!")
+                    })
+            },
+            fetchPublicationTypes: function() {
+                let self = this
+
+                let url = '/api/publicationrequest/types'
+                axios.get(url)
+                // success
+                    .then(function (response) {
+                        self.publicationTypes = response.data
+                    })
+                    // fail
+                    .catch(function (error) {
+                        console.log("ERROR FETCHING TIME SLOTS!")
                     })
             },
             fetchStatusOptions: function() {

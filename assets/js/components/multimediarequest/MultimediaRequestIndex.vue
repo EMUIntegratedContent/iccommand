@@ -316,30 +316,30 @@
                 </div>
             </div>
             <div class="card mb-4">
-                <div class="card-header" id="headingGraphicsRequests">
+                <div class="card-header" id="headingPublicationRequests">
                     <h5 class="mb-0">
-                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseGraphicsRequests"
-                                aria-expanded="true" aria-controls="collapseGraphicsRequests">
-                            Graphic Design Requests
-                            <span v-if="!loadingGraphicsRequests" class="badge badge-primary">{{ graphicRequests.length }}</span>
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapsePublicationRequests"
+                                aria-expanded="true" aria-controls="collapsePublicationRequests">
+                            Publication Requests
+                            <span v-if="!loadingPublicationRequests" class="badge badge-primary">{{ publicationRequests.length }}</span>
                             <span v-else><i class="fa fa-spinner"></i></span>
                         </button>
                     </h5>
                 </div>
-                <div id="collapseGraphicsRequests" class="collapse show" aria-labelledby="headingGraphicsRequests"
+                <div id="collapsePublicationRequests" class="collapse show" aria-labelledby="headingPublicationRequests"
                      data-parent="#accordion">
                     <div class="card-body">
-                        <div v-if="!loadingGraphicsRequests" class="table-responsive">
+                        <div v-if="!loadingPublicationRequests" class="table-responsive">
                             <!-- FILTER BY STATUS -->
                             <div class="row">
                                 <div class="col-xs-12">
                                     <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
-                                               :class="{ active : graphicsRequestStatuses.includes(status.statusSlug) }"
-                                               @click="toggleFilter(graphicsRequestStatuses, status.statusSlug)">
+                                               :class="{ active : publicationRequestStatuses.includes(status.statusSlug) }"
+                                               @click="toggleFilter(publicationRequestStatuses, status.statusSlug)">
                                             <input type="checkbox" autocomplete="off"
-                                                   :checked="graphicsRequestStatuses.includes(status.statusSlug)"/>{{
+                                                   :checked="publicationRequestStatuses.includes(status.statusSlug)"/>{{
                                             status.status }}
                                         </label>
                                     </div>
@@ -350,51 +350,51 @@
                                 <thead>
                                 <tr>
                                     <th scope="col">
-                                        <span class="col-sortable" @click="sortBy(sortGraphicsRequests, 'created')">Submission Date</span>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'created' && sortGraphicsRequests.reverse == false"
+                                        <span class="col-sortable" @click="sortBy(sortPublicationRequests, 'created')">Submission Date</span>
+                                        <i v-if="sortPublicationRequests.sortKey == 'created' && sortPublicationRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'created' && sortGraphicsRequests.reverse == true"
+                                        <i v-if="sortPublicationRequests.sortKey == 'created' && sortPublicationRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
                                         <span class="col-sortable"
-                                              @click="sortBy(sortGraphicsRequests, 'status.statusSlug')">Status</span>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'status.statusSlug' && sortGraphicsRequests.reverse == false"
+                                              @click="sortBy(sortPublicationRequests, 'status.statusSlug')">Status</span>
+                                        <i v-if="sortPublicationRequests.sortKey == 'status.statusSlug' && sortPublicationRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'status.statusSlug' && sortGraphicsRequests.reverse == true"
+                                        <i v-if="sortPublicationRequests.sortKey == 'status.statusSlug' && sortPublicationRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
                                         <span class="col-sortable"
-                                              @click="sortBy(sortGraphicsRequests, 'lastName')">Client</span>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'lastName' && sortGraphicsRequests.reverse == false"
+                                              @click="sortBy(sortPublicationRequests, 'lastName')">Client</span>
+                                        <i v-if="sortPublicationRequests.sortKey == 'lastName' && sortPublicationRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'lastName' && sortGraphicsRequests.reverse == true"
+                                        <i v-if="sortPublicationRequests.sortKey == 'lastName' && sortPublicationRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
                                         <span class="col-sortable"
-                                              @click="sortBy(sortGraphicsRequests, 'completionDate')">Due Date</span>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'completionDate' && sortGraphicsRequests.reverse == false"
+                                              @click="sortBy(sortPublicationRequests, 'completionDate')">Due Date</span>
+                                        <i v-if="sortPublicationRequests.sortKey == 'completionDate' && sortPublicationRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'completionDate' && sortGraphicsRequests.reverse == true"
+                                        <i v-if="sortPublicationRequests.sortKey == 'completionDate' && sortPublicationRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">
                                         <span class="col-sortable"
-                                              @click="sortBy(sortGraphicsRequests, 'assignee.lastName')">Assignee</span>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'assignee.lastName' && sortGraphicsRequests.reverse == false"
+                                              @click="sortBy(sortPublicationRequests, 'assignee.lastName')">Assignee</span>
+                                        <i v-if="sortPublicationRequests.sortKey == 'assignee.lastName' && sortPublicationRequests.reverse == false"
                                            class="fa fa-sort-up"></i>
-                                        <i v-if="sortGraphicsRequests.sortKey == 'assignee.lastName' && sortGraphicsRequests.reverse == true"
+                                        <i v-if="sortPublicationRequests.sortKey == 'assignee.lastName' && sortPublicationRequests.reverse == true"
                                            class="fa fa-sort-down"></i>
                                     </th>
                                     <th scope="col">Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <template v-for="item in orderedGraphicsRequests">
+                                <template v-for="item in orderedPublicationRequests">
                                     <!-- only show items that meet the current filter restrictions -->
-                                    <tr v-if="graphicsRequestStatuses.includes(item.status.statusSlug)">
+                                    <tr v-if="publicationRequestStatuses.includes(item.status.statusSlug)">
                                         <td scope="row">{{ item.created | dateOnlyFormat }}</td>
                                         <td>{{ item.status.status }}</td>
                                         <td>{{ item.firstName }} {{ item.lastName }}</td>
@@ -412,8 +412,8 @@
                         <div v-else>
                             <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
                         </div>
-                        <paginator v-show="!loadingGraphicsRequests" :items="graphicRequests"
-                                   @itemsPerPageChanged="setPaginatedGraphicsRequests"></paginator>
+                        <paginator v-show="!loadingPublicationRequests" :items="publicationRequests"
+                                   @itemsPerPageChanged="setPaginatedPublicationRequests"></paginator>
                     </div>
                 </div>
             </div>
@@ -451,12 +451,12 @@
                     status: null
                 },
                 // Loading indicators for each request type
-                loadingGraphicsRequests: true,
+                loadingPublicationRequests: true,
                 loadingHeadshotRequests: true,
                 loadingPhotoshootRequests: true,
                 loadingVideoRequests: true,
                 // Table column sorting
-                sortGraphicsRequests: {
+                sortPublicationRequests: {
                     sortKey: 'created',
                     reverse: false,
                 },
@@ -474,17 +474,17 @@
                 },
                 // Request statuses
                 requestStatuses: [],
-                graphicsRequestStatuses: [],
+                publicationRequestStatuses: [],
                 headshotRequestStatuses: [],
                 photoshootRequestStatuses: [],
                 videoRequestStatuses: [],
                 // List of each request type
-                graphicRequests: [],
+                publicationRequests: [],
                 headshotRequests: [],
                 photoshootRequests: [],
                 videoshootRequests: [],
                 // Paginated list of each request type
-                paginatedGraphicsRequests: null,
+                paginatedPublicationRequests: null,
                 paginatedHeadshotRequests: null,
                 paginatedPhotoshootRequests: null,
                 paginatedVideoRequests: null,
@@ -494,15 +494,15 @@
             headingIcon: function () {
                 return '<i class="fa fa-list"></i>'
             },
-            orderedGraphicsRequests: function () {
+            orderedPublicationRequests: function () {
                 // Uses LODASH to order columns (https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter)
                 // "order the paginated video requests by the sort key as defined in the sortVideoRequests data object"
                 // Dates are ordered by earliest first, but we want latest first. So watch for date cases and reverse the logic
-                if (this.sortGraphicsRequests.sortKey == "created" || this.sortGraphicsRequests.sortKey == "completionDate") {
-                    return this.sortGraphicsRequests.reverse ? _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey) : _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey).reverse()
+                if (this.sortPublicationRequests.sortKey == "created" || this.sortPublicationRequests.sortKey == "completionDate") {
+                    return this.sortPublicationRequests.reverse ? _.orderBy(this.paginatedPublicationRequests, this.sortPublicationRequests.sortKey) : _.orderBy(this.paginatedPublicationRequests, this.sortPublicationRequests.sortKey).reverse()
                 }
 
-                return this.sortGraphicsRequests.reverse ? _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey).reverse() : _.orderBy(this.paginatedGraphicsRequests, this.sortGraphicsRequests.sortKey)
+                return this.sortPublicationRequests.reverse ? _.orderBy(this.paginatedPublicationRequests, this.sortPublicationRequests.sortKey).reverse() : _.orderBy(this.paginatedPublicationRequests, this.sortPublicationRequests.sortKey)
             },
             orderedHeadshotRequests: function () {
                 if (this.sortHeadshotsRequests.sortKey == "created" || this.sortHeadshotsRequests.sortKey == "timeSlot.dateOfShoot") {
@@ -541,8 +541,8 @@
                         self.records = response.data
                         response.data.forEach(function (record) {
                             switch (record.discr) {
-                                case 'graphicrequest':
-                                    self.graphicRequests.push(record)
+                                case 'publicationrequest':
+                                    self.publicationRequests.push(record)
                                     break
                                 case 'headshotrequest':
                                     self.headshotRequests.push(record)
@@ -555,6 +555,10 @@
                                     break
                             }
                         })
+                        self.loadingHeadshotRequests = false
+                        self.loadingPhotoshootRequests = false
+                        self.loadingVideoRequests = false
+                        self.loadingPublicationRequests = false
                     })
                     // fail
                     .catch(function (error) {
@@ -576,7 +580,7 @@
                         self.loadingHeadshotRequests = false
                         self.loadingPhotoshootRequests = false
                         self.loadingVideoRequests = false
-                        self.loadingGraphicsRequests = false
+                        self.loadingPublicationRequests = false
                     })
             },
             fetchStatusOptions: function () {
@@ -594,7 +598,7 @@
                         })
 
                         // save a COPY of all status slugs for each request type
-                        self.graphicsRequestStatuses = JSON.parse(JSON.stringify(statusSlugs))
+                        self.publicationRequestStatuses = JSON.parse(JSON.stringify(statusSlugs))
                         self.headshotRequestStatuses = JSON.parse(JSON.stringify(statusSlugs))
                         self.photoshootRequestStatuses = JSON.parse(JSON.stringify(statusSlugs))
                         self.videoRequestStatuses = JSON.parse(JSON.stringify(statusSlugs))
@@ -619,10 +623,10 @@
                 this.paginatedVideoRequests = videoRequests
                 this.loadingVideoRequests = false
             },
-            setPaginatedGraphicsRequests(graphicsRequests) {
-                this.loadingGraphicsRequests = true
-                this.paginatedGraphicsRequests = graphicsRequests
-                this.loadingGraphicsRequests = false
+            setPaginatedPublicationRequests(publicationRequests) {
+                this.loadingPublicationRequests = true
+                this.paginatedPublicationRequests = publicationRequests
+                this.loadingPublicationRequests = false
             },
             /**
              * Sort columns by a key
