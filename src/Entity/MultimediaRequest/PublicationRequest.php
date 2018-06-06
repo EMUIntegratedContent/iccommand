@@ -88,6 +88,8 @@ class PublicationRequest extends MultimediaRequest
     public function setIsPhotographyRequired($isPhotographyRequired): self
     {
         $this->isPhotographyRequired = $isPhotographyRequired;
+
+        return $this;
     }
 
     public function getPublicationRequestType(): ?PublicationRequestType
