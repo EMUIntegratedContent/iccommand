@@ -21,6 +21,7 @@ class PublicationRequestType
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="You must provide a request type.")
+     * @Serializer\SerializedName("requestType")
      */
     private $requestType;
 
