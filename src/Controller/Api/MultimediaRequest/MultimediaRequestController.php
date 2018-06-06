@@ -125,6 +125,7 @@ class MultimediaRequestController extends FOSRestController
                 if (!$publicationRequestType) {
                     throw new HttpException(400, "An invalid publication request type was passed");
                 }
+                $mmRequest->setPublicationRequestType($publicationRequestType);
                 $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
@@ -396,6 +397,7 @@ class MultimediaRequestController extends FOSRestController
                 if (!$publicationRequestType) {
                     throw new HttpException(400, "An invalid publication request type was passed");
                 }
+                $mmRequest->setPublicationRequestType($publicationRequestType);
                 $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
