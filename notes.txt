@@ -7,6 +7,12 @@ http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/type
 If you get a 500 error where it says "Field {field} does not exist"
 Delete the var/cache directory
 
+Change the role of a user without having to make that user log in again
+- in security.yaml:
+security:
+    always_authenticate_before_granting:  true
+https://stackoverflow.com/questions/9220975/change-the-role-of-a-distant-user-without-having-to-relog
+
 Yarn commands
 https://symfony.com/doc/current/frontend/encore/simple-example.html
 yarn run encore dev
