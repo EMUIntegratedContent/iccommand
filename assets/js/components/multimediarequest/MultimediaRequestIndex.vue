@@ -320,7 +320,7 @@
                     <h5 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapsePublicationRequests"
                                 aria-expanded="true" aria-controls="collapsePublicationRequests">
-                            Publication Requests
+                            Marketing Materials Requests
                             <span v-if="!loadingPublicationRequests" class="badge badge-primary">{{ publicationRequests.length }}</span>
                             <span v-else><i class="fa fa-spinner"></i></span>
                         </button>

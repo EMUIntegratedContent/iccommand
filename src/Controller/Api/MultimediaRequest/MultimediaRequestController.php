@@ -366,8 +366,8 @@ class MultimediaRequestController extends FOSRestController
         $mmRequest = $this->getDoctrine()->getRepository(MultimediaRequest::class)->find($request->request->get('id'));
 
         // Determine which type of Multimedia Request to create based on type & set type-specific fields
-        switch ($request->request->get('requestType')) {
-            case 'headshot':
+        switch ($request->request->get('discr')) {
+            case 'headshotrequest':
                 // Get the time slot
                 $timeSlot = $this->getDoctrine()->getRepository(PhotoHeadshotDate::class)->find($request->request->get('timeSlot')['id']);
                 if ($timeSlot) {
@@ -375,7 +375,7 @@ class MultimediaRequestController extends FOSRestController
                 }
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
-            case 'photo':
+            case 'photorequest':
                 // Get the photo request type
                 $photoRequestType = $this->getDoctrine()->getRepository(PhotoRequestType::class)->findOneBy(['slug' => $request->request->get('photoRequestType')]);
                 if (!$photoRequestType) {
@@ -388,11 +388,11 @@ class MultimediaRequestController extends FOSRestController
                 $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
-            case 'video':
+            case 'videorequest':
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
-            case 'publication':
+            case 'publicationrequest':
                 // Get the publication request type
                 $publicationRequestType = $this->getDoctrine()->getRepository(PublicationRequestType::class)->findOneBy(['slug' => $request->request->get('publicationRequestType')]);
                 if (!$publicationRequestType) {
@@ -463,7 +463,7 @@ class MultimediaRequestController extends FOSRestController
             return $response;
         }
 
-        // save the assignee
+        // save the request
         $em->persist($mmRequest);
         $em->flush();
 

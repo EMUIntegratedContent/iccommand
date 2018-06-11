@@ -9,19 +9,15 @@
         </div>
         <!-- MAIN AREA -->
         <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
-            <heading v-if="itemExists">
-                <span slot="title">{{ record.firstName }} {{ record.lastName }}'s {{ record.requestType }} request </span>
+            <heading>
+                <!-- NOTE: publication request changed (in name only) to 'marketing materials' 6/11/18 -->
+                <span slot="title">{{ record.firstName }} {{ record.lastName }}'s {{ requestType == 'publication' ? 'marketing materials' : requestType }} request </span>
             </heading>
             <div class="btn-group" role="group" aria-label="form navigation buttons">
-                <button v-if="itemExists && this.permissions[0].edit" type="button" class="btn btn-info pull-right"
+                <button v-if="this.permissions[0].edit" type="button" class="btn btn-info pull-right"
                         @click="toggleEdit"><span v-html="lockIcon"></span></button>
             </div>
             <form class="form" @submit.prevent="checkForm">
-                <select v-if="!itemExists" v-model="record.requestType">
-                    <option value="photo">Photo Request</option>
-                    <option value="video">Video Request</option>
-                    <option value="publication">Publication Request</option>
-                </select>
                 <div class="row">
                     <div class="col-md-8">
                         <fieldset>
@@ -102,9 +98,9 @@
                         </fieldset>
                         <fieldset>
                             <!-- TYPE-SPECIFIC FIELDS -->
-                            <legend>{{ record.requestType | capitalize }} request information</legend>
+                            <legend>{{ requestType | capitalize }} request information</legend>
                             <!-- HEADSHOT REQUEST FIELDS -->
-                            <template v-if="record.requestType == 'headshot'">
+                            <template v-if="requestType == 'headshot'">
                                 <div class="row">
                                     <div class="form-group col-md-12">
                                         <label>Description</label>
@@ -151,7 +147,7 @@
                                 </div>
                             </template>
                             <!-- PHOTO REQUEST FIELDS -->
-                            <template v-if="record.requestType == 'photo'">
+                            <template v-if="requestType == 'photo'">
                                 <div class="row">
                                     <div class="form-group col-md-7">
                                         <label>Description *</label>
@@ -355,7 +351,7 @@
                                 </div>
                             </template>
                             <!-- VIDEO REQUEST FIELDS -->
-                            <template v-if="record.requestType == 'video'">
+                            <template v-if="requestType == 'video'">
                                 <div class="form-group">
                                     <label>Description</label>
                                     <textarea
@@ -402,19 +398,19 @@
                                     </div>
                                 </div>
                             </template>
-                            <!-- PUBLICATION REQUEST FIELDS -->
-                            <template v-if="record.requestType == 'publication'">
+                            <!-- PUBLICATION (name changed to MARKETING MATERIALS) REQUEST FIELDS -->
+                            <template v-if="requestType == 'publication'">
                                 <div class="form-group">
                                     <!-- Publication type select -->
                                     <div v-if="isEditMode" class="form-group">
-                                        <label for="status">Publication type*</label>
+                                        <label for="status">Materials type*</label>
                                         <multiselect
                                                 v-validate="'required'"
                                                 data-vv-as="publication type"
                                                 v-model="record.publicationRequestType"
                                                 :options="publicationTypes"
                                                 :multiple="false"
-                                                placeholder="What type of publication is this?"
+                                                placeholder="What type of marketing materials are needed?"
                                                 label="requestType"
                                                 track-by="id"
                                                 id="pubRequestType"
@@ -429,8 +425,8 @@
                                         </div>
                                     </div>
                                     <div v-else>
-                                        <p v-if="record.publicationRequestType != null">Publication type: {{ record.publicationRequestType.requestType }}</p>
-                                        <p v-else>No publication type selected.</p>
+                                        <p v-if="record.publicationRequestType != null">Materials needed: {{ record.publicationRequestType.requestType }}</p>
+                                        <p v-else>No material type selected.</p>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -556,7 +552,7 @@
                         </fieldset>
                     </div><!-- /end .col-md-8 -->
                     <div class="col-md-4">
-                        <fieldset v-if="itemExists">
+                        <fieldset>
                             <!-- STATUS FIELDS -->
                             <legend class="sr-only">Status Fields</legend>
                             <template v-if="userCanEdit && isEditMode">
@@ -705,7 +701,7 @@
                 <!-- ACTION BUTTONS -->
                 <div v-if="userCanEdit && isEditMode" aria-label="action buttons" class="mb-4">
                     <button class="btn btn-success" type="submit"><i class="fa fa-save fa-2x"></i></button>
-                    <button v-if="itemExists && this.permissions[0].delete" type="button" class="btn btn-danger ml-4"
+                    <button v-if="this.permissions[0].delete" type="button" class="btn btn-danger ml-4"
                             data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash fa-2x"></i></button>
                 </div>
             </form>
@@ -749,12 +745,7 @@
             if (this.startMode == 'edit') {
                 this.isEditMode = true
             }
-            if (this.itemExists === false) {
-                this.isDataLoaded = true
-            } else {
-                // fetch the existing record using the prop itemId
-                this.fetchRequest(this.itemId)
-            }
+            this.fetchRequest(this.itemId)
             this.fetchStatusOptions()
             this.fetchAssignees()
             this.fetchTimeSlots()
@@ -762,10 +753,6 @@
         },
         components: {MultimediarequestDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
         props: {
-            itemExists: {
-                type: Boolean,
-                required: true
-            },
             itemId: {
                 type: String,
                 required: false
@@ -843,7 +830,7 @@
                     startTime: null,
                     status: 1, // 'new'
                     statusNotes: [],
-                    requestType: '', // for testing only...this will be a property eventually
+                    requestType: '',
                 },
                 reminderEmailBody: '',
                 reminderEmailStatus: {
@@ -874,11 +861,11 @@
             },
             userCanEdit: function () {
                 // An existing record can be edited by a user with edit permissions, a new record can be created by a user with create permissions
-                return this.itemExists && this.permissions[0].edit || !this.itemExists && this.permissions[0].create ? true : false
+                return this.permissions[0].edit || this.permissions[0].create ? true : false
             },
             userCanEmail: function () {
                 // An email can be sent by a user with email permissions
-                return this.itemExists && this.permissions[0].email
+                return this.permissions[0].email
             }
         },
         methods: {
@@ -889,16 +876,10 @@
             },
             afterSubmitSucceeds: function () {
                 let self = this
-                // New item has been submitted, go to edit
-                if (!this.itemExists) {
-                    this.success = true
-                    this.successMessage = "Request created."
-                    let newurl = '/multimediarequests/' + this.record.id
-                    document.location = newurl
-                } else {
-                    this.success = true
-                    this.successMessage = "Update successful."
-                }
+
+                this.fetchRequest(this.record.id) // fetch the updated request's information
+                this.success = true
+                this.successMessage = "Update successful."
 
                 //  time slots need a human-readable date/time field
                 if(self.requestType == 'headshot' && self.record.timeSlot){
@@ -951,11 +932,14 @@
             },
             fetchRequest(itemId) {
                 let self = this
+
+                self.isDataLoaded = false
+
                 axios.get('/api/multimediarequests/' + itemId)
                 // success
                     .then(function (response) {
                         self.record = response.data
-                        self.record.requestType = self.requestType
+                        //self.record.requestType = self.requestType
                         self.isDataLoaded = true
 
                         //  time slots need a human-readable date/time field
@@ -1095,19 +1079,14 @@
             submitForm: function () {
                 let self = this // 'this' loses scope within axios
 
-                let method = (this.itemExists) ? 'put' : 'post'
-                let route = (this.itemExists) ? '/api/multimediarequest' : '/api/multimediarequests'
-
                 // AJAX (axios) submission
                 axios({
-                    method: method,
-                    url: route,
+                    method: 'PUT',
+                    url: '/api/multimediarequest',
                     data: self.record
                 })
                 // success
                     .then(function (response) {
-                        self.record = response.data
-                        self.record.requestType = self.requestType
                         self.afterSubmitSucceeds()
                     })
                     // fail
