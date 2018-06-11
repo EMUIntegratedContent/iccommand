@@ -279,7 +279,7 @@ class MultimediaRequestController extends FOSRestController
      * Get headshot time slots for a specific date
      *
      * @Rest\Get("multimediarequests/headshotdates/{year}/{month}/{day}", defaults={})
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getMultimediarequestHeadshotdatesAction($year, $month, $day): Response
     {
@@ -296,6 +296,7 @@ class MultimediaRequestController extends FOSRestController
     /**
      * Get headshot time slots
      * @Rest\Get("multimediarequests/headshotdates/slots/{withPast?}")
+     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
      * @param boolean $withPast  If true, get past time slots. If false, just get future slots
      * @return Response
      */

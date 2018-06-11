@@ -89,13 +89,13 @@
       methods: {
         // Based on permissions passed to this component, enable module display for appropriate system applications
         registerUserModule: function(role){
-          if(role.includes('ROLE_MAP_')){
+          if(role.includes('ROLE_MAP_') || role.includes('ROLE_GLOBAL_ADMIN_')){
             this.userModules.map.display = true
           }
-          if(role.includes('ROLE_MULTIMEDIA_')){
+          if(role.includes('ROLE_MULTIMEDIA_') || role.includes('ROLE_GLOBAL_ADMIN_')){
             this.userModules.multimedia.display = true
           }
-          if(role.includes('ROLE_REDIRECT_')){
+          if(role.includes('ROLE_REDIRECT_') || role.includes('ROLE_GLOBAL_ADMIN_')){
             this.userModules.redirect.display = true
           }
         },
