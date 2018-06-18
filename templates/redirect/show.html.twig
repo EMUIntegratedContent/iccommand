@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit redirect item.{% endblock %}
+
+{% block modulenav %}
+  {% include 'redirect/nav_redirect.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <redirect-item-form :item-exists="true" item-type="{{ itemType }}" start-mode="show" item-id="{{ id }}" :permissions="[{{ permissions }}]"></redirect-item-form>
+</div>
+{% endblock %}

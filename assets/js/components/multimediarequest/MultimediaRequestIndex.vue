@@ -113,7 +113,7 @@ input[type='checkbox']{
         userCanCreate: function(){
           return this.permissions[0].create ? true : false
         },
-        userCanEdit: function(){
+        userCanEdit: function() {
           return this.permissions[0].edit ? true : false
         }
       },
@@ -146,12 +146,12 @@ input[type='checkbox']{
         },
         toggleTimeSlot(slot){
           // time slot registered for this date, remove it
-          if(this.day.times.indexOf(slot) > -1){
+          if (this.day.times.indexOf(slot) > -1) {
             console.log(slot + " removed")
             this.day.times.splice(this.day.times.indexOf(slot), 1)
           }
           // time slot NOT registered for this date, add it
-          else{
+          else {
             console.log(slot + " added")
             this.day.times.push(slot)
           }

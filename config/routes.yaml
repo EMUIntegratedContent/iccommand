@@ -36,6 +36,11 @@ multimediaRequests:
     resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController
     prefix: /api/
 
+redirects:
+    type: rest
+    resource: App\Controller\Api\Redirect\RedirectController
+    prefix: /api/
+
 userImages:
     type: rest
     resource: App\Controller\Api\UserImageController
