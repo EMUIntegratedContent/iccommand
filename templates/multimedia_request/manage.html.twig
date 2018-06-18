@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Multimedia Request Application Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-1">Multimedia request app management</h1>
+  <app-manage role-prefix="ROLE_MULTIMEDIA_" app-slug="multimediarequest" app-name="Multimedia Requests App" current-user="{{ app.user.username }}"></app-manage>
+</div>
+
+
+{% endblock %}

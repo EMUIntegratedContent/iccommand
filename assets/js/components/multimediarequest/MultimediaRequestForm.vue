@@ -9,19 +9,15 @@
         </div>
         <!-- MAIN AREA -->
         <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
-            <heading v-if="itemExists">
-                <span slot="title">{{ record.firstName }} {{ record.lastName }}'s {{ record.requestType }} request </span>
+            <heading>
+                <!-- NOTE: publication request changed (in name only) to 'marketing materials' 6/11/18 -->
+                <span slot="title">{{ record.firstName }} {{ record.lastName }}'s {{ requestType == 'publication' ? 'marketing materials' : requestType }} request </span>
             </heading>
             <div class="btn-group" role="group" aria-label="form navigation buttons">
-                <button v-if="itemExists && this.permissions[0].edit" type="button" class="btn btn-info pull-right"
+                <button v-if="this.permissions[0].edit" type="button" class="btn btn-info pull-right"
                         @click="toggleEdit"><span v-html="lockIcon"></span></button>
             </div>
             <form class="form" @submit.prevent="checkForm">
-                <select v-if="!itemExists" v-model="record.requestType">
-                    <option value="photo">Photo Request</option>
-                    <option value="video">Video Request</option>
-                    <option value="graphic">Graphic Design Request</option>
-                </select>
                 <div class="row">
                     <div class="col-md-8">
                         <fieldset>
@@ -102,9 +98,56 @@
                         </fieldset>
                         <fieldset>
                             <!-- TYPE-SPECIFIC FIELDS -->
-                            <legend>{{ record.requestType | capitalize }} request information</legend>
+                            <legend>{{ requestType | capitalize }} request information</legend>
+                            <!-- HEADSHOT REQUEST FIELDS -->
+                            <template v-if="requestType == 'headshot'">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label>Description</label>
+                                        <textarea
+                                                name="description"
+                                                class="form-control"
+                                                :class="{ 'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                :readonly="!userCanEdit || !isEditMode"
+                                                v-model="record.description">
+                                            {{ record.description}}
+                                        </textarea>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('description') }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <!-- Time slot select -->
+                                        <div v-if="isEditMode" class="form-group">
+                                            <label for="status">Time slot</label>
+                                            <multiselect
+                                                    data-vv-as="time slot"
+                                                    v-model="record.timeSlot"
+                                                    :options="timeSlots"
+                                                    :multiple="false"
+                                                    placeholder="When will the headshot be taken?"
+                                                    label="displayStr"
+                                                    track-by="id"
+                                                    id="timeSlot"
+                                                    class="form-control"
+                                                    style="padding:0"
+                                                    name="timeSlot"
+                                                    :class="{'is-invalid': errors.has('timeSlot') }"
+                                            >
+                                            </multiselect>
+                                            <div class="invalid-feedback">
+                                                {{ errors.first('timeSlot') }}
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            <p v-if="record.timeSlot != null">Time slot: {{ record.timeSlot.displayStr }}</p>
+                                            <p v-else>No time slot selected.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
                             <!-- PHOTO REQUEST FIELDS -->
-                            <template v-if="record.requestType == 'photo'">
+                            <template v-if="requestType == 'photo'">
                                 <div class="row">
                                     <div class="form-group col-md-7">
                                         <label>Description *</label>
@@ -306,10 +349,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- HEADSHOT-SPECIFIC FIELDS -->
                             </template>
                             <!-- VIDEO REQUEST FIELDS -->
-                            <template v-if="record.requestType == 'video'">
+                            <template v-if="requestType == 'video'">
                                 <div class="form-group">
                                     <label>Description</label>
                                     <textarea
@@ -356,8 +398,37 @@
                                     </div>
                                 </div>
                             </template>
-                            <!-- GRAPHIC DESIGN REQUEST FIELDS -->
-                            <template v-if="record.requestType == 'graphic'">
+                            <!-- PUBLICATION (name changed to MARKETING MATERIALS) REQUEST FIELDS -->
+                            <template v-if="requestType == 'publication'">
+                                <div class="form-group">
+                                    <!-- Publication type select -->
+                                    <div v-if="isEditMode" class="form-group">
+                                        <label for="status">Materials type*</label>
+                                        <multiselect
+                                                v-validate="'required'"
+                                                data-vv-as="publication type"
+                                                v-model="record.publicationRequestType"
+                                                :options="publicationTypes"
+                                                :multiple="false"
+                                                placeholder="What type of marketing materials are needed?"
+                                                label="requestType"
+                                                track-by="id"
+                                                id="pubRequestType"
+                                                class="form-control"
+                                                style="padding:0"
+                                                name="publicationRequestType"
+                                                :class="{'is-invalid': errors.has('publicationRequestType') }"
+                                        >
+                                        </multiselect>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('publicationRequestType') }}
+                                        </div>
+                                    </div>
+                                    <div v-else>
+                                        <p v-if="record.publicationRequestType != null">Materials needed: {{ record.publicationRequestType.requestType }}</p>
+                                        <p v-else>No material type selected.</p>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label>Description</label>
                                     <textarea
@@ -373,17 +444,91 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <template v-if="isEditMode">
+                                        <p>Intended Use *</p>
+                                        <div class="form-check">
+                                            <input
+                                                    v-validate="'required'"
+                                                    data-vv-as="intended use"
+                                                    id="publication-radio-web"
+                                                    name="intendedUse"
+                                                    type="radio"
+                                                    value="web"
+                                                    class="form-check-input"
+                                                    :class="{ 'is-invalid': errors.has('intendedUse'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                    v-model="record.intendedUse">
+                                            <label class="form-check-label" for="radio-headshot">
+                                                Web
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input
+                                                    name="intendedUse"
+                                                    type="radio"
+                                                    value="print"
+                                                    id="publication-radio-print"
+                                                    class="form-check-input"
+                                                    v-model="record.intendedUse">
+                                            <label class="form-check-label" for="radio-group">
+                                                Print
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input
+                                                    name="intendedUse"
+                                                    type="radio"
+                                                    value="print and web"
+                                                    id="publication-radio-both"
+                                                    class="form-check-input"
+                                                    v-model="record.intendedUse">
+                                            <label class="form-check-label" for="radio-group">
+                                                Both
+                                            </label>
+                                        </div>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('intendedUse') }}
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <p>Intended use: {{ record.intendedUse ? record.intendedUse : 'not specified'}}</p>
+                                    </template>
+                                </div>
+                                <div class="form-group">
+                                    <template v-if="isEditMode">
+                                        <div class="form-check">
+                                            <input
+                                                    data-vv-as="photography"
+                                                    id="publication-photography"
+                                                    name="isPhotographyRequired"
+                                                    type="checkbox"
+                                                    value="1"
+                                                    class="form-check-input"
+                                                    :class="{ 'is-invalid': errors.has('isPhotographyRequired'), 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                                                    v-model="record.isPhotographyRequired">
+                                            <label class="form-check-label" for="radio-headshot">
+                                                Photography required?
+                                            </label>
+                                        </div>
+                                        <div class="invalid-feedback">
+                                            {{ errors.first('isPhotographyRequired') }}
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <p>{{ record.isPhotographyRequired ? 'Photography required' : 'Photography not required'}}</p>
+                                    </template>
+                                </div>
+                                <div class="form-group">
                                     <label>Desired completion date *</label>
                                     <div class="input-group" v-if="isEditMode">
                                         <flatpickr
                                                 v-validate="'required'"
                                                 data-vv-as="completion date"
                                                 v-model="record.completionDate"
-                                                id="graphicCompletionDate"
+                                                id="publicationCompletionDate"
                                                 :config="flatpickrCompletionDateConfig"
                                                 class="form-control"
                                                 placeholder="Desired completion date"
-                                                name="graphicCompletionDate"
+                                                name="publicationCompletionDate"
                                         >
                                         </flatpickr>
                                         <div class="input-group-btn" >
@@ -406,14 +551,14 @@
                             </template>
                         </fieldset>
                     </div><!-- /end .col-md-8 -->
-                    <div class="col-md-4 status-container">
-                        <fieldset v-if="itemExists">
+                    <div class="col-md-4">
+                        <fieldset>
                             <!-- STATUS FIELDS -->
-                            <legend>Status</legend>
+                            <legend class="sr-only">Status Fields</legend>
                             <template v-if="userCanEdit && isEditMode">
                                 <div class="row">
                                     <!-- Status select -->
-                                    <div class="form-group col-sm-12">
+                                    <div class="form-group col-sm-12 status-container">
                                         <label for="status">Status *</label>
                                         <multiselect
                                                 v-validate="'required'"
@@ -435,7 +580,8 @@
                                             {{ errors.first('status') }}
                                         </div>
                                     </div>
-                                    <div class="form-group col-sm-12">
+
+                                    <div class="col-sm-12 status-container">
                                         <!-- Assignee select -->
                                         <div class="form-group">
                                             <label for="status">Assigned to</label>
@@ -445,7 +591,7 @@
                                                     :options="assignees"
                                                     :multiple="false"
                                                     placeholder="Who will be fulfilling this request?"
-                                                    label="lastName"
+                                                    label="displayStr"
                                                     track-by="id"
                                                     id="assignee"
                                                     class="form-control"
@@ -459,41 +605,62 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <template v-if="record.statusNotes.length > 0">
-                                    <p><strong>Notes about this request.</strong></p>
-                                    <div class="status-note-container">
-                                        <!-- Request notes (backend only) -->
-                                        <aside v-for="(note, index) in record.statusNotes" class="status-note">
-                                            <!-- Existing notes cannot be edited, only removed -->
-                                            <template v-if="note.id">
-                                                <p>{{ note.note }}</p>
-                                                <p class="text-right note-meta">{{ note.created_by }} at {{ note.created | commentDateFormat }}  <button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
-                                            </template>
-                                            <!-- New notes -->
-                                            <template v-else>
-                                                <textarea v-model="note.note" class="form-control" placeholder="What would you like to say?"></textarea>
-                                                <p class="text-right note-meta"><button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
-                                            </template>
-                                        </aside>
+                                    <div v-if="userCanEmail" class="col-sm-12 status-container">
+                                        <!-- Email Assignee (show only if somebody is assigned to this request, and an email wasn't sent already, and there was no send errors) -->
+                                        <div v-if="record.assignee && !reminderEmailStatus.isSent && !reminderEmailStatus.isError">
+                                            Before sending a notification, make sure the information for this request is accurate and saved.
+                                            <div class="form-group">
+                                                <textarea type="text" class="form-control" v-model="reminderEmailBody" :placeholder="'Optional custom message to ' + record.assignee.firstName"></textarea>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-info" @click="sendAssigneeEmailNotification">Notify {{ record.assignee.firstName }}</button>
+                                        </div>
+                                        <!-- Email success/error notifications -->
+                                        <div v-if="reminderEmailStatus.isError" class="alert alert-danger fade show" role="alert">
+                                            There was an error sending the email.
+                                        </div>
+                                        <div v-if="reminderEmailStatus.isSent" class="alert alert-success fade show" role="alert">
+                                            Email was sent.
+                                        </div>
                                     </div>
-                                </template>
-                                <template v-else>
-                                    <p>It doesn't look like there are any notes...</p>
-                                </template>
-                                <div class="card mapitem-add-aux" @click="addStatusNote">
-                                    <div class="card-body">
-                                        <i class="fa fa-plus fa-5x"></i><br />
-                                        Add note
+                                </div>
+                                <div class="row pt-4">
+                                    <div class="col-sm-12 status-container">
+                                        <template v-if="record.statusNotes.length > 0">
+                                            <p><strong>Notes about this request.</strong></p>
+                                            <div class="status-note-container">
+                                                <!-- Request notes (backend only) -->
+                                                <aside v-for="(note, index) in record.statusNotes" class="status-note">
+                                                    <!-- Existing notes cannot be edited, only removed -->
+                                                    <template v-if="note.id">
+                                                        <p>{{ note.note }}</p>
+                                                        <p class="text-right note-meta">{{ note.created_by }} at {{ note.created | commentDateFormat }}  <button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
+                                                    </template>
+                                                    <!-- New notes -->
+                                                    <template v-else>
+                                                        <textarea v-model="note.note" class="form-control" placeholder="What would you like to say?"></textarea>
+                                                        <p class="text-right note-meta"><button type="button" class="btn btn-sm btn-outline-danger" @click="removeStatusNote(note)">Discard</button></p>
+                                                    </template>
+                                                </aside>
+                                            </div>
+                                        </template>
+                                        <template v-else>
+                                            <p>It doesn't look like there are any notes...</p>
+                                        </template>
+                                        <div class="card mapitem-add-aux pt-2" @click="addStatusNote">
+                                            <div class="card-body">
+                                                <i class="fa fa-plus fa-5x"></i><br />
+                                                Add note
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
                             <template v-else>
                                 <div class="form-group">
-                                    <p>Status: {{ record.status != null ? record.status.status : 'not set' }}</p>
+                                    <p><strong>Status &ndash; </strong>{{ record.status != null ? record.status.status : 'not set' }}</p>
                                 </div>
                                 <div class="form-group">
-                                    <p>Assigned to: {{ record.assignee != null ? record.assignee.firstName : 'nobody' }}</p>
+                                    <p><strong>Assigned to &ndash; </strong>{{ record.assignee != null ? record.assignee.displayStr : 'nobody' }}</p>
                                 </div>
                                 <template v-if="record.statusNotes.length > 0">
                                     <p><strong>Notes about this request.</strong></p>
@@ -534,25 +701,26 @@
                 <!-- ACTION BUTTONS -->
                 <div v-if="userCanEdit && isEditMode" aria-label="action buttons" class="mb-4">
                     <button class="btn btn-success" type="submit"><i class="fa fa-save fa-2x"></i></button>
-                    <button v-if="itemExists && this.permissions[0].delete" type="button" class="btn btn-danger ml-4"
+                    <button v-if="this.permissions[0].delete" type="button" class="btn btn-danger ml-4"
                             data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash fa-2x"></i></button>
                 </div>
             </form>
         </div>
         <!-- DELETE ITEM MODAL -->
-        <assignee-delete-modal
-                :assignee="record"
+        <multimediarequest-delete-modal
+                :request="record"
                 @itemDeleted="markItemDeleted"
                 @itemDeleteError="markItemDeleteError"
-        ></assignee-delete-modal>
+        ></multimediarequest-delete-modal>
     </div>
 </template>
 <style scoped>
     .status-container{
         background-color: #efefef;
+        padding:10px;
     }
     .status-note-container{
-        max-height: 300px;
+        max-height: 400px;
         overflow-y: scroll;
     }
     .note-meta{
@@ -561,7 +729,7 @@
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
-    import AssigneeDeleteModal from './AssigneeDeleteModal.vue'
+    import MultimediarequestDeleteModal from './MultimediarequestDeleteModal.vue'
     import Heading from '../utils/Heading.vue'
     import Multiselect from 'vue-multiselect'
     import NotFound from '../utils/NotFound.vue'
@@ -577,21 +745,14 @@
             if (this.startMode == 'edit') {
                 this.isEditMode = true
             }
-            if (this.itemExists === false) {
-                this.isDataLoaded = true
-            } else {
-                // fetch the existing record using the prop itemId
-                this.fetchRequest(this.itemId)
-            }
+            this.fetchRequest(this.itemId)
             this.fetchStatusOptions()
             this.fetchAssignees()
+            this.fetchTimeSlots()
+            this.fetchPublicationTypes()
         },
-        components: {AssigneeDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
+        components: {MultimediarequestDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
         props: {
-            itemExists: {
-                type: Boolean,
-                required: true
-            },
             itemId: {
                 type: String,
                 required: false
@@ -626,7 +787,7 @@
                     altFormat: "m-d-Y", // format the user sees
                     altInput: true,
                     minDate: null,
-                    dateFormat: "Y-m-d H:i:S", // format sumbitted to the API
+                    dateFormat: "Y-m-d", // format sumbitted to the API
                 },
                 flatpickrEndTimeConfig: {
                     wrap: true, // set wrap to true only when using 'input-group'
@@ -649,6 +810,7 @@
                 isDeleted: false,
                 isDeleteError: false,
                 isEditMode: false, // true = make forms editable
+                publicationTypes: [],
                 record: {
                     id: '',
                     assignee: null,
@@ -668,11 +830,17 @@
                     startTime: null,
                     status: 1, // 'new'
                     statusNotes: [],
-                    requestType: '', // for testing only...this will be a property eventually
+                    requestType: '',
+                },
+                reminderEmailBody: '',
+                reminderEmailStatus: {
+                    isSent: false,
+                    isError: false,
                 },
                 statusOptions: [],
                 success: false,
                 successMessage: '',
+                timeSlots: [],
                 isModalOpen: false,
             }
         },
@@ -693,7 +861,11 @@
             },
             userCanEdit: function () {
                 // An existing record can be edited by a user with edit permissions, a new record can be created by a user with create permissions
-                return this.itemExists && this.permissions[0].edit || !this.itemExists && this.permissions[0].create ? true : false
+                return this.permissions[0].edit || this.permissions[0].create ? true : false
+            },
+            userCanEmail: function () {
+                // An email can be sent by a user with email permissions
+                return this.permissions[0].email
             }
         },
         methods: {
@@ -704,16 +876,20 @@
             },
             afterSubmitSucceeds: function () {
                 let self = this
-                // New item has been submitted, go to edit
-                if (!this.itemExists) {
-                    this.success = true
-                    this.successMessage = "Request created."
-                    let newurl = '/multimediarequests/' + this.record.id
-                    document.location = newurl
-                } else {
-                    this.success = true
-                    this.successMessage = "Update successful."
+
+                this.fetchRequest(this.record.id) // fetch the updated request's information
+                this.success = true
+                this.successMessage = "Update successful."
+
+                //  time slots need a human-readable date/time field
+                if(self.requestType == 'headshot' && self.record.timeSlot){
+                    self.concatTimeSlotData(self.record.timeSlot)
                 }
+                //  assignees need a human-readable first/last name field
+                if(self.record.assignee) {
+                    self.concatAssigneeName(self.record.assignee)
+                }
+
                 // remove the message after 3 seconds
                 setTimeout(function () {
                     self.success = false
@@ -731,18 +907,49 @@
                         }
                     })
                     .catch((error) => {
+                        console.log(error)
                         self.apiError.status = 500
                         self.apiError.message = "Something went wrong that wasn't validation related."
                     });
             },
+            // Concatenate time slot date and time fields
+            concatAssigneeName: function(assignee){
+                let displayName = assignee.firstName + ' ' + assignee.lastName
+                assignee.displayStr = displayName
+            },
+            // Concatenate time slot date and time fields
+            concatTimeSlotData: function(timeSlot){
+                let displayDate = moment(timeSlot.dateOfShoot).local().format("ddd, MMM D, YYYY") // uses moment.js library
+                timeSlot.displayStr =  displayDate + " from " + timeSlot.startTime + " to " + timeSlot.endTime
+            },
+            endTimeChanged: function(dateObj, dateStr){
+                // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
+                this.$set(this.flatpickrStartTimeConfig, 'maxDate', dateStr)
+            },
+            endTimeOpened: function(dateObj, dateStr){
+                // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
+                this.$set(this.flatpickrStartTimeConfig, 'maxDate', dateStr)
+            },
             fetchRequest(itemId) {
                 let self = this
+
+                self.isDataLoaded = false
+
                 axios.get('/api/multimediarequests/' + itemId)
                 // success
                     .then(function (response) {
                         self.record = response.data
-                        self.record.requestType = self.requestType
+                        //self.record.requestType = self.requestType
                         self.isDataLoaded = true
+
+                        //  time slots need a human-readable date/time field
+                        if(self.requestType == 'headshot' && self.record.timeSlot){
+                            self.concatTimeSlotData(self.record.timeSlot)
+                        }
+                        //  assignees need a human-readable first/last name field
+                        if(self.record.assignee) {
+                            self.concatAssigneeName(self.record.assignee)
+                        }
                     })
                     // fail
                     .catch(function (error) {
@@ -763,10 +970,28 @@
                 // success
                     .then(function (response) {
                         self.assignees = response.data
+                        // Prepare a user-readable first/last name of all assignees
+                        self.assignees.forEach(function(assignee){
+                            self.concatAssigneeName(assignee)
+                        })
                     })
                     // fail
                     .catch(function (error) {
                         console.log("ERROR FETCHING ASSIGNEES!")
+                    })
+            },
+            fetchPublicationTypes: function() {
+                let self = this
+
+                let url = '/api/publicationrequest/types'
+                axios.get(url)
+                // success
+                    .then(function (response) {
+                        self.publicationTypes = response.data
+                    })
+                    // fail
+                    .catch(function (error) {
+                        console.log("ERROR FETCHING TIME SLOTS!")
                     })
             },
             fetchStatusOptions: function() {
@@ -781,13 +1006,31 @@
                         console.log("ERROR FETCHING STATUS OPTIONS!")
                     })
             },
+            fetchTimeSlots: function() {
+                let self = this
+
+                let url = '/api/multimediarequests/headshotdates/slots'
+                axios.get(url)
+                // success
+                    .then(function (response) {
+                        self.timeSlots = response.data
+                        // Prepare a user-readable date/time of each slot
+                        self.timeSlots.forEach(function(timeSlot){
+                            self.concatTimeSlotData(timeSlot)
+                        })
+                    })
+                    // fail
+                    .catch(function (error) {
+                        console.log("ERROR FETCHING TIME SLOTS!")
+                    })
+            },
             // Called from the @itemDeleted event emission from the Delete Modal
             markItemDeleted: function () {
                 this.isDeleteError = false
                 this.isDeleted = true
                 setTimeout(function () {
                     // This record doesn't exist anymore, so send the user back to the assignees list page
-                    window.location.replace('/multimediarequests/assignees')
+                    window.location.replace('/multimediarequests')
                 }, 3000)
             },
             markItemDeleteError: function () {
@@ -801,36 +1044,49 @@
             removeStatusNote: function(note){
                 this.record.statusNotes.splice(this.record.statusNotes.indexOf(note), 1)
             },
-            startTimeOpened: function(dateObj, dateStr){
-                // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
-                this.$set(this.flatpickrEndTimeConfig, 'minDate', dateStr)
-            },
-            endTimeOpened: function(dateObj, dateStr){
-                // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
-                this.$set(this.flatpickrStartTimeConfig, 'maxDate', dateStr)
-            },
             startTimeChanged: function(dateObj, dateStr){
                 // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
                 this.$set(this.flatpickrEndTimeConfig, 'minDate', dateStr)
             },
-            endTimeChanged: function(dateObj, dateStr){
+            startTimeOpened: function(dateObj, dateStr){
                 // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)
-                this.$set(this.flatpickrStartTimeConfig, 'maxDate', dateStr)
+                this.$set(this.flatpickrEndTimeConfig, 'minDate', dateStr)
+            },
+            sendAssigneeEmailNotification: function(){
+                if(confirm("Are you sure you want to send this email?")){
+                    let self = this
+                    axios({
+                        method: 'POST',
+                        url: '/api/sendemail/multimediaassigneenotify',
+                        data: {
+                            recipient: self.record.assignee.email,
+                            customBody: self.reminderEmailBody,
+                            record: self.record,
+                        }
+                    })
+                    // success
+                        .then(function (response) {
+                            // hide the email form until the page is reloaded to prevent spamming
+                            self.reminderEmailStatus.isSent = true
+                        })
+                        // fail
+                        .catch(function (error) {
+                            self.reminderEmailStatus.isError = true
+                        })
+                }
             },
             // Submit the form via the API
             submitForm: function () {
                 let self = this // 'this' loses scope within axios
-                will
+
                 // AJAX (axios) submission
                 axios({
-                    method: method,
-                    url: route,
+                    method: 'PUT',
+                    url: '/api/multimediarequest',
                     data: self.record
                 })
                 // success
                     .then(function (response) {
-                        self.record = response.data
-                        self.record.requestType = self.requestType
                         self.afterSubmitSucceeds()
                     })
                     // fail

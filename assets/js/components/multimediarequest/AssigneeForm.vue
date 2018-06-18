@@ -102,17 +102,24 @@
                     <div class="form-group">
                         <p>I am available for: </p>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="graphic" id="chk-graphic"
-                                   :disabled="!isEditMode" v-model="record.assignableRequestTypes">
-                            <label class="form-check-label" for="chk-graphic">
-                                Graphic design
-                            </label>
-                        </div>
-                        <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="photo" id="chk-photo"
                                    :disabled="!isEditMode" v-model="record.assignableRequestTypes">
                             <label class="form-check-label" for="chk-photo">
                                 Photo shoots
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="headshot" id="chk-headshot"
+                                   :disabled="!isEditMode" v-model="record.assignableRequestTypes">
+                            <label class="form-check-label" for="chk-headshot">
+                                Head shots
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="publication" id="chk-graphic"
+                                   :disabled="!isEditMode" v-model="record.assignableRequestTypes">
+                            <label class="form-check-label" for="chk-graphic">
+                                Publications
                             </label>
                         </div>
                         <div class="form-check">
@@ -223,7 +230,7 @@
                 isEditMode: false, // true = make forms editable
                 record: {
                     id: '',
-                    assginableRequestTypes: [],
+                    assignableRequestTypes: [],
                     email: '',
                     firstName: '',
                     lastName: '',

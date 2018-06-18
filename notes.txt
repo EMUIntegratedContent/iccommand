@@ -4,6 +4,15 @@ http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/inher
 Doctrine field types
 http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html
 
+If you get a 500 error where it says "Field {field} does not exist"
+Delete the var/cache directory
+
+Change the role of a user without having to make that user log in again
+- in security.yaml:
+security:
+    always_authenticate_before_granting:  true
+https://stackoverflow.com/questions/9220975/change-the-role-of-a-distant-user-without-having-to-relog
+
 Yarn commands
 https://symfony.com/doc/current/frontend/encore/simple-example.html
 yarn run encore dev
@@ -93,9 +102,19 @@ https://symfony.com/doc/current/templating/overriding.html
 Redirect after login (FOSUserBundle)
 https://stackoverflow.com/questions/20879164/symfony2-using-referer-after-login-with-fosuserbundle?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 
+Send asset (e.g. an image) in an email via a twig template
+Must use absolute_path() around the asset: <img src="{{ absolute_url(asset('images/e-box.png')) }}" width="100px" height="100px" />
+https://symfony.com/doc/current/templating.html
+
 FRONTEND:
 How to integrate Google Maps with Vue
 https://medium.com/founders-factory/building-a-custom-google-map-component-with-vue-js-d1c01ddd0b0a
 
 Remove multiple items from javascript object with splice (reverse for-loop)
 https://gist.github.com/chad3814/2924672
+
+Order columns in Vue table
+https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter (used in /assets/js/multimediarequest/MultimediaRequestIndex.vue)
+
+Sort columns in Vue table (caution: for ordering columns, see the "Order columns in Vue table" note)
+https://codepen.io/pespantelis/pen/ojwgPB

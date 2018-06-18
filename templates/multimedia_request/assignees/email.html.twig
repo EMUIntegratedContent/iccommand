@@ -1,0 +1,19 @@
+<link href="https://fonts.googleapis.com/css?family=Poppins:400,400i,500,600,700" rel="stylesheet">
+
+<style type="text/css" media="screen">
+    .float-left{
+        float: left;
+        padding-right: 5px;
+    }
+    /*Media Queries*/
+    @media screen and (max-width: 400px) {
+    }
+    @media screen and (min-width: 401px) and (max-width: 620px) {
+    }
+</style>
+
+<div class="float-left"><img src="{{ absolute_url(asset('images/e-box.png')) }}" width="100px" height="100px" /></div>
+<h1>EMU Web Communications Application Suite</h1>
+Hi from {{ record.firstName }}
+
+{{ customBody }}

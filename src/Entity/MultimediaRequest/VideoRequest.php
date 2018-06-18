@@ -14,9 +14,9 @@ class VideoRequest extends MultimediaRequest
     const REQUEST_TYPE = 'video';
 
     /**
-     * @ORM\Column(type="datetime")
-     * @Assert\DateTime(message="You must provide a valid completion date and time.")
-     * @Serializer\Type("DateTime<'Y-m-d H:i:s'>")
+     * @ORM\Column(type="date")
+     * @Assert\Date(message="You must provide a valid completion date.")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      * @Serializer\SerializedName("completionDate")
      */
     private $completionDate;
