@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Multimedia Requests{% endblock %}
+
+{% block modulenav %}
+    {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <div id="app">
+        <multimedia-request-index :permissions="[{{ permissions }}]"></multimedia-request-index>
+    </div>
+{% endblock %}

@@ -2,6 +2,8 @@
 
 namespace App\Entity\MultimediaRequest;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -22,6 +24,7 @@ class PhotoHeadshotDate
     /**
      * @ORM\Column(type="date")
      * @Serializer\SerializedName("dateOfShoot")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $dateOfShoot;
 
@@ -40,6 +43,12 @@ class PhotoHeadshotDate
     private $endTime;
 
     /**
+     * @ORM\OneToMany(targetEntity="HeadshotRequest", mappedBy="timeSlot")
+     * @Serializer\Exclude
+     */
+    private $headshotRequests;
+
+    /**
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
@@ -56,6 +65,11 @@ class PhotoHeadshotDate
      * @Gedmo\Timestampable(on="change", field={"title", "body"})
      */
     private $contentChanged;
+
+    public function __construct()
+    {
+        $this->headshotRequests = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -94,6 +108,37 @@ class PhotoHeadshotDate
     public function setEndTime(\DateTimeInterface $endTime): self
     {
         $this->endTime = $endTime;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|HeadshotRequest[]
+     */
+    public function getHeadshotRequests(): Collection
+    {
+        return $this->headshotRequests;
+    }
+
+    public function addHeadshotRequest(HeadshotRequest $headshotRequest): self
+    {
+        if (!$this->headshotRequests->contains($headshotRequest)) {
+            $this->headshotRequests[] = $headshotRequest;
+            $headshotRequest->setTimeSlot($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHeadshotRequest(HeadshotRequest $headshotRequest): self
+    {
+        if ($this->headshotRequests->contains($headshotRequest)) {
+            $this->headshotRequests->removeElement($headshotRequest);
+            // set the owning side to null (unless already changed)
+            if ($headshotRequest->getTimeSlot() === $this) {
+                $headshotRequest->setTimeSlot(null);
+            }
+        }
 
         return $this;
     }

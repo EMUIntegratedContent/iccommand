@@ -6,6 +6,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Entity\MultimediaRequest\MultimediaRequest;
 use App\Service\MultimediaRequestService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 class MultimediaRequestController extends Controller
 {
@@ -26,12 +27,30 @@ class MultimediaRequestController extends Controller
     }
 
     /**
+     * @Route("/multimediarequests/requests", name="multimediarequest_list")
+     */
+    public function list()
+    {
+        $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());
+        return $this->render('multimedia_request/list.html.twig', ['permissions' => $permissions]);
+    }
+
+    /**
      * @Route("/multimediarequests/create", name="multimediarequests_create")
      */
     public function add()
     {
         $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());
         return $this->render('multimedia_request/create.html.twig', ['permissions' => $permissions]);
+    }
+
+    /**
+     * @Route("/multimediarequests/manage", name="multimediarequests_manage")
+     * @Security("has_role('ROLE_MULTIMEDIA_ADMIN') or has_role('ROLE_GLOBAL_ADMIN')")
+     */
+    public function manage()
+    {
+        return $this->render('multimedia_request/manage.html.twig', []);
     }
 
     /**
