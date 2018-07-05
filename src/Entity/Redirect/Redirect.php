@@ -32,7 +32,7 @@ class Redirect {
   private $fromLink;
 
   /**
-   * The id of this redirect.
+   * The ID of this redirect.
    * @ORM\Id()
    * @ORM\GeneratedValue()
    * @ORM\Column(type = "integer")
@@ -49,6 +49,16 @@ class Redirect {
    * @Serializer\SerializedName("itemType")
    */
   private $itemType;
+
+  /**
+   * The time stamp when this redirect was last used.
+   * @ORM\Column(
+   *    type = "datetime",
+   *    nullable = true
+   * )
+   * @Serializer\SerializedName("lastVisit")
+   */
+  private $lastVisit;
 
   /**
    * The link that one would be sent to.
@@ -117,8 +127,8 @@ class Redirect {
   }
 
   /**
-   * Obtains the id of this redirect.
-   * @return integer The id of this redirect.
+   * Obtains the ID of this redirect.
+   * @return integer The ID of this redirect.
    */
   public function getId() {
     return $this->id;
@@ -133,6 +143,14 @@ class Redirect {
   }
 
   /**
+   * Obtains the time stamp when this redirect was last used.
+   * @return string The time stamp when this redirect was last used.
+   */
+  public function getLastVisit() {
+    return $this->lastVisit;
+  }
+
+  /**
    * Obtains the link that one would be sent to.
    * @return string The link that one would be sent to.
    */
@@ -142,7 +160,7 @@ class Redirect {
 
   /**
    * Obtains the number of times users have used the $fromLink to go to the $toLink.
-   * @return int The number of times users have used the $fromLink to go to the $toLink.
+   * @return integer The number of times users have used the $fromLink to go to the $toLink.
    */
   public function getVisits(): int {
     return $this->visits;
@@ -166,6 +184,17 @@ class Redirect {
    */
   public function setItemType(string $itemType): self {
     $this->itemType = $itemType;
+
+    return $this;
+  }
+
+  /**
+   * Changes the time stamp when this redirect was last used.
+   * @param string $lastVisit The time stamp when this redirect was last used.
+   * @return Redirect This redirect.
+   */
+  public function setLastVisit(string $lastVisit): self {
+    $this->lastVisit = $lastVisit;
 
     return $this;
   }

@@ -2,7 +2,7 @@
 namespace App\Controller\Api\Redirect;
 
 use App\Entity\Redirect\Redirect;
-use App\Service\RedirectItemService;
+use App\Service\RedirectService;
 use Doctrine\ORM\PersistentCollection;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -17,48 +17,48 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * API Redirect Controller
- * This controller manages the redirect items with the actions of getting,
- * adding, updating, and deleting.
+ * This controller manages the redirects with the actions of getting, adding,
+ * updating, and deleting.
  */
 class RedirectController extends FOSRestController {
   private $service;
 
   /**
-   * The constructor of the RedirectItemController.
-   * @param RedirectItemService $service The service container of this controller.
+   * The constructor of the RedirectController.
+   * @param RedirectService $service The service container of this controller.
    */
-  public function __construct(RedirectItemService $service) {
+  public function __construct(RedirectService $service) {
     $this->service = $service;
   }
 
   /**
-   * Deletes the redirect item from the specified id.
-   * @param string $id The ID of the redirect item.
-   * @return Response The message of the deleted item, the status code, and the hTTP headers.
+   * Deletes the redirect from the specified ID.
+   * @param string $id The ID of the redirect.
+   * @return Response The message of the deleted redirect, the status code, and the HTTP headers.
    */
   public function deleteRedirectAction($id): Response {
-    $redirectItem = $this->getDoctrine()->getRepository(Redirect::class)->find($id);
+    $redirect = $this->getDoctrine()->getRepository(Redirect::class)->find($id);
 
     $em = $this->getDoctrine()->getManager();
-    $em->remove($redirectItem);
+    $em->remove($redirect);
     $em->flush();
 
-    $response = new Response("Item has been deleted.", 204, array("Content-Type" => "application/json"));
+    $response = new Response("Redirect has been deleted.", 204, array("Content-Type" => "application/json"));
 
     return $response;
   }
 
   /**
-   * Gets the redirect item by the specified ID.
-   * @param string $id The ID of the redirect item.
-   * @return Response The redirect item, the status code, and the HTTP headers.
+   * Gets the redirect by the specified ID.
+   * @param string $id The ID of the redirect.
+   * @return Response The redirect, the status code, and the HTTP headers.
    */
   public function getRedirectAction($id): Response {
-    $redirectItem = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(["id" => $id]);
+    $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(["id" => $id]);
 
-    // Do the following if the redirect item is not found.
-    if (!$redirectItem) {
-      $response = new Response("The redirect item you requested was not found.", 404, array("Content-Type" => "application/json"));
+    // Do the following if the redirect is not found.
+    if (!$redirect) {
+      $response = new Response("The redirect you requested was not found.", 404, array("Content-Type" => "application/json"));
 
       return $response;
     }
@@ -67,20 +67,20 @@ class RedirectController extends FOSRestController {
     $context->setSerializeNull(true);
 
     $serializer = $this->container->get("jms_serializer");
-    $serialized = $serializer->serialize($redirectItem, "json", $context);
+    $serialized = $serializer->serialize($redirect, "json", $context);
     $response = new Response($serialized, 200, array("Content-Type" => "application/json"));
 
     return $response;
   }
 
   /**
-   * Gets all redirect items.
+   * Gets all redirects.
    * @return Response All redirects, the status code, and the HTTP headers.
    */
   public function getRedirectsAction(): Response {
-    $redirectItems = $this->getDoctrine()->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
+    $redirects = $this->getDoctrine()->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
     $serializer = $this->container->get("jms_serializer");
-    $serialized = $serializer->serialize($redirectItems, "json");
+    $serialized = $serializer->serialize($redirects, "json");
     $response = new Response($serialized, 200, array("Content-Type" => "application/json"));
 
     return $response;
@@ -88,7 +88,7 @@ class RedirectController extends FOSRestController {
 
   /**
    * Posts the new redirect from the specified request.
-   * @param Request $request The holder of the information about the new redirect item.
+   * @param Request $request The holder of the information about the new redirect.
    * @return Response The redirect, the status code, and the HTTP headers.
    */
   public function postRedirectAction(Request $request): Response {
@@ -101,7 +101,7 @@ class RedirectController extends FOSRestController {
     $fromLink = substr($fromLink, -1) == "/" ? substr($fromLink, 0, -1) : $fromLink; // Remove "/" if it is the last character.
     $parsedFromLink = parse_url($fromLink);
 
-    if (array_key_exists("host", $parsedFromLink) && preg_match("/emich.edu/", $parsedFromLink["host"])) {
+    if (array_key_exists("host", $parsedFromLink) && preg_match("/emich\.edu/", $parsedFromLink["host"])) {
       if ($parsedFromLink["path"][0] != "/") {
         $fromLink = "/" . $parsedFromLink["path"];
       } else {
@@ -114,7 +114,7 @@ class RedirectController extends FOSRestController {
     $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
     $parsedToLink = parse_url($toLink);
 
-    if (array_key_exists("host", $parsedToLink) && preg_match("/emich.edu/", $parsedToLink["host"])) {
+    if (array_key_exists("host", $parsedToLink) && preg_match("/emich\.edu/", $parsedToLink["host"])) {
       if ($parsedToLink["path"][0] != "/") {
         $toLink = "/" . $parsedToLink["path"];
       } else {
@@ -122,7 +122,7 @@ class RedirectController extends FOSRestController {
       }
     }
 
-    // Set the fields for all redirect objects.
+    // Set the fields for all redirects.
     $redirect->setFromLink($fromLink);
     $redirect->setToLink($toLink);
     $redirect->setItemType($request->request->get("itemType"));
@@ -131,12 +131,33 @@ class RedirectController extends FOSRestController {
     // Validate the redirect.
     $errors = $this->service->validate($redirect);
 
-    // Do the following if the redirect is not found.
+    // Do the following if there is more than one error.
     if (count($errors) > 0) {
       $serialized = $serializer->serialize($errors, "json");
       $response = new Response($serialized, 422, array("Content-Type" => "application/json"));
 
       return $response;
+    }
+
+    if ($redirect->getItemType() != "unvalid broken link" && $redirect->getItemType() != "unvalid shortened link") {
+      // Check if the toLink is a valid URL if it is supposed to be a valid redirect.
+      $fullToLink = $toLink[0] == "/" ? "https://www.emich.edu$toLink" : $toLink;
+
+      if (get_headers($fullToLink, 1)[0] == "HTTP/1.1 404 Not Found") {
+        $message = $redirect->getItemType() == "redirect of broken link" ? "The actual link is not valid." : "The full link is not valid.";
+        $response = new Response($message, 422, array("Content-Type" => "application/json"));
+
+        return $response;
+      }
+
+      // Check if the toLink has any spaces.
+      if ($toLink != trim($toLink)) {
+        $message = $redirect->getItemType() == "redirect of broken link"
+          ? "The actual link should not include any spaces." : "The full link should not include any spaces.";
+        $response = new Response($message, 422, array("Content-Type" => "application/json"));
+
+        return $response;
+      }
     }
 
     // Persist the redirect.
@@ -152,21 +173,21 @@ class RedirectController extends FOSRestController {
   }
 
   /**
-   * Updates the redirect item from the specified request.
-   * @param Request $request The holder of the information about the updated redirect item.
+   * Updates the redirect from the specified request.
+   * @param Request $request The holder of the information about the updated redirect.
    * @return Response The redirect, the status code, and the HTTP headers.
    */
   public function putRedirectAction(Request $request): Response {
+    $redirect = $this->getDoctrine()->getRepository(Redirect::class)->find($request->request->get("id"));
     $serializer = $this->container->get("jms_serializer");
     $em = $this->getDoctrine()->getManager();
-    $redirect = $this->getDoctrine()->getRepository(Redirect::class)->find($request->request->get("id"));
 
     /* Formatting fromLink */
     $fromLink = $request->request->get("fromLink");
     $fromLink = substr($fromLink, -1) == "/" ? substr($fromLink, 0, -1) : $fromLink; // Remove "/" if it is the last character.
     $parsedFromLink = parse_url($fromLink);
 
-    if (array_key_exists("host", $parsedFromLink) && preg_match("/emich.edu/", $parsedFromLink["host"])) {
+    if (array_key_exists("host", $parsedFromLink) && preg_match("/emich\.edu/", $parsedFromLink["host"])) {
       if ($parsedFromLink["path"][0] != "/") {
         $fromLink = "/" . $parsedFromLink["path"];
       } else {
@@ -179,7 +200,7 @@ class RedirectController extends FOSRestController {
     $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
     $parsedToLink = parse_url($toLink);
 
-    if (array_key_exists("host", $parsedToLink) && preg_match("/emich.edu/", $parsedToLink["host"])) {
+    if (array_key_exists("host", $parsedToLink) && preg_match("/emich\.edu/", $parsedToLink["host"])) {
       if ($parsedToLink["path"][0] != "/") {
         $toLink = "/" . $parsedToLink["path"];
       } else {
@@ -187,13 +208,15 @@ class RedirectController extends FOSRestController {
       }
     }
 
-    // Set the fields for all redirectItem objects.
+    // Set the fields for all redirect objects.
     $redirect->setFromLink($fromLink);
     $redirect->setToLink($toLink);
+    $redirect->setItemType($request->request->get("itemType"));
 
-    // Validate the redirect item.
+    // Validate the redirect.
     $errors = $this->service->validate($redirect);
 
+    // Do the following if there is more than one error.
     if (count($errors) > 0) {
       $serialized = $serializer->serialize($errors, "json");
       $response = new Response($serialized, 422, array("Content-Type" => "application/json"));
@@ -201,13 +224,66 @@ class RedirectController extends FOSRestController {
       return $response;
     }
 
-    // Persist the redirect item.
+    if ($redirect->getItemType() != "unvalid broken link" && $redirect->getItemType() != "unvalid shortened link") {
+      // Check if the toLink is a valid URL if it is supposed to be a valid redirect.
+      $fullToLink = $toLink[0] == "/" ? "https://www.emich.edu$toLink" : $toLink;
+
+      if (get_headers($fullToLink, 1)[0] == "HTTP/1.1 404 Not Found") {
+        $message = $redirect->getItemType() == "redirect of broken link" ? "The actual link is not valid." : "The full link is not valid.";
+        $response = new Response($message, 422, array("Content-Type" => "application/json"));
+
+        return $response;
+      }
+
+      // Check if the toLink has any spaces.
+      if ($toLink != trim($toLink)) {
+        $message = $redirect->getItemType() == "redirect of broken link"
+          ? "The actual link should not include any spaces." : "The full link should not include any spaces.";
+        $response = new Response($message, 422, array("Content-Type" => "application/json"));
+
+        return $response;
+      }
+    }
+
+    // Persist the redirect.
     $em->persist($redirect);
 
     // Commit everything to the database.
     $em->flush();
 
     $serialized = $serializer->serialize($redirect, "json");
+    $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
+
+    return $response;
+  }
+
+  /**
+   * Updates the redirects specifically checking for the toLink fields to be valid URLs.
+   * @return Response The redirects, the status code, and the HTTP headers.
+   */
+  public function putRedirectsAction(): Response {
+    $redirects = $this->getDoctrine()->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
+    $serializer = $this->container->get("jms_serializer");
+    $em = $this->getDoctrine()->getManager();
+
+    for ($i = 0; $i < count($redirects); $i++) {
+      // Check to see if the toLink is a valid URL if it is supposed to be a valid redirect.
+      if ($redirects[$i]->getItemType() != "unvalid broken link" && $redirects[$i]->getItemType() != "unvalid shortened link") {
+        $fullToLink = $redirects[$i]->getToLink()[0] == "/" ? "https://www.emich.edu" . $redirects[$i]->getToLink() : $redirects[$i]->getToLink();
+
+        if (get_headers($fullToLink, 1)[0] == "HTTP/1.1 404 Not Found") {
+          $redirects[$i]->setItemType("unvalid " . $redirects[$i]->getItemType()); // Some redirects may be broken later on.
+        }
+      }
+
+      // Persist the redirect.
+      $em->persist($redirects[$i]);
+
+      // Commit everything to the database.
+      $em->flush();
+    }
+
+    $serialized = $serializer->serialize($redirects, "json");
     $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
 
     return $response;

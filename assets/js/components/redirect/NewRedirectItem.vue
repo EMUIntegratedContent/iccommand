@@ -73,7 +73,7 @@
 
     methods: {
       /**
-       * Changes the component to the specifeid component.
+       * Changes the component to the specified component.
        * @param {string} component The component to replace the current component.
        */
       setComponent: function(component) {
