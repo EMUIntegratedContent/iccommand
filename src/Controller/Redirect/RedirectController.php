@@ -2,7 +2,7 @@
 namespace App\Controller\Redirect;
 
 use App\Entity\Redirect\Redirect;
-use App\Service\RedirectItemService;
+use App\Service\RedirectService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -15,7 +15,7 @@ class RedirectController extends Controller {
   /**
    * The constructor of the controller for the redirects.
    */
-  public function __construct(RedirectItemService $service)
+  public function __construct(RedirectService $service)
   {
     $this->service = $service;
   }

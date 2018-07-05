@@ -1,4 +1,4 @@
-<template>
+        <template>
   <div>
     <heading>
       <span slot="title">Step 1/2: Choose redirect type</span>
@@ -9,7 +9,7 @@
           <div class="card-body">
             <h5 class="card-title">Redirecting a Broken Link</h5>
             <p class="card-text">I like cheese and crackers.</p>
-            <button type="button" class="btn btn-primary" @click="setItem('broken link')">New broken link redirect item</button>
+            <button type="button" class="btn btn-primary" @click="setItem('redirect of broken link')">New redirect of broken link</button>
           </div>
         </div>
       </div>
@@ -18,7 +18,7 @@
           <div class="card-body">
             <h5 class="card-title">Link Shortening</h5>
             <p class="card-text">I like crackers and cheese.</p>
-            <button type="button" class="btn btn-secondary" @click="setItem('shortened link')">New shortened link item</button>
+            <button type="button" class="btn btn-secondary" @click="setItem('redirect of shortened link')">New redirect of shortened link</button>
           </div>
         </div>
       </div>
