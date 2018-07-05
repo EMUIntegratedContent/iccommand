@@ -26,10 +26,10 @@
           <fieldset>
             <legend>Basic Information</legend>
             <div class="form-group">
-              <template v-if="record.itemType == 'broken link'">
+              <template v-if="record.itemType == 'redirect of broken link'">
                 <label>Broken Link *</label>
               </template>
-              <template v-if="record.itemType == 'shortened link'">
+              <template v-if="record.itemType == 'redirect of shortened link'">
                 <label>Shortened/Vanity Link *</label>
               </template>
               <input
@@ -45,10 +45,10 @@
               </div>
             </div>
             <div class="form-group">
-              <template v-if="record.itemType == 'broken link'">
+              <template v-if="record.itemType == 'redirect of broken link'">
                 <label>Actual Link *</label>
               </template>
-              <template v-if="record.itemType == 'shortened link'">
+              <template v-if="record.itemType == 'redirect of shortened link'">
                 <label>Full Link *</label>
               </template>
               <input
@@ -64,7 +64,7 @@
               </div>
             </div>
           </fieldset>
-          <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
+          <div v-if="this.$validator.errors.count() > 0 && !success" class="alert alert-danger fade show" role="alert">
             You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
             <ul>
               <li v-for="error in this.$validator.errors.all()">
@@ -91,6 +91,25 @@
             <button v-if="itemExists && this.permissions[0].user" type="button" class="btn btn-danger ml-4" data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash fa-2x"></i></button>
           </div>
         </form>
+
+        <!-- Recommended Section for Broken Links -->
+        <div v-if="!itemExists && record.itemType == 'redirect of broken link'" class="table-responsive">
+          <legend>Recommended</legend>
+          <table class="table table-hover table-sm">
+            <thead>
+              <tr>
+                <th scope="col">Broken Links</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="uncaught in uncaughtsInRecommended" :id="uncaught.id">
+                <td>{{ uncaught.link }}</td>
+                <td><i class="fa fa-plus-square pointer" @click="setFromLink(uncaught.link)"></i> <i class="fa fa-times-circle pointer" @click="removeFromRecommended(uncaught)"></i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -103,6 +122,9 @@
 </template>
 
 <style>
+.pointer {
+  cursor: pointer;
+}
 /*
 .thumbnail iframe {
   width: 1440px;
@@ -154,7 +176,6 @@ export default {
 
   mounted() {
     document.addEventListener("click", this.toggleDragEnable);
-    this.resetUploadForm();
 
     // Detect if the form should be in edit mode from the start; default is false.
     if (this.startMode == "edit") {
@@ -165,9 +186,10 @@ export default {
       // Set the kind of redirect item being created via the itemType property from NewRedirectItemChoices.
       this.isDataLoaded = true;
       this.record.itemType = this.itemType;
+      this.fetchUncaughts();
     } else {
       // Fetch the existing record using the property itemId.
-      this.fetchRedirectItem(this.itemId);
+      this.fetchRedirect(this.itemId);
     }
 
     console.log("Redirect form mounted.");
@@ -223,10 +245,13 @@ export default {
         id: "",
         fromLink: "",
         toLink: "",
-        itemType: "",
+        itemType: ""
       },
       success: false,
       successMessage: "",
+      fetchedUncaughts: [],
+      uncaughtsInRecommended: [],
+      isUnvalidErrorShowing: false,
     }
   },
 
@@ -292,10 +317,12 @@ export default {
         this.successMessage = "Update successful.";
       }
 
-      // Remove the message after three seconds.
-      setTimeout(function() {
-        self.success = false
-      }, 3000);
+      /*
+        // Remove the message after three seconds.
+        setTimeout(function() {
+          self.success = false;
+        }, 3000);
+      */
     },
 
     /**
@@ -318,10 +345,33 @@ export default {
     },
 
     /**
-     * Gets the redirect item by using the specified id.
-     * @param {string} itemId The id of the redirect item.
+     * Deletes the uncaught item specified by the ID.
+     * @param {number} id The ID of the uncaught item to be deleted.
      */
-    fetchRedirectItem(itemId) {
+    deleteUncaught: function(id) {
+      let self = this; // "this" loses scope within Axios.
+
+      axios.delete("/api/uncaughts/" + id)
+      .then(function(response) { // Success.
+
+      })
+      .catch(function(error) { // Failure.
+        let errors = error.response.data;
+
+        // Add any validation errors to the Vue validator error bag.
+        errors.forEach(function(error) {
+          let key = error.property_path;
+          let message = error.message;
+          self.$validator.errors.add(key, message);
+        });
+      });
+    },
+
+    /**
+     * Gets the redirect by using the specified ID.
+     * @param {string} itemId The ID of the redirect.
+     */
+    fetchRedirect: function(itemId) {
       let self = this;
 
       axios.get("/api/redirects/" + itemId)
@@ -333,6 +383,41 @@ export default {
         if(error.request.status == 404) {
           self.is404 = true;
           self.isDataLoaded = true;
+        }
+      });
+    },
+
+    /**
+     * Gets the uncaught items.
+     */
+    fetchUncaughts: function() {
+      let self = this;
+      this.fetchedUncaughts = [];
+
+      axios.get("/api/uncaughts")
+      .then(function(response) { // Success.
+        response.data.forEach(function(uncaught) {
+          self.fetchedUncaughts.push(uncaught);
+        });
+
+        self.uncaughtsInRecommended = self.fetchedUncaughts.slice(0, 5);
+      })
+      .catch(function(error) { // Failure.
+        self.apiError.status = error.response.status;
+
+        switch (error.response.status) {
+          case 403:
+            self.apiError.message = "You do not have sufficient privileges to retrieve uncaught items.";
+            break;
+          case 404:
+            self.apiError.message = "Uncaught items were not found.";
+            break;
+          case 500:
+            self.apiError.message = "An internal error occurred.";
+            break;
+          default:
+            self.apiError.message = "An error occurred.";
+            break;
         }
       });
     },
@@ -372,19 +457,53 @@ export default {
     },
 
     /**
-     * Resets the form to the initial state.
+     * Removes the specified uncaught item from the recommended list by marking
+     * its isRecommended field to false.
+     * @param {Uncaught} uncaught The uncaught item to be removed from the
+     * recommended list.
      */
-    resetUploadForm: function() {
-      this.currentStatus = STATUS_INITIAL;
-      this.uploadedFiles = [];
-      this.uploadErrors = [];
+    removeFromRecommended: function(uncaught) {
+      let self = this; // "this" loses scope within Axios.
+
+      /* Ajax (Axios) Submission */
+      axios({
+        method: "put",
+        url: "/api/uncaught",
+        data: {
+          id: uncaught.id,
+          isRecommended: false,
+          link: uncaught.link,
+          visits: uncaught.visits
+        }
+      })
+      .then(function(response) { // Success.
+        self.fetchUncaughts(); // Get the uncaught items again after this update.
+      })
+      .catch(function(error) { // Failure.
+        let errors = error.response.data;
+
+        // Add any validation errors to the Vue validator error bag.
+        errors.forEach(function(error) {
+          let key = error.property_path;
+          let message = error.message;
+          self.$validator.errors.add(key, message);
+        });
+      });
+    },
+
+    /**
+     * Updates the record's fromLink to the specified link.
+     * @param {string} fromLink The fromLink of the record.
+     */
+    setFromLink(fromLink) {
+      this.record.fromLink = fromLink;
     },
 
     /**
      * Submits the form via the API.
      */
     submitForm: function() {
-      let self = this; // "this" loses scope within axios.
+      let self = this; // "this" loses scope within Axios.
       let method = this.itemExists ? "put" : "post";
       let route =  this.itemExists ? "/api/redirect" : "/api/redirects";
 
@@ -395,18 +514,41 @@ export default {
         data: self.record
       })
       .then(function(response) { // Success.
-        self.record.id = response.data.id; // This sets the item's ID.
+        self.record.id = response.data.id; // This sets the redirect's ID.
+
+        // If there is an uncaught item that has the same link as this record's fromLink, delete it.
+        var id = -1;
+
+        for (var i = 0; i < self.fetchedUncaughts.length; i++) {
+          if (self.fetchedUncaughts[i].link == self.record.fromLink) {
+            id = self.fetchedUncaughts[i].id;
+            break;
+          }
+        }
+
+        if (id != -1) {
+          self.deleteUncaught(id);
+        }
+
         self.afterSubmitSucceeds();
       })
       .catch(function(error) { // Failure.
         let errors = error.response.data;
 
-        // Add any validation errors to the vee validator error bag.
-        errors.forEach(function(error) {
-          let key = error.property_path;
-          let message = error.message;
-          self.$validator.errors.add(key, message);
-        });
+        if (typeof errors === "string") {
+          // This is for "The actual link is not valid."
+          if (!self.isUnvalidErrorShowing) {
+            self.$validator.errors.add("", errors);
+            self.isUnvalidErrorShowing = true;
+          }
+        } else {
+          // Add any other validation errors to the Vue validator error bag.
+          errors.forEach(function(error) {
+            let key = error.property_path;
+            let message = error.message;
+            self.$validator.errors.add(key, message);
+          });
+        }
       });
     },
 
@@ -415,7 +557,7 @@ export default {
      */
     toggleEdit: function() {
       (this.isEditMode === true) ? this.isEditMode = false : this.isEditMode = true;
-    },
+    }
   },
 
   filters: {}
