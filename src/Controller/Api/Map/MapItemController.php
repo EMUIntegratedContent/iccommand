@@ -43,16 +43,17 @@ class MapItemController extends FOSRestController
      */
     public function getExternalMapitemsAction()
     {
-        $hateoas = HateoasBuilder::create()->build();
+        //$hateoas = HateoasBuilder::create()->build();
         $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
 
         // Need to return NULL fields too (latitude and longitude don't have to have a value)
         // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
         $context = new SerializationContext();
         $context->setSerializeNull(true);
-        
-        $serialized = $hateoas->serialize($mapItems, 'json');
 
+        //$serialized = $hateoas->serialize($mapItems, 'json');
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($mapItems, 'json', $context);
         $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
         return $response;
     }
