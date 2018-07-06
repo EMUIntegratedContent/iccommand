@@ -60,6 +60,11 @@ class MapItemController extends FOSRestController
     {
         $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
 
+        // Need to return NULL fields too (latitude and longitude don't have to have a value)
+        // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
+        $context = new SerializationContext();
+        $context->setSerializeNull(true);
+
         $serializer = $this->container->get('jms_serializer');
         $serialized = $serializer->serialize($mapItems, 'json');
         $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
