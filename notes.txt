@@ -4,6 +4,9 @@ http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/inher
 Doctrine field types
 http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html
 
+Doctrine migrations up and down
+php bin/conosle doctrine:migrations:execute YYYYMMDDHHMMSS  --down (--up)
+
 If you get a 500 error where it says "Field {field} does not exist"
 Delete the var/cache directory
 

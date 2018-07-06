@@ -225,6 +225,7 @@ class MapItemController extends FOSRestController
 
         // set common fields for all mapItem objects
         $mapItem->setName($request->request->get('name'));
+        $mapItem->setAlias($request->request->get('alias'));
         $mapItem->setDescription($request->request->get('description'));
         $mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
@@ -534,6 +535,7 @@ class MapItemController extends FOSRestController
 
         // set common fields for all mapItem objects
         $mapItem->setName($request->request->get('name'));
+        $mapItem->setAlias($request->request->get('alias'));
         $mapItem->setDescription($request->request->get('description'));
         $mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
