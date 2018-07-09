@@ -75,6 +75,7 @@
                 center: new google.maps.LatLng(42.24782481187385, -83.62301669499783),
                 mapTypeControlOptions: {
                     mapTypeIds: ["hybrid", "roadmap", "satellite", "illustrated"],
+                    position: google.maps.ControlPosition.TOP_RIGHT,
                 },
             }
 
