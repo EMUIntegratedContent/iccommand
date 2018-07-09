@@ -42,7 +42,7 @@
                 //center: new google.maps.LatLng(61.70025812425445, -112.138671875),
                 //zoom: 4,
                 center: new google.maps.LatLng(-78.3786739, 39.0332031),
-                zoom: 2,
+                zoom: 4,
                 streetViewControl: false
             }
             // additional options for illustrated mode
