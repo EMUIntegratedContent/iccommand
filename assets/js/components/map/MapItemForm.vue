@@ -85,6 +85,7 @@
                             <div class="form-group">
                                 <label>Description</label>
                                 <textarea
+                                        id="ckeditor"
                                         class="form-control"
                                         name="description"
                                         :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
@@ -944,8 +945,11 @@
         created() {
         },
         mounted() {
-            document.addEventListener('click', this.toggleDragEnable);
+            window.addEventListener('load', this.ckEditorInit) // initialize ckeditor
+            //document.addEventListener('click', this.toggleDragEnable) // for photo sorting
+
             this.resetUploadForm()
+
             // detect if the form should be in edit mode from the start (default is false)
             if (this.startMode == 'edit') {
                 this.isEditMode = true
@@ -1172,6 +1176,17 @@
                     .catch((error) => {
                         self.apiError.status = 500
                         self.apiError.message = "Something went wrong that wasn't validation related."
+                    });
+            },
+            ckEditorInit: function(){
+                console.log("ENTERING CKEDITOR INIT")
+                ClassicEditor.create(document.querySelector('#ckeditor')).then(editor => {
+                    console.log("LOADED CK EDITOR")
+                    console.log(editor);
+                })
+                    .catch(error => {
+                        console.log("NO GOOD LOADING CK DIV!");
+                        console.error(error);
                     });
             },
             fetchBuildings() {
