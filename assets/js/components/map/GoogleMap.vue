@@ -60,7 +60,7 @@
                     if(coord.x < Math.pow(2, zoom) && (coord.y < Math.pow(2, zoom) && (coord.y > -1))) {
                         return '/images/maptiles/' + zoom + '_' + coord.x + '_' + coord.y + '.png';
                     } else {
-                        return '/images/maptiles/' + zoom + '.png';
+                        return '/images/maptiles/empty_' + zoom + '.png';
                     }
                 },
 
