@@ -121,3 +121,10 @@ https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter (used in 
 
 Sort columns in Vue table (caution: for ordering columns, see the "Order columns in Vue table" note)
 https://codepen.io/pespantelis/pen/ojwgPB
+
+INTERNET EXPLORER FIXES
+- Problems with ES6 Promise: require('es6-promise').polyfill() (will need to install from npm)
+- Polyfills:
+  - startsWith(): https://stackoverflow.com/questions/30867172/code-not-running-in-ie-11-works-fine-in-chrome
+  - includes(): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+
