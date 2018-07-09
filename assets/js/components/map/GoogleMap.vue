@@ -39,9 +39,7 @@
             }
             // options for illustrated mode
             const illustratedOptions = {
-                //center: new google.maps.LatLng(61.70025812425445, -112.138671875),
-                //zoom: 4,
-                center: new google.maps.LatLng(-78.3786739, 39.0332031),
+                center: new google.maps.LatLng(74.56422762790635, -135.03984751504777),
                 zoom: 4,
                 streetViewControl: false
             }
@@ -54,7 +52,6 @@
                 //maxZoom: 6,
                 //minZoom: 3,
                 //tileSize: new google.maps.Size(256, 256),
-                name: 'EMU Illustrated',
                 getTileUrl: function(coord, zoom) {
                     zoom = zoom - 2 // Scales the whole map down
                     if(coord.x < Math.pow(2, zoom) && (coord.y < Math.pow(2, zoom) && (coord.y > -1))) {
@@ -67,6 +64,7 @@
                 tileSize: new google.maps.Size(256, 256),
                 maxZoom: 6,
                 minZoom: 4,
+                name: 'EMU Illustrated',
             }
             // create the illustrated map type using the options
             const illustratedMapType = new google.maps.ImageMapType(illustratedTypeOptions)
