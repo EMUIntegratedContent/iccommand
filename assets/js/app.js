@@ -28,6 +28,21 @@ if (!String.prototype.startsWith) {
     };
 }
 
+if (!String.prototype.includes) {
+    String.prototype.includes = function(search, start) {
+        'use strict';
+        if (typeof start !== 'number') {
+            start = 0;
+        }
+
+        if (start + search.length > this.length) {
+            return false;
+        } else {
+            return this.indexOf(search, start) !== -1;
+        }
+    };
+}
+
 /* ******************************** Vue Setup ******************************* */
 import Vue from "vue";
 import VeeValidate from "vee-validate";
