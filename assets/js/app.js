@@ -20,6 +20,14 @@ $(document).ready(function() {
     })
 });
 
+/* ******************************** IE Polyfills **************************** */
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+        position = position || 0;
+        return this.indexOf(searchString, position) === position;
+    };
+}
+
 /* ******************************** Vue Setup ******************************* */
 import Vue from "vue";
 import VeeValidate from "vee-validate";
