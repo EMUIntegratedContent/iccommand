@@ -1,5 +1,6 @@
 require("../css/app.scss")
 require("./bootstrap")
+require('es6-promise').polyfill()
 
 // Init function.
 $(document).ready(function() {

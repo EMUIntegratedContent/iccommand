@@ -29,6 +29,7 @@
     "axios": "^0.18.0",
     "babel-loader": "^8.0.0-beta.0",
     "bootstrap": "^4.0.0",
+    "es6-promise": "^4.2.4",
     "font-awesome": "^4.7.0",
     "load-google-maps-api": "^1.2.0",
     "moment": "^2.22.1",
