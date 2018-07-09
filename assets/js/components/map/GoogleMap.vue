@@ -56,7 +56,7 @@
                 //tileSize: new google.maps.Size(256, 256),
                 name: 'EMU Illustrated',
                 getTileUrl: function(coord, zoom) {
-                    //zoom = zoom - 2 // Scales the whole map down
+                    zoom = zoom - 2 // Scales the whole map down
                     if(coord.x < Math.pow(2, zoom) && (coord.y < Math.pow(2, zoom) && (coord.y > -1))) {
                         return '/images/maptiles/' + zoom + '_' + coord.x + '_' + coord.y + '.png';
                     } else {
@@ -65,8 +65,8 @@
                 },
 
                 tileSize: new google.maps.Size(256, 256),
-                maxZoom: 4,
-                minZoom: 2,
+                maxZoom: 6,
+                minZoom: 4,
             }
             // create the illustrated map type using the options
             const illustratedMapType = new google.maps.ImageMapType(illustratedTypeOptions)
