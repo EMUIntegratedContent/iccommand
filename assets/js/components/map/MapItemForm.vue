@@ -157,6 +157,33 @@
                                         {{ errors.first('hours') }}
                                     </div>
                                 </div>
+                                <!-- CKEDITOR PLUGIN CURRENTLY WON'T WORK WITH 2+ INSTANCES 7/10/18 -->
+                                <!--
+                                <div class="form-group">
+                                    <label>Building hours</label>
+                                    <template v-if="!userCanEdit || !isEditMode">
+                                        <textarea
+                                                class="form-control"
+                                                name="hours"
+                                                readonly
+                                                v-model="record.hours">
+                                        </textarea>
+                                    </template>
+                                    <template v-else>
+                                        <div :class="{'is-invalid-ckeditor': errors.has('hours')}">
+                                            <vue-ckeditor
+                                                    v-model="record.hours"
+                                                    :config="ckConfig"
+                                                    name="hours"
+                                            >
+                                            </vue-ckeditor>
+                                        </div>
+                                        <div v-if="errors.has('hours')" class="invalid-feedback-ckeditor">
+                                            {{ errors.first('hours') }}
+                                        </div>
+                                    </template>
+                                </div>
+                                -->
                                 <template v-if="userCanEdit && isEditMode">
                                     <div class="form-row">
                                         <div class="form-group col-md-12">
@@ -960,6 +987,7 @@
     import NotFound from '../utils/NotFound.vue'
     import Draggable from 'vuedraggable'
     import GoogleMap from './GoogleMap.vue'
+    //import { VueCkeditor } from 'vue-ckeditor2'
 
     const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3
 
@@ -967,7 +995,6 @@
         created() {
         },
         mounted() {
-            //window.addEventListener('load', this.ckEditorInit) // initialize ckeditor
             document.addEventListener('click', this.toggleDragEnable) // for photo sorting
 
             this.resetUploadForm()
@@ -1010,6 +1037,7 @@
             NotFound,
             Draggable,
             GoogleMap,
+            //VueCkeditor,
         },
         props: {
             itemType: {
@@ -1048,7 +1076,7 @@
                     toolbar: [
                         ['Bold','Italic','Underline','Cut','Copy','Paste','PasteText','Undo','Redo','NumberedList','BulletedList','Link','Unlink'],
                     ],
-                    height: 300
+                    height: 250
                 },
                 currentStatus: null,
                 emergencyTypes: [], // for multiselect
@@ -1204,17 +1232,6 @@
                     .catch((error) => {
                         self.apiError.status = 500
                         self.apiError.message = "Something went wrong that wasn't validation related."
-                    });
-            },
-            ckEditorInit: function(){
-                console.log("ENTERING CKEDITOR INIT")
-                ClassicEditor.create(document.querySelector('#ckeditor')).then(editor => {
-                    console.log("LOADED CK EDITOR")
-                    console.log(editor);
-                })
-                    .catch(error => {
-                        console.log("NO GOOD LOADING CK DIV!");
-                        console.error(error);
                     });
             },
             fetchBuildings() {
