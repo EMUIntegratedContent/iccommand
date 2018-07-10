@@ -84,6 +84,12 @@
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
+                                <vue-ckeditor
+                                        v-model="record.description"
+                                        :config="ckConfig"
+                                        >
+                                </vue-ckeditor>
+                                <!--
                                 <textarea
                                         id="ckeditor"
                                         class="form-control"
@@ -91,7 +97,8 @@
                                         :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
                                         :readonly="!userCanEdit || !isEditMode"
                                         v-model="record.description">
-                </textarea>
+                                </textarea>
+                                -->
                                 <div class="invalid-feedback">
                                     {{ errors.first('description') }}
                                 </div>
@@ -675,7 +682,7 @@
                                                     :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
                                                     :readonly="!userCanEdit || !isEditMode"
                                                     v-model="record.hours">
-                      </textarea>
+                                            </textarea>
                                             <div class="invalid-feedback">
                                                 {{ errors.first('hours') }}
                                             </div>
@@ -945,8 +952,8 @@
         created() {
         },
         mounted() {
-            window.addEventListener('load', this.ckEditorInit) // initialize ckeditor
-            //document.addEventListener('click', this.toggleDragEnable) // for photo sorting
+            //window.addEventListener('load', this.ckEditorInit) // initialize ckeditor
+            document.addEventListener('click', this.toggleDragEnable) // for photo sorting
 
             this.resetUploadForm()
 
@@ -987,7 +994,7 @@
             ImageThumbnailPod,
             NotFound,
             Draggable,
-            GoogleMap
+            GoogleMap,
         },
         props: {
             itemType: {
@@ -1022,6 +1029,12 @@
                 },
                 buildings: [], // for multiselect
                 buildingTypes: [], // for multiselect
+                ckConfig: {
+                    toolbar: [
+                        ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
+                    ],
+                    height: 300
+                },
                 currentStatus: null,
                 emergencyTypes: [], // for multiselect
                 exhibitTypes: [], // for multiselect

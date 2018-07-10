@@ -47,9 +47,11 @@ if (!String.prototype.includes) {
 import Vue from "vue";
 import VeeValidate from "vee-validate";
 import PrettyCheckbox from "pretty-checkbox-vue";
+import VueCkeditor from "vue-ckeditor2";
 
 Vue.use(VeeValidate);
 Vue.use(PrettyCheckbox);
+Vue.use(VueCkeditor);
 
 /* ************************* Declare Components Here ************************ */
 

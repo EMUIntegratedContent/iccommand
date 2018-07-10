@@ -122,6 +122,10 @@ https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter (used in 
 Sort columns in Vue table (caution: for ordering columns, see the "Order columns in Vue table" note)
 https://codepen.io/pespantelis/pen/ojwgPB
 
+Ckeditor with Vue
+- Vue-ckeditor2: https://github.com/dangvanthanh/vue-ckeditor2
+- Requires Ckeditor4 (download and place in public folder). Add <script> in base.html.twig
+
 INTERNET EXPLORER FIXES
 - Problems with ES6 Promise (axios): require('es6-promise').polyfill() (will need to install from npm)
 - Polyfills:
