@@ -84,24 +84,28 @@
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <vue-ckeditor
-                                        v-model="record.description"
-                                        :config="ckConfig"
+                                <template v-if="!userCanEdit || !isEditMode">
+                                    <textarea
+                                            class="form-control"
+                                            name="description"
+                                            readonly
+                                            v-model="record.description">
+                                    </textarea>
+                                </template>
+                                <template v-else>
+                                    <div :class="{'is-invalid-ckeditor': errors.has('description')}">
+                                        <vue-ckeditor
+                                                v-validate="'required'"
+                                                v-model="record.description"
+                                                :config="ckConfig"
+                                                name="description"
                                         >
-                                </vue-ckeditor>
-                                <!--
-                                <textarea
-                                        id="ckeditor"
-                                        class="form-control"
-                                        name="description"
-                                        :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
-                                        :readonly="!userCanEdit || !isEditMode"
-                                        v-model="record.description">
-                                </textarea>
-                                -->
-                                <div class="invalid-feedback">
-                                    {{ errors.first('description') }}
-                                </div>
+                                        </vue-ckeditor>
+                                    </div>
+                                    <div v-if="errors.has('description')" class="invalid-feedback-ckeditor">
+                                        {{ errors.first('description') }}
+                                    </div>
+                                </template>
                             </div>
                         </fieldset>
                         <!-- GOOGLE MAP (edit mode only!)-->
@@ -933,6 +937,17 @@
     .list-group-item, .list-group-item:hover {
         z-index: auto;
     }
+
+    .is-invalid-ckeditor{
+        border:1px solid red;
+    }
+
+    .invalid-feedback-ckeditor{
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 80%;
+        color: #dc3545;
+    }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
@@ -1031,7 +1046,7 @@
                 buildingTypes: [], // for multiselect
                 ckConfig: {
                     toolbar: [
-                        ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
+                        ['Bold','Italic','Underline','Cut','Copy','Paste','PasteText','Undo','Redo','NumberedList','BulletedList','Link','Unlink'],
                     ],
                     height: 300
                 },
