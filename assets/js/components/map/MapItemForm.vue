@@ -83,6 +83,21 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label>Descirption</label>
+                                <textarea
+                                        class="form-control"
+                                        name="description"
+                                        :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                                        :readonly="!userCanEdit || !isEditMode"
+                                        v-model="record.description">
+                                </textarea>
+                                <div class="invalid-feedback">
+                                    {{ errors.first('description') }}
+                                </div>
+                            </div>
+                            <!-- CKEDITOR COMPONENT ONLY WORKS ONCE PER PAGE AS OF 7/10/18 -->
+                            <!--
+                            <div class="form-group">
                                 <label>Description</label>
                                 <template v-if="!userCanEdit || !isEditMode">
                                     <textarea
@@ -107,6 +122,7 @@
                                     </div>
                                 </template>
                             </div>
+                            -->
                         </fieldset>
                         <!-- GOOGLE MAP (edit mode only!)-->
                         <fieldset v-if="userCanEdit && isEditMode">
@@ -144,6 +160,7 @@
                                         {{ errors.first('address') }}
                                     </div>
                                 </div>
+                                <!--
                                 <div class="form-group">
                                     <label>Building hours</label>
                                     <textarea
@@ -157,8 +174,7 @@
                                         {{ errors.first('hours') }}
                                     </div>
                                 </div>
-                                <!-- CKEDITOR PLUGIN CURRENTLY WON'T WORK WITH 2+ INSTANCES 7/10/18 -->
-                                <!--
+                                -->
                                 <div class="form-group">
                                     <label>Building hours</label>
                                     <template v-if="!userCanEdit || !isEditMode">
@@ -183,7 +199,6 @@
                                         </div>
                                     </template>
                                 </div>
-                                -->
                                 <template v-if="userCanEdit && isEditMode">
                                     <div class="form-row">
                                         <div class="form-group col-md-12">
