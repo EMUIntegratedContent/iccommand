@@ -219,7 +219,7 @@
                                 <tbody>
                                 <tr v-for="item in paginatedParkingLots">
                                     <th scope="row">{{ item.name }}</th>
-                                    <td>{{ item.hours }}</td>
+                                    <td><span v-html="item.hours"></span></td>
                                     <td>{{ item.spaces }}</td>
                                     <td>
                                         <span v-for="type in item.parkingTypes"

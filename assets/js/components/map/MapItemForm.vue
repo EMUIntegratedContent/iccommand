@@ -178,12 +178,7 @@
                                 <div class="form-group">
                                     <label>Building hours</label>
                                     <template v-if="!userCanEdit || !isEditMode">
-                                        <textarea
-                                                class="form-control"
-                                                name="hours"
-                                                readonly
-                                                v-model="record.hours">
-                                        </textarea>
+                                        <span v-html="record.hours"></span>
                                     </template>
                                     <template v-else>
                                         <div :class="{'is-invalid-ckeditor': errors.has('hours')}">
@@ -736,12 +731,7 @@
                                         <div class="form-group col-md-6">
                                             <label>Lot hours</label>
                                             <template v-if="!userCanEdit || !isEditMode">
-                                                <textarea
-                                                        class="form-control"
-                                                        name="hours"
-                                                        readonly
-                                                        v-model="record.hours">
-                                                </textarea>
+                                                <span v-html="record.hours"></span>
                                             </template>
                                             <template v-else>
                                                 <div :class="{'is-invalid-ckeditor': errors.has('hours')}">

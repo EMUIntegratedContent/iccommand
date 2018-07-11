@@ -232,12 +232,14 @@ class MapItemController extends FOSRestController
 
         // set common fields for all mapItem objects
         $mapItem->setName($request->request->get('name'));
-        $mapItem->setAlias($request->request->get('alias'));
         $mapItem->setDescription($request->request->get('description'));
         $mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
         $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
         $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
+        if($request->request->get('alias') != ''){
+            $mapItem->setAlias($request->request->get('alias'));
+        }
 
         // validate map item
         $errors = $this->service->validate($mapItem);
@@ -542,12 +544,16 @@ class MapItemController extends FOSRestController
 
         // set common fields for all mapItem objects
         $mapItem->setName($request->request->get('name'));
-        $mapItem->setAlias($request->request->get('alias'));
         $mapItem->setDescription($request->request->get('description'));
         $mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
         $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
         $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
+        if($request->request->get('alias') != ''){
+            $mapItem->setAlias($request->request->get('alias'));
+        } else {
+            $mapItem->setAlias(null);
+        }
 
         // validate map item
         $errors = $this->service->validate($mapItem);
