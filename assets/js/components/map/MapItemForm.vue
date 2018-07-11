@@ -720,7 +720,7 @@
                                 <legend>{{ record.itemType | capitalize }} specific fields</legend>
                                 <template v-if="userCanEdit && isEditMode" class="form-row">
                                     <div class="form-row">
-                                        <div class="form-group col-md-6">
+                                        <!--<div class="form-group col-md-6">
                                             <label>Lot hours</label>
                                             <textarea
                                                     class="form-control"
@@ -732,6 +732,30 @@
                                             <div class="invalid-feedback">
                                                 {{ errors.first('hours') }}
                                             </div>
+                                        </div>-->
+                                        <div class="form-group col-md-6">
+                                            <label>Lot hours</label>
+                                            <template v-if="!userCanEdit || !isEditMode">
+                                                <textarea
+                                                        class="form-control"
+                                                        name="hours"
+                                                        readonly
+                                                        v-model="record.hours">
+                                                </textarea>
+                                            </template>
+                                            <template v-else>
+                                                <div :class="{'is-invalid-ckeditor': errors.has('hours')}">
+                                                    <vue-ckeditor
+                                                            v-model="record.hours"
+                                                            :config="ckConfig"
+                                                            name="hours"
+                                                    >
+                                                    </vue-ckeditor>
+                                                </div>
+                                                <div v-if="errors.has('hours')" class="invalid-feedback-ckeditor">
+                                                    {{ errors.first('hours') }}
+                                                </div>
+                                            </template>
                                         </div>
                                         <div class="form-group col-md-6">
                                             <div class="form-group">
