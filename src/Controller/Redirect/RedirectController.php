@@ -14,6 +14,7 @@ class RedirectController extends Controller {
 
   /**
    * The constructor of the controller for the redirects.
+   * @param RedirectService $service The service of the redirects.
    */
   public function __construct(RedirectService $service)
   {
