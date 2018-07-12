@@ -8,7 +8,13 @@
       {{ apiError.message }}
     </div>
     <div>
-      <input name="searchTerm" type="text" class="form-control" placeholder="Search" v-model="searchTerm" @change="filterRedirects"/>
+      <input
+        name="searchTerm"
+        type="text"
+        class="form-control"
+        placeholder="Search"
+        v-model="searchTerm"
+        @change="filterRedirects"/>
     </div>
     <br/>
     <div id="accordion">
@@ -16,14 +22,25 @@
       <div class="card">
         <div class="card-header" id="headingRedirectsOfBrokenLinks">
           <h5 class="mb-0">
-            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseRedirectsOfBrokenLinks" aria-expanded="true" aria-controls="collapseRedirectsOfBrokenLinks">
+            <button
+              class="btn btn-link"
+              data-toggle="collapse"
+              data-target="#collapseRedirectsOfBrokenLinks"
+              aria-expanded="true"
+              aria-controls="collapseRedirectsOfBrokenLinks">
               Redirects of Broken Links
-              <span v-if="!loadingRedirectsOfBrokenLinks" class="badge badge-primary">{{ resultedRedirectsOfBrokenLinks.length }}</span>
+              <span
+                v-if="!loadingRedirectsOfBrokenLinks"
+                class="badge badge-primary">{{ resultedRedirectsOfBrokenLinks.length }}</span>
               <span v-else><i class="fa fa-spinner"></i></span>
             </button>
           </h5>
         </div>
-        <div id="collapseRedirectsOfBrokenLinks" class="collapse show" aria-labelledby="headingRedirectsOfBrokenLinks" data-parent="#accordion">
+        <div
+          id="collapseRedirectsOfBrokenLinks"
+          class="collapse show"
+          aria-labelledby="headingRedirectsOfBrokenLinks"
+          data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingRedirectsOfBrokenLinks" class="table-responsive">
               <table class="table table-hover table-sm">
@@ -38,11 +55,23 @@
                 </thead>
                 <tbody>
                   <tr v-for="redirect in paginatedRedirectsOfBrokenLinks" :id="redirect.id">
-                    <td><a :href="'https://www.emich.edu' + redirect.fromLink" target="_blank" title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a></td>
-                    <td><a :href="getFixedLink(redirect.toLink)" target="_blank" title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a></td>
+                    <td>
+                      <a
+                        :href="'https://www.emich.edu' + redirect.fromLink"
+                        target="_blank"
+                        title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
+                    </td>
+                    <td>
+                      <a
+                        :href="getFixedLink(redirect.toLink)"
+                        target="_blank"
+                        title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
+                    </td>
                     <td>{{ formatDate(redirect.lastVisit) }}</td>
                     <td>{{ redirect.visits }}</td>
-                    <td><a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a></td>
+                    <td>
+                      <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -50,7 +79,10 @@
             <div v-else>
               <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
             </div>
-            <paginator v-show="!loadingRedirectsOfBrokenLinks" :items="resultedRedirectsOfBrokenLinks" @itemsPerPageChanged="setPaginatedRedirectsOfBrokenLinks"></paginator>
+            <paginator
+              v-show="!loadingRedirectsOfBrokenLinks"
+              :items="resultedRedirectsOfBrokenLinks"
+              @itemsPerPageChanged="setPaginatedRedirectsOfBrokenLinks"></paginator>
           </div>
         </div>
       </div>
@@ -58,14 +90,25 @@
       <div class="card">
         <div class="card-header" id="headingRedirectsOfShortenedLinks">
           <h5 class="mb-0">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseRedirectsOfShortenedLinks" aria-expanded="false" aria-controls="collapseRedirectsOfShortenedLinks">
+            <button
+              class="btn btn-link collapsed"
+              data-toggle="collapse"
+              data-target="#collapseRedirectsOfShortenedLinks"
+              aria-expanded="false"
+              aria-controls="collapseRedirectsOfShortenedLinks">
               Redirects of Shortened Links
-              <span v-if="!loadingRedirectsOfShortenedLinks" class="badge badge-primary">{{ resultedRedirectsOfShortenedLinks.length }}</span>
+              <span
+                v-if="!loadingRedirectsOfShortenedLinks"
+                class="badge badge-primary">{{ resultedRedirectsOfShortenedLinks.length }}</span>
               <span v-else><i class="fa fa-spinner"></i></span>
             </button>
           </h5>
         </div>
-        <div id="collapseRedirectsOfShortenedLinks" class="collapse" aria-labelledby="headingRedirectsOfShortenedLinks" data-parent="#accordion">
+        <div
+          id="collapseRedirectsOfShortenedLinks"
+          class="collapse"
+          aria-labelledby="headingRedirectsOfShortenedLinks"
+          data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingRedirectsOfShortenedLinks" class="table-responsive">
               <table class="table table-hover table-sm">
@@ -80,11 +123,23 @@
                 </thead>
                 <tbody>
                   <tr v-for="redirect in paginatedRedirectsOfShortenedLinks" :id="redirect.id">
-                    <td><a :href="'https://www.emich.edu' + redirect.fromLink" target="_blank" title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a></td>
-                    <td><a :href="getFixedLink(redirect.toLink)" target="_blank" title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a></td>
+                    <td>
+                      <a
+                        :href="'https://www.emich.edu' + redirect.fromLink"
+                        target="_blank"
+                        title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
+                    </td>
+                    <td>
+                      <a
+                        :href="getFixedLink(redirect.toLink)"
+                        target="_blank"
+                        title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
+                    </td>
                     <td>{{ formatDate(redirect.lastVisit) }}</td>
                     <td>{{ redirect.visits }}</td>
-                    <td><a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a></td>
+                    <td>
+                      <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -92,7 +147,10 @@
             <div v-else>
               <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
             </div>
-            <paginator v-show="!loadingRedirectsOfShortenedLinks" :items="resultedRedirectsOfShortenedLinks" @itemsPerPageChanged="setPaginatedRedirectsOfShortenedLinks"></paginator>
+            <paginator
+              v-show="!loadingRedirectsOfShortenedLinks"
+              :items="resultedRedirectsOfShortenedLinks"
+              @itemsPerPageChanged="setPaginatedRedirectsOfShortenedLinks"></paginator>
           </div>
         </div>
       </div>
@@ -100,14 +158,25 @@
       <div class="card">
         <div class="card-header" id="headingExpiredRedirects">
           <h5 class="mb-0">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseExpiredRedirects" aria-expanded="false" aria-controls="collapseUnvalidRedirects">
+            <button
+              class="btn btn-link collapsed"
+              data-toggle="collapse"
+              data-target="#collapseExpiredRedirects"
+              aria-expanded="false"
+              aria-controls="collapseInvalidRedirects">
               Expired Redirects
-              <span v-if="!loadingExpiredRedirects" class="badge badge-primary">{{ resultedExpiredRedirects.length }}</span>
+              <span
+                v-if="!loadingExpiredRedirects"
+                class="badge badge-primary">{{ resultedExpiredRedirects.length }}</span>
               <span v-else><i class="fa fa-spinner"></i></span>
             </button>
           </h5>
         </div>
-        <div id="collapseExpiredRedirects" class="collapse" aria-labelledby="headingExpiredRedirects" data-parent="#accordion">
+        <div
+          id="collapseExpiredRedirects"
+          class="collapse"
+          aria-labelledby="headingExpiredRedirects"
+          data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingExpiredRedirects" class="table-responsive">
               <table class="table table-hover table-sm">
@@ -122,11 +191,23 @@
                 </thead>
                 <tbody>
                   <tr v-for="redirect in paginatedExpiredRedirects" :id="redirect.id">
-                    <td><a :href="'https://www.emich.edu' + redirect.fromLink" target="_blank" title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a></td>
-                    <td><a :href="getFixedLink(redirect.toLink)" target="_blank" title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a></td>
+                    <td>
+                      <a
+                        :href="'https://www.emich.edu' + redirect.fromLink"
+                        target="_blank"
+                        title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
+                    </td>
+                    <td>
+                      <a
+                        :href="getFixedLink(redirect.toLink)"
+                        target="_blank"
+                        title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
+                    </td>
                     <td>{{ formatDate(redirect.lastVisit) }}</td>
                     <td>{{ redirect.visits }}</td>
-                    <td><a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a></td>
+                    <td>
+                      <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -134,24 +215,38 @@
             <div v-else>
               <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
             </div>
-            <paginator v-show="!loadingExpiredRedirects" :items="resultedExpiredRedirects" @itemsPerPageChanged="setPaginatedExpiredRedirects"></paginator>
+            <paginator
+              v-show="!loadingExpiredRedirects"
+              :items="resultedExpiredRedirects"
+              @itemsPerPageChanged="setPaginatedExpiredRedirects"></paginator>
           </div>
         </div>
       </div>
-      <!-- Unvalid Redirects Section -->
+      <!-- Invalid Redirects Section -->
       <div class="card">
-        <div class="card-header" id="headingUnvalidRedirects">
+        <div class="card-header" id="headingInvalidRedirects">
           <h5 class="mb-0">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseUnvalidRedirects" aria-expanded="false" aria-controls="collapseUnvalidRedirects">
-              Unvalid Redirects
-              <span v-if="!loadingUnvalidRedirects" class="badge badge-primary">{{ resultedUnvalidRedirects.length }}</span>
+            <button
+              class="btn btn-link collapsed"
+              data-toggle="collapse"
+              data-target="#collapseInvalidRedirects"
+              aria-expanded="false"
+              aria-controls="collapseInvalidRedirects">
+              Invalid Redirects
+              <span
+                v-if="!loadingInvalidRedirects"
+                class="badge badge-primary">{{ resultedInvalidRedirects.length }}</span>
               <span v-else><i class="fa fa-spinner"></i></span>
             </button>
           </h5>
         </div>
-        <div id="collapseUnvalidRedirects" class="collapse" aria-labelledby="headingUnvalidRedirects" data-parent="#accordion">
+        <div
+          id="collapseInvalidRedirects"
+          class="collapse"
+          aria-labelledby="headingInvalidRedirects"
+          data-parent="#accordion">
           <div class="card-body">
-            <div v-if="!loadingUnvalidRedirects" class="table-responsive">
+            <div v-if="!loadingInvalidRedirects" class="table-responsive">
               <table class="table table-hover table-sm">
                 <thead>
                   <tr>
@@ -163,12 +258,24 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="redirect in paginatedUnvalidRedirects" :id="redirect.id">
-                    <td><a :href="'https://www.emich.edu' + redirect.fromLink" target="_blank" title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a></td>
-                    <td><a :href="getFixedLink(redirect.toLink)" target="_blank" title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a></td>
+                  <tr v-for="redirect in paginatedInvalidRedirects" :id="redirect.id">
+                    <td>
+                      <a
+                        :href="'https://www.emich.edu' + redirect.fromLink"
+                        target="_blank"
+                        title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
+                    </td>
+                    <td>
+                      <a
+                        :href="getFixedLink(redirect.toLink)"
+                        target="_blank"
+                        title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
+                    </td>
                     <td>{{ formatDate(redirect.lastVisit) }}</td>
                     <td>{{ redirect.visits }}</td>
-                    <td><a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a></td>
+                    <td>
+                      <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -176,7 +283,10 @@
             <div v-else>
               <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
             </div>
-            <paginator v-show="!loadingUnvalidRedirects" :items="resultedUnvalidRedirects" @itemsPerPageChanged="setPaginatedUnvalidRedirects"></paginator>
+            <paginator
+              v-show="!loadingInvalidRedirects"
+              :items="resultedInvalidRedirects"
+              @itemsPerPageChanged="setPaginatedInvalidRedirects"></paginator>
           </div>
         </div>
       </div>
@@ -187,10 +297,22 @@
     </div>
     <!-- Action Buttons -->
     <div v-if="userCanEdit" aria-label="action buttons" class="mb-4">
-      <button class="btn btn-success" type="button" @click="checkForExpiredRedirects()">Find Expired Redirects</button>
-      <button class="btn btn-success" type="button" @click="checkForUnvalidRedirects()">Find Unvalid Redirects</button>
-      <button class="btn btn-danger" type="button" @click="deleteRedirects('expired')">Delete All Expired Redirects</button>
-      <button class="btn btn-danger" type="button" @click="deleteRedirects('unvalid')">Delete All Unvalid Redirects</button>
+      <button
+        type="button"
+        class="btn btn-success"
+        @click="checkForExpiredRedirects()">Find Expired Redirects</button>
+      <button
+        type="button"
+        class="btn btn-success"
+        @click="checkForInvalidRedirects()">Find Invalid Redirects</button>
+      <button
+        type="button"
+        class="btn btn-danger"
+        @click="deleteRedirects('expired')">Delete All Expired Redirects</button>
+      <button
+        type="button"
+        class="btn btn-danger"
+        @click="deleteRedirects('invalid')">Delete All Invalid Redirects</button>
     </div>
   </div>
 </template>
@@ -263,10 +385,10 @@ export default {
       fetchedRedirectsOfShortenedLinks: [],
 
       /**
-       * The unvalid redirects that are fetched when this list is mounted.
+       * The invalid redirects that are fetched when this list is mounted.
        * @type {Array.<Redirect>}
        */
-      fetchedUnvalidRedirects: [],
+      fetchedInvalidRedirects: [],
 
       /* ************************** Processing Data ************************* */
 
@@ -291,10 +413,10 @@ export default {
       loadingRedirectsOfShortenedLinks: true,
 
       /**
-       * Is used to check if the list is loading the unvalid redirects.
+       * Is used to check if the list is loading the invalid redirects.
        * @type {boolean}
        */
-      loadingUnvalidRedirects: true,
+      loadingInvalidRedirects: true,
 
       /**
        * The expired redirects that are paginated.
@@ -315,10 +437,10 @@ export default {
       paginatedRedirectsOfShortenedLinks: [],
 
       /**
-       * The unvalid redirects that are paginated.
+       * The invalid redirects that are paginated.
        * @type {Array.<Redirect>}
        */
-      paginatedUnvalidRedirects: [],
+      paginatedInvalidRedirects: [],
 
       /**
        * The resulted expired redirects after being filtered by the search term.
@@ -341,10 +463,10 @@ export default {
       resultedRedirectsOfShortenedLinks: [],
 
       /**
-       * The resulted unvalid redirects after being filtered by the search term.
+       * The resulted invalid redirects after being filtered by the search term.
        * @type {Array.<Redirect>}
        */
-      resultedUnvalidRedirects: [],
+      resultedInvalidRedirects: [],
 
       /**
        * The search term/key that filters the redirects.
@@ -416,8 +538,8 @@ export default {
      * Updates the redirects by checking if each toLink field is still a valid
      * URL.
      */
-    checkForUnvalidRedirects: function() {
-      console.log("Checking for unvalid redirects.");
+    checkForInvalidRedirects: function() {
+      console.log("Checking for invalid redirects.");
 
       this.turnOnLoadingWheels();
       let self = this; // "this" loses scope within Axios.
@@ -446,7 +568,7 @@ export default {
     },
 
     /**
-     * Deletes either the expired redirects or the unvalid redirects specified
+     * Deletes either the expired redirects or the invalid redirects specified
      * by the item type.
      * @param {string} itemType The item type of the redirects to be deleted.
      */
@@ -455,7 +577,7 @@ export default {
 
       this.turnOnLoadingWheels();
       this.emptyRedirects = "";
-      var redirects = itemType == "expired" ? this.fetchedExpiredRedirects : this.fetchedUnvalidRedirects;
+      var redirects = itemType == "expired" ? this.fetchedExpiredRedirects : this.fetchedInvalidRedirects;
       let self = this; // "this" loses scope within Axios and setTimeout function.
 
       if (redirects.length == 0) {
@@ -501,7 +623,7 @@ export default {
       this.fetchedRedirectsOfBrokenLinks = [];
       this.fetchedRedirectsOfShortenedLinks = [];
       this.fetchedExpiredRedirects = [];
-      this.fetchedUnvalidRedirects = [];
+      this.fetchedInvalidRedirects = [];
       let self = this; // "this" loses scope within Axios.
 
       /* Ajax (Axios) Submission */
@@ -520,9 +642,9 @@ export default {
             case "expired redirect of shortened link":
               self.fetchedExpiredRedirects.push(redirect);
               break;
-            case "unvalid redirect of broken link":
-            case "unvalid redirect of shortened link":
-              self.fetchedUnvalidRedirects.push(redirect);
+            case "invalid redirect of broken link":
+            case "invalid redirect of shortened link":
+              self.fetchedInvalidRedirects.push(redirect);
               break;
           }
         });
@@ -530,7 +652,7 @@ export default {
         self.resultedRedirectsOfBrokenLinks = self.fetchedRedirectsOfBrokenLinks.slice();
         self.resultedRedirectsOfShortenedLinks = self.fetchedRedirectsOfShortenedLinks.slice();
         self.resultedExpiredRedirects = self.fetchedExpiredRedirects.slice();
-        self.resultedUnvalidRedirects = self.fetchedUnvalidRedirects.slice();
+        self.resultedInvalidRedirects = self.fetchedInvalidRedirects.slice();
 
         // Disable any loading flags for empty arrays.
         if (self.resultedRedirectsOfBrokenLinks.length == 0) {
@@ -545,8 +667,8 @@ export default {
           self.loadingExpiredRedirects = false;
         }
 
-        if (self.resultedUnvalidRedirects.length == 0) {
-          self.loadingUnvalidRedirects = false;
+        if (self.resultedInvalidRedirects.length == 0) {
+          self.loadingInvalidRedirects = false;
         }
       })
       .catch(function(error) { // Failure.
@@ -578,7 +700,7 @@ export default {
       var filteredRedirectsOfBrokenLinks = [];
       var filteredRedirectsOfShortenedLinks = [];
       var filteredExpiredRedirects = [];
-      var filteredUnvalidRedirects = [];
+      var filteredInvalidRedirects = [];
 
       if (this.searchTerm.trim()) {
         for (var i = 0; i < this.fetchedRedirectsOfBrokenLinks.length; i++) {
@@ -602,18 +724,22 @@ export default {
           }
         }
 
-        for (var i = 0; i < this.fetchedUnvalidRedirects.length; i++) {
-          if (this.fetchedUnvalidRedirects[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-            || this.fetchedUnvalidRedirects[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
-            filteredUnvalidRedirects.push(this.fetchedUnvalidRedirects[i]);
+        for (var i = 0; i < this.fetchedInvalidRedirects.length; i++) {
+          if (this.fetchedInvalidRedirects[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
+            || this.fetchedInvalidRedirects[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
+            filteredInvalidRedirects.push(this.fetchedInvalidRedirects[i]);
           }
         }
       }
 
-      this.resultedRedirectsOfBrokenLinks = this.searchTerm.trim() ? filteredRedirectsOfBrokenLinks.slice() : this.fetchedRedirectsOfBrokenLinks.slice();
-      this.resultedRedirectsOfShortenedLinks = this.searchTerm.trim() ? filteredRedirectsOfShortenedLinks.slice() : this.fetchedRedirectsOfShortenedLinks.slice();
-      this.resultedExpiredRedirects = this.searchTerm.trim() ? filteredExpiredRedirects.slice() : this.fetchedExpiredRedirects.slice();
-      this.resultedUnvalidRedirects = this.searchTerm.trim() ? filteredUnvalidRedirects.slice() : this.fetchedUnvalidRedirects.slice();
+      this.resultedRedirectsOfBrokenLinks = this.searchTerm.trim()
+        ? filteredRedirectsOfBrokenLinks.slice() : this.fetchedRedirectsOfBrokenLinks.slice();
+      this.resultedRedirectsOfShortenedLinks = this.searchTerm.trim()
+        ? filteredRedirectsOfShortenedLinks.slice() : this.fetchedRedirectsOfShortenedLinks.slice();
+      this.resultedExpiredRedirects = this.searchTerm.trim()
+        ? filteredExpiredRedirects.slice() : this.fetchedExpiredRedirects.slice();
+      this.resultedInvalidRedirects = this.searchTerm.trim()
+        ? filteredInvalidRedirects.slice() : this.fetchedInvalidRedirects.slice();
     },
 
     /**
@@ -714,13 +840,13 @@ export default {
     },
 
     /**
-     * Updates the paginated unvalid redirects by the specified array of unvalid redirects.
-     * @param {Array.<Redirect>} unvalidRedirects The array of unvalid redirects used to update.
+     * Updates the paginated invalid redirects by the specified array of invalid redirects.
+     * @param {Array.<Redirect>} invalidRedirects The array of invalid redirects used to update.
      */
-    setPaginatedUnvalidRedirects: function(unvalidRedirects) {
-      this.loadingUnvalidRedirects = true; // Show the loading wheel.
-      this.paginatedUnvalidRedirects = unvalidRedirects; // Set the paginated unvalid redirects returned from the child paginator components.
-      this.loadingUnvalidRedirects = false; // Turn off the loading wheel.
+    setPaginatedInvalidRedirects: function(invalidRedirects) {
+      this.loadingInvalidRedirects = true; // Show the loading wheel.
+      this.paginatedInvalidRedirects = invalidRedirects; // Set the paginated invalid redirects returned from the child paginator components.
+      this.loadingInvalidRedirects = false; // Turn off the loading wheel.
     },
 
     /**
@@ -730,7 +856,7 @@ export default {
       this.loadingRedirectsOfBrokenLinks = false;
       this.loadingRedirectsOfShortenedLinks = false;
       this.loadingExpiredRedirects = false;
-      this.loadingUnvalidRedirects = false;
+      this.loadingInvalidRedirects = false;
     },
 
     /**
@@ -740,7 +866,7 @@ export default {
       this.loadingRedirectsOfBrokenLinks = true;
       this.loadingRedirectsOfShortenedLinks = true;
       this.loadingExpiredRedirects = true;
-      this.loadingUnvalidRedirects = true;
+      this.loadingInvalidRedirects = true;
     },
 
     /**

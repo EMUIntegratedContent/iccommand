@@ -11,7 +11,7 @@
       This redirect has been deleted. You will now be redirected to the redirect list page.
     </div>
 
-    <!-- **************************** Main Area **************************** -->
+    <!-- Main Area -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
       <heading>
         <span v-if="!itemExists" slot="title">Step 2/2: Provide redirect information</span>
@@ -78,21 +78,18 @@
           <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">
             There was an error deleting this item.
           </div>
-          <!--
-            <div class="thumbnail-container">
-              <div class="thumbnail">
-                <iframe src="http://www.emich.edu/flute" frameborder="0"></iframe>
-              </div>
-            </div>
-          -->
           <!-- Action Buttons -->
           <div v-if="userCanEdit && isEditMode" aria-label="action buttons" class="mb-4">
-            <button class="btn btn-success" type="submit"><i class="fa fa-save fa-2x"></i></button>
-            <button v-if="itemExists && this.permissions[0].user" type="button" class="btn btn-danger ml-4" data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash fa-2x"></i></button>
+            <button type="submit" class="btn btn-success"><i class="fa fa-save fa-2x"></i></button>
+            <button
+              v-if="itemExists && this.permissions[0].user"
+              type="button"
+              class="btn btn-danger ml-4"
+              data-toggle="modal"
+              data-target="#deleteModal"><i class="fa fa-trash fa-2x"></i></button>
           </div>
         </form>
-
-        <!-- Recommended Section for Broken Links -->
+        <!-- Recommended Section for Redirects of Broken Links -->
         <div v-if="!itemExists && record.itemType == 'redirect of broken link'" class="table-responsive">
           <legend>Recommended</legend>
           <table class="table table-hover table-sm">
@@ -112,8 +109,7 @@
         </div>
       </div>
     </div>
-
-    <!-- ************************ Delete Item Modal ************************ -->
+    <!-- Delete Item Modal -->
     <redirect-item-delete-modal
       :redirect="record"
       @itemDeleted="markItemDeleted"
@@ -125,41 +121,6 @@
 .pointer {
   cursor: pointer;
 }
-/*
-.thumbnail iframe {
-  width: 1440px;
-  height: 900px;
-}
-
-.thumbnail {
-  position: relative;
-  -ms-zoom: 0.25;
-  -moz-transform: scale(0.25);
-  -moz-transform-origin: 0 0;
-  -o-transform: scale(0.25);
-  -o-transform-origin: 0 0;
-  -webkit-transform: scale(0.25);
-  -webkit-transform-origin: 0 0;
-}
-
-.thumbnail:after {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.thumbnail-container {
-  width: calc(1440px * 0.25);
-  height: calc(900px * 0.25);
-  display: inline-block;
-  overflow: hidden;
-  position: relative;
-}
-*/
 </style>
 
 <script>
@@ -175,8 +136,6 @@ export default {
   created() {},
 
   mounted() {
-    document.addEventListener("click", this.toggleDragEnable);
-
     // Detect if the form should be in edit mode from the start; default is false.
     if (this.startMode == "edit") {
       this.isEditMode = true;
@@ -230,28 +189,91 @@ export default {
 
   data: function() {
     return {
+      /* **************************** Error Data **************************** */
+
+      /**
+       * The error for the API controller consists of a message and a status.
+       * @type {Object}
+       */
       apiError: {
         message: null,
         status: null
       },
-      currentStatus: null,
+
+      /**
+       * Is used to check if the request status is 404.
+       * @type {boolean}
+       */
       is404: false,
-      isDataLoaded: false,
-      isDeleted: false,
+
+      /**
+       * Is used to check if there is an error in deleting the redirect.
+       */
       isDeleteError: false,
+
+      /**
+       * Is used to check if the unvalid error is already showing.
+       * @type {boolean}
+       */
+      isUnvalidErrorShowing: false,
+
+      /* *************************** Fetched Data *************************** */
+
+      /**
+       * The uncaught items that are fetched for the new redirects of broken
+       * links.
+       * @type {Array.<Uncaught>}
+       */
+      fetchedUncaughts: [],
+
+      /**
+       * Is used to check if the data is fetched and loaded.
+       * @type {boolean}
+       */
+      isDataLoaded: false,
+
+      /* ************************** Processing Data ************************* */
+
+      /**
+       * Is used to check if the redirect is deleted.
+       * @type {boolean}
+       */
+      isDeleted: false,
+
+      /**
+       * Is used to check if the user is in edit mode.
+       * @type {boolean}
+       */
       isEditMode: false, // This is true if the forms are editable.
-      isModalOpen: false,
+
+      /**
+       * The current redirect to be update upon or created.
+       * @type {Object}
+       */
       record: {
         id: "",
         fromLink: "",
         toLink: "",
         itemType: ""
       },
+
+      /**
+       * Is used to check if it is successful to make or update the redirect.
+       * @type {boolean}
+       */
       success: false,
+
+      /**
+       * The message of the successful update or creation of the redirect.
+       * @type {string}
+       */
       successMessage: "",
-      fetchedUncaughts: [],
+
+      /**
+       * The uncaught items that can be in the recommended section.
+       * @type {Array.<Uncaught>}
+       */
       uncaughtsInRecommended: [],
-      isUnvalidErrorShowing: false,
     }
   },
 
@@ -316,13 +338,6 @@ export default {
         this.success = true;
         this.successMessage = "Update successful.";
       }
-
-      /*
-        // Remove the message after three seconds.
-        setTimeout(function() {
-          self.success = false;
-        }, 3000);
-      */
     },
 
     /**

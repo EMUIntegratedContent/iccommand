@@ -1,4 +1,4 @@
-        <template>
+<template>
   <div>
     <heading>
       <span slot="title">Step 1/2: Choose redirect type</span>
@@ -29,34 +29,36 @@
 <style></style>
 
 <script>
-  import Heading from "../utils/Heading.vue";
+import Heading from "../utils/Heading.vue";
 
-  export default {
-    mounted() {
-      console.log("Choices mounted.");
-    },
+export default {
+  mounted() {
+    console.log("Choices mounted.");
+  },
 
-    components: {
-      Heading
-    },
+  components: {Heading},
 
-    data: function() { return {}; },
+  data: function() { return {}; },
 
-    computed: {
-      headingIcon: function() {
-        return "<i class='fa fa-map'></i>";
-      }
-    },
+  computed: {
+    /**
+     * Gets the heading icon.
+     * @return {string} The heading icon.
+     */
+    headingIcon: function() {
+      return "<i class='fa fa-map'></i>";
+    }
+  },
 
-    methods: {
-      /**
-       * Changes the item with the specified item type.
-       * @param {string} itemType The item type of the new item.
-       */
-      setItem: function(itemType) {
-        // Vue 2 has done away with $dispatch in favor of $emit.
-        this.$emit("redirectItemChosen", itemType);
-      }
+  methods: {
+    /**
+     * Changes the item with the specified item type.
+     * @param {string} itemType The item type of the new item.
+     */
+    setItem: function(itemType) {
+      // Vue 2 has done away with $dispatch in favor of $emit.
+      this.$emit("redirectItemChosen", itemType);
     }
   }
+}
 </script>

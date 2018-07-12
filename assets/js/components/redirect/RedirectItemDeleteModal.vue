@@ -1,5 +1,5 @@
 <template>
-  <!-- **************************** Delete Modal *************************** -->
+  <!-- Delete Modal -->
   <div id="deleteModal" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -18,7 +18,12 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal" @click="deleteItem" :disabled="deleteConfirm != 'delete'">Delete redirect</button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-dismiss="modal"
+            @click="deleteItem"
+            :disabled="deleteConfirm != 'delete'">Delete redirect</button>
         </div>
       </div>
     </div>
@@ -37,6 +42,10 @@ export default {
 
   data: function() {
     return {
+      /**
+       * The confirmation of the user for the deletion of the redirect.
+       * @type {string}
+       */
       deleteConfirm: null
     };
   },

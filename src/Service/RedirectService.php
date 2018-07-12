@@ -15,7 +15,8 @@ class RedirectService {
   private $container;
 
   /**
-   * The constructor of the RedirectService.
+   * The constructor of the service of the redirects.
+   * @param Container $container The container for the service of the redirects.
    */
   public function __construct(Container $container) {
     $this->container = $container;
@@ -64,7 +65,7 @@ class RedirectService {
   public function validate($redirect): ConstraintViolationList {
     $validator = $this->container->get('validator');
     $errors = $validator->validate($redirect);
-    
+
     return $errors;
   }
 }
