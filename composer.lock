@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "5e4bf881036bee4bcf794ff08807dfb1",
@@ -3973,7 +3973,7 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.0.80",
+            "version": "v1.0.82",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
@@ -6871,16 +6871,16 @@
     "packages-dev": [
         {
             "name": "laravel/homestead",
-            "version": "v7.9.0",
+            "version": "v7.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/homestead.git",
-                "reference": "986f3db020de89c4651d018667ad034301caa738"
+                "reference": "cf7f0b6d6c3fbe824f876f25ef50cf6ff6400949"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/homestead/zipball/986f3db020de89c4651d018667ad034301caa738",
-                "reference": "986f3db020de89c4651d018667ad034301caa738",
+                "url": "https://api.github.com/repos/laravel/homestead/zipball/cf7f0b6d6c3fbe824f876f25ef50cf6ff6400949",
+                "reference": "cf7f0b6d6c3fbe824f876f25ef50cf6ff6400949",
                 "shasum": ""
             },
             "require": {
@@ -6918,7 +6918,7 @@
                 }
             ],
             "description": "A virtual machine for web artisans.",
-            "time": "2018-06-24T16:38:19+00:00"
+            "time": "2018-07-11T17:22:43+00:00"
         },
         {
             "name": "symfony/browser-kit",
