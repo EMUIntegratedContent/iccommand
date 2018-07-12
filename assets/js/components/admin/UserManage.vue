@@ -221,7 +221,7 @@
         },
       },
       methods: {
-        afterSubmitSucceeds: function(){
+        afterSubmitSucceeds: function() {
           let self = this
           this.success = true
           this.successMessage = "Update successful."
@@ -231,7 +231,7 @@
           }, 3000)
         },
         // Run prior to submitting
-        checkForm: function(){
+        checkForm: function() {
           let self = this
           this.$validator.validateAll()
           .then((result) => {

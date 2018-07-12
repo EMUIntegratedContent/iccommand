@@ -4,6 +4,9 @@ http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/inher
 Doctrine field types
 http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html
 
+Doctrine migrations up and down
+php bin/conosle doctrine:migrations:execute YYYYMMDDHHMMSS  --down (--up)
+
 If you get a 500 error where it says "Field {field} does not exist"
 Delete the var/cache directory
 
@@ -118,3 +121,15 @@ https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter (used in 
 
 Sort columns in Vue table (caution: for ordering columns, see the "Order columns in Vue table" note)
 https://codepen.io/pespantelis/pen/ojwgPB
+
+Ckeditor with Vue
+- Vue-ckeditor2: https://github.com/dangvanthanh/vue-ckeditor2
+- Requires Ckeditor4 (download and place in public folder). Add <script> in base.html.twig
+- BUTTONS: https://stackoverflow.com/questions/13828383/what-toolbar-buttons-are-available-in-ckeditor-4
+
+INTERNET EXPLORER FIXES
+- Problems with ES6 Promise (axios): require('es6-promise').polyfill() (will need to install from npm)
+- Polyfills:
+  - startsWith(): https://stackoverflow.com/questions/30867172/code-not-running-in-ie-11-works-fine-in-chrome
+  - includes(): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+

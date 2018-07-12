@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Redirect Items{% endblock %}
+
+{% block modulenav %}
+  {% include 'redirect/nav_redirect.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <redirect-list :permissions="[{{ permissions }}]"></redirect-list>
+{% endblock %}

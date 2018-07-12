@@ -532,6 +532,7 @@
                 return this.permissions[0].edit ? true : false
             }
         },
+
         methods: {
             fetchMultimediaRequests: function () {
                 let self = this
