@@ -873,7 +873,7 @@ export default {
      * Updates the specified redirect to an expired redirect.
      * @param {Redirect} redirect The redirect to be updated as an expired redirect.
      */
-    updateExpiredRedirect(redirect) {
+    updateExpiredRedirect: function(redirect) {
       let self = this; // "this" loses scope within Axios.
 
       /* Ajax (Axios) Submission */
