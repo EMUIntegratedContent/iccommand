@@ -121,13 +121,17 @@ class RedirectController extends FOSRestController {
     $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
     $parsedToLink = parse_url($toLink);
 
-    if (array_key_exists("host", $parsedToLink) && preg_match("/emich\.edu/", $parsedToLink["host"])) {
+    if (array_key_exists("host", $parsedToLink)
+      && array_key_exists("path", $parsedToLink)
+      && preg_match("/emich\.edu/", $parsedToLink["host"])) {
       if ($parsedToLink["path"][0] != "/") {
         $toLink = "/" . $parsedToLink["path"];
       } else {
         $toLink = $parsedToLink["path"];
       }
-    } else if (!array_key_exists("host", $parsedToLink) && $parsedToLink["path"][0] != "/") {
+    } else if (!array_key_exists("host", $parsedToLink)
+      && array_key_exists("path", $parsedToLink)
+      && $parsedToLink["path"][0] != "/") {
       $toLink = "/" . $parsedToLink["path"];
     }
 
@@ -217,13 +221,17 @@ class RedirectController extends FOSRestController {
     $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
     $parsedToLink = parse_url($toLink);
 
-    if (array_key_exists("host", $parsedToLink) && preg_match("/emich\.edu/", $parsedToLink["host"])) {
+    if (array_key_exists("host", $parsedToLink)
+      && array_key_exists("path", $parsedToLink)
+      && preg_match("/emich\.edu/", $parsedToLink["host"])) {
       if ($parsedToLink["path"][0] != "/") {
         $toLink = "/" . $parsedToLink["path"];
       } else {
         $toLink = $parsedToLink["path"];
       }
-    } else if (!array_key_exists("host", $parsedToLink) && $parsedToLink["path"][0] != "/") {
+    } else if (!array_key_exists("host", $parsedToLink)
+      && array_key_exists("path", $parsedToLink)
+      && $parsedToLink["path"][0] != "/") {
       $toLink = "/" . $parsedToLink["path"];
     }
 
@@ -313,13 +321,17 @@ class RedirectController extends FOSRestController {
         $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
         $parsedToLink = parse_url($toLink);
 
-        if (array_key_exists("host", $parsedToLink) && preg_match("/emich\.edu/", $parsedToLink["host"])) {
+        if (array_key_exists("host", $parsedToLink)
+          && array_key_exists("path", $parsedToLink)
+          && preg_match("/emich\.edu/", $parsedToLink["host"])) {
           if ($parsedToLink["path"][0] != "/") {
             $toLink = "/" . $parsedToLink["path"];
           } else {
             $toLink = $parsedToLink["path"];
           }
-        } else if (!array_key_exists("host", $parsedToLink) && $parsedToLink["path"][0] != "/") {
+        } else if (!array_key_exists("host", $parsedToLink)
+          && array_key_exists("path", $parsedToLink)
+          && $parsedToLink["path"][0] != "/") {
           $toLink = "/" . $parsedToLink["path"];
         }
 
@@ -348,7 +360,7 @@ class RedirectController extends FOSRestController {
     }
 
     $serialized = $serializer->serialize($redirects, "json");
-    
+
     $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
 
     return $response;
