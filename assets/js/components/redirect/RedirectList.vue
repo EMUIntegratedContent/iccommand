@@ -296,6 +296,7 @@
       There are no {{ emptyRedirects }} redirects to delete.
     </div>
     <!-- Action Buttons -->
+    <!--
     <div v-if="userCanEdit" aria-label="action buttons" class="mb-4">
       <button
         type="button"
@@ -314,6 +315,7 @@
         class="btn btn-danger"
         @click="deleteRedirects('invalid')">Delete All Invalid Redirects</button>
     </div>
+    -->
   </div>
 </template>
 

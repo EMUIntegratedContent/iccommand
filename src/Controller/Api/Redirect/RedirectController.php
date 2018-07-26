@@ -303,7 +303,9 @@ class RedirectController extends FOSRestController {
    * Updates the redirects specifically checking for the toLink fields to be valid URLs.
    * @return Response The redirects, the status code, and the HTTP headers.
    */
-  public function putRedirectsAction(): Response {
+  public function putRedirectsAction(Request $request): Response {
+    // $selectedRedirects = $this->getDoctrine()->getRepository(Redirect::class)->find($request->request->get("id"));
+
     $redirects = $this->getDoctrine()->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
     $serializer = $this->container->get("jms_serializer");
     $em = $this->getDoctrine()->getManager();
