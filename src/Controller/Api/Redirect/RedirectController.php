@@ -61,6 +61,7 @@ class RedirectController extends FOSRestController
     public function putExternalRedirectincrementAction(Request $request): Response
     {
         $url = $request->request->get('url');
+        var_dump($request->request->all());
 
         $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
         if (!$redirect) {
