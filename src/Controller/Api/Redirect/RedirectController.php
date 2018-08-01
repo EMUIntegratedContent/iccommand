@@ -2,6 +2,7 @@
 namespace App\Controller\Api\Redirect;
 
 use App\Entity\Redirect\Redirect;
+use App\Entity\Redirect\Uncaught;
 use App\Service\RedirectService;
 use Doctrine\ORM\PersistentCollection;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -81,6 +82,54 @@ class RedirectController extends FOSRestController
 
         return $response;
     }
+
+    public function postExternalUncaughtAction(Request $request): Response
+    {
+        if( $request->request->get('url') ){
+            $response = new Response("No URL was specified. Exiting.", 400, array('Content-Type' => 'application/json'));
+            return $response;
+        }
+
+        $uncaught = new Uncaught();
+        $uncaught->setLink($request->request->get('url'));
+        $uncaught->setVisits(1);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($uncaught);
+        $em->flush();
+
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($uncaught, "json");
+        $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
+
+        return $response;
+    }
+
+    /*
+    public function putExternalUncaughtincrementAction(Request $request): Response
+    {
+        $url = $request->request->get('url');
+
+        $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
+        if (!$redirect) {
+            $response = new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
+        }
+
+        // Increment the number of visits for the redirect.
+        $redirect->setVisits($redirect->getVisits() + 1);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($redirect);
+        $em->flush();
+
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($redirect, "json");
+        $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
+
+        return $response;
+    }
+    */
 
     /**
      * Deletes the redirect from the specified ID.
