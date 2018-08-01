@@ -34,7 +34,6 @@ class RedirectController extends FOSRestController
     }
 
     /**
-     * @Rest\Get("/api/external/redirect/{url}", defaults={"type" = null})
      * @param Request $request
      * @return Response
      */
