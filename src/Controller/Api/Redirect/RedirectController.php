@@ -38,10 +38,10 @@ class RedirectController extends FOSRestController
      * @param Request $request
      * @return Response
      */
-    public function getExternalRedirectAction($url)
+    public function getExternalRedirectAction(Request $request)
     {
         //$url = $request->query->get('url');
-        var_dump($url);
+        var_dump($request->query->all());
         return new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
         /*
         $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
