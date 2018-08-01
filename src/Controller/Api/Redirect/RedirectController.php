@@ -33,6 +33,25 @@ class RedirectController extends FOSRestController
         $this->service = $service;
     }
 
+    public function getExternalRedirectAction(Request $request): Response
+    {
+        $url = $request->query->get('url');
+        $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
+        if (!$redirect) {
+            $response = new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
+        }
+
+        $context = new SerializationContext();
+        $context->setSerializeNull(true);
+
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($redirect, 'json', $context);
+        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+        return $response;
+    }
+
     /**
      * Deletes the redirect from the specified ID.
      * @param string $id The ID of the redirect.
@@ -279,20 +298,7 @@ class RedirectController extends FOSRestController
                 $message = $redirect->getItemType() == "redirect of broken link"
                     ? "The actual link should not include any spaces." : "The full link should not include any spaces.";
 
-<<<<<<< HEAD
                 $response = new Response($message, 422, array("Content-Type" => "application/json"));
-=======
-  /**
-   * Updates the redirects specifically checking for the toLink fields to be valid URLs.
-   * @return Response The redirects, the status code, and the HTTP headers.
-   */
-  public function putRedirectsAction(Request $request): Response {
-    // $selectedRedirects = $this->getDoctrine()->getRepository(Redirect::class)->find($request->request->get("id"));
-
-    $redirects = $this->getDoctrine()->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
-    $serializer = $this->container->get("jms_serializer");
-    $em = $this->getDoctrine()->getManager();
->>>>>>> 2d5c14296958f789a183fd066e1daa225b7760db
 
                 return $response;
             }
