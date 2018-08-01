@@ -38,8 +38,8 @@ class Uncaught {
    * The broken link that is being visited multiple times.
    * @ORM\Column(
    *    type="string",
-   *    length = 255,
-   *     unique = true,
+   *    length=191,
+   *    unique=true,
    * )
    */
   private $link;
