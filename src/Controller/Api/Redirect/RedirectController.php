@@ -89,6 +89,7 @@ class RedirectController extends FOSRestController
             $response = new Response("No URL was specified. Exiting.", 400, array('Content-Type' => 'application/json'));
             return $response;
         }
+        var_dump($request->request->get('url'));
 
         $uncaught = new Uncaught();
         $uncaught->setLink($request->request->get('url'));
