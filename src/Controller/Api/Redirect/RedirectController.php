@@ -85,7 +85,7 @@ class RedirectController extends FOSRestController
 
     public function postExternalUncaughtAction(Request $request): Response
     {
-        if( $request->request->get('url') ){
+        if( !$request->request->get('url') ){
             $response = new Response("No URL was specified. Exiting.", 400, array('Content-Type' => 'application/json'));
             return $response;
         }
