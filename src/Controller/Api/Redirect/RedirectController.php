@@ -35,7 +35,7 @@ class RedirectController extends FOSRestController
     }
 
     /**
-     * Find a URL passed from an external source
+     * Find a redirect URL passed from an external source
      * @param Request $request
      * @return Response
      */
@@ -59,6 +59,36 @@ class RedirectController extends FOSRestController
         return $response;
     }
 
+    /**
+     * Find an uncaught URL passed from an external source
+     * @param Request $request
+     * @return Response
+     */
+    public function getExternalUncaughtAction(Request $request): Response
+    {
+        $url = $request->query->get('url');
+
+        $uncaught = $this->getDoctrine()->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
+        if (!$uncaught) {
+            $response = new Response("The uncaught redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
+        }
+
+        $context = new SerializationContext();
+        $context->setSerializeNull(true);
+
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($uncaught, 'json', $context);
+        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+        return $response;
+    }
+
+    /**
+     * Increment the number of visits a URL redirect has received
+     * @param Request $request
+     * @return Response
+     */
     public function putExternalRedirectincrementAction(Request $request): Response
     {
         $url = $request->request->get('url');
@@ -84,13 +114,13 @@ class RedirectController extends FOSRestController
     }
 
     /**
+     * Add a new uncaught URL from an external source
      * @Rest\Post("external/uncaught")
      * @param Request $request
      * @return Response
      */
     public function postExternalUncaughtAction(Request $request): Response
     {
-
         if( !$request->request->get('url') ){
             $response = new Response("No URL was specified. Exiting.", 400, array('Content-Type' => 'application/json'));
             return $response;
@@ -111,31 +141,34 @@ class RedirectController extends FOSRestController
         return $response;
     }
 
-    /*
+    /**
+     * Increment the number of visits an uncaught URL redirect has received
+     * @param Request $request
+     * @return Response
+     */
     public function putExternalUncaughtincrementAction(Request $request): Response
     {
         $url = $request->request->get('url');
 
-        $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
-        if (!$redirect) {
+        $uncaught = $this->getDoctrine()->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
+        if (!$uncaught) {
             $response = new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
             return $response;
         }
 
         // Increment the number of visits for the redirect.
-        $redirect->setVisits($redirect->getVisits() + 1);
+        $uncaught->setVisits($uncaught->getVisits() + 1);
 
         $em = $this->getDoctrine()->getManager();
-        $em->persist($redirect);
+        $em->persist($uncaught);
         $em->flush();
 
         $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($redirect, "json");
+        $serialized = $serializer->serialize($uncaught, "json");
         $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
 
         return $response;
     }
-    */
 
     /**
      * Deletes the redirect from the specified ID.
