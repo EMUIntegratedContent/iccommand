@@ -38,7 +38,7 @@ class RedirectController extends FOSRestController
      * @param Request $request
      * @return Response
      */
-    public function getExternalRedirectAction(Request $request)
+    public function getExternalRedirectAction(Request $request): Response
     {
         $url = $request->query->get('url');
 
@@ -54,6 +54,30 @@ class RedirectController extends FOSRestController
         $serializer = $this->container->get('jms_serializer');
         $serialized = $serializer->serialize($redirect, 'json', $context);
         $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+
+        return $response;
+    }
+
+    public function putExternalRedirectincrementAction(Request $request): Response
+    {
+        $url = $request->request->get('url');
+
+        $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
+        if (!$redirect) {
+            $response = new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
+            return $response;
+        }
+        
+        // Increment the number of visits for the redirect.
+        $redirect->setVisits($redirect->getVisits() + 1);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($redirect);
+        $em->flush();
+
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($redirect, "json");
+        $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
 
         return $response;
     }
