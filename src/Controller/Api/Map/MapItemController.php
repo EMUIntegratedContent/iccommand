@@ -43,10 +43,17 @@ class MapItemController extends FOSRestController
      */
     public function getExternalMapitemsAction()
     {
-        $hateoas = HateoasBuilder::create()->build();
+        //$hateoas = HateoasBuilder::create()->build();
         $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
-        $serialized = $hateoas->serialize($mapItems, 'json');
 
+        // Need to return NULL fields too (latitude and longitude don't have to have a value)
+        // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
+        $context = new SerializationContext();
+        $context->setSerializeNull(true);
+
+        //$serialized = $hateoas->serialize($mapItems, 'json');
+        $serializer = $this->container->get('jms_serializer');
+        $serialized = $serializer->serialize($mapItems, 'json', $context);
         $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
         return $response;
     }
@@ -230,6 +237,9 @@ class MapItemController extends FOSRestController
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
         $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
         $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
+        if($request->request->get('alias') != ''){
+            $mapItem->setAlias($request->request->get('alias'));
+        }
 
         // validate map item
         $errors = $this->service->validate($mapItem);
@@ -539,6 +549,11 @@ class MapItemController extends FOSRestController
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
         $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
         $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
+        if($request->request->get('alias') != ''){
+            $mapItem->setAlias($request->request->get('alias'));
+        } else {
+            $mapItem->setAlias(null);
+        }
 
         // validate map item
         $errors = $this->service->validate($mapItem);

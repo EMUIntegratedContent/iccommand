@@ -53,7 +53,7 @@
             map: {
               title: "Campus Map",
               description: "The campus map application contains all points of interest at EMU. These items are displayed at emich.edu/maps.",
-              buttonText: "OMG MAPAPP",
+              buttonText: "Open Application",
               buttonLink: "/map/items",
               display: false
             },

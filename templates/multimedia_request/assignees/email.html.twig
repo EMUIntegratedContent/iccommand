@@ -12,8 +12,48 @@
     }
 </style>
 
-<div class="float-left"><img src="{{ absolute_url(asset('images/e-box.png')) }}" width="100px" height="100px" /></div>
-<h1>EMU Web Communications Application Suite</h1>
-Hi from {{ record.firstName }}
+<div style="clear:both; height:140px;">
+    <div class="float-left"><img src="{{ absolute_url(asset('images/e-box.png')) }}" width="100px" height="100px" /></div>
+    <h1>EMU Web Communications Application Suite</h1>
+</div>
+Hi, {{ record.firstName }}.
+{% set requsetType = 'multimedia' %}
+{% if record.discr == 'headshotrequest' %}
+    {% set requestType = 'headshot' %}
+{% elseif record.discr == 'photorequest' %}
+    {% set requestType = 'photo' %}
+{% elseif record.discr == 'videorequest' %}
+    {% set requestType = 'video' %}
+{% elseif record.discr == 'publicationrequest' %}
+    {% set requestType = 'marketing materials' %}
+{% endif %}
 
-{{ customBody }}
+<p>A {{ requestType }} request has been assigned to you.</p>
+
+{% if customBody != '' %}
+    <p><strong>Message from admin</strong></p>
+    {{ customBody }}
+{% endif %}
+
+<p><strong>Request Details</strong></p>
+<ul>
+    {% if record.discr == "headshotrequest" %}
+        <li>Time: {{ record.timeSlot.dateOfShoot|date('l, M d, Y') ~ ' at ' ~ record.timeSlot.startTime }}</li>
+    {% endif %}
+    {% if record.discr == "photorequest" %}
+        <li>Location: {{ record.location }}</li>
+        <li>Start time: {{ record.startTime|date('l, M d, Y \\a\\t g:i a') }}</li>
+        <li>End time: {{ record.endTime|date('l, M d, Y \\a\\t g:i a') }}</li>
+        <li>Request type: {{ record.photoRequestType.requestType }}</li>
+    {% endif %}
+    {% if record.discr == "videorequest" %}
+        <li>Desired completion date: {{ record.completionDate|date('l, M d, Y') }}</li>
+    {% endif %}
+    {% if record.discr == "publicationrequest" %}
+        <li>Desired completion date: {{ record.completionDate|date('l, M d, Y') }}</li>
+        <li>Intended use: {{ record.intendedUse }}</li>
+        <li>Photography is {% if record.isPhotographyRequired == 0 %}NOT{% endif %} required.</li>
+    {% endif %}
+    <li>Client: {{ record.firstName ~ ' ' ~ record.lastName }}</li>
+    <li>Description: {{ record.description }}</li>
+</ul>

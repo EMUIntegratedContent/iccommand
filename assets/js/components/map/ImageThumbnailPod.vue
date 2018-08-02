@@ -97,12 +97,7 @@
     methods: {
         deleteImage: function(image){
             let self = this
-            self.isImageDeleted = true
-            setTimeout(function(){
-                self.imageDeleteRequested() // function to emit notice of deletion to parent
-                self.isImageDeleted = false
-            }, 1500)
-            /*
+
             axios.delete('/api/mapitemimages/' + image.id)
                 .then(function(response){
                     // mark the deleted image in a colored border for 1.5 seconds, then remove it from the record
@@ -116,9 +111,8 @@
                     self.isImageDeletedError = true
                     setTimeout(function(){
                         self.isImageDeletedError = false
-                    }, 5000)
+                    }, 3000)
                 })
-                */
         },
         editImage: function(image){
             let self = this

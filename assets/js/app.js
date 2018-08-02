@@ -1,5 +1,6 @@
 require("../css/app.scss")
 require("./bootstrap")
+require('es6-promise').polyfill()
 
 // Init function.
 $(document).ready(function() {
@@ -19,13 +20,38 @@ $(document).ready(function() {
     })
 });
 
+/* ******************************** IE Polyfills **************************** */
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+        position = position || 0;
+        return this.indexOf(searchString, position) === position;
+    };
+}
+
+if (!String.prototype.includes) {
+    String.prototype.includes = function(search, start) {
+        'use strict';
+        if (typeof start !== 'number') {
+            start = 0;
+        }
+
+        if (start + search.length > this.length) {
+            return false;
+        } else {
+            return this.indexOf(search, start) !== -1;
+        }
+    };
+}
+
 /* ******************************** Vue Setup ******************************* */
 import Vue from "vue";
 import VeeValidate from "vee-validate";
 import PrettyCheckbox from "pretty-checkbox-vue";
+import VueCkeditor from "vue-ckeditor2";
 
 Vue.use(VeeValidate);
 Vue.use(PrettyCheckbox);
+Vue.use(VueCkeditor);
 
 /* ************************* Declare Components Here ************************ */
 

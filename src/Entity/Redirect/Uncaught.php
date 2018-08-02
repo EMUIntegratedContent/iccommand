@@ -7,11 +7,13 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * An uncaught link is a broken link that a large number of users have visited
  * and is recommended to be part of a redirect.
  * @ORM\Entity(repositoryClass = "App\Repository\Redirect\UncaughtRepository")
+ * @UniqueEntity("link")
  */
 class Uncaught {
   /* *************************** Member Variables *************************** */
@@ -36,7 +38,8 @@ class Uncaught {
    * The broken link that is being visited multiple times.
    * @ORM\Column(
    *    type="string",
-   *    length = 255
+   *    length=191,
+   *    unique=true,
    * )
    */
   private $link;

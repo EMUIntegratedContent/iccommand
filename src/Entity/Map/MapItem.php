@@ -13,6 +13,10 @@ use App\Entity\Map\MapitemImage;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
+ * @UniqueEntity(
+ *     fields={"alias"},
+ *     message="Another map item already uses this alias"
+ * )
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "dining" = "MapDining", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking"})
@@ -40,6 +44,11 @@ abstract class MapItem
      * @ORM\Column(length=128, unique=true)
      */
     private $slug;
+
+    /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     */
+    private $alias;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -122,6 +131,16 @@ abstract class MapItem
     public function getSlug()
     {
         return $this->slug;
+    }
+
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+    }
+
+    public function getAlias()
+    {
+        return $this->alias;
     }
 
     public function getDescription()
