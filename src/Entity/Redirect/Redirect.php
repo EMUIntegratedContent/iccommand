@@ -80,18 +80,10 @@ class Redirect {
   /* Gedmo Variables */
 
   /**
-   * The time stamp when this redirect was last changed.
-   * @ORM\Column(
-   *    type = "datetime",
-   *    nullable = true
-   * )
-   * @Gedmo\Timestampable(
-   *    on = "change",
-   *    field = {
-   *      "title",
-   *      "body"
-   *    }
-   * )
+   * The user who last updated this redirect.
+   * @ORM\Column(type = "string")
+   * @Gedmo\Blameable(on = "update")
+   * @Serializer\SerializedName("contentChanged")
    */
   private $contentChanged;
 
@@ -101,6 +93,14 @@ class Redirect {
    * @Gedmo\Timestampable(on = "create")
    */
   private $created;
+
+  /**
+   * The user who created this redirect.
+   * @ORM\Column(type = "string")
+   * @Gedmo\Blameable(on = "create")
+   * @Serializer\SerializedName("createdBy")
+   */
+  private $createdBy;
 
   /**
    * The time stamp when this redirect was last updated.
@@ -224,8 +224,8 @@ class Redirect {
   /* ***************************** Gedmo Getters **************************** */
 
   /**
-   * Obtains the time stamp when this redirect was last changed.
-   * @return datetime The time stamp when this redirect was last published.
+   * Obtains the user who last updated this redirect.
+   * @return string The user who last updated this redirect.
    */
   public function getContentChanged() {
     return $this->contentChanged;
@@ -237,6 +237,14 @@ class Redirect {
    */
   public function getCreated() {
     return $this->created;
+  }
+
+  /**
+   * Obtains the user who created this redirect.
+   * @return string The user who created this redirect.
+   */
+  public function getCreatedBy() {
+    return $this->createdBy;
   }
 
   /**
