@@ -1,49 +1,16 @@
 <?php
 
-namespace App\Tests\Controller\Map;
+namespace App\Tests\Api\Map;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Entity\MapItem;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 //FUNCTIONAL AND UNIT TESTING TUTORIAL: https://symfony.com/doc/current/testing.html
-class MapControllerTest extends WebTestCase
+class MapItemControllerTest extends WebTestCase
 {
-    /*
-    public function testIndex()
-    {
-        $client = static::createClient();
-
-        $crawler = $client->request('GET', '/map');
-
-        // asserts that there is an HTTP response of 200 when requesting the route
-        $this->assertEquals(
-            200,
-            $client->getResponse()->getStatusCode());
-
-       $client->request('GET', '/map');
-
-       // asserts that the "Content-Type" header is "text/html"
-       $this->assertTrue(
-           $client->getResponse()->headers->contains(
-               'Content-Type',
-               'text/html; charset=UTF-8'
-           ),
-           $client->getResponse()->headers->get('Content-Type') // optional message shown on failure
-       );
-    }
-
-    public function testManage(){
-        $client = static::createClient();
-        $crawler = $client->request('GET','/map/manage');
-
-        $this->assertEquals(
-            200,
-            $client->getResponse()->getStatusCode());
-
-        $client->request('GET', '/map');
-    }*/
     private $client = null;
 
     public function setUp()
@@ -51,25 +18,6 @@ class MapControllerTest extends WebTestCase
         $this->client = static::createClient();
     }
 
-    public function testSecuredHello()
-    {
-        $this->logIn();
-        $crawler = $this->client->request('GET', '/map');
-
-        $this->assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        //$this->assertSame('Admin Dashboard', $crawler->filter('h1')->text());
-    }
-
-    public function testSecuredBob()
-    {
-        $this->logIn();
-        $crawler = $this->client->request('GET', '/redirects/1');
-
-        $this->assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        //$this->assertSame('Admin Dashboard', $crawler->filter('h1')->text());
-    }
-
-/*
     public function testGetItem()
     {
         $this->login();
@@ -87,12 +35,11 @@ class MapControllerTest extends WebTestCase
        $this->assertTrue(
            $this->client->getResponse()->headers->contains(
                'Content-Type',
-               'text/html; charset=UTF-8'
+               'application/json'
            ),
            $this->client->getResponse()->headers->get('Content-Type') // optional message shown on failure
        );
     }
-    */
 
     private function logIn()
     {
@@ -105,7 +52,7 @@ class MapControllerTest extends WebTestCase
 
         // you may need to use a different token class depending on your application.
         // for example, when using Guard authentication you must instantiate PostAuthenticationGuardToken
-        $token = new UsernamePasswordToken('user', 'pass', $firewallName, array('ROLE_GLOBAL_ADMIN_SUPER'));
+        $token = new UsernamePasswordToken('cpuzzuol', 'password', $firewallName, array('ROLE_GLOBAL_ADMIN_SUPER'));
         $session->set('_security_'.$firewallContext, serialize($token));
         $session->save();
 
