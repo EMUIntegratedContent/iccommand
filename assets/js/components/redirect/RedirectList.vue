@@ -50,6 +50,8 @@
                     <th scope="col">Actual Links</th>
                     <th scope="col">Last Visit</th>
                     <th scope="col">Visits</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Updated</th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
@@ -69,6 +71,8 @@
                     </td>
                     <td>{{ formatDate(redirect.lastVisit) }}</td>
                     <td>{{ redirect.visits }}</td>
+                    <td>{{ redirect.createdBy }}</td>
+                    <td>{{ redirect.contentChanged }}</td>
                     <td>
                       <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
                     </td>
@@ -118,6 +122,8 @@
                     <th scope="col">Full Links</th>
                     <th scope="col">Last Visit</th>
                     <th scope="col">Visits</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Updated</th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
@@ -137,6 +143,8 @@
                     </td>
                     <td>{{ formatDate(redirect.lastVisit) }}</td>
                     <td>{{ redirect.visits }}</td>
+                    <td>{{ redirect.createdBy }}</td>
+                    <td>{{ redirect.contentChanged }}</td>
                     <td>
                       <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
                     </td>
@@ -155,141 +163,145 @@
         </div>
       </div>
       <!-- Expired Redirects Section -->
-      <div class="card">
-        <div class="card-header" id="headingExpiredRedirects">
-          <h5 class="mb-0">
-            <button
-              class="btn btn-link collapsed"
-              data-toggle="collapse"
-              data-target="#collapseExpiredRedirects"
-              aria-expanded="false"
-              aria-controls="collapseInvalidRedirects">
-              Expired Redirects
-              <span
-                v-if="!loadingExpiredRedirects"
-                class="badge badge-primary">{{ resultedExpiredRedirects.length }}</span>
-              <span v-else><i class="fa fa-spinner"></i></span>
-            </button>
-          </h5>
-        </div>
-        <div
-          id="collapseExpiredRedirects"
-          class="collapse"
-          aria-labelledby="headingExpiredRedirects"
-          data-parent="#accordion">
-          <div class="card-body">
-            <div v-if="!loadingExpiredRedirects" class="table-responsive">
-              <table class="table table-hover table-sm">
-                <thead>
-                  <tr>
-                    <th scope="col">Redirect Links</th>
-                    <th scope="col">Actual Links</th>
-                    <th scope="col">Last Visit</th>
-                    <th scope="col">Visits</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="redirect in paginatedExpiredRedirects" :id="redirect.id">
-                    <td>
-                      <a
-                        :href="'https://www.emich.edu' + redirect.fromLink"
-                        target="_blank"
-                        title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
-                    </td>
-                    <td>
-                      <a
-                        :href="getFixedLink(redirect.toLink)"
-                        target="_blank"
-                        title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
-                    </td>
-                    <td>{{ formatDate(redirect.lastVisit) }}</td>
-                    <td>{{ redirect.visits }}</td>
-                    <td>
-                      <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+      <!--
+        <div class="card">
+          <div class="card-header" id="headingExpiredRedirects">
+            <h5 class="mb-0">
+              <button
+                class="btn btn-link collapsed"
+                data-toggle="collapse"
+                data-target="#collapseExpiredRedirects"
+                aria-expanded="false"
+                aria-controls="collapseInvalidRedirects">
+                Expired Redirects
+                <span
+                  v-if="!loadingExpiredRedirects"
+                  class="badge badge-primary">{{ resultedExpiredRedirects.length }}</span>
+                <span v-else><i class="fa fa-spinner"></i></span>
+              </button>
+            </h5>
+          </div>
+          <div
+            id="collapseExpiredRedirects"
+            class="collapse"
+            aria-labelledby="headingExpiredRedirects"
+            data-parent="#accordion">
+            <div class="card-body">
+              <div v-if="!loadingExpiredRedirects" class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col">Redirect Links</th>
+                      <th scope="col">Actual Links</th>
+                      <th scope="col">Last Visit</th>
+                      <th scope="col">Visits</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="redirect in paginatedExpiredRedirects" :id="redirect.id">
+                      <td>
+                        <a
+                          :href="'https://www.emich.edu' + redirect.fromLink"
+                          target="_blank"
+                          title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
+                      </td>
+                      <td>
+                        <a
+                          :href="getFixedLink(redirect.toLink)"
+                          target="_blank"
+                          title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
+                      </td>
+                      <td>{{ formatDate(redirect.lastVisit) }}</td>
+                      <td>{{ redirect.visits }}</td>
+                      <td>
+                        <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else>
+                <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
+              </div>
+              <paginator
+                v-show="!loadingExpiredRedirects"
+                :items="resultedExpiredRedirects"
+                @itemsPerPageChanged="setPaginatedExpiredRedirects"></paginator>
             </div>
-            <div v-else>
-              <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
-            </div>
-            <paginator
-              v-show="!loadingExpiredRedirects"
-              :items="resultedExpiredRedirects"
-              @itemsPerPageChanged="setPaginatedExpiredRedirects"></paginator>
           </div>
         </div>
-      </div>
+      -->
       <!-- Invalid Redirects Section -->
-      <div class="card">
-        <div class="card-header" id="headingInvalidRedirects">
-          <h5 class="mb-0">
-            <button
-              class="btn btn-link collapsed"
-              data-toggle="collapse"
-              data-target="#collapseInvalidRedirects"
-              aria-expanded="false"
-              aria-controls="collapseInvalidRedirects">
-              Invalid Redirects
-              <span
-                v-if="!loadingInvalidRedirects"
-                class="badge badge-primary">{{ resultedInvalidRedirects.length }}</span>
-              <span v-else><i class="fa fa-spinner"></i></span>
-            </button>
-          </h5>
-        </div>
-        <div
-          id="collapseInvalidRedirects"
-          class="collapse"
-          aria-labelledby="headingInvalidRedirects"
-          data-parent="#accordion">
-          <div class="card-body">
-            <div v-if="!loadingInvalidRedirects" class="table-responsive">
-              <table class="table table-hover table-sm">
-                <thead>
-                  <tr>
-                    <th scope="col">Redirect Links</th>
-                    <th scope="col">Actual Links</th>
-                    <th scope="col">Last Visit</th>
-                    <th scope="col">Visits</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="redirect in paginatedInvalidRedirects" :id="redirect.id">
-                    <td>
-                      <a
-                        :href="'https://www.emich.edu' + redirect.fromLink"
-                        target="_blank"
-                        title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
-                    </td>
-                    <td>
-                      <a
-                        :href="getFixedLink(redirect.toLink)"
-                        target="_blank"
-                        title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
-                    </td>
-                    <td>{{ formatDate(redirect.lastVisit) }}</td>
-                    <td>{{ redirect.visits }}</td>
-                    <td>
-                      <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+      <!--
+        <div class="card">
+          <div class="card-header" id="headingInvalidRedirects">
+            <h5 class="mb-0">
+              <button
+                class="btn btn-link collapsed"
+                data-toggle="collapse"
+                data-target="#collapseInvalidRedirects"
+                aria-expanded="false"
+                aria-controls="collapseInvalidRedirects">
+                Invalid Redirects
+                <span
+                  v-if="!loadingInvalidRedirects"
+                  class="badge badge-primary">{{ resultedInvalidRedirects.length }}</span>
+                <span v-else><i class="fa fa-spinner"></i></span>
+              </button>
+            </h5>
+          </div>
+          <div
+            id="collapseInvalidRedirects"
+            class="collapse"
+            aria-labelledby="headingInvalidRedirects"
+            data-parent="#accordion">
+            <div class="card-body">
+              <div v-if="!loadingInvalidRedirects" class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col">Redirect Links</th>
+                      <th scope="col">Actual Links</th>
+                      <th scope="col">Last Visit</th>
+                      <th scope="col">Visits</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="redirect in paginatedInvalidRedirects" :id="redirect.id">
+                      <td>
+                        <a
+                          :href="'https://www.emich.edu' + redirect.fromLink"
+                          target="_blank"
+                          title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
+                      </td>
+                      <td>
+                        <a
+                          :href="getFixedLink(redirect.toLink)"
+                          target="_blank"
+                          title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
+                      </td>
+                      <td>{{ formatDate(redirect.lastVisit) }}</td>
+                      <td>{{ redirect.visits }}</td>
+                      <td>
+                        <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else>
+                <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
+              </div>
+              <paginator
+                v-show="!loadingInvalidRedirects"
+                :items="resultedInvalidRedirects"
+                @itemsPerPageChanged="setPaginatedInvalidRedirects"></paginator>
             </div>
-            <div v-else>
-              <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
-            </div>
-            <paginator
-              v-show="!loadingInvalidRedirects"
-              :items="resultedInvalidRedirects"
-              @itemsPerPageChanged="setPaginatedInvalidRedirects"></paginator>
           </div>
         </div>
-      </div>
+      -->
     </div><br/>
     <!-- Warning Message -->
     <div v-if="emptyRedirects" class="alert alert-danger fade show" role="alert">
