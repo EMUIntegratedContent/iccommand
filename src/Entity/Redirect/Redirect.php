@@ -80,22 +80,6 @@ class Redirect {
   /* Gedmo Variables */
 
   /**
-   * The time stamp when this redirect was last changed.
-   * @ORM\Column(
-   *    type = "datetime",
-   *    nullable = true
-   * )
-   * @Gedmo\Timestampable(
-   *    on = "change",
-   *    field = {
-   *      "title",
-   *      "body"
-   *    }
-   * )
-   */
-  private $contentChanged;
-
-  /**
    * The time stamp when this redirect was created.
    * @ORM\Column(type = "datetime")
    * @Gedmo\Timestampable(on = "create")
@@ -103,11 +87,27 @@ class Redirect {
   private $created;
 
   /**
+   * The user who created this redirect.
+   * @ORM\Column(type = "string")
+   * @Gedmo\Blameable(on = "create")
+   * @Serializer\SerializedName("createdBy")
+   */
+  private $createdBy;
+
+  /**
    * The time stamp when this redirect was last updated.
    * @ORM\Column(type = "datetime")
    * @Gedmo\Timestampable(on = "update")
    */
   private $updated;
+
+  /**
+   * The user who last updated this redirect.
+   * @ORM\Column(type = "string")
+   * @Gedmo\Blameable(on = "update")
+   * @Serializer\SerializedName("updatedBy")
+   */
+  private $updatedBy;
 
   /**
    * The constructor of a redirect.
@@ -224,14 +224,6 @@ class Redirect {
   /* ***************************** Gedmo Getters **************************** */
 
   /**
-   * Obtains the time stamp when this redirect was last changed.
-   * @return datetime The time stamp when this redirect was last published.
-   */
-  public function getContentChanged() {
-    return $this->contentChanged;
-  }
-
-  /**
    * Obtains the time stamp when this redirect was created.
    * @return datetime The time stamp when this redirect was created.
    */
@@ -240,10 +232,26 @@ class Redirect {
   }
 
   /**
+   * Obtains the user who created this redirect.
+   * @return string The user who created this redirect.
+   */
+  public function getCreatedBy() {
+    return $this->createdBy;
+  }
+
+  /**
    * Obtains the time stamp when this redirect was last updated.
    * @return datetime The time stamp when this redirect was last updated.
    */
   public function getUpdated() {
     return $this->updated;
+  }
+
+  /**
+   * Obtains the user who last updated this redirect.
+   * @return string The user who last updated this redirect.
+   */
+  public function getUpdatedBy() {
+    return $this->updatedBy;
   }
 }
