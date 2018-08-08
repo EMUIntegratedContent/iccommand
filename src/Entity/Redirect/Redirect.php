@@ -146,7 +146,7 @@ class Redirect {
    * Obtains the time stamp when this redirect was last used.
    * @return string The time stamp when this redirect was last used.
    */
-  public function getLastVisit() {
+  public function getLastVisit(): ?\DateTimeInterface {
     return $this->lastVisit;
   }
 
@@ -190,10 +190,10 @@ class Redirect {
 
   /**
    * Changes the time stamp when this redirect was last used.
-   * @param string $lastVisit The time stamp when this redirect was last used.
+   * @param \DateTimeInterface $lastVisit The time stamp when this redirect was last used.
    * @return Redirect This redirect.
    */
-  public function setLastVisit(string $lastVisit): self {
+  public function setLastVisit(\DateTimeInterface $lastVisit): self {
     $this->lastVisit = $lastVisit;
 
     return $this;
