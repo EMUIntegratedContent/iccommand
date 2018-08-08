@@ -102,7 +102,7 @@
             <tbody>
               <tr v-for="uncaught in uncaughtsInRecommended" :id="uncaught.id">
                 <td>{{ uncaught.link }}</td>
-                <td><i class="fa fa-plus-square pointer" @click="setFromLink(uncaught.link)"></i> <i class="fa fa-times-circle pointer" @click="removeFromRecommended(uncaught)"></i></td>
+                <td><i class="fa fa-plus-square pointer fa-2x pr-4 green" @click="setFromLink(uncaught.link)"></i> <i class="fa fa-times-circle pointer fa-2x red" @click="removeFromRecommended(uncaught)"></i></td>
               </tr>
             </tbody>
           </table>
@@ -120,6 +120,12 @@
 <style>
 .pointer {
   cursor: pointer;
+}
+.green{
+    color:#4A6086;
+}
+.red{
+    color:#FF0033;
 }
 </style>
 
