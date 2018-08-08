@@ -43,16 +43,6 @@ class RedirectController extends FOSRestController
     {
         $url = $request->query->get('url');
 
-        if (substr($url, -1) == '/') {
-    		$url  = rtrim($url, '/');
-    	}
-    	else if (substr($url, -10) == '/index.php') {
-    		$url  = substr($url, 0, -10);
-    	}
-    	else if (substr($url, -11) == '/index.html') {
-    		$url  = substr($url, 0, -11);
-    	}
-
         $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
         if (!$redirect) {
             $response = new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
