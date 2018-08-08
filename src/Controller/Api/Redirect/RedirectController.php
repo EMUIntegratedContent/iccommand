@@ -76,7 +76,7 @@ class RedirectController extends FOSRestController
 
         // Increment the number of visits for the redirect.
         $redirect->setVisits($redirect->getVisits() + 1);
-        $redirect->setLastVisit(\DateTime::format('Y-m-d H:i:s');
+        //$redirect->setLastVisit(\DateTime::format('Y-m-d H:i:s');
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($redirect);
