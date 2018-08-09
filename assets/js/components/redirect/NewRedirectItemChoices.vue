@@ -8,8 +8,8 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Redirecting a Broken Link</h5>
-            <p class="card-text">I like cheese and crackers.</p>
-            <button type="button" class="btn btn-primary" @click="setItem('redirect of broken link')">New redirect of broken link</button>
+            <p class="card-text">Point a broken link to a working URL.</p>
+            <button type="button" class="btn btn-primary" @click="setItem('redirect of broken link')">Create</button>
           </div>
         </div>
       </div>
@@ -17,8 +17,8 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Link Shortening</h5>
-            <p class="card-text">I like crackers and cheese.</p>
-            <button type="button" class="btn btn-secondary" @click="setItem('redirect of shortened link')">New redirect of shortened link</button>
+            <p class="card-text">Make a "vanity URL"; a shortened link of an otherwise longer URL.</p>
+            <button type="button" class="btn btn-secondary" @click="setItem('redirect of shortened link')">Create</button>
           </div>
         </div>
       </div>
