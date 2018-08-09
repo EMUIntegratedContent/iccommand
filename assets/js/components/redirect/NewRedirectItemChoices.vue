@@ -17,7 +17,7 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Link Shortening</h5>
-            <p class="card-text">Make a "vanity URL"; a shortened link of an otherwise longer URL.</p>
+            <p class="card-text">Make a "vanity URL" – a shortened link of an otherwise longer URL.</p>
             <button type="button" class="btn btn-secondary" @click="setItem('redirect of shortened link')">Create</button>
           </div>
         </div>

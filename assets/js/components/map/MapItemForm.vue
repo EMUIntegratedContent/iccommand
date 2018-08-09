@@ -250,6 +250,11 @@
                                                    href="#pills-exhibits" role="tab" aria-controls="pills-exhibits"
                                                    aria-selected="false">Exhibits <span class="badge badge-light">{{ record.exhibits.length }}</span></a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="pills-services-tab" data-toggle="pill"
+                                                   href="#pills-services" role="tab" aria-controls="pills-services"
+                                                   aria-selected="false">Services <span class="badge badge-light">{{ record.services.length }}</span></a>
+                                            </li>
                                         </ul>
                                         <div class="tab-content" id="pills-tabContent">
                                             <div class="tab-pane fade show active pl-4" id="pills-bathrooms"
@@ -591,6 +596,106 @@
                                                     </div>
                                                     <div v-else>
                                                         <p>No exhibits attributed to this building.</p>
+                                                    </div>
+                                                </template>
+                                            </div><!-- end .tab-pane -->
+                                            <div class="tab-pane fade pl-4" id="pills-services" role="tabpanel"
+                                                 aria-labelledby="pills-services-tab">
+                                                <template v-if="userCanEdit && isEditMode">
+                                                    <div class="row">
+                                                        <div v-for="(service, index) in record.services"
+                                                             class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
+                                                            <div class="card">
+                                                                <div class="card-header">
+                                                                    {{ service.name }}
+                                                                    <button type="button"
+                                                                            @click="removeSubitemFromBuilding('service', index)"
+                                                                            class="close pull-right"><span
+                                                                            aria-hidden="true">&times;</span></button>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <div class="form-group">
+                                                                        <label :for="'serviceName-' + index">Service/Name
+                                                                            *</label>
+                                                                        <input
+                                                                                v-validate="'required'"
+                                                                                data-vv-as="title"
+                                                                                v-model="service.name"
+                                                                                type="text"
+                                                                                class="form-control"
+                                                                                :id="'serviceName-' + index"
+                                                                                placeholder="Name of service"
+                                                                                :name="'service-name-' + index"
+                                                                                :class="{'is-invalid': errors.has('service-name-' + index) }">
+                                                                        <div class="invalid-feedback">
+                                                                            {{ errors.first('service-name-' + index) }}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label :for="'serviceDescription-' + index"
+                                                                               class="sr-only">Description *</label>
+                                                                        <textarea
+                                                                                v-validate="'required'"
+                                                                                data-vv-as="description"
+                                                                                :id="'serviceDescription-' + index"
+                                                                                v-model="service.description"
+                                                                                class="form-control"
+                                                                                :name="'service-description-' + index"
+                                                                                :class="{'is-invalid': errors.has('service-description-' + index) }"
+                                                                                placeholder="Describe the service here...">
+                                    </textarea>
+                                                                        <div class="invalid-feedback">
+                                                                            {{ errors.first('service-description-' +
+                                                                            index) }}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label :for="'serviceType-' + index"
+                                                                               class="sr-only">Type *</label>
+                                                                        <multiselect
+                                                                                v-validate="'required'"
+                                                                                data-vv-as="service type"
+                                                                                v-model="record.services[index].type"
+                                                                                :options="serviceTypes"
+                                                                                :multiple="false"
+                                                                                placeholder="Choose type"
+                                                                                label="name"
+                                                                                track-by="id"
+                                                                                class="form-control"
+                                                                                style="padding:0"
+                                                                                :id="'serviceType-' + index"
+                                                                                :name="'service-type' + index"
+                                                                                :class="{'is-invalid': errors.has('service-type' + index) }"
+                                                                        >
+                                                                        </multiselect>
+                                                                        <div class="invalid-feedback">
+                                                                            {{ errors.first('service-type' + index) }}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div><!-- end foreach exhibit -->
+                                                        <div class="col-xs-12 col-sm-6 col-md-4">
+                                                            <div class="card mapitem-add-aux"
+                                                                 @click="addRecordSubitem('service')">
+                                                                <div class="card-body">
+                                                                    <i class="fa fa-plus fa-5x"></i><br/>
+                                                                    Add service
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                <template v-else>
+                                                    <div v-if="record.services.length > 0">
+                                                        <ul>
+                                                            <li v-for="service in record.services">{{ service.name }} –
+                                                                {{ service.type.name }}
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div v-else>
+                                                        <p>No services attributed to this building.</p>
                                                     </div>
                                                 </template>
                                             </div><!-- end .tab-pane -->
@@ -1042,6 +1147,7 @@
             }
             if (this.itemType == 'building') {
                 this.fetchBuildingTypes()
+                this.fetchServiceTypes()
             }
             if (this.itemType == 'building' || this.itemType == 'emergency device') {
                 this.fetchEmergencyTypes()
@@ -1140,11 +1246,14 @@
                     longitudeIllustration: null,
                     name: '',
                     parkingTypes: [],
+                    services: [],
+                    serviceTypes: [],
                     slug: '',
                     spaces: 0,
                     tags: [],
                 },
                 recordSlug: '',
+                serviceTypes: [], // for multiselect
                 success: false,
                 successMessage: '',
                 tempLatitudeSatellite: null,
@@ -1226,6 +1335,13 @@
                             name: '',
                             description: '',
                             exhibitType: null,
+                        })
+                        break;
+                    case 'service':
+                        this.record.services.push({
+                            name: '',
+                            description: '',
+                            serviceType: null,
                         })
                         break;
                 }
@@ -1406,6 +1522,31 @@
                         }
                     })
             },
+            fetchServiceTypes() {
+                let self = this
+                axios.get('/api/mapservicetypes')
+                // success
+                    .then(function (response) {
+                        self.serviceTypes = response.data
+                    })
+                    // fail
+                    .catch(function (error) {
+                        switch (error.response.status) {
+                            case 403:
+                                self.apiError.message = "You do not have sufficient privileges to retrieve service types."
+                                break
+                            case 404:
+                                self.apiError.message = "Service types were not found."
+                                break
+                            case 500:
+                                self.apiError.message = "An internal error occurred."
+                                break
+                            default:
+                                self.apiError.message = "An error occurred."
+                                break
+                        }
+                    })
+            },
             filesChange(fieldName, fileList) {
                 // handle file changes
                 const formData = new FormData()
@@ -1467,6 +1608,9 @@
                         break
                     case 'exhibit':
                         this.record.exhibits.splice(index, 1)
+                        break
+                    case 'service':
+                        this.record.services.splice(index, 1)
                         break
                 }
             },

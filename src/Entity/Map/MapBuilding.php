@@ -50,6 +50,11 @@ class MapBuilding extends MapItem
      */
     private $exhibits;
 
+    /**
+     * One building has (zero to) many services.
+     * @ORM\OneToMany(targetEntity="MapService", mappedBy="building", cascade={"persist"})
+     */
+    private $services;
 
     /**
      * Many buildings have one type.
@@ -65,6 +70,7 @@ class MapBuilding extends MapItem
         $this->diningOptions = new ArrayCollection();
         $this->emergencyDevices = new ArrayCollection();
         $this->exhibits = new ArrayCollection();
+        $this->services = new ArrayCollection();
     }
 
     /**
@@ -90,6 +96,10 @@ class MapBuilding extends MapItem
 
     public function addExhibit(MapExhibit $exhibit = null){
       $this->exhibits[] = $exhibit;
+    }
+
+    public function addService(MapService $service = null){
+      $this->services[] = $service;
     }
 
     public function getHours()
@@ -130,6 +140,11 @@ class MapBuilding extends MapItem
     public function getExhibits()
     {
         return $this->exhibits;
+    }
+
+    public function getServices()
+    {
+        return $this->services;
     }
 
     public function getBuildingType(): ?MapBuildingType
