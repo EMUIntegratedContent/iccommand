@@ -32,6 +32,7 @@
                                     <th scope="col">Dining</th>
                                     <th scope="col">Emergency Devices</th>
                                     <th scope="col">Exhibits</th>
+                                    <th scope="col">Services</th>
                                     <th scope="col">Images</th>
                                     <th scope="col">Actions</th>
                                 </tr>
@@ -43,6 +44,7 @@
                                     <td>{{ item.diningOptions.length }}</td>
                                     <td>{{ item.emergencyDevices.length }}</td>
                                     <td>{{ item.exhibits.length }}</td>
+                                    <td>{{ item.services.length }}</td>
                                     <td>{{ item.images.length }}</td>
                                     <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><i class="fa fa-eye"></i></a>
                                     </td>

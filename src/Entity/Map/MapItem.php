@@ -19,7 +19,7 @@ use App\Entity\Map\MapitemImage;
  * )
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "dining" = "MapDining", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking"})
+ * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "dining" = "MapDining", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking", "service" = "MapService"})
  * @Serializer\XmlRoot("mapItem")
  * @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
  */
