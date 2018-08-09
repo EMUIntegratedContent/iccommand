@@ -185,7 +185,7 @@ class RedirectController extends FOSRestController
 
         if (array_key_exists("host", $parsedToLink)
             && array_key_exists("path", $parsedToLink)
-            && preg_match("/emich\.edu/", $parsedToLink["host"])) {
+            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
             if ($parsedToLink["path"][0] != "/") {
                 $toLink = "/" . $parsedToLink["path"];
             } else {
@@ -286,7 +286,7 @@ class RedirectController extends FOSRestController
 
         if (array_key_exists("host", $parsedToLink)
             && array_key_exists("path", $parsedToLink)
-            && preg_match("/emich\.edu/", $parsedToLink["host"])) {
+            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
             if ($parsedToLink["path"][0] != "/") {
                 $toLink = "/" . $parsedToLink["path"];
             } else {
@@ -387,7 +387,7 @@ class RedirectController extends FOSRestController
 
                 if (array_key_exists("host", $parsedToLink)
                     && array_key_exists("path", $parsedToLink)
-                    && preg_match("/emich\.edu/", $parsedToLink["host"])) {
+                    && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
                     if ($parsedToLink["path"][0] != "/") {
                         $toLink = "/" . $parsedToLink["path"];
                     } else {
