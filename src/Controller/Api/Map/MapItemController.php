@@ -28,6 +28,7 @@ use App\Entity\Map\MapParkingType;
 use App\Entity\Map\MapService;
 use App\Entity\Map\MapServiceType;
 use App\Service\MapItemService;
+use App\Entity\Redirect\Redirect;
 
 class MapItemController extends FOSRestController
 {
@@ -68,6 +69,7 @@ class MapItemController extends FOSRestController
     public function getMapitemsAction(): Response
     {
         $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
+        //$mapItems = $this->getDoctrine()->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
 
         $serializer = $this->container->get('jms_serializer');
         $serialized = $serializer->serialize($mapItems, 'json');

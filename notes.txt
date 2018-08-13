@@ -109,6 +109,10 @@ Send asset (e.g. an image) in an email via a twig template
 Must use absolute_path() around the asset: <img src="{{ absolute_url(asset('images/e-box.png')) }}" width="100px" height="100px" />
 https://symfony.com/doc/current/templating.html
 
+ERROR REPAIR:
+"Notice: unserialize(): Error at offset 0 of 27 bytes"
+- Solution: remove the "jms_serializer" directory at /var/cache/{env}
+
 FRONTEND:
 How to integrate Google Maps with Vue
 https://medium.com/founders-factory/building-a-custom-google-map-component-with-vue-js-d1c01ddd0b0a
@@ -132,4 +136,3 @@ INTERNET EXPLORER FIXES
 - Polyfills:
   - startsWith(): https://stackoverflow.com/questions/30867172/code-not-running-in-ie-11-works-fine-in-chrome
   - includes(): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
-
