@@ -77,7 +77,7 @@
     import moment from 'moment'
     import Multiselect from 'vue-multiselect'
     import HeadshotTimeslotDeleteModal from './HeadshotTimeslotDeleteModal'
-    import {timeSlotsArr} from '../../utils/timeSlots' // a custom file that holds an array of time slots
+    import {timeSlotsDaytimeArr} from '../../utils/timeSlots' // a custom file that holds an array of time slots
 
     export default {
         components: {Multiselect, HeadshotTimeslotDeleteModal},
@@ -103,7 +103,7 @@
                 now: moment(),
                 originalSlotData: null,
                 selectedDate: moment(),
-                timeSlotOptions: timeSlotsArr,
+                timeSlotOptions: timeSlotsDaytimeArr,
             }
         },
         created: function () {
