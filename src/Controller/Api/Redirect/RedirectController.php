@@ -164,6 +164,7 @@ class RedirectController extends FOSRestController
         /* Formatting fromLink */
 
         $fromLink = $request->request->get("fromLink");
+        $fromLink = preg_replace("/ /", "%20", $fromLink); // Replaces " " with "%20"
         $fromLink = substr($fromLink, -1) == "/" ? substr($fromLink, 0, -1) : $fromLink; // Remove "/" if it is the last character.
         $parsedFromLink = parse_url($fromLink);
 
@@ -265,6 +266,7 @@ class RedirectController extends FOSRestController
         /* Formatting fromLink */
 
         $fromLink = $request->request->get("fromLink");
+        $fromLink = preg_replace("/ /", "%20", $fromLink); // Replaces " " with "%20"
         $fromLink = substr($fromLink, -1) == "/" ? substr($fromLink, 0, -1) : $fromLink; // Remove "/" if it is the last character.
         $parsedFromLink = parse_url($fromLink);
 
