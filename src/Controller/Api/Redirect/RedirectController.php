@@ -57,9 +57,10 @@ class RedirectController extends FOSRestController
         // $context = new SerializationContext();
         // $context->setSerializeNull(true);
 
-        //$serializer = $this->container->get('jms_serializer');
+        $serializer = $this->container->get('jms_serializer');
         //$serialized = $serializer->serialize($redirect, 'json', $context);
-        $response = new Response($redirect->toLink, 200, array('Content-Type' => 'application/json'));
+        $serialized = $serializer->serialize($redirect, 'json');
+        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
         return $response;
     }
