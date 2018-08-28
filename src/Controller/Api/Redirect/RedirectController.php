@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 if (!ini_get('display_errors')) {
     ini_set('display_errors', '1');
 }
+error_reporting(E_ALL);
 
 /**
  * API Redirect Controller
