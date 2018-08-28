@@ -51,13 +51,14 @@ class UncaughtController extends FOSRestController {
           return $response;
       }
 
-      $context = new SerializationContext();
-      $context->setSerializeNull(true);
+      // $context = new SerializationContext();
+      // $context->setSerializeNull(true);
+      //
+      // $serializer = $this->container->get('jms_serializer');
+      // $serialized = $serializer->serialize($uncaught, 'json', $context);
+      // $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
-      $serializer = $this->container->get('jms_serializer');
-      $serialized = $serializer->serialize($uncaught, 'json', $context);
-      $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
+      $response = new Response('There is an uncaught redirect matching ' . $url . '.', 200, array('Content-Type' => 'application/json'));
       return $response;
   }
 
@@ -82,9 +83,10 @@ class UncaughtController extends FOSRestController {
       $em->persist($uncaught);
       $em->flush();
 
-      $serializer = $this->container->get('jms_serializer');
-      $serialized = $serializer->serialize($uncaught, "json");
-      $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
+      // $serializer = $this->container->get('jms_serializer');
+      // $serialized = $serializer->serialize($uncaught, "json");
+      // $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
+      $response = new Response('The uncaught URL ' . $request->request->get('url') . ' was added to the database.', 201, array("Content-Type" => "application/json"));
 
       return $response;
   }
@@ -111,9 +113,10 @@ class UncaughtController extends FOSRestController {
       $em->persist($uncaught);
       $em->flush();
 
-      $serializer = $this->container->get('jms_serializer');
-      $serialized = $serializer->serialize($uncaught, "json");
-      $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
+      // $serializer = $this->container->get('jms_serializer');
+      // $serialized = $serializer->serialize($uncaught, "json");
+      // $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
+      $response = new Response('Incremented visits to uncaught URL ' . $url . '.', 201, array("Content-Type" => "application/json"));
 
       return $response;
   }
