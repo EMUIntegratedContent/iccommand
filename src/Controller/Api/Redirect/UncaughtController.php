@@ -15,6 +15,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
+if (!ini_get('display_errors')) {
+    ini_set('display_errors', '1');
+}
+
 /**
  * API Uncaught Controller
  * This controller manages the redirect items with the actions of getting,
@@ -55,7 +59,7 @@ class UncaughtController extends FOSRestController {
 
       return $response;
   }
-  
+
   /**
    * Add a new uncaught URL from an external source
    * @Rest\Post("external/uncaught")

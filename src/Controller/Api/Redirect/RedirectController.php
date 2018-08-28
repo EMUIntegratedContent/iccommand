@@ -16,6 +16,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
+if (!ini_get('display_errors')) {
+    ini_set('display_errors', '1');
+}
+
 /**
  * API Redirect Controller
  * This controller manages the redirects with the actions of getting, adding,
