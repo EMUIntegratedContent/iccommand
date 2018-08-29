@@ -55,6 +55,9 @@ class RedirectController extends FOSRestController
 
         $this->logger->info('!!! GET /api/external/redirect is running !!! URL: ' . $url);
 
+        $memstart = memory_get_peak_usage(true);
+        $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.")
+
         if (!$redirect) {
             $response = new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
             return $response;
@@ -83,6 +86,10 @@ class RedirectController extends FOSRestController
         $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
 
         $this->logger->info('!!! PUT /api/external/redirectincrement is running !!! URL: ' . $url);
+
+        $memstart = memory_get_peak_usage(true);
+        $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.")
+        
         if (!$redirect) {
             $response = new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
             return $response;

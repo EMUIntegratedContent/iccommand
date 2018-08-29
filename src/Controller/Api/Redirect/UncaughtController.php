@@ -51,6 +51,10 @@ class UncaughtController extends FOSRestController {
       $uncaught = $this->getDoctrine()->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
 
       $this->logger->info('!!! GET /api/external/uncaught is running !!! URL: ' . $url);
+
+      $memstart = memory_get_peak_usage(true);
+      $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.")
+
       if (!$uncaught) {
           $response = new Response(json_encode("The uncaught redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
           return $response;
@@ -86,6 +90,9 @@ class UncaughtController extends FOSRestController {
 
       $this->logger->info('!!! POST /api/external/uncaught is running !!! URL: ' . $request->request->get('url'));
 
+      $memstart = memory_get_peak_usage(true);
+      $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.")
+
       $em = $this->getDoctrine()->getManager();
       $em->persist($uncaught);
       $em->flush();
@@ -110,6 +117,10 @@ class UncaughtController extends FOSRestController {
       $uncaught = $this->getDoctrine()->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
 
       $this->logger->info('!!! PUT /api/external/uncaughtincrement is running !!! URL: ' . $url);
+
+      $memstart = memory_get_peak_usage(true);
+      $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.")
+      
       if (!$uncaught) {
           $response = new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
           return $response;
