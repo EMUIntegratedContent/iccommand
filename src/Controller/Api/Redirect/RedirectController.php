@@ -49,19 +49,19 @@ class RedirectController extends FOSRestController
      */
     public function getExternalRedirectAction(Request $request): Response
     {
-        //$url = $request->query->get('url');
+        $url = $request->query->get('url');
 
-        //$redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
+        $redirect = $this->getDoctrine()->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
 
-        //$this->logger->info('!!! GET /api/external/redirect is running !!! URL: ' . $url);
+        $this->logger->info('!!! GET /api/external/redirect is running !!! URL: ' . $url);
 
-        //$memstart = memory_get_peak_usage(true);
-        //$this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
+        $memstart = memory_get_peak_usage(true);
+        $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
 
-        // if (!$redirect) {
-        //     $response = new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
-        //     return $response;
-        // }
+        if (!$redirect) {
+            $response = new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
+            return $response;
+        }
 
         // $context = new SerializationContext();
         // $context->setSerializeNull(true);
@@ -69,8 +69,8 @@ class RedirectController extends FOSRestController
         //$serializer = $this->container->get('jms_serializer');
         //$serialized = $serializer->serialize($redirect, 'json', $context);
         //$serialized = $serializer->serialize($redirect->getToLink(), 'json');
-        //$response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-        $response = new Response("hello", 200, array('Content-Type' => 'application/json'));
+        $response = new Response(json_encode($redirect->getToLink()), 200, array('Content-Type' => 'application/json'));
+
         return $response;
     }
 
