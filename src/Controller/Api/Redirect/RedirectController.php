@@ -63,10 +63,10 @@ class RedirectController extends FOSRestController
         // $context = new SerializationContext();
         // $context->setSerializeNull(true);
 
-        $serializer = $this->container->get('jms_serializer');
+        //$serializer = $this->container->get('jms_serializer');
         //$serialized = $serializer->serialize($redirect, 'json', $context);
-        $serialized = $serializer->serialize($redirect->getToLink(), 'json');
-        $response = new Response($redirect->getToLink(), 200, array('Content-Type' => 'application/json'));
+        //$serialized = $serializer->serialize($redirect->getToLink(), 'json');
+        $response = new Response(json_encode($redirect->getToLink()), 200, array('Content-Type' => 'application/json'));
 
         return $response;
     }
@@ -84,7 +84,7 @@ class RedirectController extends FOSRestController
 
         $this->logger->info('!!! PUT /api/external/redirectincrement is running !!! URL: ' . $url);
         if (!$redirect) {
-            $response = new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
+            $response = new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
             return $response;
         }
 
