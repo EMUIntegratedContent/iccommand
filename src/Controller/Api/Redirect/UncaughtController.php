@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Psr\Log\LoggerInterface;
 
 if (!ini_get('display_errors')) {
     ini_set('display_errors', '1');
@@ -27,13 +28,15 @@ error_reporting(E_ALL);
  */
 class UncaughtController extends FOSRestController {
   private $service;
+  private $logger;
 
   /**
    * The constructor of the UncaughtController.
    * @param RedirectService $service The service container of this controller.
    */
-  public function __construct(RedirectService $service) {
+  public function __construct(RedirectService $service, LoggerInterface $logger) {
     $this->service = $service;
+    $this->logger = $logger;
   }
 
   /**
@@ -46,8 +49,10 @@ class UncaughtController extends FOSRestController {
       $url = $request->query->get('url');
 
       $uncaught = $this->getDoctrine()->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
+
+      $this->logger->info('!!! GET /api/external/uncaught is running !!! URL: ' . $url);
       if (!$uncaught) {
-          $response = new Response("The uncaught redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
+          $response = new Response(json_encode("The uncaught redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
           return $response;
       }
 
@@ -79,6 +84,8 @@ class UncaughtController extends FOSRestController {
       $uncaught->setLink($request->request->get('url'));
       $uncaught->setVisits(1);
 
+      $this->logger->info('!!! POST /api/external/uncaught is running !!! URL: ' . $request->request->get('url'));
+
       $em = $this->getDoctrine()->getManager();
       $em->persist($uncaught);
       $em->flush();
@@ -101,6 +108,8 @@ class UncaughtController extends FOSRestController {
       $url = $request->request->get('url');
 
       $uncaught = $this->getDoctrine()->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
+
+      $this->logger->info('!!! PUT /api/external/uncaughtincrement is running !!! URL: ' . $url);
       if (!$uncaught) {
           $response = new Response("The redirect you requested was not found.", 404, array('Content-Type' => 'application/json'));
           return $response;
