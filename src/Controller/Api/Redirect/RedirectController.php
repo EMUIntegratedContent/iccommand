@@ -63,6 +63,13 @@ class RedirectController extends FOSRestController
             return $response;
         }
 
+        $redirect->setVisits($redirect->getVisits() + 1);
+        $redirect->setLastVisit(new \DateTime());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($redirect);
+        $em->flush();
+
         // $context = new SerializationContext();
         // $context->setSerializeNull(true);
 
