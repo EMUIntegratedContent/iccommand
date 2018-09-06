@@ -6,7 +6,7 @@ ldap_tools:
             # The username to use for the LDAP connection
             username: ext_symf
             # The password to use for the username
-            password: sfbe6mea5q8a5sh
+            password: '%env(LDAP_PASSWORD)%'
             # The base DN for LDAP searches (queried from the RootDSE if not provided)
             base_dn: "cn=users,dc=ad,dc=emich,dc=edu"
             # The LDAP servers to use for the connection (Queried from DNS if not provided)
