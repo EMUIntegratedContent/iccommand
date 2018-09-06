@@ -4,7 +4,7 @@ ldap_tools:
             # The LDAP FQDN is required
             domain_name: emich.edu
             # The username to use for the LDAP connection
-            username: ext_symf
+            username: '%env(LDAP_USER)%'
             # The password to use for the username
             password: '%env(LDAP_PASSWORD)%'
             # The base DN for LDAP searches (queried from the RootDSE if not provided)
