@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *    fields = {"fromLink"},
  *    message = "The link has already been redirected to another link."
  * )
+ * @Serializer\XmlRoot("redirect")
  */
 class Redirect {
   /* *************************** Member Variables *************************** */
