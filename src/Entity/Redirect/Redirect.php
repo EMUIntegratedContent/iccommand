@@ -77,38 +77,6 @@ class Redirect {
    */
   private $visits;
 
-  /* Gedmo Variables */
-
-  /**
-   * The user who last updated this redirect.
-   * @ORM\Column(type = "string")
-   * @Gedmo\Blameable(on = "update")
-   * @Serializer\SerializedName("contentChanged")
-   */
-  private $contentChanged;
-
-  /**
-   * The time stamp when this redirect was created.
-   * @ORM\Column(type = "datetime")
-   * @Gedmo\Timestampable(on = "create")
-   */
-  private $created;
-
-  /**
-   * The user who created this redirect.
-   * @ORM\Column(type = "string")
-   * @Gedmo\Blameable(on = "create")
-   * @Serializer\SerializedName("createdBy")
-   */
-  private $createdBy;
-
-  /**
-   * The time stamp when this redirect was last updated.
-   * @ORM\Column(type = "datetime")
-   * @Gedmo\Timestampable(on = "update")
-   */
-  private $updated;
-
   /**
    * The constructor of a redirect.
    */
@@ -219,39 +187,5 @@ class Redirect {
     $this->visits = $visits;
 
     return $this;
-  }
-
-  /* ***************************** Gedmo Getters **************************** */
-
-  /**
-   * Obtains the user who last updated this redirect.
-   * @return string The user who last updated this redirect.
-   */
-  public function getContentChanged() {
-    return $this->contentChanged;
-  }
-
-  /**
-   * Obtains the time stamp when this redirect was created.
-   * @return datetime The time stamp when this redirect was created.
-   */
-  public function getCreated() {
-    return $this->created;
-  }
-
-  /**
-   * Obtains the user who created this redirect.
-   * @return string The user who created this redirect.
-   */
-  public function getCreatedBy() {
-    return $this->createdBy;
-  }
-
-  /**
-   * Obtains the time stamp when this redirect was last updated.
-   * @return datetime The time stamp when this redirect was last updated.
-   */
-  public function getUpdated() {
-    return $this->updated;
   }
 }
