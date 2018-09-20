@@ -50,22 +50,14 @@ class UncaughtController extends FOSRestController {
 
       $uncaught = $this->getDoctrine()->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
 
-      $this->logger->info('!!! GET /api/external/uncaught is running !!! URL: ' . $url);
-
-      $memstart = memory_get_peak_usage(true);
-      $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
+      // $this->logger->info('!!! GET /api/external/uncaught is running !!! URL: ' . $url);
+      // $memstart = memory_get_peak_usage(true);
+      // $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
 
       if (!$uncaught) {
           $response = new Response(json_encode("The uncaught redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
           return $response;
       }
-
-      // $context = new SerializationContext();
-      // $context->setSerializeNull(true);
-      //
-      // $serializer = $this->container->get('jms_serializer');
-      // $serialized = $serializer->serialize($uncaught, 'json', $context);
-      // $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
       $response = new Response(json_encode('There is an uncaught redirect matching ' . $url . '.'), 200, array('Content-Type' => 'application/json'));
       return $response;
@@ -88,18 +80,13 @@ class UncaughtController extends FOSRestController {
       $uncaught->setLink($request->request->get('url'));
       $uncaught->setVisits(1);
 
-      $this->logger->info('!!! POST /api/external/uncaught is running !!! URL: ' . $request->request->get('url'));
-
-      $memstart = memory_get_peak_usage(true);
-      $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
+      // $this->logger->info('!!! POST /api/external/uncaught is running !!! URL: ' . $request->request->get('url'));
+      // $memstart = memory_get_peak_usage(true);
+      // $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
 
       $em = $this->getDoctrine()->getManager();
       $em->persist($uncaught);
       $em->flush();
-
-      // $serializer = $this->container->get('jms_serializer');
-      // $serialized = $serializer->serialize($uncaught, "json");
-      // $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
       $response = new Response(json_encode('The uncaught URL ' . $request->request->get('url') . ' was added to the database.'), 201, array("Content-Type" => "application/json"));
 
       return $response;
@@ -116,10 +103,9 @@ class UncaughtController extends FOSRestController {
 
       $uncaught = $this->getDoctrine()->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
 
-      $this->logger->info('!!! PUT /api/external/uncaughtincrement is running !!! URL: ' . $url);
-
-      $memstart = memory_get_peak_usage(true);
-      $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
+      // $this->logger->info('!!! PUT /api/external/uncaughtincrement is running !!! URL: ' . $url);
+      // $memstart = memory_get_peak_usage(true);
+      // $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
 
       if (!$uncaught) {
           $response = new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
@@ -133,9 +119,6 @@ class UncaughtController extends FOSRestController {
       $em->persist($uncaught);
       $em->flush();
 
-      // $serializer = $this->container->get('jms_serializer');
-      // $serialized = $serializer->serialize($uncaught, "json");
-      // $response = new Response($serialized, 201, array("Content-Type" => "application/json"));
       $response = new Response(json_encode('Incremented visits to uncaught URL ' . $url . '.'), 201, array("Content-Type" => "application/json"));
 
       return $response;
