@@ -63,26 +63,16 @@ class RedirectController extends FOSRestController
             return $response;
         }
 
-        $redirect->setVisits($redirect->getVisits() + 1); // increment the number of visits
-        $redirect->setLastVisit(new \DateTime());
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($redirect);
-        $em->flush();
-
         $response = new Response(json_encode($redirect->getToLink()), 200, array('Content-Type' => 'application/json'));
 
         return $response;
     }
 
     /**
-     * !!!!!DEPRECATED. This action is performed in getExternalRedirectAction() !!!!!!
      * Increment the number of visits a URL redirect has received
      * @param Request $request
      * @return Response
-     * !!!!!DEPRECATED. This action is performed in getExternalRedirectAction() !!!!!!
      */
-     /*
     public function putExternalRedirectincrementAction(Request $request): Response
     {
         $url = $request->request->get('url');
@@ -110,7 +100,6 @@ class RedirectController extends FOSRestController
         $response = new Response('Incremented visits to URL ' . $url . '.', 201, array("Content-Type" => "application/json"));
         return $response;
     }
-    */
 
     /**
      * Deletes the redirect from the specified ID.
