@@ -27,4 +27,6 @@ Vagrantfile
 ###> misc ###
 composer
 .idea
+ic_2018-11-18.sql
+.DS_Store
 ###< Homestead ###
