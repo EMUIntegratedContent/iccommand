@@ -90,6 +90,13 @@ abstract class MapItem
      */
     private $images;
 
+		/**
+		 * @ORM\Column(type="boolean")
+		 *
+		 * @Serializer\SerializedName("admissionsTour")
+		 */
+    private $admissionsTour;
+
     /**
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
@@ -192,6 +199,16 @@ abstract class MapItem
     {
         $this->longitudeSatellite = $longitudeSatellite;
     }
+
+		public function getAdmissionsTour()
+		{
+			return $this->admissionsTour;
+		}
+
+		public function setAdmissionsTour($admissionsTour)
+		{
+			$this->admissionsTour = $admissionsTour;
+		}
 
     public function getImages()
     {

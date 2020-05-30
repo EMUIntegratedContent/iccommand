@@ -160,23 +160,8 @@
                                         {{ errors.first('address') }}
                                     </div>
                                 </div>
-                                <!--
                                 <div class="form-group">
-                                    <label>Building hours</label>
-                                    <textarea
-                                            class="form-control"
-                                            name="hours"
-                                            :class="{'is-invalid': errors.has('hours'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
-                                            :readonly="!userCanEdit || !isEditMode"
-                                            v-model="record.hours">
-                  </textarea>
-                                    <div class="invalid-feedback">
-                                        {{ errors.first('hours') }}
-                                    </div>
-                                </div>
-                                -->
-                                <div class="form-group">
-                                    <label>Building hours</label>
+                                    <h5>Building Hours</h5>
                                     <template v-if="!userCanEdit || !isEditMode">
                                         <span v-html="record.hours"></span>
                                     </template>
@@ -224,6 +209,20 @@
                                     <h5>Building Type *</h5>
                                     <p v-if="record.buildingType">{{ record.buildingType.name }}</p>
                                     <p v-else>None</p>
+                                </template>
+                                <template v-if="userCanEdit && isEditMode">
+                                    <div class="form-row" style="padding-left: 1.2rem">
+                                        <div class="form-group col-md-12">
+                                            <input v-model="record.admissionsTour" class="form-check-input"
+                                                   type="checkbox" id="admissionsTour">
+                                            <label class="form-check-label" for="hasHandicapSpaces">
+                                                Include in Admissions Tour
+                                            </label>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <p v-if="record.admissionsTour" style="color: blue">**Included in Admissions Tour**</p>
                                 </template>
                                 <!-- PILLS FOR AUXILARY -->
                                 <div class="row mb-4">
@@ -1121,7 +1120,7 @@
     import NotFound from '../utils/NotFound.vue'
     import Draggable from 'vuedraggable'
     import GoogleMap from './GoogleMap.vue'
-    //import { VueCkeditor } from 'vue-ckeditor2'
+    import VueCkeditor from 'vue-ckeditor2'
 
     const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3
 
@@ -1172,7 +1171,7 @@
             NotFound,
             Draggable,
             GoogleMap,
-            //VueCkeditor,
+            VueCkeditor,
         },
         props: {
             itemType: {

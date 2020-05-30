@@ -260,6 +260,7 @@ class MapItemController extends FOSRestController
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
         $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
         $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
+        $mapItem->setAdmissionsTour($request->request->get('admissionsTour'));
         if($request->request->get('alias') != ''){
             $mapItem->setAlias($request->request->get('alias'));
         }
@@ -655,6 +656,7 @@ class MapItemController extends FOSRestController
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
         $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
         $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
+				$mapItem->setAdmissionsTour($request->request->get('admissionsTour'));
         if($request->request->get('alias') != ''){
             $mapItem->setAlias($request->request->get('alias'));
         } else {
