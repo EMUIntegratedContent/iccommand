@@ -4,41 +4,41 @@ security:
     hide_user_not_found: false
     always_authenticate_before_granting:  true
 
-    #CONFIG FOR WORKING where EMU LDAP is available
-    # providers:
-    #     fos_userbundle:
-    #         id: fos_user.user_provider.username
-    #     ldap:
-    #         id: ldap_tools.security.user.ldap_user_provider
-    # firewalls:
-    #     dev:
-    #         pattern: ^/(_(profiler|wdt)|css|images|js)/
-    #         security: false
-    #     main:
-    #         anonymous: ~
-    #         pattern: ^/
-    #         # Use the default LDAP user provider defined above
-    #         provider: fos_userbundle
-    #         form_login:
-    #             login_path: /login
-    #             check_path: /login_check
-    #             csrf_token_generator: security.csrf.token_manager
-    #         logout: ~
-    #         remember_me:
-    #             secret: '%kernel.secret%'
-    #             lifetime: 604800 # 1 week in seconds
-    #             path: /
-    #         guard:
-    #             authenticators:
-    #                 - ldap_tools.security.ldap_guard_authenticator
-    #     login:
-    #         pattern: ^/login$
-    #         anonymous: ~
-    # encoders:
-    #     FOS\UserBundle\Model\UserInterface: bcrypt
-    #     LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
+    # CONFIG FOR WORKING where EMU LDAP is available
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username
+        ldap:
+            id: ldap_tools.security.user.ldap_user_provider
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: ~
+            pattern: ^/
+            # Use the default LDAP user provider defined above
+            provider: fos_userbundle
+            form_login:
+                login_path: /login
+                check_path: /login_check
+                csrf_token_generator: security.csrf.token_manager
+            logout: ~
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path: /
+            guard:
+                authenticators:
+                    - ldap_tools.security.ldap_guard_authenticator
+        login:
+            pattern: ^/login$
+            anonymous: ~
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
+        LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
 
-#CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
+    # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
     providers:
         fos_userbundle:
             id: fos_user.user_provider.username

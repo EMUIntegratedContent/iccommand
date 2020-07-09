@@ -12,111 +12,111 @@ use App\Entity\Document;
 use App\Entity\Map\MapitemImage;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
- * @UniqueEntity(
- *     fields={"alias"},
- *     message="Another map item already uses this alias"
- * )
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "dining" = "MapDining", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking", "service" = "MapService"})
- * @Serializer\XmlRoot("mapItem")
- * @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
- */
+* @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
+* @UniqueEntity(
+*     fields={"alias"},
+*     message="Another map item already uses this alias"
+* )
+* @ORM\InheritanceType("JOINED")
+* @ORM\DiscriminatorColumn(name="discr", type="string")
+* @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "dining" = "MapDining", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking", "service" = "MapService"})
+* @Serializer\XmlRoot("mapItem")
+* @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
+*/
 abstract class MapItem
 {
     /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     * @Serializer\XmlAttribute
-     */
+    * @ORM\Id
+    * @ORM\GeneratedValue
+    * @ORM\Column(type="integer")
+    * @Serializer\XmlAttribute
+    */
     private $id;
 
     /**
-     * @ORM\Column(type="string")
-     * @Assert\NotBlank(message="You must provide a name for this item.")
-     */
+    * @ORM\Column(type="string")
+    * @Assert\NotBlank(message="You must provide a name for this item.")
+    */
     private $name;
 
     /**
-     * @Gedmo\Slug(fields={"name"})
-     * @ORM\Column(length=128, unique=true)
-     */
+    * @Gedmo\Slug(fields={"name"})
+    * @ORM\Column(length=128, unique=true)
+    */
     private $slug;
 
     /**
-     * @ORM\Column(type="string", unique=true, nullable=true)
-     */
+    * @ORM\Column(type="string", unique=true, nullable=true)
+    */
     private $alias;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    * @ORM\Column(type="text", nullable=true)
+    */
     private $description;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
-     * @Serializer\SerializedName("latitudeIllustration")
-     */
+    * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
+    * @Serializer\SerializedName("latitudeIllustration")
+    */
     private $latitudeIllustration;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
-     * @Serializer\SerializedName("longitudeIllustration")
-     */
+    * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
+    * @Serializer\SerializedName("longitudeIllustration")
+    */
     private $longitudeIllustration;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
-     * @Serializer\SerializedName("latitudeSatellite")
-     */
+    * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
+    * @Serializer\SerializedName("latitudeSatellite")
+    */
     private $latitudeSatellite;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
-     * @Serializer\SerializedName("longitudeSatellite")
-     */
+    * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
+    * @Serializer\SerializedName("longitudeSatellite")
+    */
     private $longitudeSatellite;
 
     /**
-     * Many MapItems have Many Images.
-     * @ORM\ManyToMany(targetEntity="App\Entity\Map\MapitemImage", cascade={"remove", "persist"})
-     * @ORM\JoinTable(name="mapitems_images",
-     *      joinColumns={@ORM\JoinColumn(name="mapitem_id", referencedColumnName="id", onDelete="CASCADE")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id", onDelete="CASCADE")}
-     *      )
-     * @ORM\OrderBy({"priority" = "ASC"})
-     */
+    * Many MapItems have Many Images.
+    * @ORM\ManyToMany(targetEntity="App\Entity\Map\MapitemImage", cascade={"remove", "persist"})
+    * @ORM\JoinTable(name="mapitems_images",
+    *      joinColumns={@ORM\JoinColumn(name="mapitem_id", referencedColumnName="id", onDelete="CASCADE")},
+    *      inverseJoinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id", onDelete="CASCADE")}
+    *      )
+    * @ORM\OrderBy({"priority" = "ASC"})
+    */
     private $images;
 
-		/**
-		 * @ORM\Column(type="boolean")
-		 *
-		 * @Serializer\SerializedName("admissionsTour")
-		 */
+    /**
+    * @ORM\Column(type="boolean")
+    *
+    * @Serializer\SerializedName("admissionsTour")
+    */
     private $admissionsTour;
 
     /**
-     * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(type="datetime")
+    * @Gedmo\Timestampable(on="create")
+    * @ORM\Column(type="datetime")
     */
     private $created;
 
     /**
-     * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(type="datetime")
+    * @Gedmo\Timestampable(on="update")
+    * @ORM\Column(type="datetime")
     */
     private $updated;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Gedmo\Timestampable(on="change", field={"title", "body"})
-     */
+    * @ORM\Column(type="datetime", nullable=true)
+    * @Gedmo\Timestampable(on="change", field={"title", "body"})
+    */
     private $contentChanged;
 
     public function __construct(){
-      $this->images = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->images = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     // Getters and setters
@@ -200,15 +200,15 @@ abstract class MapItem
         $this->longitudeSatellite = $longitudeSatellite;
     }
 
-		public function getAdmissionsTour()
-		{
-			return $this->admissionsTour;
-		}
+    public function getAdmissionsTour()
+    {
+        return $this->admissionsTour;
+    }
 
-		public function setAdmissionsTour($admissionsTour)
-		{
-			$this->admissionsTour = $admissionsTour;
-		}
+    public function setAdmissionsTour($admissionsTour)
+    {
+        $this->admissionsTour = $admissionsTour;
+    }
 
     public function getImages()
     {
@@ -216,11 +216,10 @@ abstract class MapItem
     }
 
     public function addImage(MapitemImage $image = null){
-      $this->images[] = $image;
+        $this->images[] = $image;
     }
 
     /** GEDMO FIELDS **/
-
     public function getCreated(){
         return $this->created;
     }
