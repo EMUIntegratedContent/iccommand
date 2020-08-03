@@ -91,7 +91,7 @@ abstract class MapItem
     private $images;
 
     /**
-    * @ORM\Column(type="boolean")
+    * @ORM\Column(type="integer")
     *
     * @Serializer\SerializedName("admissionsTour")
     */

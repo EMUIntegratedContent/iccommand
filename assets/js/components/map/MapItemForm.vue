@@ -211,13 +211,13 @@
                                     <p v-else>None</p>
                                 </template>
                                 <template v-if="userCanEdit && isEditMode">
-                                    <div class="form-row" style="padding-left: 1.2rem">
+                                    <div class="form-row">
                                         <div class="form-group col-md-12">
-                                            <input v-model="record.admissionsTour" class="form-check-input"
-                                                   type="checkbox" id="admissionsTour">
-                                            <label class="form-check-label" for="hasHandicapSpaces">
-                                                Include in Admissions Tour
+                                            <label class="form-check-label">
+                                              Include in Admissions Tour (Set the position the building will appear in the Tour)
                                             </label>
+                                            <input v-model="record.admissionsTour" class="form-control"
+                                            type="number" id="admissionsTour"/>
                                         </div>
                                     </div>
                                 </template>
