@@ -32,6 +32,11 @@
                     <a class="nav-link" href="/redirects">Redirects</a>
                 </li>
             {% endif %}
+            {% if is_granted('ROLE_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/ousignup">Oucampus Signup List</a>
+                </li>
+            {% endif %}
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if is_granted('ROLE_GLOBAL_ADMIN') %}
