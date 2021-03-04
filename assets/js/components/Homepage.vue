@@ -10,7 +10,7 @@
         <div v-for="module in userModules" v-if="module.display" class="card col-sm-6 col-md-4">
           <div class="card-body">
             <h5 class="card-title">{{ module.title }}</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <p class="card-text">{{ module.description }}</p>
             <a :href="module.buttonLink" class="btn btn-primary">{{ module.buttonText }}</a>
           </div>
         </div>
@@ -71,6 +71,20 @@
               buttonLink: "/redirects",
               display: false
             },
+            ousignup: {
+              title: "Oucampus Signup List",
+              description: "oucampus signup list displays current list of people enrolled for oucampus training.",
+              buttonText: "See Signup List",
+              buttonLink: "/ousignup",
+              display: false
+            },
+            departmentdirectory: {
+              title: "Department directory",
+              description: "Department directory displays information regarding the deparment.",
+              buttonText: "See Department Directory",
+              buttonLink: "/departmentdirectory",
+              display: false
+            },
           }
         }
       },
@@ -97,6 +111,12 @@
           }
           if(role.includes('ROLE_REDIRECT_') || role.includes('ROLE_GLOBAL_ADMIN_')){
             this.userModules.redirect.display = true
+          }
+          if(role.includes('ROLE_')){
+            this.userModules.ousignup.display = true
+          }
+          if(role.includes('ROLE_')){
+            this.userModules.departmentdirectory.display = true
           }
         },
       },

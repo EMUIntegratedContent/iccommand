@@ -3,57 +3,61 @@ security:
     # show full user not found message
     hide_user_not_found: false
     always_authenticate_before_granting:  true
-    providers:
-        fos_userbundle:
-            id: fos_user.user_provider.username
-        ldap:
-            id: ldap_tools.security.user.ldap_user_provider
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-        main:
-            anonymous: ~
-            pattern: ^/
-            # Use the default LDAP user provider defined above
-            provider: fos_userbundle
-            form_login:
-                login_path: /login
-                check_path: /login_check
-                csrf_token_generator: security.csrf.token_manager
-            logout: ~
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800 # 1 week in seconds
-                path: /
-            guard:
-                authenticators:
-                    - ldap_tools.security.ldap_guard_authenticator
-        login:
-            pattern: ^/login$
-            anonymous: ~
-    encoders:
-        FOS\UserBundle\Model\UserInterface: bcrypt
-        LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
 
-#CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
+    # CONFIG FOR WORKING where EMU LDAP is available
     # providers:
     #     fos_userbundle:
     #         id: fos_user.user_provider.username
+    #     ldap:
+    #         id: ldap_tools.security.user.ldap_user_provider
     # firewalls:
+    #     dev:
+    #         pattern: ^/(_(profiler|wdt)|css|images|js)/
+    #         security: false
     #     main:
+    #         anonymous: ~
     #         pattern: ^/
+    #         # Use the default LDAP user provider defined above
+    #         provider: fos_userbundle
     #         form_login:
-    #             provider: fos_userbundle
-    #             #csrf_provider: security.csrf.token_manager # Use form.csrf_provider instead for Symfony <2.4
-    #         logout:       true
-    #         anonymous:    true
+    #             login_path: /login
+    #             check_path: /login_check
+    #             csrf_token_generator: security.csrf.token_manager
+    #         logout: ~
+    #         remember_me:
+    #             secret: '%kernel.secret%'
+    #             lifetime: 604800 # 1 week in seconds
+    #             path: /
+    #         guard:
+    #             authenticators:
+    #                 - ldap_tools.security.ldap_guard_authenticator
+    #     login:
+    #         pattern: ^/login$
+    #         anonymous: ~
     # encoders:
     #     FOS\UserBundle\Model\UserInterface: bcrypt
+    #     LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
+
+    # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username
+    firewalls:
+        main:
+            pattern: ^/
+            form_login:
+                provider: fos_userbundle
+                #csrf_provider: security.csrf.token_manager # Use form.csrf_provider instead for Symfony <2.4
+            logout:       true
+            anonymous:    true
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/departmentdirectory, role: ROLE_USER }
+        - { path: ^/ousignup, role: ROLE_USER }
         - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
@@ -88,3 +92,4 @@ security:
         ROLE_MULTIMEDIA_DELETE: ROLE_MULTIMEDIA_EDIT
         ROLE_MULTIMEDIA_EMAIL: ROLE_MULTIMEDIA_EDIT
         ROLE_MULTIMEDIA_ADMIN: [ROLE_MULTIMEDIA_DELETE, ROLE_MULTIMEDIA_EMAIL]
+        

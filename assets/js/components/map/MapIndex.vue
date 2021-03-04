@@ -34,6 +34,7 @@
                                     <th scope="col">Exhibits</th>
                                     <th scope="col">Services</th>
                                     <th scope="col">Images</th>
+                                    <th scope="col">Adm. Tour</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                                 </thead>
@@ -46,6 +47,7 @@
                                     <td>{{ item.exhibits.length }}</td>
                                     <td>{{ item.services.length }}</td>
                                     <td>{{ item.images.length }}</td>
+                                    <td>{{ item.admissionsTour ? "pos:" + item.admissionsTour : '-' }}</td>
                                     <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><i class="fa fa-eye"></i></a>
                                     </td>
                                 </tr>

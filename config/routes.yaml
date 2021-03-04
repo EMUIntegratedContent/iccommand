@@ -46,6 +46,11 @@ redirects:
     resource: App\Controller\Api\Redirect\RedirectController
     prefix: /api/
 
+ousignup:
+    type: rest
+    resource: App\Controller\Api\Ousignup\OusignupController
+    prefix: /api/
+
 uncaughts:
     type: rest
     resource: App\Controller\Api\Redirect\UncaughtController

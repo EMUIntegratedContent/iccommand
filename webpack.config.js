@@ -33,6 +33,8 @@ Encore
 
     // enable vuejs (CP 2/22/18)
     .enableVueLoader()
+
+    //.enableSingleRuntimeChunk()
 ;
 
 // export the final configuration

@@ -32,6 +32,16 @@
                     <a class="nav-link" href="/redirects">Redirects</a>
                 </li>
             {% endif %}
+            {% if is_granted('ROLE_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/ousignup">Oucampus Signup List</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/departmentdirectory">Department Directory</a>
+                </li>
+            {% endif %}
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if is_granted('ROLE_GLOBAL_ADMIN') %}
@@ -67,7 +77,7 @@
     <script src="{{ asset('build/app.js') }}"></script>
     <script src="{{ asset('ckeditor4/ckeditor.js') }}"></script>
     <!--<script src="https://cdn.ckeditor.com/4.6.1/full/ckeditor.js"></script>-->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5B3IcIel6XCAq4bwyZpxo6bl1pdUQpN8"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCUqoSEir9huPBCzyFRLopmjb0lmzOkj78"></script>
 {% endblock %}
 
 </body>

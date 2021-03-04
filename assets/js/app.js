@@ -1,6 +1,6 @@
-require("../css/app.scss")
-require("./bootstrap")
-require('es6-promise').polyfill()
+import "../css/app.scss";
+require("./bootstrap");
+require('es6-promise').polyfill();
 
 // Init function.
 $(document).ready(function() {
@@ -81,6 +81,12 @@ Vue.component("redirect-index", require("./components/redirect/RedirectIndex.vue
 Vue.component("new-redirect-item", require("./components/redirect/NewRedirectItem.vue").default);
 Vue.component("redirect-item-form", require("./components/redirect/RedirectItemForm.vue").default);
 Vue.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
+
+/* Oucampus Signup List */
+Vue.component("ousignup-list", require("./components/ousignup/SignupList.vue").default);
+
+/* Department Directory */
+Vue.component("department-directory", require("./components/departmentdirectory/DepartmentDirectory.vue").default);
 
 /* ********************************* Vue App ******************************** */
 const app = new Vue({
