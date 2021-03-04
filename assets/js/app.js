@@ -85,6 +85,9 @@ Vue.component("redirect-list", require("./components/redirect/RedirectList.vue")
 /* Oucampus Signup List */
 Vue.component("ousignup-list", require("./components/ousignup/SignupList.vue").default);
 
+/* Department Directory */
+Vue.component("department-directory", require("./components/departmentdirectory/DepartmentDirectory.vue").default);
+
 /* ********************************* Vue App ******************************** */
 const app = new Vue({
     el: "#app",

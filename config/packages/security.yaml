@@ -56,6 +56,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/departmentdirectory, role: ROLE_USER }
         - { path: ^/ousignup, role: ROLE_USER }
         - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_GLOBAL_ADMIN] }
@@ -91,5 +92,4 @@ security:
         ROLE_MULTIMEDIA_DELETE: ROLE_MULTIMEDIA_EDIT
         ROLE_MULTIMEDIA_EMAIL: ROLE_MULTIMEDIA_EDIT
         ROLE_MULTIMEDIA_ADMIN: [ROLE_MULTIMEDIA_DELETE, ROLE_MULTIMEDIA_EMAIL]
-        # Oucampus signup list Application
-        ROLE_OU_SIGNUP_VIEW:  ROLE_USER
+        

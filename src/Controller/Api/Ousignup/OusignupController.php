@@ -32,20 +32,5 @@ class OusignupController extends FOSRestController
         $response = new Response($serialized, 200, array("Content-Type" => "application/json"));
 
         return $response;
-        // return $this->render('api/ousignup/ousignup/index.html.twig', [
-        //     'controller_name' => 'OusignupController',
-        // ]);
     }
-
-    // public function getOuSignupList(): Response
-    // {
-    //     $redirects = $this->getDoctrine()->getRepository(OuCampusSignups::class)->findBy([], ['fromLink' => 'asc']);
-    //     $serializer = $this->container->get("jms_serializer");
-
-    //     $serialized = $serializer->serialize($redirects, "json");
-
-    //     $response = new Response($serialized, 200, array("Content-Type" => "application/json"));
-
-    //     return $response;
-    // }
 }

@@ -78,6 +78,13 @@
               buttonLink: "/ousignup",
               display: false
             },
+            departmentdirectory: {
+              title: "Department directory",
+              description: "Department directory displays information regarding the deparment.",
+              buttonText: "See Department Directory",
+              buttonLink: "/departmentdirectory",
+              display: false
+            },
           }
         }
       },
@@ -107,6 +114,9 @@
           }
           if(role.includes('ROLE_')){
             this.userModules.ousignup.display = true
+          }
+          if(role.includes('ROLE_')){
+            this.userModules.departmentdirectory.display = true
           }
         },
       },

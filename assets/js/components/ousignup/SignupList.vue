@@ -3,8 +3,8 @@
     <heading>
       <span slot="title">Oucampus training signup list</span>
     </heading>
-    <div class="table-responsive">
-    <table class="table table-hover table-sm">
+    <div v-if="!loadingSignupList" class="table-responsive">
+    <table class="table table-hover table-sm table-bordered">
         <thead>
             <tr>
             <th scope="col">Participant</th>
@@ -31,6 +31,8 @@
     </tbody>
     </table>
     </div>
+
+    <br>
 
     <paginator
                 v-show="!loadingSignupList"
@@ -95,10 +97,7 @@ components: {Heading, Paginator},
         });
 
         self.resultedOucampusSignupList = self.fetchedOucampusSignupList.slice();
-
-        if (self.resultedOucampusSignupList .length == 0) {
-          self.loadingSignupList = false;
-        }
+        self.loadingSignupList = false;
       })
       .catch(function(error) { // Failure.
         self.apiError.status = error.response.status;
@@ -117,8 +116,7 @@ components: {Heading, Paginator},
             self.apiError.message = "An error occurred.";
             break;
         }
-
-        self.turnOffLoadingWheels();
+        
 
       });
     },
