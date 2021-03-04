@@ -46,6 +46,8 @@ class MapItemService
     public function mapItemCollectionCompare(PersistentCollection $currentCollection, array $updatedArray)
     {
         $current_ids = array();
+        
+        
         foreach ($currentCollection as $item) {
             $current_ids[] = $item->getId();
         }
