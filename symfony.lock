@@ -27,9 +27,12 @@
         "version": "v2.6.3"
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     "doctrine/deprecations": {
         "version": "v0.5.3"
     },
+=======
+>>>>>>> 88e90d4f29baceb9498fc013a81211248a442d2e
 =======
 >>>>>>> 88e90d4f29baceb9498fc013a81211248a442d2e
     "doctrine/doctrine-bundle": {
@@ -402,9 +405,12 @@
         "version": "v1.7.0"
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     "symfony/polyfill-php81": {
         "version": "v1.23.0"
     },
+=======
+>>>>>>> 88e90d4f29baceb9498fc013a81211248a442d2e
 =======
 >>>>>>> 88e90d4f29baceb9498fc013a81211248a442d2e
     "symfony/process": {
