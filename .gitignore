@@ -1,0 +1,32 @@
+
+###> symfony/framework-bundle ###
+.env
+/public/bundles/
+/public/media/
+/public/uploads/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/webpack-encore-pack ###
+/node_modules/
+#/public/build/
+###< symfony/webpack-encore-pack ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> Homestead ###
+Homestead.yaml
+Vagrantfile
+.vagrant/
+###< Homestead ###
+
+###> misc ###
+composer
+.idea
+ic_2018-11-18.sql
+.DS_Store
+###< Homestead ###

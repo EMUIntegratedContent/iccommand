@@ -1,0 +1,26 @@
+ldap_tools:
+    domains:
+        emich:
+            # The LDAP FQDN is required
+            domain_name: emich.edu
+            # The username to use for the LDAP connection
+            username: '%env(LDAP_USER)%'
+            # The password to use for the username
+            password: '%env(LDAP_PASSWORD)%'
+            # The base DN for LDAP searches (queried from the RootDSE if not provided)
+            base_dn: "cn=users,dc=ad,dc=emich,dc=edu"
+            # The LDAP servers to use for the connection (Queried from DNS if not provided)
+            servers: ["ad.emich.edu"]
+            # The simple name of the user will replace the %%username%%
+            # Double %% needed to escape the normal parameter resolution in Symfony
+            bind_format: "cn=%%username%%,cn=users,dc=ad,dc=emich,dc=edu"
+    security:
+        # Set to null for no role to be assigned by default. Or set it to another role altogether.
+        default_role: ROLE_USER
+        guard:
+            login_path: '/login'
+            default_target_path: '/'
+            always_use_target_path: false
+            target_path_parameter: '_target_path'
+            use_referer: true
+            remember_me: true # Have to combine this 'remember_me' with the 'remember_me' settings in security.yaml

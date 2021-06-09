@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Map Application{% endblock %}
+
+{% block modulenav %}
+    {% include 'map/nav_map.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col">
+            <div class="app-hero">
+                <h1>Campus Map Application</h1>
+                <img class="img-fluid" alt="an image of the illustrated campus map"
+                     src="/images/illustrated_map_screenshot.png"/>
+            </div>
+            <p>This map application stores all information pertaining to buildings, dining options, parking, and much
+                more, on the Eastern Michigan University campus. The information stored is on display to the public at
+                <a href="https://emich.edu/map">https://emich.edu/map</a>. With full access, users of this app have
+                the ability to modify, add, or delete map items. Map items such a buildings also allow for the uploading
+                of multiple images, which will also be available for public display.</p>
+        </div>
+    </div>
+{% endblock %}

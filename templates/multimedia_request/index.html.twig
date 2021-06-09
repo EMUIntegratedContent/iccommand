@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Multimedia Requests{% endblock %}
+
+{% block modulenav %}
+    {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col">
+            <div class="app-hero">
+                <h1 style="color: #ffffff; stroke: #000000">Multimedia Request Application</h1>
+                <img class="img-fluid" alt="Multimedia Requests Application" src="/images/multimedia-front.jpg" />
+            </div>
+            <p>This application handles all University multimedia requests including photo shoots, video shoots, and inquiries for the creation of publications. A concept of a public-facing form is at <a href="https://webstage.emich.edu/commforms">https://webstage.emich.edu/commforms</a>. With full access, users of this app have the ability to modify, add, or delete requests. It is also possible to assign requests to other people, and to email them a notification that they have been assigned the request.</p>
+        </div>
+    </div>
+{% endblock %}

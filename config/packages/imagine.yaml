@@ -1,0 +1,38 @@
+liip_imagine:
+    # valid drivers options include "gd" or "gmagick" or "imagick"
+    driver: "gd"
+    filter_sets:
+        squared_thumbnail:
+            # set your image quality defaults
+            jpeg_quality:          85
+            png_compression_level: 8
+
+            filters:
+                thumbnail:
+                    size:           [100,100]
+                    mode:           outbound
+                    allow_upscale:  true
+                background:
+                    size:     [103, 103]
+                    position: center
+                    color:    '#fff'
+        profile:
+            jpeg_quality:          85
+            png_compression_level: 8
+            filters:
+                thumbnail:
+                    size:           [200,300]
+                    mode:           outbound
+                    allow_upscale:  true
+                background:
+                    size:     [205, 305]
+                    position: center
+                    color:    '#fff'
+        navbar_profile:
+            jpeg_quality:          85
+            png_compression_level: 8
+            filters:
+                thumbnail:
+                    size:           [25,25]
+                    mode:           outbound
+                    allow_upscale:  true

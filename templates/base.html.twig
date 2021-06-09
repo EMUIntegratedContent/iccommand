@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %} – ICCommand</title>
+    {% block stylesheets %}
+        <link href="{{ asset('build/app.css') }}" rel="stylesheet"/>
+    {% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-dark sticky-top bg-dark navbar-expand-lg">
+    <a class="navbar-brand" href="/">IC Command</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#iccommand-mainnav-container"
+            aria-controls="iccommand-mainnav-container" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="iccommand-mainnav-container">
+        <ul class="navbar-nav mr-auto">
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/map">Campus Map</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/multimediarequests">Multimedia Requests</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/redirects">Redirects</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/ousignup">Oucampus Signup List</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/departmentdirectory">Department Directory</a>
+                </li>
+            {% endif %}
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            {% if is_granted('ROLE_GLOBAL_ADMIN') %}
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="/admin">Admin</a>
+                </li>
+            {% endif %}
+            {% if app.user %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="{{ app.user.image ? '/media/cache/resolve/navbar_profile/uploads/profile/' ~ app.user.image.path : '/media/cache/resolve/navbar_profile/images/no-profile-image.png' }}"
+                             width="25px" height="25px" class="rounded-circle" alt="profile image"/>
+                        {{ app.user.username }}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/profile">My Profile</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/logout">Log Out</a>
+                    </div>
+                </li>
+            {% else %}
+                <a class="nav-link" href="/login">Log In</a>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+<main role="main" class="container" id="iccommand-content-container">
+    {% block modulenav %}{% endblock %}
+    {% block body %}{% endblock %}
+</main>
+{% block javascripts %}
+    <script src="{{ asset('build/app.js') }}"></script>
+    <script src="{{ asset('ckeditor4/ckeditor.js') }}"></script>
+    <!--<script src="https://cdn.ckeditor.com/4.6.1/full/ckeditor.js"></script>-->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCUqoSEir9huPBCzyFRLopmjb0lmzOkj78"></script>
+{% endblock %}
+
+</body>
+</html>

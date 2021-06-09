@@ -1,0 +1,138 @@
+Doctrine inheritance mapping
+http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/inheritance-mapping.html#mapped-superclasses
+
+Doctrine field types
+http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html
+
+Doctrine migrations up and down
+php bin/conosle doctrine:migrations:execute YYYYMMDDHHMMSS  --down (--up)
+
+If you get a 500 error where it says "Field {field} does not exist"
+Delete the var/cache directory
+
+Change the role of a user without having to make that user log in again
+- in security.yaml:
+security:
+    always_authenticate_before_granting:  true
+https://stackoverflow.com/questions/9220975/change-the-role-of-a-distant-user-without-having-to-relog
+
+Yarn commands
+https://symfony.com/doc/current/frontend/encore/simple-example.html
+yarn run encore dev
+yarn run encore dev --watch
+yarn run encore production
+
+Pagination
+https://github.com/KnpLabs/KnpPaginatorBundle
+
+Cors
+https://github.com/nelmio/NelmioCorsBundle
+
+REST
+https://symfony.com/doc/master/bundles/FOSRestBundle/6-automatic-route-generation_multiple-restful-controllers.html
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-With-The-FOSUserBundle.md
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-Provider.md#guard-redirection
+
+LDAP
+http://symfony.com/doc/current/security/ldap.html
+LDAP Tools Bundle (+ hooking up with FOSUserBundle)
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-With-The-FOSUserBundle.md
+LDAP Role Mapping
+https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-Provider.md#Successful-Login-Event
+
+JSON Serialization
+http://jmsyst.com/bundles/JMSSerializerBundle
+
+Babel (.babelrc) creation
+https://symfony.com/doc/current/frontend/encore/babel.html#creating-a-babelrc-file
+
+Getting Vue Components to load properly (.default)
+https://github.com/vuejs/vue-router/issues/1882
+
+Axios (Vue) Config + CSRF Config (taken from Laravel docs)
+https://github.com/laravel/laravel/blob/master/resources/assets/js/bootstrap.js#L28-L33
+
+Vue2-Google-Maps: how to get latitude and longitude and how to set a marker
+http://xkjyeah.github.io/vue-google-maps/index-app.html#/03CurvedLine
+https://github.com/GuillaumeLeclerc/vue-google-maps-example/blob/gh-pages/src/app.vue
+https://medium.com/founders-factory/building-a-custom-google-map-component-with-vue-js-d1c01ddd0b0a
+Custom map types (Google Docs)
+https://developers.google.com/maps/documentation/javascript/maptypes
+
+Validation
+https://symfony.com/doc/current/validation.html
+
+As of 2/27/18, the only way I know to bring images from /assets/images into /public/build/images is by requiring them in app.js
+With versioning enabled in webpack, the images are saved with a version number. In order to include the images in a template, a json_manifest_path file
+is generated which maps the file to its version number. This must be specified in the framework.yaml file:
+https://symfony.com/doc/current/frontend/encore/versioning.html
+
+Repository Classes (use and function)
+https://symfony.com/doc/3.4/doctrine/repository.html
+
+StofDoctrineExtensionsBundle, Gedmo (Timestamps/Tree/Sortable, etc.)
+https://symfony.com/doc/current/doctrine/common_extensions.html
+
+Uploading IMAGES
+https://symfony.com/doc/current/controller/upload_file.html
+
+Uploading images with Vue(API)
+https://scotch.io/tutorials/how-to-handle-file-uploads-in-vue-2
+
+Image manipulation (LiipImagineBundle)
+https://github.com/liip/LiipImagineBundle
+
+**ERROR 3/5... Debug toolbar breaking AJAX Calls**
+https://github.com/symfony/symfony/issues/26364
+
+Flickering Modal when in list-item-group FIX:
+.list-group-item, .list-group-item:hover{ z-index: auto; }
+https://github.com/twbs/bootstrap/issues/25206
+
+Services - autowiring
+https://symfony.com/doc/current/service_container.html#service-container-creating-service
+Services - passing container into service
+https://ourcodeworld.com/articles/read/42/how-to-create-a-php-service-for-symfony-2-3-with-entity-manager-and-service-container
+
+Checkbox styles (npm)
+https://hamed-ehtesham.github.io/pretty-checkbox-vue/
+
+Overriding bundle parts (Symfony 4)
+https://symfony.com/doc/current/bundles/override.html
+Overriding bundle templates (Symfony 4)
+https://symfony.com/doc/current/templating/overriding.html
+
+Redirect after login (FOSUserBundle)
+https://stackoverflow.com/questions/20879164/symfony2-using-referer-after-login-with-fosuserbundle?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+
+Send asset (e.g. an image) in an email via a twig template
+Must use absolute_path() around the asset: <img src="{{ absolute_url(asset('images/e-box.png')) }}" width="100px" height="100px" />
+https://symfony.com/doc/current/templating.html
+
+ERROR REPAIR:
+"Notice: unserialize(): Error at offset 0 of 27 bytes"
+- Solution: remove the "jms_serializer" directory at /var/cache/{env}
+
+FRONTEND:
+How to integrate Google Maps with Vue
+https://medium.com/founders-factory/building-a-custom-google-map-component-with-vue-js-d1c01ddd0b0a
+
+Remove multiple items from javascript object with splice (reverse for-loop)
+https://gist.github.com/chad3814/2924672
+
+Order columns in Vue table
+https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter (used in /assets/js/multimediarequest/MultimediaRequestIndex.vue)
+
+Sort columns in Vue table (caution: for ordering columns, see the "Order columns in Vue table" note)
+https://codepen.io/pespantelis/pen/ojwgPB
+
+Ckeditor with Vue
+- Vue-ckeditor2: https://github.com/dangvanthanh/vue-ckeditor2
+- Requires Ckeditor4 (download and place in public folder). Add <script> in base.html.twig
+- BUTTONS: https://stackoverflow.com/questions/13828383/what-toolbar-buttons-are-available-in-ckeditor-4
+
+INTERNET EXPLORER FIXES
+- Problems with ES6 Promise (axios): require('es6-promise').polyfill() (will need to install from npm)
+- Polyfills:
+  - startsWith(): https://stackoverflow.com/questions/30867172/code-not-running-in-ie-11-works-fine-in-chrome
+  - includes(): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes

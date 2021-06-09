@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit map item.{% endblock %}
+
+{% block modulenav %}
+  {% include 'map/nav_map.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <map-item-form :item-exists="true" item-type="{{ itemType }}" start-mode="show" item-id="{{ id }}" :permissions="[{{ permissions }}]"></map-item-form>
+</div>
+{% endblock %}

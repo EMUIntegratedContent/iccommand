@@ -1,0 +1,20 @@
+<h3 class="module-nav-heading">Campus Map Application</h3>
+<ul class="nav nav-pills module-nav-pills" role="navigation">
+    <li class="nav-item">
+        <a class="nav-link active" href="/map"><i class="fa fa-home"></i></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/map/items">Item list</a>
+    </li>
+    {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_CREATE') %}
+        <li class="nav-item">
+            <a class="nav-link" href="/map/items/create">Create new item</a>
+        </li>
+    {% endif %}
+
+    {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_ADMIN') %}
+        <li class="nav-item">
+            <a class="nav-link" href="/map/manage">Manage app</a>
+        </li>
+    {% endif %}
+</ul>

@@ -1,0 +1,6 @@
+// Custom mixins for ic command. Created by CP 3/26/18
+@mixin card-box-shadow() {
+  -webkit-box-shadow: -1px 0px 24px -13px rgba(0,0,0,0.74);
+  -moz-box-shadow: -1px 0px 24px -13px rgba(0,0,0,0.74);
+  box-shadow: -1px 0px 24px -13px rgba(0,0,0,0.74);
+}
