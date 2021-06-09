@@ -1,5 +1,59 @@
 <template>
-<div>
+    <div>
+    <div class="modal" ref="modal" id="loginModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+                <div class="modal-header">
+                      <span slot="title">{{ participantInfo.full_name }}</span>
+                </div>
+
+                <div class="modal-body">
+
+                <div class="row">
+                  <table class="table table-hover table-sm table-bordered">
+                  <tbody>
+                  <tr><td>Participant</td><td>{{ participantInfo.full_name }}</td></tr>
+                  <tr><td>Date/Time</td><td>{{ participantInfo.date }}</td></tr>
+                  <tr><td>Email</td><td>{{ participantInfo.emich_email }}</td></tr>
+                  <tr><td>URL</td><td>{{ participantInfo.site }}</td></tr>
+                  <tr><td>New User</td><td>{{ participantInfo.new_user }}</td></tr>
+                  <tr><td>Student</td><td>{{ participantInfo.is_student }}</td></tr>
+                  <tr><td>Reports to</td><td>{{ participantInfo.supervisors }}</td></tr>
+                  <tr><td>Comments / Questions</td><td>{{ participantInfo.comments }}</td></tr>
+                  </tbody>
+                  </table>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                      <button class="btn copy-button" @click="">
+                      copy
+                      </button>
+                    </div>
+
+                    <div class="col">
+                      <button class="btn btn-danger" @click="deleteSignupListItem(participantInfo.id)">
+                      delete
+                      </button>
+                    </div>
+                  </div>
+
+                <br>
+                  <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
+                    {{ apiError.message }}
+                </div>
+                <div v-if="success" class="alert alert-success fade show" role="alert">
+                    {{ successMessage }}
+                </div>
+                <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">
+                    There was an error deleting this request.
+                </div>
+
+                </div>
+          </div>
+        </div>
+    </div>
+
     <heading>
       <span slot="title">Oucampus training signup list</span>
     </heading>
@@ -10,11 +64,14 @@
             <th scope="col">Participant</th>
             <th scope="col">Date/Time</th>
             <th scope="col">Email</th>
+
+            <th scope="col">View</th>
             <th scope="col">URL</th>
             <th scope="col">New User</th>
             <th scope="col">Student</th>
             <th scope="col">Reports to</th>
             <th scope="col">Comments / Questions</th>
+
             </tr>
         </thead>  
     <tbody>
@@ -22,11 +79,17 @@
         <td>{{ registered_person.full_name }}</td>
         <td>{{ registered_person.date }}</td>
         <td>{{ registered_person.emich_email }}</td>
+
+        <td>
+            <button class="btn-eye" @click="signupListItem(registered_person)" data-target="#loginModal"><i class="fa fa-eye"></i></button>
+        </td>
+
         <td>{{ registered_person.site }}</td>
         <td>{{ registered_person.new_user }}</td>
         <td>{{ registered_person.is_student }}</td>
         <td>{{ registered_person.supervisors }}</td>
         <td>{{ registered_person.comments }}</td>
+
         </tr>
     </tbody>
     </table>
@@ -39,10 +102,62 @@
                 :items="resultedOucampusSignupList"
                 @itemsPerPageChanged="setPaginatedOucampusSignupList">
     </paginator>
+
+  </div>
+</template>
+
+<script>
+  // Variables used for the copy feature:
+  var counter = 0;
+  var netIds = [];
+  var firstNames = [];
+  var lastNames = [];
+
+  $(document).ready(function() {
+    $(".copy-button").each(function() {
+      var rowId = (counter <= 99)
+        ? ((counter >= 10) ? "0" + counter : "00" + counter) : counter;
+      $(this).attr("id", rowId);
+      ++counter;
+    });
+
+    $(".copy-content").hide();
+
+    $(".copy-button").click(function() {
+      var netId = netIds[parseInt($(this).attr("id"))];
+
+      $(".copy-content").val("(function(net,f,l) {" +
+        "$('#restrictions .control-group').show();" +
+        "$('#username').val(net);" +
+        "$('#first_name').val(f);" +
+        "$('#last_name').val(l);" +
+        "$('#email').val(net+'@emich.edu');" +
+        "$('#privilege').val(6);" +
+        "$('#toolbar').val('User');" +
+        "$('#allow_overwrite').prop('checked', true);" +
+        "$('#allow_delete').prop('checked', true);" +
+        "$('#ldap_host').val('ldap.emich.edu');" +
+        "$('#ldap_dn').val('cn='+net+',ou=people,o=campus');" +
+        "} (\"" + netId + "\", \"" + firstNames[parseInt($(this).attr("id"))] +
+        "\", \"" + lastNames[parseInt($(this).attr("id"))] + "\"))");
+
+      $(".copy-content").show();
+      $(".copy-content").select();
+      document.execCommand("Copy");
+      $(".copy-content").hide();
+
+      console.log(netId + "'s data has been copied.");
+    });
+  });
+</script>
+
+<script>
+
 </div>
 </template>
 
 <script>
+
 import Heading from "../utils/Heading.vue";
 import Paginator from "../utils/Paginator.vue";
 
@@ -64,12 +179,25 @@ components: {Heading, Paginator},
 
   data: function() { 
         return {
-            
+
+
+            apiError: {
+                message: null,
+                status: null
+            },
+
+            isDeleted: false,
+            isDeleteError: false,
+            success: false,
+            successMessage: '',
+          
             fetchedOucampusSignupList : [],
 
             resultedOucampusSignupList : [],
 
             paginatedOucampusSignupList : [],
+
+            participantInfo : '',
 
             loadingSignupList : true
            
@@ -126,7 +254,52 @@ components: {Heading, Paginator},
       this.paginatedOucampusSignupList = SignupList;
       this.loadingSignupList  = false; // Turn off the loading wheel.
     },
-    
+
+    signupListItem: function(selected_person) {
+      this.participantInfo = selected_person;
+      $('#loginModal').modal('show');
+    },
+
+    deleteSignupListItem: function(selected_person_id) {
+      let self = this
+      console.log(selected_person_id);
+      axios.delete('/api/ousignup/ousignup/delete/' + selected_person_id)
+      .then(function(response) {
+        console.log(response);
+        self.markItemDeleted(); 
+      })
+      .catch(function(error) {
+        console.log(error);
+        self.markItemDeleteError()
+      })
+    },
+    // Emit an event to the parent component telling it the item has been deleted
+    //itemDeleted: function(){
+    //  this.$emit('itemDeleted')
+    //},
+    // Emit an event to the parent component telling it the item has not been deleted
+    //itemDeleteError: function(){
+    //  this.$emit('itemDeleteError')
+    //},
+    markItemDeleted: function () {
+        this.isDeleteError = false;
+        this.isDeleted = true;
+        this.success = true;
+        this.successMessage = "Participant record has been deleted."
+        setTimeout(function () {
+            // This record doesn't exist anymore, so send the user back to the assignees list page
+            window.location.replace('/ousignup')
+        }, 3000)
+    },
+    markItemDeleteError: function () {
+        let self = this
+        this.isDeleted = false
+        this.isDeleteError = true
+        setTimeout(function () {
+            self.isDeleteError = false
+        }, 5000)
+    },
+
     /**
      * Sets the loading variables to false to hide all loading wheels.
      */
