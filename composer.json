@@ -36,7 +36,7 @@
         "symfony/swiftmailer-bundle": "^3.2",
         "symfony/validator": "^4.0",
         "symfony/web-link": "^4.0",
-        "symfony/webpack-encore-bundle": "^1.11",
+        "symfony/webpack-encore-bundle": "^1.12",
         "symfony/webpack-encore-pack": "*",
         "symfony/yaml": "^4.0",
         "willdurand/hateoas": "^2.12"

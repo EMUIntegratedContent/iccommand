@@ -1,18 +1,9 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     # show full user not found message
-<<<<<<< HEAD
-<<<<<<< HEAD
-    #hide_user_not_found: false
-    #always_authenticate_before_granting:  true
-=======
+
     hide_user_not_found: false
     always_authenticate_before_granting:  true
->>>>>>> 88e90d4f29baceb9498fc013a81211248a442d2e
-=======
-    hide_user_not_found: false
-    always_authenticate_before_granting:  true
->>>>>>> 88e90d4f29baceb9498fc013a81211248a442d2e
 
     # CONFIG FOR WORKING where EMU LDAP is available
     # providers:

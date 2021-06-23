@@ -66,12 +66,6 @@
             <th scope="col">Email</th>
 
             <th scope="col">View</th>
-            <th scope="col">URL</th>
-            <th scope="col">New User</th>
-            <th scope="col">Student</th>
-            <th scope="col">Reports to</th>
-            <th scope="col">Comments / Questions</th>
-
             </tr>
         </thead>  
     <tbody>
@@ -83,13 +77,6 @@
         <td>
             <button class="btn-eye" @click="signupListItem(registered_person)" data-target="#loginModal"><i class="fa fa-eye"></i></button>
         </td>
-
-        <td>{{ registered_person.site }}</td>
-        <td>{{ registered_person.new_user }}</td>
-        <td>{{ registered_person.is_student }}</td>
-        <td>{{ registered_person.supervisors }}</td>
-        <td>{{ registered_person.comments }}</td>
-
         </tr>
     </tbody>
     </table>
@@ -150,8 +137,6 @@
     });
   });
 </script>
-
-<script>
 
 </div>
 </template>
