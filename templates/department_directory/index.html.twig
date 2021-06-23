@@ -2,6 +2,10 @@
 
 {% block title %}Department Directory{% endblock %}
 
+{% block modulenav %}
+    {% include 'department_directory/nav_department_directory.html.twig' %}
+{% endblock %}
+
 {% block body %}
     <div id="app">
         <department-directory></department-directory>

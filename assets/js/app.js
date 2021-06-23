@@ -87,6 +87,7 @@ Vue.component("ousignup-list", require("./components/ousignup/SignupList.vue").d
 
 /* Department Directory */
 Vue.component("department-directory", require("./components/departmentdirectory/DepartmentDirectory.vue").default);
+Vue.component("department-directory-form", require("./components/departmentdirectory/DepartmentDirectoryForm.vue").default);
 
 /* ********************************* Vue App ******************************** */
 const app = new Vue({

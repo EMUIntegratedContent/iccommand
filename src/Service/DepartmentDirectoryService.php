@@ -27,5 +27,42 @@ class DepartmentDirectoryService
         $errors = $validator->validate($item);
         return $errors;
     }
+
+    /**
+     *  Fetch the user's permissions for managing photo requests
+     * @return array $departmentDirectoryPermissions
+     */
+    public function getUserDepartmentDirectoryPermissions()
+    {
+        $departmentDirectoryPermissions = array(
+            'create' => false,
+            'edit' => false,
+            'delete' => false,
+            'admin' => false
+        );
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_DEPARTMENT_DIRECTORY_ADMIN') || $this->container->get('security.authorization_checker')->isGranted('ROLE_GLOBAL_ADMIN')) {
+            $departmentDirectoryPermissions['create'] = true;
+            $departmentDirectoryPermissions['edit'] = true;
+            $departmentDirectoryPermissions['delete'] = true;
+            $departmentDirectoryPermissions['email'] = true;
+            $departmentDirectoryPermissions['admin'] = true;
+        }
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_DEPARTMENT_DIRECTORY_EMAIL')) {
+            $departmentDirectoryPermissions['email'] = true;
+            $departmentDirectoryPermissions['edit'] = true;
+        }
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_DEPARTMENT_DIRECTORY_DELETE')) {
+            $departmentDirectoryPermissions['delete'] = true;
+            $departmentDirectoryPermissions['edit'] = true;
+        }
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_DEPARTMENT_DIRECTORY_EDIT')) {
+            $departmentDirectoryPermissions['create'] = true;
+            $departmentDirectoryPermissions['edit'] = true;
+        }
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_DEPARTMENT_DIRECTORY_CREATE')) {
+            $departmentDirectoryPermissions['create'] = true;
+        }
+        return $departmentDirectoryPermissions;
+    }
  
 }
