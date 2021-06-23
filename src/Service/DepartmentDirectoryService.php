@@ -5,7 +5,7 @@ namespace App\Service;
 use Symfony\Component\DependencyInjection\ContainerInterface as Container;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
-use App\Entity\OuCampusSignups;
+use App\Entity\DirectoryDepartments;
 
 class DepartmentDirectoryService
 {
@@ -18,7 +18,7 @@ class DepartmentDirectoryService
 
     /**
      * Use the Symfony container's validator to validate fields for an assignee
-     * @param App\Entity\OuCampusSignups\* $item
+     * @param App\Entity\DirectoryDepartments\* $item
      * @return array $errors
      */
     public function validate($item): ConstraintViolationList

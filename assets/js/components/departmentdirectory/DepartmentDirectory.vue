@@ -11,7 +11,7 @@
             <th scope="col">Updated</th>
             <th scope="col">Department</th>
             <th scope="col">Search terms</th>
-            <th scope="col">Address1</th>
+            <th scope="col">Address</th>
             <th scope="col">Phone</th>
             <th scope="col">Email</th>
             <th scope="col">Website</th>
@@ -94,10 +94,10 @@ components: {Heading, Paginator},
       let self = this; // "this" loses scope within Axios.
 
       /* Ajax (Axios) Submission */
-      axios.get("/api/ousignup/ousignup")
+      axios.get("/api/departmentdirectory")
       .then(function(response) { // Success.
         response.data.forEach(function(department) {
-          self.DepartmentDirectory.push(department);
+          self.fetchedDepartmentDirectory.push(department);
         });
 
         self.resultedDepartmentDirectory = self.fetchedDepartmentDirectory.slice();
@@ -120,8 +120,6 @@ components: {Heading, Paginator},
             self.apiError.message = "An error occurred.";
             break;
         }
-        
-
       });
     },
 
