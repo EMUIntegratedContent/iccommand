@@ -1,5 +1,64 @@
 <template>
 <div>
+  <div class="modal" ref="modal" id="loginModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+                <div class="modal-header">
+                      <span slot="title">{{ departmentInformation.department }}</span>
+                </div>
+
+                <div class="modal-body">
+
+                <div class="row">
+                  <table class="table table-hover table-sm table-bordered">
+                  <tbody>
+                  <tr><td>Department Name</td><td>{{ departmentInformation.department }}</td></tr>
+                  <tr><td>Updated</td><td>{{ departmentInformation.updated }}</td></tr>
+                  <tr><td>Email</td><td>{{ departmentInformation.email }}</td></tr>
+                  <tr><td>Website</td><td>{{ departmentInformation.website }}</td></tr>
+                  <tr><td>Search Terms</td><td>{{ departmentInformation.search_terms }}</td></tr>
+                  <tr><td>Map Building Name</td><td>{{ departmentInformation.map_building_name }}</td></tr>
+                  <tr><td>Address 1</td><td>{{ departmentInformation.address_1 }}</td></tr>
+                  <tr><td>Address 2</td><td>{{ departmentInformation.address_2 }}</td></tr>
+                  <tr><td>City</td><td>{{ departmentInformation.city }}</td></tr>
+                  <tr><td>State</td><td>{{ departmentInformation.state }}</td></tr>
+                  <tr><td>Zip</td><td>{{ departmentInformation.zip }}</td></tr>
+                  <tr><td>Faculty List</td><td>{{ departmentInformation.faculty_list }}</td></tr>
+                  <tr><td>Staff List</td><td>{{ departmentInformation.staff_list }}</td></tr>
+                  </tbody>
+                  </table>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                      <button class="btn btn-info" @click="editDepartmentInformation(departmentInformation.id)">
+                        Edit
+                      </button>
+                    </div>
+
+                    <div class="col">
+                      <button class="btn btn-danger" @click="deleteDepartmentInformation(departmentInformation.id)">
+                        Delete
+                      </button>
+                    </div>
+                    
+                  </div>
+
+                <br>
+                  <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
+                    {{ apiError.message }}
+                  </div>
+                  <div v-if="success" class="alert alert-success fade show" role="alert">
+                      {{ successMessage }}
+                  </div>
+                  <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">
+                      There was an error deleting this request.
+                  </div>
+                </div>
+          </div>
+        </div>
+    </div>
+
     <heading>
       <span slot="title">Department Directory</span>
     </heading>
@@ -10,32 +69,26 @@
             <th scope="col">id</th>
             <th scope="col">Updated</th>
             <th scope="col">Department</th>
-            <th scope="col">Search terms</th>
-            <th scope="col">Address</th>
             <th scope="col">Phone</th>
             <th scope="col">Email</th>
-            <th scope="col">Website</th>
-            <th scope="col">Faculty list</th>
-            <th scope="col">Staff list</th>
+            <th scope="col">View</th>
             </tr>
         </thead>  
     <tbody>
         <tr v-for="department in paginatedDepartmentDirectory" :id="department.id">
         <td>{{ department.id }}</td>
         <td>{{ department.updated }}</td>
-        <td>{{ department.department_name }}</td>
-        <td>{{ department.search_terms }}</td>
-        <td>{{ department.address }}</td>
+        <td>{{ department.department }}</td>
         <td>{{ department.phone }}</td>
         <td>{{ department.email }}</td>
-        <td>{{ department.website }}</td>
-        <td>{{ department.faculty_list }}</td>
-        <td>{{ department.staff_list }}</td>
+        <td>
+            <button class="btn-eye" @click="departmentDirectoryItem(department)" data-target="#loginModal"><i class="fa fa-eye"></i></button>
+        </td>
         </tr>
     </tbody>
     </table>
     </div>
-
+  
     <br>
 
     <paginator
@@ -68,6 +121,19 @@ components: {Heading, Paginator},
 
   data: function() { 
         return {
+
+            apiError: {
+                message: null,
+                status: null
+            },
+
+            isDeleted: false,
+            isDeleteError: false,
+            success: false,
+            successMessage: '',
+
+
+            isEditMode: false,
             
             fetchedDepartmentDirectory : [],
 
@@ -75,12 +141,36 @@ components: {Heading, Paginator},
 
             paginatedDepartmentDirectory : [],
 
-            loadingDepartmentDirectory : true
+            loadingDepartmentDirectory : true,
+
+            departmentInformation : '',
            
         }; 
     },
 
-  computed: {},
+  computed: {
+      haveErrors: function () {
+          return this.$validator.errors.count() > 0 ? true : false
+      },
+      headingIcon: function () {
+
+      },
+      isInvalid: function () {
+          return 'is-invalid'
+      },
+      // -end PHOTOS
+      lockIcon: function () {
+          return this.isEditMode ? '<i class="fa fa-unlock"></i>' : '<i class="fa fa-lock"></i>'
+      },
+      userCanEdit: function () {
+          // An existing record can be edited by a user with edit permissions, a new record can be created by a user with create permissions
+          return this.permissions[0].edit || this.permissions[0].create ? true : false
+      },
+      userCanEmail: function () {
+          // An email can be sent by a user with email permissions
+          return this.permissions[0].email
+      }
+  },
 
   methods: {
     /**
@@ -127,6 +217,11 @@ components: {Heading, Paginator},
       this.loadingDepartmentDirectory= true; // Show the loading wheel.
       this.paginatedDepartmentDirectory = DepartmentList;
       this.loadingDepartmentDirectory = false; // Turn off the loading wheel.
+    },
+
+    departmentDirectoryItem: function(selected_department) {
+      this.departmentInformation = selected_department;
+      $('#loginModal').modal('show');
     },
     
     /**
