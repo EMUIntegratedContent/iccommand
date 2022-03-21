@@ -29,6 +29,7 @@ use App\Entity\Map\MapService;
 use App\Entity\Map\MapServiceType;
 use App\Service\MapItemService;
 use App\Entity\Redirect\Redirect;
+use App\Entity\Map\MapDispenser;
 
 class MapItemController extends FOSRestController
 {
@@ -599,6 +600,29 @@ class MapItemController extends FOSRestController
                 }
                 // Compare and delete any services not in the updated list
                 $this->service->mapItemCollectionCompare($mapItem->getServices(), $request->request->get('services'));
+
+								// Cycle Dispensers
+								foreach ($request->request->get('dispensers') as $bldgDispenser) {
+									// a new dispenser won't have an ID
+									if (isset($bldgDispenser['id'])) {
+										$dispenser = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgDispenser['id']);
+									} else {
+										$dispenser = new MapDispenser();
+										$dispenser->setBuilding($mapItem);
+									}
+									$dispenser->setName($bldgDispenser['name']);
+									$dispenser->setDescription($bldgDispenser['description']);
+
+									$dispenserErrors = $this->service->validate($dispenser);
+									if (count($dispenserErrors) > 0) {
+										$serialized = $serializer->serialize($dispenserErrors, 'json');
+										$response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
+										return $response;
+									}
+									$em->persist($dispenser); // persist but don't save until the end
+								}
+								// Compare and delete any dispensers not in the updated list
+								$this->service->mapItemCollectionCompare($mapItem->getDispensers(), $request->request->get('dispensers'));
                 break;
             case "bus":
                 break;
@@ -645,6 +669,14 @@ class MapItemController extends FOSRestController
                 }
                 $mapItem->setType($type);
                 break;
+						case "dispenser":
+							// Find the building in which this dispenser is located
+							$building = $request->request->get('building');
+							if ($building) {
+								$building = $this->getDoctrine()->getRepository(MapItem::class)->find($building['id']);
+							}
+							$mapItem->setBuilding($building);
+							break;
             default:
                 return new Response("This is not a valid map type.", 400, array('Content-Type' => 'application/json'));
         }
