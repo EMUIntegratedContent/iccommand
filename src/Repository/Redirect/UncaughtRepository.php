@@ -3,7 +3,7 @@ namespace App\Repository\Redirect;
 
 use App\Entity\Redirect\Uncaught;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * This is the repository of the uncaught items.
@@ -15,10 +15,10 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 class UncaughtRepository extends ServiceEntityRepository {
   /*
    * The constructor of the repository of the uncaught items.
-   * @param RegistryInterface $registry The referer that references Doctrine
+   * @param ManagerRegistry $registry The referer that references Doctrine
    * connections and entity managers.
    */
-  public function __construct(RegistryInterface $registry) {
+  public function __construct(ManagerRegistry $registry) {
     parent::__construct($registry, Uncaught::class);
   }
 }

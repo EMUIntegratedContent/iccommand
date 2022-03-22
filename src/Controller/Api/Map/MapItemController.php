@@ -475,6 +475,7 @@ class MapItemController extends FOSRestController
                     }
                     $bathroom->setName($bldgBathroom['name']);
                     $bathroom->setIsGenderNeutral($bldgBathroom['isGenderNeutral']);
+										$bathroom->setAdmissionsTour(0);
 
                     $bathroomErrors = $this->service->validate($bathroom);
                     if (count($bathroomErrors) > 0) {
@@ -499,6 +500,7 @@ class MapItemController extends FOSRestController
                     $dining->setName($bldgDining['name']);
                     $dining->setDescription($bldgDining['description']);
                     $dining->setHours($bldgDining['hours']);
+										$dining->setAdmissionsTour(0);
 
                     $diningErrors = $this->service->validate($dining);
                     if (count($diningErrors) > 0) {
@@ -529,6 +531,7 @@ class MapItemController extends FOSRestController
                     }
                     $emergencyDevice->setName($bldgEmergency['name']);
                     $emergencyDevice->setType($emergencyType);
+										$emergencyDevice->setAdmissionsTour(0);
 
                     $emergencyErrors = $this->service->validate($emergencyDevice);
                     if (count($emergencyErrors) > 0) {
@@ -559,6 +562,7 @@ class MapItemController extends FOSRestController
                     $exhibit->setName($bldgExhibit['name']);
                     $exhibit->setDescription($bldgExhibit['description']);
                     $exhibit->setType($exhibitType);
+										$exhibit->setAdmissionsTour(0);
 
                     $exhibitErrors = $this->service->validate($exhibit);
                     if (count($exhibitErrors) > 0) {
@@ -589,6 +593,7 @@ class MapItemController extends FOSRestController
                     $service->setName($bldgService['name']);
                     $service->setDescription($bldgService['description']);
                     $service->setType($serviceType);
+										$service->setAdmissionsTour(0);
 
                     $serviceErrors = $this->service->validate($service);
                     if (count($serviceErrors) > 0) {
@@ -612,6 +617,7 @@ class MapItemController extends FOSRestController
 									}
 									$dispenser->setName($bldgDispenser['name']);
 									$dispenser->setDescription($bldgDispenser['description']);
+									$dispenser->setAdmissionsTour(0);
 
 									$dispenserErrors = $this->service->validate($dispenser);
 									if (count($dispenserErrors) > 0) {

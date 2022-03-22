@@ -29,15 +29,15 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    #Symfony\Component\Ldap\Ldap:
-    #    arguments: ['@Symfony\Component\Ldap\Adapter\ExtLdap\Adapter']
-    #Symfony\Component\Ldap\Adapter\ExtLdap\Adapter:
-    #    arguments:
-    #        -   host: ad.emich.edu
-    #            port: 389
-    #            options:
-    #                protocol_version: 3
-    #                referrals: false
+#    Symfony\Component\php bin/console ldaptools:generate:config\Ldap:
+#        arguments: ['@Symfony\Component\Ldap\Adapter\ExtLdap\Adapter']
+    Symfony\Component\Ldap\Adapter\ExtLdap\Adapter:
+        arguments:
+            -   host: ad.emich.edu
+                port: 389
+                options:
+                    protocol_version: 3
+                    referrals: false
 
     # Handle user login from EMU LDAP
     # Tutorial: https://github.com/ldaptools/ldaptools-bundle/blob/master/Resources/doc/LDAP-Authentication-Provider.md#guard-redirection

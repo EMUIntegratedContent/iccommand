@@ -1,26 +1,26 @@
 <?php
 
-namespace App\Repository\MultimediaRequest;
+namespace App\Repository;
 
-use App\Entity\MultimediaRequest\MultimediaRequest;
+use App\Entity\MapDispenser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method MultimediaRequest|null find($id, $lockMode = null, $lockVersion = null)
- * @method MultimediaRequest|null findOneBy(array $criteria, array $orderBy = null)
- * @method MultimediaRequest[]    findAll()
- * @method MultimediaRequest[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method MapDispenser|null find($id, $lockMode = null, $lockVersion = null)
+ * @method MapDispenser|null findOneBy(array $criteria, array $orderBy = null)
+ * @method MapDispenser[]    findAll()
+ * @method MapDispenser[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MultimediaRequestRepository extends ServiceEntityRepository
+class MapDispenserRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, MultimediaRequest::class);
+        parent::__construct($registry, MapDispenser::class);
     }
 
 //    /**
-//     * @return MultimediaRequest[] Returns an array of MultimediaRequest objects
+//     * @return MapDispenser[] Returns an array of MapDispenser objects
 //     */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class MultimediaRequestRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?MultimediaRequest
+    public function findOneBySomeField($value): ?MapDispenser
     {
         return $this->createQueryBuilder('m')
             ->andWhere('m.exampleField = :val')

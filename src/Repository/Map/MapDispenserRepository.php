@@ -4,7 +4,7 @@ namespace App\Repository\Map;
 
 use App\Entity\Map\MapDispenser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method MapDispenser|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,20 +14,36 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class MapDispenserRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, MapDispenser::class);
     }
 
+//    /**
+//     * @return MapDispenser[] Returns an array of MapDispenser objects
+//     */
     /*
-    public function findBySomething($value)
+    public function findByExampleField($value)
     {
         return $this->createQueryBuilder('m')
-            ->where('m.something = :value')->setParameter('value', $value)
+            ->andWhere('m.exampleField = :val')
+            ->setParameter('val', $value)
             ->orderBy('m.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
+        ;
+    }
+    */
+
+    /*
+    public function findOneBySomeField($value): ?MapDispenser
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
     }
     */

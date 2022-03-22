@@ -3,7 +3,7 @@ namespace App\Repository\Redirect;
 
 use App\Entity\Redirect\Redirect;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * This is the respository of the redirects.
@@ -15,10 +15,10 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 class RedirectRepository extends ServiceEntityRepository {
   /*
    * The constructor of the repository of the redirects.
-   * @param RegistryInterface $registry The referer that references Doctrine
+   * @param ManagerRegistry $registry The referer that references Doctrine
    * connections and entity managers.
    */
-  public function __construct(RegistryInterface $registry) {
+  public function __construct(ManagerRegistry $registry) {
     parent::__construct($registry, Redirect::class);
   }
 }
