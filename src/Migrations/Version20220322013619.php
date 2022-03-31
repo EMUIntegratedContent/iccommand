@@ -25,8 +25,6 @@ final class Version20220322013619 extends AbstractMigration
         $this->addSql('CREATE TABLE map_dispenser (id INT NOT NULL, building_id INT DEFAULT NULL, INDEX IDX_21F5DE4A4D2A7E12 (building_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE map_dispenser ADD CONSTRAINT FK_21F5DE4A4D2A7E12 FOREIGN KEY (building_id) REFERENCES map_building (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE map_dispenser ADD CONSTRAINT FK_21F5DE4ABF396750 FOREIGN KEY (id) REFERENCES map_item (id) ON DELETE CASCADE');
-        $this->addSql('DROP TABLE graphic_request');
-        $this->addSql('ALTER TABLE map_item CHANGE admissions_tour admissions_tour INT NOT NULL');
     }
 
     public function down(Schema $schema) : void
@@ -34,9 +32,6 @@ final class Version20220322013619 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('CREATE TABLE graphic_request (id INT NOT NULL, completion_date DATE NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
-        $this->addSql('ALTER TABLE graphic_request ADD CONSTRAINT FK_7A34E8F4BF396750 FOREIGN KEY (id) REFERENCES multimedia_request (id) ON DELETE CASCADE');
         $this->addSql('DROP TABLE map_dispenser');
-        $this->addSql('ALTER TABLE map_item CHANGE admissions_tour admissions_tour TINYINT(1) NOT NULL');
     }
 }
