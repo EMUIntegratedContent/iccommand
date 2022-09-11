@@ -2,12 +2,10 @@
 
 namespace App\Controller\MultimediaRequest;
 
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use App\Entity\MultimediaRequest\MultimediaRequest;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Service\MultimediaRequestService;
 
-class PhotoHeadshotDateController extends Controller
+class PhotoHeadshotDateController extends AbstractController
 {
     private $service;
 

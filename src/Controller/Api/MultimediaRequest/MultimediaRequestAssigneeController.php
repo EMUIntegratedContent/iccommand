@@ -2,22 +2,15 @@
 
 namespace App\Controller\Api\MultimediaRequest;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Doctrine\ORM\PersistentCollection;
-use Hateoas\HateoasBuilder;
 use JMS\Serializer\SerializationContext;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use FOS\RestBundle\View\View;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequestAssigneeStatus;
 use App\Service\MultimediaRequestService;
 
-class MultimediaRequestAssigneeController extends FOSRestController
+class MultimediaRequestAssigneeController extends AbstractFOSRestController
 {
 
     private $service;

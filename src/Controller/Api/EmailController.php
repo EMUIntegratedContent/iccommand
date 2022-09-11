@@ -4,22 +4,16 @@
  */
 namespace App\Controller\Api;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Carbon\Carbon;
-
-class EmailController extends FOSRestController
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+class EmailController extends AbstractFOSRestController
 {
     private $mailer;
 
-    public function __construct(\Swift_Mailer $mailer)
+    public function __construct(MailerInterface $mailer)
     {
         $this->mailer = $mailer;
     }
@@ -31,10 +25,11 @@ class EmailController extends FOSRestController
      */
     public function postSendemailMultimediaassigneenotifyAction(Request $request): Response
     {
-        $message = (new \Swift_Message('Hello Email'))
-            ->setFrom('admin@iccommand.emich.edu')
-            ->setTo($request->request->get('recipient'))
-            ->setBody(
+        $message = (new Email())
+            ->subject('Hello there!')
+            ->from('admin@iccommand.emich.edu')
+            ->to($request->request->get('recipient'))
+            ->html(
                 $this->renderView(
                     'multimedia_request/assignees/email.html.twig',
                     [

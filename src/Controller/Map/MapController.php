@@ -2,12 +2,10 @@
 
 namespace App\Controller\Map;
 
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Service\MapItemService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class MapController extends Controller
+class MapController extends AbstractController
 {
     private $service;
 

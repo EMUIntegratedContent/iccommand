@@ -3,20 +3,11 @@
 namespace App\Controller\Api;
 
 use App\Entity\MultimediaRequest\PhotoHeadshotDate;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Controller\FOSRestController;
-use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use App\Entity\UserImage;
-use App\Entity\User;
 use Carbon\Carbon;
 
-class CalendarController extends FOSRestController
+class CalendarController extends AbstractFOSRestController
 {
 
     /**

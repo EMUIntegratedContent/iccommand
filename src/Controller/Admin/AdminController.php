@@ -3,12 +3,12 @@
 namespace App\Controller\Admin;
 
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * @Route("/admin", name="users")
  */
-class AdminController extends Controller
+class AdminController extends AbstractController
 {
   /**
    * @Route("/", name="admin_index")

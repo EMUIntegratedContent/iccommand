@@ -3,15 +3,7 @@ namespace App\Controller\Api\Redirect;
 
 use App\Entity\Redirect\Uncaught;
 use App\Service\RedirectService;
-use Doctrine\ORM\PersistentCollection;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Controller\FOSRestController;
-use FOS\RestBundle\View\View;
-use Hateoas\HateoasBuilder;
-use JMS\Serializer\SerializationContext;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
@@ -26,7 +18,7 @@ error_reporting(E_ALL);
  * This controller manages the redirect items with the actions of getting,
  * adding, updating, and deleting.
  */
-class UncaughtController extends FOSRestController {
+class UncaughtController extends AbstractFOSRestController {
   private $service;
   private $logger;
 

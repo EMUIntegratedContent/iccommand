@@ -2,17 +2,12 @@
 
 namespace App\Service;
 
-use Symfony\Component\DependencyInjection\ContainerInterface as Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder as Container;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
 use App\Entity\Map\MapItem;
-use App\Entity\Map\MapBathroom;
 use App\Entity\Map\MapBuilding;
 use App\Entity\Map\MapBuildingType;
-use App\Entity\Map\MapEmergency;
-use App\Entity\Map\MapEmergencyType;
-use App\Entity\Map\MapExhibit;
-use App\Entity\Map\MapExhibitType;
 use App\Entity\Map\MapParking;
 use App\Entity\Map\MapParkingType;
 

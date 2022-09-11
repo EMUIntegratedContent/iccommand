@@ -3,13 +3,12 @@ namespace App\Controller\Redirect;
 
 use App\Entity\Redirect\Redirect;
 use App\Service\RedirectService;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * The controller for the redirects.
  */
-class RedirectController extends Controller {
+class RedirectController extends AbstractController {
   private $service;
 
   /**

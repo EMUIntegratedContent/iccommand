@@ -2,7 +2,7 @@ security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     # show full user not found message
     hide_user_not_found: false
-    always_authenticate_before_granting:  true
+#    always_authenticate_before_granting:  true -- DEPRECATED: no substitute found yet
 
     # CONFIG FOR WORKING where EMU LDAP is available
 #    providers:
@@ -40,18 +40,22 @@ security:
 
     # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
     providers:
-        fos_userbundle:
-            id: fos_user.user_provider.username
+        users:
+            entity:
+                class: 'App\Entity\User'
+                property: email
+#        fos_userbundle:
+#            id: fos_user.user_provider.username
     firewalls:
         main:
             pattern: ^/
             form_login:
-                provider: fos_userbundle
+#                provider: fos_userbundle
                 #csrf_provider: security.csrf.token_manager # Use form.csrf_provider instead for Symfony <2.4
             logout:       true
-            anonymous:    true
-    encoders:
-        FOS\UserBundle\Model\UserInterface: bcrypt
+            lazy:    true
+#    encoders: -- DEPRECATED
+#        FOS\UserBundle\Model\UserInterface: bcrypt
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used

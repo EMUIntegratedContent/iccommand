@@ -2,13 +2,11 @@
 
 namespace App\Controller\MultimediaRequest;
 
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Service\MultimediaRequestService;
 
-class MultimediaRequestAssigneeController extends Controller
+class MultimediaRequestAssigneeController extends AbstractController
 {
     private $service;
 
