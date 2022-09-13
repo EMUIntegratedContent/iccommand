@@ -11,10 +11,9 @@ use App\Entity\User;
 
 class DefaultController extends AbstractController
 {
-  /**
-  * @Route("/", name="home")
-  */
-  public function index()
+
+  #[Route('/', name: 'home')]
+  public function index() : Response
   {
     $user = null;
     $currentUser = null;

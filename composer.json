@@ -33,6 +33,7 @@
         "symfony/property-info": "^6.1",
         "symfony/proxy-manager-bridge": "^6.1",
         "symfony/requirements-checker": "^2.0",
+        "symfony/runtime": "^6.1",
         "symfony/security-bundle": "^6.1",
         "symfony/security-csrf": "^6.1",
         "symfony/serializer": "^6.1",
@@ -62,7 +63,8 @@
         "allow-plugins": {
             "ocramius/package-versions": true,
             "kylekatarnls/update-helper": true,
-            "symfony/flex": true
+            "symfony/flex": true,
+            "symfony/runtime": true
         },
         "platform-check": false
     },
