@@ -2,9 +2,16 @@
 namespace App\Controller\Api\Redirect;
 
 use App\Entity\Redirect\Redirect;
+use App\Entity\Redirect\Uncaught;
 use App\Service\RedirectService;
+use Doctrine\ORM\PersistentCollection;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\View\View;
+use Hateoas\HateoasBuilder;
 use JMS\Serializer\SerializationContext;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;

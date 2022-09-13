@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder as Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
 use App\Entity\Map\MapItem;
@@ -15,9 +15,9 @@ class MapItemService
 {
     private $container;
 
-    public function __construct(Container $container)
+    public function __construct()
     {
-        $this->container = $container;
+        $this->container = new ContainerBuilder();
     }
 
     /**

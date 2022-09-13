@@ -3,6 +3,7 @@ namespace App\Controller\Redirect;
 
 use App\Entity\Redirect\Redirect;
 use App\Service\RedirectService;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**

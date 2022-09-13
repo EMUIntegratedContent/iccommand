@@ -1,18 +1,16 @@
 <?php
 namespace App\Service;
 
-use Symfony\Component\DependencyInjection\ContainerInterface as Container;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Doctrine\ORM\PersistentCollection;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use App\Entity\User;
 
 class UserService
 {
   private $container;
 
-  public function __construct(Container $container)
+  public function __construct()
   {
-    $this->container = $container;
+    $this->container = new ContainerBuilder();
   }
 
   /**

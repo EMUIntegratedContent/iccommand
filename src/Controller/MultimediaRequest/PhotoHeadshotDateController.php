@@ -3,6 +3,8 @@
 namespace App\Controller\MultimediaRequest;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\MultimediaRequest\MultimediaRequest;
 use App\Service\MultimediaRequestService;
 
 class PhotoHeadshotDateController extends AbstractController

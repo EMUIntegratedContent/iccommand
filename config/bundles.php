@@ -2,7 +2,6 @@
 
 return [
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
-//    Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle::class => ['all' => true], -- USE symfony/mailer instead
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
@@ -17,7 +16,4 @@ return [
     FOS\RestBundle\FOSRestBundle::class => ['all' => true],
     Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],
     Liip\ImagineBundle\LiipImagineBundle::class => ['all' => true],
-//    LdapTools\Bundle\LdapToolsBundle\LdapToolsBundle::class => ['all' => true], -- DOESN'T WORK WITH Symfony 5+
-//    FOS\UserBundle\FOSUserBundle::class => ['all' => true], -- DOESN'T WORK WITH Symfony 6+ https://github.com/FriendsOfSymfony/FOSUserBundle
-//    Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle::class => ['all' => true], -- NO LONGER MAINTAINED
 ];

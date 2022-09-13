@@ -3,6 +3,8 @@
 namespace App\Controller\Map;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\Map\MapItem;
 use App\Service\MapItemService;
 

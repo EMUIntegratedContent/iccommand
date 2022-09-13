@@ -3,8 +3,7 @@ namespace App\Service;
 
 use App\Entity\Redirect\Redirect;
 use App\Enttiy\Redirect\Uncaught;
-use Doctrine\ORM\PersistentCollection;
-use Symfony\Component\DependencyInjection\ContainerInterface as Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
@@ -16,10 +15,9 @@ class RedirectService {
 
   /**
    * The constructor of the service of the redirects.
-   * @param Container $container The container for the service of the redirects.
    */
-  public function __construct(Container $container) {
-    $this->container = $container;
+  public function __construct() {
+    $this->container = new ContainerBuilder();
   }
 
   /**

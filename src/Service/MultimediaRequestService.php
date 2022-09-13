@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Entity\MultimediaRequest\MultimediaRequestStatusNote;
-use Symfony\Component\DependencyInjection\ContainerInterface as Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
 use App\Entity\MultimediaRequest\MultimediaRequest;
@@ -12,9 +12,9 @@ class MultimediaRequestService
 {
     private $container;
 
-    public function __construct(Container $container)
+    public function __construct()
     {
-        $this->container = $container;
+        $this->container = new ContainerBuilder();
     }
 
     /**
