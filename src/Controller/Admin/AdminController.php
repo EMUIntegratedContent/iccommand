@@ -2,6 +2,8 @@
 
 namespace App\Controller\Admin;
 
+use App\Repository\UserRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -15,9 +17,6 @@ class AdminController extends AbstractController
    */
   public function index()
   {
-    $roles = $this->container->getParameter('security.role_hierarchy.roles');
-    $userManager = $this->container->get('fos_user.user_manager');
-    $users = $userManager->findUsers();
     return $this->render('admin/index.html.twig', []);
   }
 }

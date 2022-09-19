@@ -2,6 +2,8 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\User;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -13,11 +15,12 @@ class UserController extends AbstractController
   /**
    * @Route("/", name="users_index")
    */
-  public function index()
+  public function index(ManagerRegistry $doctrine)
   {
-    $roles = $this->container->getParameter('security.role_hierarchy.roles');
-    $userManager = $this->container->get('fos_user.user_manager');
-    $users = $userManager->findUsers();
+    $em = $doctrine->getManager();
+    $userRepo = $em->getRepository(User::class);
+    $users = $userRepo->findAll();
+    $roles = $this->getParameter('security.role_hierarchy.roles');
     return $this->render('admin/users/index.html.twig', [
         'roles' => $roles,
         'users' => $users,

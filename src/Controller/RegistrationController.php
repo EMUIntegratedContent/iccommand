@@ -30,7 +30,7 @@ class RegistrationController extends AbstractController
                     $form->get('plainPassword')->getData()
                 )
             );
-            
+            $user->setRoles(["ROLE_USER"]);
             $email = $form->get('email')->getData();
             $username = explode('@', $email)[0];
             $user->setUsername($username);

@@ -10,6 +10,7 @@
         </div>
     </div>
     <div id="app">
+        {{ currentUserRoles }}
         {% if currentUsername %}
             <home-page username="{{ currentUsername }}" :userroles="{{ currentUserRoles }}"></home-page>
         {% else %}

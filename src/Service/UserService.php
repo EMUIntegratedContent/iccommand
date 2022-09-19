@@ -1,36 +1,28 @@
 <?php
 namespace App\Service;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use App\Entity\OldFosUser;
+use App\Entity\User;
 
 class UserService
 {
   private $container;
+  private $em;
 
-  public function __construct()
+  public function __construct(EntityManagerInterface $em)
   {
     $this->container = new ContainerBuilder();
+    $this->em = $em;
   }
 
   /**
-   * Add/remove user roles by comparing currently-stored roles to newly-submitted roles
+   * Update user roles
    */
-  public function syncUserRoles(OldFosUser $user, $updatedRoles){
-    $userManager = $this->container->get('fos_user.user_manager');
-    $currentRoles = $user->getRoles();
-
-    $rolesToRemove = array_diff($currentRoles, $updatedRoles); // result is the items that do NOT appear in the updated roles array
-
-    // Find and remove any roles that do NOT appear in the updated roles
-    foreach($rolesToRemove as $role){
-      $user->removeRole($role);
-    }
-    // Add roles (must be done second!)
-    foreach($updatedRoles as $role){
-      $user->addRole($role);
-    }
-    $userManager->updateUser($user);
+  public function syncUserRoles(User $user, $updatedRoles){
+    $user->setRoles($updatedRoles);
+    $this->em->persist($user);
+    $this->em->flush();
   }
 
   /**
