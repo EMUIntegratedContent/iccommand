@@ -2,25 +2,47 @@
 
 namespace App\Entity;
 
-use FOS\UserBundle\Model\User as BaseUser;
+use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
-use App\Entity\UserImage;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="fos_user")
+ * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User extends BaseUser
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    private ?int $id = null;
+
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $username;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $password;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $enabled;
 
     /**
      * @ORM\Column(name="firstname", type="string", length=255, nullable=true)
@@ -33,6 +55,11 @@ class User extends BaseUser
      * @Serializer\SerializedName("lastName")
      */
     private $lastName;
+
+    /**
+     * @ORM\Column(name="email", type="string", length=50, nullable=false)
+     */
+    private $email;
 
     /**
      * @ORM\Column(name="jobtitle", type="string", length=255, nullable=true)
@@ -51,90 +78,158 @@ class User extends BaseUser
     private $phone;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Group")
-     * @ORM\JoinTable(name="fos_user_user_group",
-     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="group_id", referencedColumnName="id")}
-     * )
-     */
-    protected $groups;
-
-    /**
-     * One user has One Image.
+     * One User can have One UserImage.
      * @ORM\OneToOne(targetEntity="App\Entity\UserImage")
      * @ORM\JoinColumn(name="image_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     protected $image;
 
-    public function __construct()
+    public function getId(): ?int
     {
-        parent::__construct();
-        // your own logic
+        return $this->id;
     }
 
-    public function setFirstName($firstName)
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * The public representation of the user (e.g. a username, an email address, etc.)
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function getEnabled(): int
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(int $enabled): self
+    {
+        $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    public function setFirstName($firstName): self
     {
         $this->firstName = $firstName;
         return $this;
     }
 
-    public function getFirstName()
+    public function getFirstName(): ?self
     {
         return $this->firstName;
     }
 
-    public function setLastName($lastName)
+    public function setLastName($lastName): self
     {
         $this->lastName = $lastName;
         return $this;
     }
 
-    public function getLastName()
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
 
-    public function setJobTitle($jobTitle)
+    public function setJobTitle($jobTitle): self
     {
         $this->jobTitle = $jobTitle;
         return $this;
     }
 
-    public function getJobTitle()
+    public function getJobTitle(): ?string
     {
         return $this->jobTitle;
     }
 
-    public function setDepartment($department)
-    {
-        $this->department = $department;
-        return $this;
-    }
-
-    public function getDepartment()
-    {
-        return $this->department;
-    }
-
-    public function setPhone($phone)
-    {
-        $this->phone = $phone;
-        return $this;
-    }
-
-    public function getPhone()
-    {
-        return $this->phone;
-    }
-
-    public function setImage(UserImage $image)
+    public function setImage(UserImage $image): self
     {
         $this->image = $image;
         return $this;
     }
 
-    public function getImage()
+    public function getImage(): ?UserImage
     {
         return $this->image;
+    }
+
+    /**
+     * Returning a salt is only needed, if you are not using a modern
+     * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
+     *
+     * @see UserInterface
+     */
+    public function getSalt(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 }

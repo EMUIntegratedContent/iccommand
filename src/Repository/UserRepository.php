@@ -7,10 +7,12 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method UserImage|null find($id, $lockMode = null, $lockVersion = null)
- * @method UserImage|null findOneBy(array $criteria, array $orderBy = null)
- * @method UserImage[]    findAll()
- * @method UserImage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<User>
+ *
+ * @method User|null find($id, $lockMode = null, $lockVersion = null)
+ * @method User|null findOneBy(array $criteria, array $orderBy = null)
+ * @method User[]    findAll()
+ * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class UserRepository extends ServiceEntityRepository
 {
@@ -19,33 +21,46 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    /**
-     * @param $rolePrefix (e.g. "ROLE_MAP_")
-     * @param $not
-     * @return User[] Returns an array of User objects
-     */
-    public function findByRole($rolePrefix, $not = false)
+    public function add(User $entity, bool $flush = false): void
     {
-         $query = $this->createQueryBuilder('u');
-         if($not){
-           $query->where('u.roles NOT LIKE :rolePrefix');
-         } else {
-           $query->where('u.roles LIKE :rolePrefix');
-         }
-         $query->setParameter('rolePrefix', '%'.$rolePrefix.'%')
-            ->orderBy('u.username', 'ASC');
-        return $query->getQuery()->getResult();
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 
-    /*
-    public function findOneBySomeField($value): ?User
+    public function remove(User $entity, bool $flush = false): void
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
-    */
+
+//    /**
+//     * @return User[] Returns an array of User objects
+//     */
+//    public function findByExampleField($value): array
+//    {
+//        return $this->createQueryBuilder('u')
+//            ->andWhere('u.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->orderBy('u.id', 'ASC')
+//            ->setMaxResults(10)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
+
+//    public function findOneBySomeField($value): ?User
+//    {
+//        return $this->createQueryBuilder('u')
+//            ->andWhere('u.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->getQuery()
+//            ->getOneOrNullResult()
+//        ;
+//    }
 }

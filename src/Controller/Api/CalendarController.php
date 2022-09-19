@@ -13,7 +13,7 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\UserImage;
-use App\Entity\User;
+use App\Entity\OldFosUser;
 use Carbon\Carbon;
 
 class CalendarController extends AbstractFOSRestController

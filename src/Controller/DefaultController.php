@@ -7,27 +7,28 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\HttpFoundation\Response;
-use App\Entity\User;
+use App\Entity\OldFosUser;
 
 class DefaultController extends AbstractController
 {
-
-  #[Route('/', name: 'home')]
-  public function index() : Response
+  /**
+  * @Route("/", name="home")
+  */
+  public function index()
   {
     $user = null;
     $currentUser = null;
     $currentUserRoles = null;
 
-//    if($this->getUser()){
-//      $user = $this->getUser();
-//      $currentUser = $user->getUsername();
-//      $currentUserRoles = json_encode($this->getUser()->getRoles());
-//    }
+    if($this->getUser()){
+      $user = $this->getUser();
+      $currentUser = $user->getUsername();
+      $currentUserRoles = json_encode($this->getUser()->getRoles());
+    }
 
     return $this->render('index.html.twig', [
-//      'currentUsername' => $currentUser,
-//      'currentUserRoles' => $currentUserRoles,
+      'currentUsername' => $currentUser,
+      'currentUserRoles' => $currentUserRoles,
     ]);
   }
 

@@ -2,7 +2,7 @@
 namespace App\Service;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use App\Entity\User;
+use App\Entity\OldFosUser;
 
 class UserService
 {
@@ -16,7 +16,7 @@ class UserService
   /**
    * Add/remove user roles by comparing currently-stored roles to newly-submitted roles
    */
-  public function syncUserRoles(User $user, $updatedRoles){
+  public function syncUserRoles(OldFosUser $user, $updatedRoles){
     $userManager = $this->container->get('fos_user.user_manager');
     $currentRoles = $user->getRoles();
 
@@ -36,7 +36,7 @@ class UserService
   /**
    * Toggle a user's status to enabled or disabled
    */
-  public function setUserEnabledStatus(User $user, $status){
+  public function setUserEnabledStatus(OldFosUser $user, $status){
     $userManager = $this->container->get('fos_user.user_manager');
     // Only change the status if the current and new status are different
     if($user->isEnabled() !== $status){

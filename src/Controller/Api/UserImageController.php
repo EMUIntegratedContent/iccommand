@@ -10,7 +10,7 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\UserImage;
-use App\Entity\User;
+use App\Entity\OldFosUser;
 
 class UserImageController extends AbstractFOSRestController{
 
@@ -70,7 +70,7 @@ class UserImageController extends AbstractFOSRestController{
     // Make sure user is uploading a JPG, PNG, or GIF and not
     if($this->isValidImage($image)){
       // fetch the user's name. It will be the name of the image.
-      $user = $this->getDoctrine()->getRepository(User::class)->find($user_id);
+      $user = $this->getDoctrine()->getRepository(OldFosUser::class)->find($user_id);
       if(!$user){
         return null;
       }
@@ -99,7 +99,7 @@ class UserImageController extends AbstractFOSRestController{
    */
   protected function linkImageToUser(UserImage $image, $userId) : bool
   {
-    $user = $this->getDoctrine()->getRepository(User::class)->find($userId);
+    $user = $this->getDoctrine()->getRepository(OldFosUser::class)->find($userId);
     if(!$user){
       return false;
     }
