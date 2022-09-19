@@ -10,11 +10,11 @@ controllers:
     resource: '../src/Controller/'
     type:     annotation
 
-#admin_users:
-#    type: annotation
-#    resource: App\Controller\Api\Admin\UserController
-#    prefix: /api/admin/
-#
+admin_users:
+    type: annotation
+    resource: App\Controller\Api\Admin\UserController
+    prefix: /api/admin/
+
 #calendar:
 #    type: annotation
 #    resource: App\Controller\Api\CalendarController

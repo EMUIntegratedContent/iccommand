@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller\Api\Admin;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -22,18 +23,17 @@ class UserController extends AbstractFOSRestController{
 
   /**
    * Get all users
-   *
-   * @Security("has_role('ROLE_GLOBAL_ADMIN')")
+   * @Rest\Get (path="/users/")
+   * @Security("is_granted('ROLE_GLOBAL_ADMIN')")
    */
-  public function getUsersAction() : Response
+  public function getUsersAction(ManagerRegistry $doctrine) : Response
   {
-    $users = $this->getDoctrine()->getRepository(User::class)->findBy([],['username' => 'asc']);
+      $em = $doctrine->getManager();
+      $userRepo = $em->getRepository(User::class);
+      $users = $userRepo->findAll();
+      $view = $this->view($users, 200);
 
-    $serializer = $this->container->get('jms_serializer');
-    $serialized = $serializer->serialize($users, 'json');
-    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-    return $response;
+      return $this->handleView($view);
   }
 
   /**

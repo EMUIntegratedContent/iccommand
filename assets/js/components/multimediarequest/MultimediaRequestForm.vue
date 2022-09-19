@@ -729,7 +729,7 @@
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <script>
-    import MultimediarequestDeleteModal from './MultimediarequestDeleteModal.vue'
+    import MultimediaRequestDeleteModal from './MultimediaRequestDeleteModal.vue'
     import Heading from '../utils/Heading.vue'
     import Multiselect from 'vue-multiselect'
     import NotFound from '../utils/NotFound.vue'
@@ -751,7 +751,7 @@
             this.fetchTimeSlots()
             this.fetchPublicationTypes()
         },
-        components: {MultimediarequestDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
+        components: {MultimediaRequestDeleteModal, Heading, Multiselect, NotFound, Flatpickr},
         props: {
             itemId: {
                 type: String,

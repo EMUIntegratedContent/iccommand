@@ -9,7 +9,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.13",
         "friendsofsymfony/rest-bundle": "^3.3",
-        "jms/serializer-bundle": "^4.0",
+        "jms/serializer": "^3.18",
         "liip/imagine-bundle": "^2.8",
         "nelmio/cors-bundle": "^2.2",
         "nesbot/carbon": "^2.62",
