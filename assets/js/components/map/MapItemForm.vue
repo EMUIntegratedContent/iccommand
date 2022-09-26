@@ -1338,6 +1338,7 @@ export default {
       record: {
         id: '',
         address: '',
+        admissionsTour: 0,
         alias: '',
         bathrooms: [],
         building: null,

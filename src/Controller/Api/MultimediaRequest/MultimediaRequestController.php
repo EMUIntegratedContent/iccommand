@@ -168,7 +168,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Get all multimedia requests (by optional type)
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      * @Rest\Get("multimediarequests/list/{type?}")
      * @param String $type Photo, video, publication, headshot, etc.
      * @return Response
@@ -204,7 +204,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Get a single request
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getMultimediarequestAction($id): Response
     {
@@ -229,7 +229,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Get all photo request types
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getPhotorequestTypesAction(): Response
     {
@@ -245,7 +245,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Get all publication request types
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getPublicationrequestTypesAction(): Response
     {
@@ -261,7 +261,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Get all status options for a multimedia request
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getMultimediarequestStatusesAction(): Response
     {
@@ -278,7 +278,7 @@ class MultimediaRequestController extends AbstractFOSRestController
      * Get headshot time slots for a specific date
      *
      * @Rest\Get("multimediarequests/headshotdates/{year}/{month}/{day}", defaults={})
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getMultimediarequestHeadshotdatesAction($year, $month, $day): Response
     {
@@ -295,7 +295,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Get headshot time slots
      * @Rest\Get("multimediarequests/headshotdates/slots/{withPast?}")
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      * @param boolean $withPast  If true, get past time slots. If false, just get future slots
      * @return Response
      */
@@ -322,7 +322,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Add a headshot time slot to the database
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function postMultimediarequestHeadshotdateAction(Request $request): Response
     {
@@ -355,7 +355,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Update a multimedia request to the database
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_EDIT')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_EDIT')")
      */
     public function putMultimediarequestAction(Request $request): Response
     {
@@ -474,7 +474,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Update a headshot time slot to the database
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function putMultimediarequestHeadshotdateAction(Request $request): Response
     {
@@ -507,7 +507,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Delete a multimedia request from the database
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_DELETE')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_DELETE')")
      */
     public function deleteMultimediarequestAction($id): Response
     {
@@ -524,7 +524,7 @@ class MultimediaRequestController extends AbstractFOSRestController
     /**
      * Delete a headshot time slot from the database
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function deleteMultimediarequestHeadshotdateAction($id): Response
     {

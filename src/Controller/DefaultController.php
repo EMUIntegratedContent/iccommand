@@ -15,7 +15,6 @@ class DefaultController extends AbstractController
   */
   public function index()
   {
-    $user = null;
     $currentUser = null;
     $currentUserRoles = null;
 

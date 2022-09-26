@@ -2,7 +2,10 @@
 
 namespace App\Service;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
 use App\Entity\Map\MapItem;
@@ -10,26 +13,31 @@ use App\Entity\Map\MapBuilding;
 use App\Entity\Map\MapBuildingType;
 use App\Entity\Map\MapParking;
 use App\Entity\Map\MapParkingType;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class MapItemService
 {
     private $container;
+    private $authorizationChecker;
+    private $doctrine;
+    private $validator;
 
-    public function __construct()
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker, ManagerRegistry $doctrine, ValidatorInterface $validator)
     {
         $this->container = new ContainerBuilder();
+        $this->authorizationChecker = $authorizationChecker;
+        $this->doctrine = $doctrine;
+        $this->validator = $validator;
     }
 
     /**
      * Use the Symfony container's validator to validate fields for a map item
-     * @param App\Entity\Map\MapItem $mapItem
-     * @return array $errors
+     * @param MapItem $mapItem
+     * @return ConstraintViolationList $errors
      */
-    public function validate($mapItem): ConstraintViolationList
+    public function validate(MapItem $mapItem): ConstraintViolationList
     {
-        $validator = $this->container->get('validator');
-        $errors = $validator->validate($mapItem);
-        return $errors;
+        return $this->validator->validate($mapItem);
     }
 
     /**
@@ -55,7 +63,7 @@ class MapItemService
 
         // Find and remove any items that do NOT appear in the updated IDs
         foreach ($itemsToDelete as $itemToDelete) {
-            $item = $this->container->get('doctrine')->getRepository(MapItem::class)->find($itemToDelete);
+            $item = $this->doctrine->getRepository(MapItem::class)->find($itemToDelete);
             $this->deleteMapItem($item);
         }
     }
@@ -84,12 +92,12 @@ class MapItemService
 
         // add all IDs appearing in the updated array (if they already exist, the setter method in the building class will be sure to not add them again)
         foreach ($updated_ids as $itemToAdd) {
-            $item = $this->container->get('doctrine')->getRepository(MapBuildingType::class)->find($itemToAdd);
+            $item = $this->doctrine->getRepository(MapBuildingType::class)->find($itemToAdd);
             $item->addBuilding($building);
         }
         // Find and remove any items that do NOT appear in the updated IDs
         foreach ($itemsToRemove as $itemToRemove) {
-            $item = $this->container->get('doctrine')->getRepository(MapBuildingType::class)->find($itemToRemove);
+            $item = $this->doctrine->getRepository(MapBuildingType::class)->find($itemToRemove);
             $item->removeBuilding($building);
         }
     }
@@ -118,12 +126,12 @@ class MapItemService
 
         // add all IDs appearing in the updated array (if they already exist, the setter method in the parking class will be sure to not add them again)
         foreach ($updated_ids as $itemToAdd) {
-            $item = $this->container->get('doctrine')->getRepository(MapParkingType::class)->find($itemToAdd);
+            $item = $this->doctrine->getRepository(MapParkingType::class)->find($itemToAdd);
             $item->addParkingLot($parkingLot);
         }
         // Find and remove any items that do NOT appear in the updated IDs
         foreach ($itemsToRemove as $itemToRemove) {
-            $item = $this->container->get('doctrine')->getRepository(MapParkingType::class)->find($itemToRemove);
+            $item = $this->doctrine->getRepository(MapParkingType::class)->find($itemToRemove);
             $item->removeParkingLot($parkingLot);
         }
     }
@@ -141,26 +149,26 @@ class MapItemService
             'imageUpload' => false,
             'admin' => false
         );
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_ADMIN') || $this->container->get('security.authorization_checker')->isGranted('ROLE_GLOBAL_ADMIN')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MAP_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
             $mapPermissions['create'] = true;
             $mapPermissions['edit'] = true;
             $mapPermissions['delete'] = true;
             $mapPermissions['imageUpload'] = true;
             $mapPermissions['admin'] = true;
         }
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_IMAGE_UPLOAD')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MAP_IMAGE_UPLOAD')) {
             $mapPermissions['edit'] = true;
             $mapPermissions['imageUpload'] = true;
         }
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_DELETE')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MAP_DELETE')) {
             $mapPermissions['delete'] = true;
             $mapPermissions['edit'] = true;
         }
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_EDIT')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MAP_EDIT')) {
             $mapPermissions['create'] = true;
             $mapPermissions['edit'] = true;
         }
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MAP_CREATE')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MAP_CREATE')) {
             $mapPermissions['create'] = true;
         }
         return $mapPermissions;
@@ -172,7 +180,7 @@ class MapItemService
      */
     protected function deleteMapItem(MapItem $mapItem)
     {
-        $em = $this->container->get('doctrine')->getManager();
+        $em = $this->doctrine->getManager();
         $em->remove($mapItem);
         $em->flush();
     }

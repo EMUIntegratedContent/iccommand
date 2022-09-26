@@ -7,6 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ImageRepository")
@@ -23,6 +24,7 @@ use JMS\Serializer\Annotation as Serializer;
       * @ORM\Column(name="id", type="integer")
       * @ORM\Id
       * @ORM\GeneratedValue(strategy="AUTO")
+      * @Groups("bldgs")
       */
      private $id;
 
@@ -31,6 +33,7 @@ use JMS\Serializer\Annotation as Serializer;
       *
       * @ORM\Column(name="name", type="string", length=255)
       * @Assert\NotBlank
+      * @Groups("bldgs")
       */
      private $name;
 
@@ -38,11 +41,13 @@ use JMS\Serializer\Annotation as Serializer;
       * @var string
       *
       * @ORM\Column(name="path", type="string", length=255, nullable=true)
+      * @Groups("bldgs")
       */
      private $path;
 
      /**
       * @Assert\File(maxSize = "8M")
+      * @Groups("bldgs")
       */
      private $file;
 
@@ -50,6 +55,7 @@ use JMS\Serializer\Annotation as Serializer;
       * @var string
       *
       * @ORM\Column(name="subdirectory", type="string", length=255)
+      * @Groups("bldgs")
       */
      private $subdir;
 

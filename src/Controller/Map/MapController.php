@@ -25,7 +25,7 @@ class MapController extends AbstractController
 
     /**
      * @Route("/map/manage", name="map_manage")
-     * @Security("has_role('ROLE_MAP_ADMIN') or has_role('ROLE_GLOBAL_ADMIN')")
+     * @Security("is_granted('ROLE_MAP_ADMIN') or is_granted('ROLE_GLOBAL_ADMIN')")
      */
     public function manage()
     {

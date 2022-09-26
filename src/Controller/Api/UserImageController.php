@@ -17,7 +17,7 @@ class UserImageController extends AbstractFOSRestController{
   /**
    * Process new image uploads
    *
-   * @Security("has_role('ROLE_USER')")
+   * @Security("is_granted('ROLE_USER')")
    */
   public function postUserimageUploadAction(Request $request) : Response
   {
@@ -43,7 +43,7 @@ class UserImageController extends AbstractFOSRestController{
   /**
    * Delete a user's profile image
    *
-   * @Security("has_role('ROLE_USER')")
+   * @Security("is_granted('ROLE_USER')")
    */
   public function deleteUserimageAction($id) : Response
   {

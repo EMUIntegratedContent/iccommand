@@ -3,6 +3,7 @@
 namespace App\Entity\Map;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -23,6 +24,7 @@ class MapDispenser extends MapItem
 	/**
 	 * @Serializer\VirtualProperty
 	 * @Serializer\SerializedName("itemType")
+     * @Groups("bldgs")
 	 * @return String
 	 */
 	public function getItemType(){

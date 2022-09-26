@@ -240,7 +240,7 @@
         },
         fetchUsersWithoutAppPermissions: function(){
           let self = this
-          axios.get('/api/admin/appusers/' + this.appSlug + '/not')
+          axios.get('/api/admin/appusers/not/'+ this.rolePrefix)
           // success
           .then(function (response) {
             self.usersWithoutAppPermissions = response.data

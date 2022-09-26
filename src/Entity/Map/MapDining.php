@@ -5,6 +5,7 @@ namespace App\Entity\Map;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapDiningRepository")
@@ -15,6 +16,7 @@ class MapDining extends MapItem
 
   /**
    * @ORM\Column(type="text", nullable=true)
+   * @Groups("bldgs")
    */
   private $hours;
 
@@ -28,6 +30,7 @@ class MapDining extends MapItem
   /**
    * @Serializer\VirtualProperty
    * @Serializer\SerializedName("itemType")
+   * @Groups("bldgs")
    * @return String
   */
   public function getItemType(){

@@ -46,7 +46,7 @@ class MultimediaRequestController extends AbstractController
 
     /**
      * @Route("/multimediarequests/manage", name="multimediarequests_manage")
-     * @Security("has_role('ROLE_MULTIMEDIA_ADMIN') or has_role('ROLE_GLOBAL_ADMIN')")
+     * @Security("is_granted('ROLE_MULTIMEDIA_ADMIN') or is_granted('ROLE_GLOBAL_ADMIN')")
      */
     public function manage()
     {

@@ -29,7 +29,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
     /**
      * Get all multimedia request assignees
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      * @Rest\Get("/multimediaassignees/{type}", defaults={"type" = null})
      */
     public function getMultimediaassigneesAction($type = null): Response
@@ -59,7 +59,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
     /**
      * Get a single request assignee
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_VIEW')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      * @Rest\Get("/multimediaassignee/{id}")
      */
     public function getMultimediaassigneeAction($id): Response
@@ -85,7 +85,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
     /**
      * Get all status options for a multimedia request assignee
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function getMultimediaassigneestatusesAction(): Response
     {
@@ -101,7 +101,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
     /**
      * Save a multimedia request assignee to the database
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function postMultimediaassigneeAction(Request $request): Response
     {
@@ -143,7 +143,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
     /**
      * Update a multimedia request assignee to the database
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function putMultimediaassigneeAction(Request $request): Response
     {
@@ -184,7 +184,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
     /**
      * Delete a multimedia request assignee from the database
      *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MULTIMEDIA_ADMIN')")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function deleteMultimediaassigneeAction($id): Response
     {

@@ -202,6 +202,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->jobTitle;
     }
 
+    public function setDepartment($department): self
+    {
+        $this->department = $department;
+        return $this;
+    }
+
+    public function getDepartment(): ?string
+    {
+        return $this->department;
+    }
+
+    public function setPhone($phone): self
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
     public function setImage(UserImage $image): self
     {
         $this->image = $image;

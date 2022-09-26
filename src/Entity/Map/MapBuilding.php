@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Annotation as Serializer;
 use App\Entity\Map\MapBuildingType;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapBuildingRepository")
@@ -16,17 +17,20 @@ class MapBuilding extends MapItem
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups("bldgs")
      */
     private $hours;
 
     /**
      * @ORM\Column(type="string", nullable=true)
+     * @Groups("bldgs")
      */
     private $address;
 
     /**
      * One building has (zero to) many bathrooms.
      * @ORM\OneToMany(targetEntity="MapBathroom", mappedBy="building", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @Groups("bldgs")
      */
     private $bathrooms;
 
@@ -34,6 +38,7 @@ class MapBuilding extends MapItem
      * One building has (zero to) many dining options.
      * @ORM\OneToMany(targetEntity="MapDining", mappedBy="building", cascade={"persist"})
      * @Serializer\SerializedName("diningOptions")
+     * @Groups("bldgs")
      */
     private $diningOptions;
 
@@ -41,32 +46,37 @@ class MapBuilding extends MapItem
      * One building has (zero to) many emergency devices.
      * @ORM\OneToMany(targetEntity="MapEmergency", mappedBy="building", cascade={"persist"})
      * @Serializer\SerializedName("emergencyDevices")
+     * @Groups("bldgs")
      */
     private $emergencyDevices;
 
     /**
      * One building has (zero to) many exhibits.
      * @ORM\OneToMany(targetEntity="MapExhibit", mappedBy="building", cascade={"persist"})
+     * @Groups("bldgs")
      */
     private $exhibits;
 
     /**
      * One building has (zero to) many services.
      * @ORM\OneToMany(targetEntity="MapService", mappedBy="building", cascade={"persist"})
+     * @Groups("bldgs")
      */
     private $services;
 
-		/**
-		 * One building has (zero to) many dispensers.
-		 * @ORM\OneToMany(targetEntity="MapDispenser", mappedBy="building", cascade={"persist"})
-		 */
-		private $dispensers;
+    /**
+     * One building has (zero to) many dispensers.
+     * @ORM\OneToMany(targetEntity="MapDispenser", mappedBy="building", cascade={"persist"})
+     * @Groups("bldgs")
+     */
+    private $dispensers;
 
     /**
      * Many buildings have one type.
      * @ORM\ManyToOne(targetEntity="App\Entity\Map\MapBuildingType")
      * @ORM\JoinColumn(name="buildingtype_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      * @Serializer\SerializedName("buildingType")
+     * @Groups("bldgs")
      */
     private $buildingType;
 
@@ -77,12 +87,13 @@ class MapBuilding extends MapItem
         $this->emergencyDevices = new ArrayCollection();
         $this->exhibits = new ArrayCollection();
         $this->services = new ArrayCollection();
-				$this->dispensers = new ArrayCollection();
+        $this->dispensers = new ArrayCollection();
     }
 
     /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("itemType")
+     * @Groups("bldgs")
      * @return String
     */
     public function getItemType(){

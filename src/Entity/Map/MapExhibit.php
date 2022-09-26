@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use Hateoas\Configuration\Annotation as Hateoas;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapExhibitRepository")
@@ -18,6 +19,7 @@ class MapExhibit extends MapItem
    * Emergency device is of one type
    * @ORM\ManyToOne(targetEntity="MapExhibitType")
    * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+   * @Groups("bldgs")
    */
    private $type;
 
@@ -31,6 +33,7 @@ class MapExhibit extends MapItem
    /**
     * @Serializer\VirtualProperty
     * @Serializer\SerializedName("itemType")
+    * @Groups("bldgs")
     * @return String
    */
    public function getItemType(){

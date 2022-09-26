@@ -17,7 +17,7 @@ class MapItemImageController extends AbstractFOSRestController{
   /**
    * Process new image uploads
    *
-   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_IMAGE_UPLOAD')")
+   * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_IMAGE_UPLOAD')")
    */
   public function postMapitemimageUploadAction(Request $request) : Response
   {
@@ -45,7 +45,7 @@ class MapItemImageController extends AbstractFOSRestController{
   /**
    * Reorder the images for a map item
    *
-   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_EDIT')")
+   * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_EDIT')")
    */
   public function putMapitemimageReorderAction(Request $request) : Response
   {
@@ -74,7 +74,7 @@ class MapItemImageController extends AbstractFOSRestController{
   /**
    * Rename a single image for a map item
    *
-   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_EDIT')")
+   * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_EDIT')")
    */
   public function putMapitemimageRenameAction(Request $request) : Response
   {
@@ -101,7 +101,7 @@ class MapItemImageController extends AbstractFOSRestController{
   /**
    * Delete a single image for a map item
    *
-   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_DELETE')")
+   * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_DELETE')")
    */
   public function deleteMapitemimageAction($id) : Response
   {

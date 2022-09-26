@@ -2,10 +2,6 @@ app_logout:
   path: /logout
   methods: GET
 
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
-
 controllers:
     resource: '../src/Controller/'
     type:     annotation
@@ -25,11 +21,12 @@ admin_users:
 #    resource: App\Controller\Api\EmailController
 #    prefix: /api/
 #
-#mapitems:
-#    type: annotation
-#    resource: App\Controller\Api\Map\MapItemController
-#    prefix: /api/
-#
+
+map_items:
+    type: annotation
+    resource: App\Controller\Api\Map\MapItemController
+    prefix: /api/
+
 #mapitemImages:
 #    type: annotation
 #    resource: App\Controller\Api\Map\MapItemImageController

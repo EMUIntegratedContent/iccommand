@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapEmergencyTypeRepository")
@@ -23,12 +24,14 @@ class MapEmergencyType
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("bldgs")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string")
      * @Assert\NotBlank(message="You must provide a name for emergency type.")
+     * @Groups("bldgs")
      */
     private $name;
 

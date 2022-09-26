@@ -10,6 +10,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\Entity\Document;
 use App\Entity\Map\MapitemImage;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
 * @ORM\Entity(repositoryClass="App\Repository\Map\MapItemRepository")
@@ -30,52 +31,61 @@ abstract class MapItem
     * @ORM\GeneratedValue
     * @ORM\Column(type="integer")
     * @Serializer\XmlAttribute
+     * @Groups("bldgs")
     */
     private $id;
 
     /**
     * @ORM\Column(type="string")
     * @Assert\NotBlank(message="You must provide a name for this item.")
+     * @Groups("bldgs")
     */
     private $name;
 
     /**
     * @Gedmo\Slug(fields={"name"})
     * @ORM\Column(length=128, unique=true)
+     * @Groups("bldgs")
     */
     private $slug;
 
     /**
     * @ORM\Column(type="string", unique=true, nullable=true)
+     * @Groups("bldgs")
     */
     private $alias;
 
     /**
     * @ORM\Column(type="text", nullable=true)
+     * @Groups("bldgs")
     */
     private $description;
 
     /**
     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
     * @Serializer\SerializedName("latitudeIllustration")
+    * @Groups("bldgs")
     */
     private $latitudeIllustration;
 
     /**
     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
     * @Serializer\SerializedName("longitudeIllustration")
+     * @Groups("bldgs")
     */
     private $longitudeIllustration;
 
     /**
     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
     * @Serializer\SerializedName("latitudeSatellite")
+     * @Groups("bldgs")
     */
     private $latitudeSatellite;
 
     /**
     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
     * @Serializer\SerializedName("longitudeSatellite")
+     * @Groups("bldgs")
     */
     private $longitudeSatellite;
 
@@ -87,6 +97,7 @@ abstract class MapItem
     *      inverseJoinColumns={@ORM\JoinColumn(name="image_id", referencedColumnName="id", onDelete="CASCADE")}
     *      )
     * @ORM\OrderBy({"priority" = "ASC"})
+     * @Groups("bldgs")
     */
     private $images;
 
@@ -94,6 +105,7 @@ abstract class MapItem
     * @ORM\Column(type="integer")
     *
     * @Serializer\SerializedName("admissionsTour")
+     * @Groups("bldgs")
     */
     private $admissionsTour;
 

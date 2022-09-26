@@ -28,7 +28,7 @@ class EmailController extends AbstractFOSRestController
     /**
      * MULTIMEDIA REQUEST APP. Send notification email to an assignee of a request.
      * @Rest\Post("sendemail/multimediaassigneenotify")
-     * @Security("has_role('ROLE_MULTIMEDIA_EMAIL') or has_role('ROLE_GLOBAL_ADMIN')")
+     * @Security("is_granted('ROLE_MULTIMEDIA_EMAIL') or is_granted('ROLE_GLOBAL_ADMIN')")
      */
     public function postSendemailMultimediaassigneenotifyAction(Request $request): Response
     {

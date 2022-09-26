@@ -1,10 +1,15 @@
 <?php
 namespace App\Controller\Api\Admin;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -16,9 +21,15 @@ use App\Service\UserService;
 class UserController extends AbstractFOSRestController{
 
   private $service;
+  private $serializer;
+  private $doctrine;
+  private $em;
 
-  public function __construct(UserService $service){
+  public function __construct(UserService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em){
     $this->service = $service;
+    $this->serializer = $serializer;
+    $this->doctrine = $doctrine;
+    $this->em = $em;
   }
 
   /**
@@ -39,46 +50,38 @@ class UserController extends AbstractFOSRestController{
   /**
    * Return an individual user (by username)
    *
-   * @Security("has_role('ROLE_USER')")
+   * @Security("is_granted('ROLE_USER')")
    */
   public function getUserAction($username) : Response
   {
     $userManager = $this->container->get('fos_user.user_manager');
     $user = $userManager->findUserByUsername($username);
 
-    $serializer = $this->container->get('jms_serializer');
-    $serialized = $serializer->serialize($user, 'json');
-    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-    return $response;
+    $serialized = $this->serializer->serialize($user, 'json');
+    return new Response($serialized, 200, array('Content-Type' => 'application/json'));
   }
 
   /**
    * Return all defined roles
-   *
-   * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
+   * @Rest\Get(path="/roles")
+   * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_ADMIN')")
    */
   public function getRolesAction() : Response
   {
-    $roles = $this->container->getParameter('security.role_hierarchy.roles');
+    $roles = $this->container->get('security.role_hierarchy.roles');
 
-    $serializer = $this->container->get('jms_serializer');
-    $serialized = $serializer->serialize($roles, 'json');
-    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-    return $response;
+    $serialized = $this->serializer->serialize($roles, 'json');
+    return new Response($serialized, 200, array('Content-Type' => 'application/json'));
   }
 
   /**
    * Update a user's information and roles
-   *
-   * @Security("has_role('ROLE_USER')")
+   * @Rest\Put(path="/users/{username}")
+   * @Security("is_granted('ROLE_USER')")
    */
    public function putUserAction(Request $request, $username) : Response
    {
-
-     $userManager = $this->container->get('fos_user.user_manager');
-     $user = $userManager->findUserByUsername($username);
+     $user = $this->doctrine->getRepository(User::class)->findOneByUsername($username);
 
      if(!$user){
        throw $this->createNotFoundException('The user ' . $username . ' was not found.');
@@ -89,48 +92,40 @@ class UserController extends AbstractFOSRestController{
      $user->setJobTitle($request->request->get('jobTitle'));
      $user->setDepartment($request->request->get('department'));
      $user->setPhone($request->request->get('phone'));
+     $user->setRoles($request->get('roles'));
+//     $this->service->syncUserRoles($user, $updatedRoles);
+//     $this->service->setUserEnabledStatus($user, $request->request->get('enabled'));
+      $this->em->persist($user);
+      $this->em->flush();
 
-     $updatedRoles = $request->request->get('roles');
-     $this->service->syncUserRoles($user, $updatedRoles);
-     $this->service->setUserEnabledStatus($user, $request->request->get('enabled'));
-
-     $userManager->updateUser($user);
-
-     $response = new Response('User ' . $username . ' was updated successfully.', 200, array('Content-Type' => 'application/json'));
-     return $response;
+     return new Response('User ' . $username . ' was updated successfully.', 200, array('Content-Type' => 'application/json'));
    }
 
    /**
     * Return all users of an application
-    *
+    * @Rest\Get(path="/appusers/{rolePrefix}")
     * @param String $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
-    * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
+    * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_ADMIN')")
     */
    public function getAppusersAction($rolePrefix) : Response
    {
-     $mapAppUsers = $this->getDoctrine()->getRepository(User::class)->findByRole($rolePrefix);
+     $mapAppUsers = $this->doctrine->getRepository(User::class)->findByLikeRole($rolePrefix);
 
-     $serializer = $this->container->get('jms_serializer');
-     $serialized = $serializer->serialize($mapAppUsers, 'json');
-     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-     return $response;
+     $serialized = $this->serializer->serialize($mapAppUsers, 'json');
+     return new Response($serialized, 200, array('Content-Type' => 'application/json'));
    }
 
    /**
     * Return all users that are NOT part of an application
-    *
+    * @Rest\Get(path="/appusers/not/{rolePrefix}")
     * @param String $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
-    * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_ADMIN')")
+    * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_ADMIN')")
     */
    public function getAppusersNotAction($rolePrefix) : Response
    {
-     $mapAppUsers = $this->getDoctrine()->getRepository(User::class)->findByRole($rolePrefix, true);
+     $mapAppUsers = $this->doctrine->getRepository(User::class)->findByLikeRole($rolePrefix, true);
 
-     $serializer = $this->container->get('jms_serializer');
-     $serialized = $serializer->serialize($mapAppUsers, 'json');
-     $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-     return $response;
+     $serialized = $this->serializer->serialize($mapAppUsers, 'json');
+     return new Response($serialized, 200, array('Content-Type' => 'application/json'));
    }
 }

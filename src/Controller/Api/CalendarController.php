@@ -22,7 +22,7 @@ class CalendarController extends AbstractFOSRestController
      * Get calendar events for an entity type
      *
      * @Rest\Get("/api/calendar/{entityType}/{year}/{month}", defaults={})
-     * @Security("has_role('ROLE_USER')")
+     * @Security("is_granted('ROLE_USER')")
      */
     public function getCalendarMonthEventsAction($entityType, $year, $month): Response
     {

@@ -28,7 +28,7 @@ class UserService
   /**
    * Toggle a user's status to enabled or disabled
    */
-  public function setUserEnabledStatus(OldFosUser $user, $status){
+  public function setUserEnabledStatus(User $user, $status){
     $userManager = $this->container->get('fos_user.user_manager');
     // Only change the status if the current and new status are different
     if($user->isEnabled() !== $status){

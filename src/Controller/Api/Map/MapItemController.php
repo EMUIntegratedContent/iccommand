@@ -2,8 +2,10 @@
 
 namespace App\Controller\Api\Map;
 
+use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\SerializerInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,11 +35,15 @@ use App\Entity\Map\MapDispenser;
 class MapItemController extends AbstractFOSRestController
 {
 
-    private $service;
+    private MapItemService $service;
+    private ManagerRegistry $doctrine;
+    private SerializerInterface $serializer;
 
-    public function __construct(MapItemService $service)
+    public function __construct(MapItemService $service, ManagerRegistry $doctrine, SerializerInterface $serializer)
     {
         $this->service = $service;
+        $this->doctrine = $doctrine;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -46,175 +52,148 @@ class MapItemController extends AbstractFOSRestController
      */
     public function getExternalMapitemsAction()
     {
-        //$hateoas = HateoasBuilder::create()->build();
-        $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
+//        $hateoas = HateoasBuilder::create()->build();
+        $mapItems = $this->doctrine->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
 
         // Need to return NULL fields too (latitude and longitude don't have to have a value)
         // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
-        $context = new SerializationContext();
-        $context->setSerializeNull(true);
+//        $context = new SerializationContext();
+//        $context->setSerializeNull(true);
 
-        //$serialized = $hateoas->serialize($mapItems, 'json');
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($mapItems, 'json', $context);
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-        return $response;
+//        $serialized = $hateoas->serialize($mapItems, 'json');
+        $serialized = $this->serializer->serialize($mapItems, 'json', ['groups' => 'bldgs']);
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get all map items
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
+     * @Rest\Get (path="/mapitems")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
     public function getMapitemsAction(): Response
     {
-        $mapItems = $this->getDoctrine()->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
-        //$mapItems = $this->getDoctrine()->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
+        $mapItems = $this->doctrine->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($mapItems, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-        return $response;
+        $serialized = $this->serializer->serialize($mapItems, 'json', ['groups' => ['bldgs']]);
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get a single map item
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
+     * @Rest\Get (path="/mapitems/{id}")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
     public function getMapitemAction($id): Response
     {
-        $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->findOneBy(['id' => $id]);
+        $mapItem = $this->doctrine->getRepository(MapItem::class)->findOneBy(['id' => $id]);
         if (!$mapItem) {
-            $response = new Response("The map item you requested was not found.", 404, array('Content-Type' => 'application/json'));
-            return $response;
+            return new Response("The map item you requested was not found.", 404, array('Content-Type' => 'application/json'));
         }
 
         // Need to return NULL fields too (latitude and longitude don't have to have a value)
         // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
-        $context = new SerializationContext();
-        $context->setSerializeNull(true);
+//        $context = new SerializationContext();
+//        $context->setSerializeNull(true);
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($mapItem, 'json', $context);
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+        $serialized = $this->serializer->serialize($mapItem, 'json', ['groups' => ['bldgs']]);
 
-        return $response;
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get buildings
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
+     * @Rest\Get (path="/mapbuildings/")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
     public function getMapbuildingsAction()
     {
-        $em = $this->getDoctrine()->getManager();
-        $itemRepo = $em->getRepository('App\Entity\Map\MapBuilding');
+        $itemRepo = $this->doctrine->getRepository(MapBuilding::class);
         $buildings = $itemRepo->findAllBuildingsWithFields(['b.id', 'b.name']); // don't need the whole MapBuilding object, so just grab ID and name from the repo method
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($buildings, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-        return $response;
+        $serialized = $this->serializer->serialize($buildings, 'json');
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get building types
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
+     * @Rest\Get (path="/mapbuildingtypes/")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
     public function getMapbuildingtypesAction()
     {
-        $em = $this->getDoctrine()->getManager();
-        $itemRepo = $em->getRepository('App\Entity\Map\MapBuildingType');
+        $itemRepo = $this->doctrine->getRepository(MapBuildingType::class);
         $buildingsTypes = $itemRepo->findAllBuildingTypesWithFields(['bt.id', 'bt.name']); // don't need the whole MapBuildingType object, so just grab ID and name from the repo method
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($buildingsTypes, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+        $serialized = $this->serializer->serialize($buildingsTypes, 'json');
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
 
-        return $response;
     }
 
     /**
      * Get emergency types
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
+     * @Rest\Get (path="/mapemergencytypes/")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
     public function getMapemergencytypesAction()
     {
-        $emergencyTypes = $this->getDoctrine()->getRepository(MapEmergencyType::class)->findAll();
+        $emergencyTypes = $this->doctrine->getRepository(MapEmergencyType::class)->findAll();
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($emergencyTypes, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-        return $response;
+        $serialized = $this->serializer->serialize($emergencyTypes, 'json');
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get emergency types
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
+     * @Rest\Get (path="/mapexhibittypes/")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
     public function getMapexhibittypesAction(): Response
     {
-        $exhibitTypes = $this->getDoctrine()->getRepository(MapExhibitType::class)->findAll();
+        $exhibitTypes = $this->doctrine->getRepository(MapExhibitType::class)->findAll();
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($exhibitTypes, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-        return $response;
+        $serialized = $this->serializer->serialize($exhibitTypes, 'json');
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get parking types
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
+     * @Rest\Get (path="/mapparkingtypes/")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
     public function getMapparkingtypesAction(): Response
     {
-        $parkingTypes = $this->getDoctrine()->getRepository(MapParkingType::class)->findAll();
+        $parkingTypes = $this->doctrine->getRepository(MapParkingType::class)->findAll();
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($parkingTypes, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-        return $response;
+        $serialized = $this->serializer->serialize($parkingTypes, 'json');
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get service types
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_VIEW')")
+     * @Rest\Get (path="/mapservicetypes/")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
     public function getMapservicetypesAction(): Response
     {
-        $serviceTypes = $this->getDoctrine()->getRepository(MapServiceType::class)->findAll();
+        $serviceTypes = $this->doctrine->getRepository(MapServiceType::class)->findAll();
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($serviceTypes, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-        return $response;
+        $serialized = $this->serializer->serialize($serviceTypes, 'json');
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Save a map item to the database
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_CREATE')")
+     * @Rest\Post(path="/mapitems")
+     * @param Request $request
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_CREATE')")
+     * @return mixed
      */
     public function postMapitemAction(Request $request): Response
     {
+//        $mapItemJson = json_decode($request->getContent(), true);
         $itemType = $request->request->get('itemType');
 
-        $serializer = $this->container->get('jms_serializer');
-
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
 
         switch ($itemType) {
             case "bathroom":
@@ -225,8 +204,10 @@ class MapItemController extends AbstractFOSRestController
                 $mapItem = new MapBuilding();
                 $mapItem->setHours($request->request->get('hours'));
                 $mapItem->setAddress($request->request->get('address'));
+
                 // Building Type
-                $buildingType = $this->getDoctrine()->getRepository(MapBuildingType::class)->find($request->request->get('buildingType')['id']);
+                // GOTCHA: In Symfony 6, non-scalar params (params that are arrays, for example) are NOT retrievable with $request->request->get(). Use $request->get() instead.
+                $buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($request->get('buildingType')['id']);
                 if ($buildingType) {
                     $mapItem->setBuildingType($buildingType);
                 }
@@ -250,7 +231,7 @@ class MapItemController extends AbstractFOSRestController
                 $mapItem = new MapService();
                 break;
             default:
-                return new Response("This map item type cannot be created here.", 400, array('Content-Type' => 'application/json'));
+                return new Response("Unable to create an item with this type.", 400, array('Content-Type' => 'application/json'));
         }
 
         // set common fields for all mapItem objects
@@ -268,10 +249,8 @@ class MapItemController extends AbstractFOSRestController
         // validate map item
         $errors = $this->service->validate($mapItem);
         if (count($errors) > 0) {
-            $serialized = $serializer->serialize($errors, 'json');
-            $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-
-            return $response;
+            $serialized = $this->serializer->serialize($errors, 'json');
+            return new Response($serialized, 422, array('Content-Type' => 'application/json'));
         }
         // persist the map item
         $em->persist($mapItem);
@@ -279,7 +258,7 @@ class MapItemController extends AbstractFOSRestController
         switch ($itemType) {
             case "building":
                 // Building Bathrooms
-                foreach ($request->request->get('bathrooms') as $bldgBathroom) {
+                foreach ($request->get('bathrooms') as $bldgBathroom) {
                     $bathroom = new MapBathroom();
                     $bathroom->setName($bldgBathroom['name']);
                     $bathroom->setIsGenderNeutral($bldgBathroom['isGenderNeutral']);
@@ -287,15 +266,14 @@ class MapItemController extends AbstractFOSRestController
 
                     $bathroomErrors = $this->service->validate($bathroom);
                     if (count($bathroomErrors) > 0) {
-                        $serialized = $serializer->serialize($bathroomErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($bathroomErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($bathroom); // persist but don't save until the end
                 }
 
                 // Building Dining Options
-                foreach ($request->request->get('diningOptions') as $bldgDining) {
+                foreach ($request->get('diningOptions') as $bldgDining) {
                     $dining = new MapDining();
                     $dining->setName($bldgDining['name']);
                     $dining->setHours($bldgDining['hours']);
@@ -304,20 +282,18 @@ class MapItemController extends AbstractFOSRestController
 
                     $diningErrors = $this->service->validate($dining);
                     if (count($diningErrors) > 0) {
-                        $serialized = $serializer->serialize($diningErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($diningErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($dining); // persist but don't save until the end
                 }
 
                 // Building Emergency Devices
-                foreach ($request->request->get('emergencyDevices') as $bldgEmergency) {
+                foreach ($request->get('emergencyDevices') as $bldgEmergency) {
                     // need to find the emergency type entity
-                    $emergencyType = $this->getDoctrine()->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
+                    $emergencyType = $this->doctrine->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
                     if (!$emergencyType) {
-                        $response = new Response("The emergency item type was not found.", 404, array('Content-Type' => 'application/json'));
-                        return $response;
+                        return new Response("The emergency item type was not found.", 404, array('Content-Type' => 'application/json'));
                     }
                     $emergencyDevice = new MapEmergency();
                     $emergencyDevice->setName($bldgEmergency['name']);
@@ -326,20 +302,18 @@ class MapItemController extends AbstractFOSRestController
 
                     $emergencyErrors = $this->service->validate($emergencyDevice);
                     if (count($emergencyErrors) > 0) {
-                        $serialized = $serializer->serialize($emergencyErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($emergencyErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($emergencyDevice); // persist but don't save until the end
                 }
 
                 // Building Exhibits
-                foreach ($request->request->get('exhibits') as $bldgExhibit) {
+                foreach ($request->get('exhibits') as $bldgExhibit) {
                     // need to find the exhibit type entity
-                    $exhibitType = $this->getDoctrine()->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
+                    $exhibitType = $this->doctrine->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
                     if (!$exhibitType) {
-                        $response = new Response("The exhibit type was not found.", 404, array('Content-Type' => 'application/json'));
-                        return $response;
+                        return new Response("The exhibit type was not found.", 404, array('Content-Type' => 'application/json'));
                     }
                     $exhibit = new MapExhibit();
                     $exhibit->setName($bldgExhibit['name']);
@@ -349,20 +323,18 @@ class MapItemController extends AbstractFOSRestController
 
                     $exibitErrors = $this->service->validate($exhibit);
                     if (count($exibitErrors) > 0) {
-                        $serialized = $serializer->serialize($exibitErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($exibitErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($exhibit); // persist but don't save until the end
                 }
 
                 // Building Services
-                foreach ($request->request->get('services') as $bldgService) {
+                foreach ($request->get('services') as $bldgService) {
                     // need to find the service type entity
-                    $serviceType = $this->getDoctrine()->getRepository(MapServiceType::class)->find($bldgService['type']['id']);
+                    $serviceType = $this->doctrine->getRepository(MapServiceType::class)->find($bldgService['type']['id']);
                     if (!$serviceType) {
-                        $response = new Response("The service type was not found.", 404, array('Content-Type' => 'application/json'));
-                        return $response;
+                        return new Response("The service type was not found.", 404, array('Content-Type' => 'application/json'));
                     }
                     $service = new MapService();
                     $service->setName($bldgService['name']);
@@ -372,9 +344,8 @@ class MapItemController extends AbstractFOSRestController
 
                     $serviceErrors = $this->service->validate($service);
                     if (count($serviceErrors) > 0) {
-                        $serialized = $serializer->serialize($serviceErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($serviceErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($service); // persist but don't save until the end
                 }
@@ -384,7 +355,7 @@ class MapItemController extends AbstractFOSRestController
                 // Find the building in which this device/exhibit is located (if any)
                 $building = $request->request->get('building');
                 if ($building) {
-                    $building = $this->getDoctrine()->getRepository(MapItem::class)->find($building['id']);
+                    $building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
                 }
                 $mapItem->setBuilding($building);
 
@@ -394,20 +365,19 @@ class MapItemController extends AbstractFOSRestController
                     return new Response("Each " . $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
                 }
                 if ($itemType == 'emergency device') {
-                    $type = $this->getDoctrine()->getRepository(MapEmergencyType::class)->find($type['id']);
+                    $type = $this->doctrine->getRepository(MapEmergencyType::class)->find($type['id']);
                 } else {
-                    $type = $this->getDoctrine()->getRepository(MapExhibitType::class)->find($type['id']);
+                    $type = $this->doctrine->getRepository(MapExhibitType::class)->find($type['id']);
                 }
                 $mapItem->setType($type);
                 break;
             case "parking":
                 // Parking lot types
-                foreach ($request->request->get('parkingTypes') as $type) {
+                foreach ($request->get('parkingTypes') as $type) {
                     // find the parking type entity
-                    $parkingType = $this->getDoctrine()->getRepository(MapParkingType::class)->find($type['id']);
+                    $parkingType = $this->doctrine->getRepository(MapParkingType::class)->find($type['id']);
                     if (!$parkingType) {
-                        $response = new Response("The parking lot type was not found.", 404, array('Content-Type' => 'application/json'));
-                        return $response;
+                        return new Response("The parking lot type was not found.", 404, array('Content-Type' => 'application/json'));
                     }
                     $mapItem->addParkingType($parkingType);
                 }
@@ -416,7 +386,7 @@ class MapItemController extends AbstractFOSRestController
                 // Find the building in which this device/exhibit is located (if any)
                 $building = $request->request->get('building');
                 if ($building) {
-                    $building = $this->getDoctrine()->getRepository(MapItem::class)->find($building['id']);
+                    $building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
                 }
                 $mapItem->setBuilding($building);
 
@@ -432,24 +402,22 @@ class MapItemController extends AbstractFOSRestController
         // commit everything to the database
         $em->flush();
 
-        $serialized = $serializer->serialize($mapItem, 'json');
-        $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
-        return $response;
+        $serialized = $this->serializer->serialize($mapItem, 'json');
+        return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Update a map item to the database
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_EDIT')")
+     * @Rest\Put(path="/mapitem/")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_EDIT')")
      */
     public function putMapitemAction(Request $request): Response
     {
         $itemType = $request->request->get('itemType');
 
-        $em = $this->getDoctrine()->getManager();
-        $serializer = $this->container->get('jms_serializer');
+        $em = $this->doctrine->getManager();
 
-        $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($request->request->get('id'));
+        $mapItem = $this->doctrine->getRepository(MapItem::class)->find($request->request->get('id'));
         switch ($itemType) {
             case "bathroom":
                 $mapItem->setIsGenderNeutral($request->request->get('isGenderNeutral'));
@@ -458,7 +426,7 @@ class MapItemController extends AbstractFOSRestController
                 $mapItem->setHours($request->request->get('hours'));
                 $mapItem->setAddress($request->request->get('address'));
                 // Building Type
-                $buildingType = $this->getDoctrine()->getRepository(MapBuildingType::class)->find($request->request->get('buildingType')['id']);
+                $buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($request->request->get('buildingType')['id']);
                 if ($buildingType) {
                     $mapItem->setBuildingType($buildingType);
                 }
@@ -467,7 +435,7 @@ class MapItemController extends AbstractFOSRestController
                 foreach ($request->request->get('bathrooms') as $bldgBathroom) {
                     // a new bathroom won't have an ID
                     if (isset($bldgBathroom['id'])) {
-                        $bathroom = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgBathroom['id']);
+                        $bathroom = $this->doctrine->getRepository(MapItem::class)->find($bldgBathroom['id']);
                     } else {
                         $bathroom = new MapBathroom();
                         $bathroom->setBuilding($mapItem);
@@ -478,9 +446,8 @@ class MapItemController extends AbstractFOSRestController
 
                     $bathroomErrors = $this->service->validate($bathroom);
                     if (count($bathroomErrors) > 0) {
-                        $serialized = $serializer->serialize($bathroomErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($bathroomErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($bathroom); // persist but don't save until the end
                 }
@@ -491,7 +458,7 @@ class MapItemController extends AbstractFOSRestController
                 foreach ($request->request->get('diningOptions') as $bldgDining) {
                     // a new dining option won't have an ID
                     if (isset($bldgDining['id'])) {
-                        $dining = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgDining['id']);
+                        $dining = $this->doctrine->getRepository(MapItem::class)->find($bldgDining['id']);
                     } else {
                         $dining = new MapDining();
                         $dining->setBuilding($mapItem);
@@ -503,7 +470,7 @@ class MapItemController extends AbstractFOSRestController
 
                     $diningErrors = $this->service->validate($dining);
                     if (count($diningErrors) > 0) {
-                        $serialized = $serializer->serialize($diningErrors, 'json');
+                        $serialized = $this->serializer->serialize($diningErrors, 'json');
                         $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
                         return $response;
                     }
@@ -515,15 +482,14 @@ class MapItemController extends AbstractFOSRestController
                 // Building Emergency Devices
                 foreach ($request->request->get('emergencyDevices') as $bldgEmergency) {
                     // need to find the emergency type entity
-                    $emergencyType = $this->getDoctrine()->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
+                    $emergencyType = $this->doctrine->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
                     if (!$emergencyType) {
-                        $response = new Response("The emergency item type was not found.", 404, array('Content-Type' => 'application/json'));
-                        return $response;
+                        return new Response("The emergency item type was not found.", 404, array('Content-Type' => 'application/json'));
                     }
 
                     // a new device won't have an ID
                     if (isset($bldgEmergency['id'])) {
-                        $emergencyDevice = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgEmergency['id']);
+                        $emergencyDevice = $this->doctrine->getRepository(MapItem::class)->find($bldgEmergency['id']);
                     } else {
                         $emergencyDevice = new MapEmergency();
                         $emergencyDevice->setBuilding($mapItem);
@@ -534,9 +500,8 @@ class MapItemController extends AbstractFOSRestController
 
                     $emergencyErrors = $this->service->validate($emergencyDevice);
                     if (count($emergencyErrors) > 0) {
-                        $serialized = $serializer->serialize($emergencyErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($emergencyErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($emergencyDevice); // persist but don't save until the end
                 }
@@ -546,14 +511,13 @@ class MapItemController extends AbstractFOSRestController
                 // Building Exhibits
                 foreach ($request->request->get('exhibits') as $bldgExhibit) {
                     // need to find the exhibit type entity
-                    $exhibitType = $this->getDoctrine()->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
+                    $exhibitType = $this->doctrine->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
                     if (!$exhibitType) {
-                        $response = new Response("The exhibit type was not found.", 404, array('Content-Type' => 'application/json'));
-                        return $response;
+                        return new Response("The exhibit type was not found.", 404, array('Content-Type' => 'application/json'));
                     }
                     // a new exhibit won't have an ID
                     if (isset($bldgExhibit['id'])) {
-                        $exhibit = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgExhibit['id']);
+                        $exhibit = $this->doctrine->getRepository(MapItem::class)->find($bldgExhibit['id']);
                     } else {
                         $exhibit = new MapExhibit();
                         $exhibit->setBuilding($mapItem);
@@ -565,9 +529,8 @@ class MapItemController extends AbstractFOSRestController
 
                     $exhibitErrors = $this->service->validate($exhibit);
                     if (count($exhibitErrors) > 0) {
-                        $serialized = $serializer->serialize($exhibitErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($exhibitErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($exhibit); // persist but don't save until the end
                 }
@@ -577,14 +540,13 @@ class MapItemController extends AbstractFOSRestController
                 // Building Services
                 foreach ($request->request->get('services') as $bldgService) {
                     // need to find the service type entity
-                    $serviceType = $this->getDoctrine()->getRepository(MapServiceType::class)->find($bldgService['type']['id']);
+                    $serviceType = $this->doctrine->getRepository(MapServiceType::class)->find($bldgService['type']['id']);
                     if (!$serviceType) {
-                        $response = new Response("The service type was not found.", 404, array('Content-Type' => 'application/json'));
-                        return $response;
+                        return new Response("The service type was not found.", 404, array('Content-Type' => 'application/json'));
                     }
                     // a new exhibit won't have an ID
                     if (isset($bldgService['id'])) {
-                        $service = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgService['id']);
+                        $service = $this->doctrine->getRepository(MapItem::class)->find($bldgService['id']);
                     } else {
                         $service = new MapService();
                         $service->setBuilding($mapItem);
@@ -596,9 +558,8 @@ class MapItemController extends AbstractFOSRestController
 
                     $serviceErrors = $this->service->validate($service);
                     if (count($serviceErrors) > 0) {
-                        $serialized = $serializer->serialize($serviceErrors, 'json');
-                        $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-                        return $response;
+                        $serialized = $this->serializer->serialize($serviceErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
                     }
                     $em->persist($service); // persist but don't save until the end
                 }
@@ -609,7 +570,7 @@ class MapItemController extends AbstractFOSRestController
 								foreach ($request->request->get('dispensers') as $bldgDispenser) {
 									// a new dispenser won't have an ID
 									if (isset($bldgDispenser['id'])) {
-										$dispenser = $this->getDoctrine()->getRepository(MapItem::class)->find($bldgDispenser['id']);
+										$dispenser = $this->doctrine->getRepository(MapItem::class)->find($bldgDispenser['id']);
 									} else {
 										$dispenser = new MapDispenser();
 										$dispenser->setBuilding($mapItem);
@@ -620,9 +581,8 @@ class MapItemController extends AbstractFOSRestController
 
 									$dispenserErrors = $this->service->validate($dispenser);
 									if (count($dispenserErrors) > 0) {
-										$serialized = $serializer->serialize($dispenserErrors, 'json');
-										$response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-										return $response;
+										$serialized = $this->serializer->serialize($dispenserErrors, 'json');
+										return new Response($serialized, 422, array('Content-Type' => 'application/json'));
 									}
 									$em->persist($dispenser); // persist but don't save until the end
 								}
@@ -636,7 +596,7 @@ class MapItemController extends AbstractFOSRestController
                 // Find the building in which this device/exhibit is located (if any)
                 $building = $request->request->get('building');
                 if ($building) {
-                    $building = $this->getDoctrine()->getRepository(MapItem::class)->find($building['id']);
+                    $building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
                 }
                 $mapItem->setBuilding($building);
 
@@ -646,9 +606,9 @@ class MapItemController extends AbstractFOSRestController
                     return new Response("Each " . $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
                 }
                 if ($itemType == 'emergency device') {
-                    $type = $this->getDoctrine()->getRepository(MapEmergencyType::class)->find($type['id']);
+                    $type = $this->doctrine->getRepository(MapEmergencyType::class)->find($type['id']);
                 } else {
-                    $type = $this->getDoctrine()->getRepository(MapExhibitType::class)->find($type['id']);
+                    $type = $this->doctrine->getRepository(MapExhibitType::class)->find($type['id']);
                 }
                 $mapItem->setType($type);
                 break;
@@ -663,7 +623,7 @@ class MapItemController extends AbstractFOSRestController
                 // Find the building in which this device/exhibit is located (if any)
                 $building = $request->request->get('building');
                 if ($building) {
-                    $building = $this->getDoctrine()->getRepository(MapItem::class)->find($building['id']);
+                    $building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
                 }
                 $mapItem->setBuilding($building);
 
@@ -678,7 +638,7 @@ class MapItemController extends AbstractFOSRestController
 							// Find the building in which this dispenser is located
 							$building = $request->request->get('building');
 							if ($building) {
-								$building = $this->getDoctrine()->getRepository(MapItem::class)->find($building['id']);
+								$building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
 							}
 							$mapItem->setBuilding($building);
 							break;
@@ -703,34 +663,31 @@ class MapItemController extends AbstractFOSRestController
         // validate map item
         $errors = $this->service->validate($mapItem);
         if (count($errors) > 0) {
-            $serialized = $serializer->serialize($errors, 'json');
-            $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-            return $response;
+            $serialized = $this->serializer->serialize($errors, 'json');
+            return new Response($serialized, 422, array('Content-Type' => 'application/json'));
         }
 
         // save the map item
         $em->persist($mapItem);
         $em->flush();
 
-        $serialized = $serializer->serialize($mapItem, 'json');
-        $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
-        return $response;
+        $serialized = $this->serializer->serialize($mapItem, 'json');
+        return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Delete a map item from the database
-     *
-     * @Security("has_role('ROLE_GLOBAL_ADMIN') or has_role('ROLE_MAP_DELETE')")
+     * @Rest\Delete (path="/mapitems/{id}")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_DELETE')")
      */
     public function deleteMapitemAction($id): Response
     {
-        $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($id);
+        $mapItem = $this->doctrine->getRepository(MapItem::class)->find($id);
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
         $em->remove($mapItem);
         $em->flush();
 
-        $response = new Response('Item has been deleted.', 204, array('Content-Type' => 'application/json'));
-        return $response;
+        return new Response('Item has been deleted.', 204, array('Content-Type' => 'application/json'));
     }
 }

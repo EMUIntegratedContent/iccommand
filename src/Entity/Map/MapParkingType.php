@@ -9,6 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\Entity\Map\MapParking;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapParkingTypeRepository")
@@ -19,12 +20,14 @@ class MapParkingType
    * @ORM\Id
    * @ORM\GeneratedValue
    * @ORM\Column(type="integer")
+   * @Groups("bldgs")
    */
   private $id;
 
   /**
    * @ORM\Column(type="string")
    * @Assert\NotBlank(message="You must provide a name for parking lot type.")
+   * @Groups("bldgs")
    */
   private $name;
 

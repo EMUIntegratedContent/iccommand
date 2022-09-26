@@ -3,6 +3,7 @@
 namespace App\Entity\Map;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -17,6 +18,7 @@ class MapEmergency extends MapItem
    * Emergency device is of one type
    * @ORM\ManyToOne(targetEntity="MapEmergencyType")
    * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+   * @Groups("bldgs")
    */
    private $type;
 
@@ -30,6 +32,7 @@ class MapEmergency extends MapItem
    /**
     * @Serializer\VirtualProperty
     * @Serializer\SerializedName("itemType")
+    * @Groups("bldgs")
     * @return String
    */
    public function getItemType(){

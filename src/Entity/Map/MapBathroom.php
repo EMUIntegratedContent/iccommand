@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use App\Entity\Map\MapBuilding;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapBathroomRepository")
@@ -19,6 +20,7 @@ class MapBathroom extends MapItem
      *
      * @Assert\NotNull(message="Is the bathroom gender neutral?")
      * @Serializer\SerializedName("isGenderNeutral")
+     * @Groups("bldgs")
      */
     private $isGenderNeutral;
 
@@ -32,6 +34,7 @@ class MapBathroom extends MapItem
     /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("itemType")
+     * @Groups("bldgs")
      * @return String
     */
     public function getItemType(){
