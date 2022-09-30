@@ -996,7 +996,7 @@
             },
             fetchStatusOptions: function() {
                 let self = this
-                axios.get('/api/multimediarequest/statuses')
+                axios.get('/api/multimediarequests/statuses')
                 // success
                     .then(function (response) {
                         self.statusOptions = response.data

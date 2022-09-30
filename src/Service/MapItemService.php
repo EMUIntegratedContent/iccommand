@@ -4,7 +4,6 @@ namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
@@ -17,14 +16,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class MapItemService
 {
-    private $container;
     private $authorizationChecker;
     private $doctrine;
     private $validator;
 
     public function __construct(AuthorizationCheckerInterface $authorizationChecker, ManagerRegistry $doctrine, ValidatorInterface $validator)
     {
-        $this->container = new ContainerBuilder();
         $this->authorizationChecker = $authorizationChecker;
         $this->doctrine = $doctrine;
         $this->validator = $validator;

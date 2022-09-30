@@ -3,30 +3,39 @@
 namespace App\Service;
 
 use App\Entity\MultimediaRequest\MultimediaRequestStatusNote;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Doctrine\ORM\PersistentCollection;
 use App\Entity\MultimediaRequest\MultimediaRequest;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class MultimediaRequestService
 {
-    private $container;
+    private $authorizationChecker;
+    private $doctrine;
+    private $validator;
+    private $em;
 
-    public function __construct()
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker, ManagerRegistry $doctrine, ValidatorInterface $validator, EntityManagerInterface $em)
     {
-        $this->container = new ContainerBuilder();
+        $this->authorizationChecker = $authorizationChecker;
+        $this->doctrine = $doctrine;
+        $this->validator = $validator;
+        $this->em = $em;
     }
 
     /**
      * Use the Symfony container's validator to validate fields for an assignee
-     * @param App\Entity\MultimediaRequest\* $item
-     * @return array $errors
+     * @param mixed $item
+     * @return ConstraintViolationList $errors
      */
-    public function validate($item): ConstraintViolationList
+    public function validate(mixed $item): ConstraintViolationList
     {
-        $validator = $this->container->get('validator');
-        $errors = $validator->validate($item);
-        return $errors;
+        return $this->validator->validate($item);
     }
 
     /**
@@ -34,8 +43,9 @@ class MultimediaRequestService
      *
      * @param PersistentCollection $currentCollection
      * @param array $updatedArray
+     * @return void
      */
-    public function statusNoteCollectionCompare(PersistentCollection $currentCollection, array $updatedArray)
+    public function statusNoteCollectionCompare(PersistentCollection $currentCollection, array $updatedArray): void
     {
         $current_ids = array();
         foreach ($currentCollection as $item) {
@@ -52,7 +62,7 @@ class MultimediaRequestService
 
         // Find and remove any items that do NOT appear in the updated IDs
         foreach ($itemsToDelete as $itemToDelete) {
-            $item = $this->container->get('doctrine')->getRepository(MultimediaRequestStatusNote::class)->find($itemToDelete);
+            $item = $this->doctrine->getRepository(MultimediaRequestStatusNote::class)->find($itemToDelete);
             $this->deleteStatusNote($item);
         }
     }
@@ -61,7 +71,8 @@ class MultimediaRequestService
      *  Fetch the user's permissions for managing photo requests
      * @return array $multimediaRequestPermissions
      */
-    public function getUserMultimediaRequestPermissions()
+    #[ArrayShape(['create' => "bool", 'edit' => "bool", 'delete' => "bool", 'admin' => "bool", 'email' => "bool"])]
+    public function getUserMultimediaRequestPermissions(): array
     {
         $multimediaRequestPermissions = array(
             'create' => false,
@@ -69,26 +80,26 @@ class MultimediaRequestService
             'delete' => false,
             'admin' => false
         );
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MULTIMEDIA_ADMIN') || $this->container->get('security.authorization_checker')->isGranted('ROLE_GLOBAL_ADMIN')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MULTIMEDIA_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
             $multimediaRequestPermissions['create'] = true;
             $multimediaRequestPermissions['edit'] = true;
             $multimediaRequestPermissions['delete'] = true;
             $multimediaRequestPermissions['email'] = true;
             $multimediaRequestPermissions['admin'] = true;
         }
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MULTIMEDIA_EMAIL')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MULTIMEDIA_EMAIL')) {
             $multimediaRequestPermissions['email'] = true;
             $multimediaRequestPermissions['edit'] = true;
         }
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MULTIMEDIA_DELETE')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MULTIMEDIA_DELETE')) {
             $multimediaRequestPermissions['delete'] = true;
             $multimediaRequestPermissions['edit'] = true;
         }
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MULTIMEDIA_EDIT')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MULTIMEDIA_EDIT')) {
             $multimediaRequestPermissions['create'] = true;
             $multimediaRequestPermissions['edit'] = true;
         }
-        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_MULTIMEDIA_CREATE')) {
+        if ($this->authorizationChecker->isGranted('ROLE_MULTIMEDIA_CREATE')) {
             $multimediaRequestPermissions['create'] = true;
         }
         return $multimediaRequestPermissions;
@@ -98,22 +109,22 @@ class MultimediaRequestService
     /**
      * Remove a multimedia request from the database
      * @param MultimediaRequest $multimediaRequest
+     * @return void
      */
-    protected function deleteMultimediaRequest(MultimediaRequest $multimediaRequest)
+    protected function deleteMultimediaRequest(MultimediaRequest $multimediaRequest): void
     {
-        $em = $this->container->get('doctrine')->getManager();
-        $em->remove($multimediaRequest);
-        $em->flush();
+        $this->em->remove($multimediaRequest);
+        $this->em->flush();
     }
 
     /**
      * Remove a status note from the database
      * @param MultimediaRequestStatusNote $note
+     * @return void
      */
-    protected function deleteStatusNote(MultimediaRequestStatusNote $note)
+    protected function deleteStatusNote(MultimediaRequestStatusNote $note): void
     {
-        $em = $this->container->get('doctrine')->getManager();
-        $em->remove($note);
-        $em->flush();
+        $this->em->remove($note);
+        $this->em->flush();
     }
 }

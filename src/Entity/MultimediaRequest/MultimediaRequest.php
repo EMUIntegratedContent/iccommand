@@ -8,7 +8,8 @@ use Doctrine\ORM\PersistentCollection;
 use Doctrine\Common\Collections\Collection;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequestStatus;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -19,7 +20,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"multimediarequest" = "MultimediaRequest", "headshotrequest" = "HeadshotRequest", "photorequest" = "PhotoRequest", "publicationrequest" = "PublicationRequest", "videorequest" = "VideoRequest"})
- * @Serializer\XmlRoot("multimediaRequest")
  * @Hateoas\Relation("self", href = "expr('/api/multimediarequests/' ~ object.getId())")
  */
 abstract class MultimediaRequest
@@ -28,20 +28,19 @@ abstract class MultimediaRequest
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Serializer\XmlAttribute
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\SerializedName("firstName")
+     * @SerializedName("firstName")
      * @Assert\NotBlank(message="You must provide a first name for the requester.")
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\SerializedName("lastName")
+     * @SerializedName("lastName")
      * @Assert\NotBlank(message="You must provide a last name for the requester.")
      */
     private $lastName;
@@ -77,7 +76,7 @@ abstract class MultimediaRequest
      * One request has (zero to) many status notes.
      * @ORM\OneToMany(targetEntity="MultimediaRequestStatusNote", mappedBy="multimediaRequest", cascade={"persist"})
      * @ORM\OrderBy({"created" = "DESC"})
-     * @Serializer\SerializedName("statusNotes")
+     * @SerializedName("statusNotes")
      */
     private $statusNotes;
 

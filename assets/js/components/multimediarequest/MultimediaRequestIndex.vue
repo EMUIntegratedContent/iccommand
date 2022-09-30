@@ -586,7 +586,7 @@
             },
             fetchStatusOptions: function () {
                 let self = this
-                axios.get('/api/multimediarequest/statuses')
+                axios.get('/api/multimediarequests/statuses')
                 // success
                     .then(function (response) {
                         // We only want the 'statusSlug' field, not the entire object

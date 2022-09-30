@@ -5,7 +5,8 @@ namespace App\Entity\Map;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\Entity\Document;
@@ -21,7 +22,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 * @ORM\InheritanceType("JOINED")
 * @ORM\DiscriminatorColumn(name="discr", type="string")
 * @ORM\DiscriminatorMap({"item" = "MapItem", "bathroom" = "MapBathroom", "building" = "MapBuilding", "bus" = "MapBus", "dining" = "MapDining", "emergency" = "MapEmergency", "exhibit" = "MapExhibit", "parking" = "MapParking", "service" = "MapService", "dispenser" = "MapDispenser"})
-* @Serializer\XmlRoot("mapItem")
 * @Hateoas\Relation("self", href = "expr('/api/mapitems/' ~ object.getId())")
 */
 abstract class MapItem
@@ -30,7 +30,6 @@ abstract class MapItem
     * @ORM\Id
     * @ORM\GeneratedValue
     * @ORM\Column(type="integer")
-    * @Serializer\XmlAttribute
      * @Groups("bldgs")
     */
     private $id;
@@ -63,28 +62,28 @@ abstract class MapItem
 
     /**
     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
-    * @Serializer\SerializedName("latitudeIllustration")
+    * @SerializedName("latitudeIllustration")
     * @Groups("bldgs")
     */
     private $latitudeIllustration;
 
     /**
     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
-    * @Serializer\SerializedName("longitudeIllustration")
+    * @SerializedName("longitudeIllustration")
      * @Groups("bldgs")
     */
     private $longitudeIllustration;
 
     /**
     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
-    * @Serializer\SerializedName("latitudeSatellite")
+    * @SerializedName("latitudeSatellite")
      * @Groups("bldgs")
     */
     private $latitudeSatellite;
 
     /**
     * @ORM\Column(type="decimal", precision=10, scale=7, nullable=true)
-    * @Serializer\SerializedName("longitudeSatellite")
+    * @SerializedName("longitudeSatellite")
      * @Groups("bldgs")
     */
     private $longitudeSatellite;
@@ -104,7 +103,7 @@ abstract class MapItem
     /**
     * @ORM\Column(type="integer")
     *
-    * @Serializer\SerializedName("admissionsTour")
+    * @SerializedName("admissionsTour")
     * @Groups("bldgs")
     */
     private $admissionsTour = 0;

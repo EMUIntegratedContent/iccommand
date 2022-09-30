@@ -4,7 +4,7 @@ namespace App\Entity\MultimediaRequest;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\MultimediaRequest\PhotoHeadshotDate;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\HeadshotRequestRepository")
@@ -15,10 +15,14 @@ class HeadshotRequest extends MultimediaRequest
 
     /**
      * @ORM\ManyToOne(targetEntity="PhotoHeadshotDate", inversedBy="headshotRequests")
-     * @Serializer\SerializedName("timeSlot")
+     * @SerializedName("timeSlot")
      */
     private $timeSlot;
 
+    /**
+     * @SerializedName("requestType")
+     * @return String
+     */
     public function getRequestType(){
         return constant("self::REQUEST_TYPE");
     }
