@@ -34,13 +34,12 @@ class UserController extends AbstractFOSRestController{
 
   /**
    * Get all users
-   * @Rest\Get (path="/users/")
+   * @Rest\Get (path="/users")
    * @Security("is_granted('ROLE_GLOBAL_ADMIN')")
    */
   public function getUsersAction(ManagerRegistry $doctrine) : Response
   {
-      $em = $doctrine->getManager();
-      $userRepo = $em->getRepository(User::class);
+      $userRepo = $this->em->getRepository(User::class);
       $users = $userRepo->findAll();
       $view = $this->view($users, 200);
 
@@ -49,13 +48,12 @@ class UserController extends AbstractFOSRestController{
 
   /**
    * Return an individual user (by username)
-   *
+   * @Rest\Get(path="/users/{username}")
    * @Security("is_granted('ROLE_USER')")
    */
   public function getUserAction($username) : Response
   {
-    $userManager = $this->container->get('fos_user.user_manager');
-    $user = $userManager->findUserByUsername($username);
+    $user = $this->doctrine->getRepository(User::class)->findOneByUsername($username);
 
     $serialized = $this->serializer->serialize($user, 'json');
     return new Response($serialized, 200, array('Content-Type' => 'application/json'));
@@ -68,7 +66,7 @@ class UserController extends AbstractFOSRestController{
    */
   public function getRolesAction() : Response
   {
-    $roles = $this->container->get('security.role_hierarchy.roles');
+    $roles = $this->getParameter('security.role_hierarchy.roles');
 
     $serialized = $this->serializer->serialize($roles, 'json');
     return new Response($serialized, 200, array('Content-Type' => 'application/json'));
@@ -93,8 +91,7 @@ class UserController extends AbstractFOSRestController{
      $user->setDepartment($request->request->get('department'));
      $user->setPhone($request->request->get('phone'));
      $user->setRoles($request->get('roles'));
-//     $this->service->syncUserRoles($user, $updatedRoles);
-//     $this->service->setUserEnabledStatus($user, $request->request->get('enabled'));
+     $user->setEnabled($request->request->get('enabled'));
       $this->em->persist($user);
       $this->em->flush();
 

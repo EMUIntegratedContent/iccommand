@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     locale: 'en'
+    user_images_subdirectory: '/uploads/profile'
+    mapitem_images_subdirectory: '/uploads/map'
 
 services:
     # default configuration for services in *this* file

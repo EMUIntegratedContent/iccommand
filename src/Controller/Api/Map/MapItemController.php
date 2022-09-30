@@ -31,6 +31,7 @@ use App\Entity\Map\MapServiceType;
 use App\Service\MapItemService;
 use App\Entity\Redirect\Redirect;
 use App\Entity\Map\MapDispenser;
+use Symfony\Component\Validator\Constraints\Json;
 
 class MapItemController extends AbstractFOSRestController
 {
@@ -353,14 +354,14 @@ class MapItemController extends AbstractFOSRestController
             case "emergency device":
             case "exhibit":
                 // Find the building in which this device/exhibit is located (if any)
-                $building = $request->request->get('building');
+                $building = $request->get('building');
                 if ($building) {
                     $building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
                 }
                 $mapItem->setBuilding($building);
 
                 // Get which type of device/exhibit this is
-                $type = $request->request->get('type');
+                $type = $request->get('type');
                 if (!$type) {
                     return new Response("Each " . $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
                 }
@@ -402,13 +403,13 @@ class MapItemController extends AbstractFOSRestController
         // commit everything to the database
         $em->flush();
 
-        $serialized = $this->serializer->serialize($mapItem, 'json');
+        $serialized = $this->serializer->serialize($mapItem, 'json', ['groups' => ['bldgs']]);
         return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Update a map item to the database
-     * @Rest\Put(path="/mapitem/")
+     * @Rest\Put(path="/mapitem")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_EDIT')")
      */
     public function putMapitemAction(Request $request): Response
@@ -426,13 +427,13 @@ class MapItemController extends AbstractFOSRestController
                 $mapItem->setHours($request->request->get('hours'));
                 $mapItem->setAddress($request->request->get('address'));
                 // Building Type
-                $buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($request->request->get('buildingType')['id']);
+                $buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($request->get('buildingType')['id']);
                 if ($buildingType) {
                     $mapItem->setBuildingType($buildingType);
                 }
 
                 // Building bathrooms
-                foreach ($request->request->get('bathrooms') as $bldgBathroom) {
+                foreach ($request->get('bathrooms') as $bldgBathroom) {
                     // a new bathroom won't have an ID
                     if (isset($bldgBathroom['id'])) {
                         $bathroom = $this->doctrine->getRepository(MapItem::class)->find($bldgBathroom['id']);
@@ -452,10 +453,10 @@ class MapItemController extends AbstractFOSRestController
                     $em->persist($bathroom); // persist but don't save until the end
                 }
                 // Compare and delete any bathrooms not in the updated list
-                $this->service->mapItemCollectionCompare($mapItem->getBathrooms(), $request->request->get('bathrooms'));
+                $this->service->mapItemCollectionCompare($mapItem->getBathrooms(), $request->get('bathrooms'));
 
                 // Building Dining Options
-                foreach ($request->request->get('diningOptions') as $bldgDining) {
+                foreach ($request->get('diningOptions') as $bldgDining) {
                     // a new dining option won't have an ID
                     if (isset($bldgDining['id'])) {
                         $dining = $this->doctrine->getRepository(MapItem::class)->find($bldgDining['id']);
@@ -477,10 +478,10 @@ class MapItemController extends AbstractFOSRestController
                     $em->persist($dining); // persist but don't save until the end
                 }
                 // Compare and delete any bathrooms not in the updated list
-                $this->service->mapItemCollectionCompare($mapItem->getDiningOptions(), $request->request->get('diningOptions'));
+                $this->service->mapItemCollectionCompare($mapItem->getDiningOptions(), $request->get('diningOptions'));
 
                 // Building Emergency Devices
-                foreach ($request->request->get('emergencyDevices') as $bldgEmergency) {
+                foreach ($request->get('emergencyDevices') as $bldgEmergency) {
                     // need to find the emergency type entity
                     $emergencyType = $this->doctrine->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
                     if (!$emergencyType) {
@@ -506,10 +507,10 @@ class MapItemController extends AbstractFOSRestController
                     $em->persist($emergencyDevice); // persist but don't save until the end
                 }
                 // Compare and delete any emergency devices not in the updated list
-                $this->service->mapItemCollectionCompare($mapItem->getEmergencyDevices(), $request->request->get('emergencyDevices'));
+                $this->service->mapItemCollectionCompare($mapItem->getEmergencyDevices(), $request->get('emergencyDevices'));
 
                 // Building Exhibits
-                foreach ($request->request->get('exhibits') as $bldgExhibit) {
+                foreach ($request->get('exhibits') as $bldgExhibit) {
                     // need to find the exhibit type entity
                     $exhibitType = $this->doctrine->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
                     if (!$exhibitType) {
@@ -535,10 +536,10 @@ class MapItemController extends AbstractFOSRestController
                     $em->persist($exhibit); // persist but don't save until the end
                 }
                 // Compare and delete any exhibits not in the updated list
-                $this->service->mapItemCollectionCompare($mapItem->getExhibits(), $request->request->get('exhibits'));
+                $this->service->mapItemCollectionCompare($mapItem->getExhibits(), $request->get('exhibits'));
 
                 // Building Services
-                foreach ($request->request->get('services') as $bldgService) {
+                foreach ($request->get('services') as $bldgService) {
                     // need to find the service type entity
                     $serviceType = $this->doctrine->getRepository(MapServiceType::class)->find($bldgService['type']['id']);
                     if (!$serviceType) {
@@ -564,44 +565,43 @@ class MapItemController extends AbstractFOSRestController
                     $em->persist($service); // persist but don't save until the end
                 }
                 // Compare and delete any services not in the updated list
-                $this->service->mapItemCollectionCompare($mapItem->getServices(), $request->request->get('services'));
+                $this->service->mapItemCollectionCompare($mapItem->getServices(), $request->get('services'));
 
-								// Cycle Dispensers
-								foreach ($request->request->get('dispensers') as $bldgDispenser) {
-									// a new dispenser won't have an ID
-									if (isset($bldgDispenser['id'])) {
-										$dispenser = $this->doctrine->getRepository(MapItem::class)->find($bldgDispenser['id']);
-									} else {
-										$dispenser = new MapDispenser();
-										$dispenser->setBuilding($mapItem);
-									}
-									$dispenser->setName($bldgDispenser['name']);
-									$dispenser->setDescription($bldgDispenser['description']);
-									$dispenser->setAdmissionsTour(0);
+                // Cycle Dispensers
+                foreach ($request->get('dispensers') as $bldgDispenser) {
+                    // a new dispenser won't have an ID
+                    if (isset($bldgDispenser['id'])) {
+                        $dispenser = $this->doctrine->getRepository(MapItem::class)->find($bldgDispenser['id']);
+                    } else {
+                        $dispenser = new MapDispenser();
+                        $dispenser->setBuilding($mapItem);
+                    }
+                    $dispenser->setName($bldgDispenser['name']);
+                    $dispenser->setDescription($bldgDispenser['description']);
+                    $dispenser->setAdmissionsTour(0);
 
-									$dispenserErrors = $this->service->validate($dispenser);
-									if (count($dispenserErrors) > 0) {
-										$serialized = $this->serializer->serialize($dispenserErrors, 'json');
-										return new Response($serialized, 422, array('Content-Type' => 'application/json'));
-									}
-									$em->persist($dispenser); // persist but don't save until the end
-								}
-								// Compare and delete any dispensers not in the updated list
-								$this->service->mapItemCollectionCompare($mapItem->getDispensers(), $request->request->get('dispensers'));
+                    $dispenserErrors = $this->service->validate($dispenser);
+                    if (count($dispenserErrors) > 0) {
+                        $serialized = $this->serializer->serialize($dispenserErrors, 'json');
+                        return new Response($serialized, 422, array('Content-Type' => 'application/json'));
+                    }
+                    $em->persist($dispenser); // persist but don't save until the end
+                }
+                // Compare and delete any dispensers not in the updated list
+                $this->service->mapItemCollectionCompare($mapItem->getDispensers(), $request->get('dispensers'));
                 break;
             case "bus":
                 break;
             case "emergency device":
             case "exhibit":
                 // Find the building in which this device/exhibit is located (if any)
-                $building = $request->request->get('building');
+                $building = $request->get('building');
                 if ($building) {
                     $building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
                 }
                 $mapItem->setBuilding($building);
-
                 // Get which type of device/exhibit this is
-                $type = $request->request->get('type');
+                $type = $request->get('type');
                 if (!$type) {
                     return new Response("Each " . $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
                 }
@@ -617,7 +617,7 @@ class MapItemController extends AbstractFOSRestController
                 $mapItem->setHours($request->request->get('hours'));
                 $mapItem->setHasHandicapSpaces($request->request->get('hasHandicapSpaces'));
                 // Compare and delete any parking lot types not in the updated list
-                $this->service->mapParkingLotTypeCompare($mapItem->getParkingTypes(), $request->request->get('parkingTypes'), $mapItem);
+                $this->service->mapParkingLotTypeCompare($mapItem->getParkingTypes(), $request->get('parkingTypes'), $mapItem);
                 break;
             case "service":
                 // Find the building in which this device/exhibit is located (if any)
@@ -628,7 +628,7 @@ class MapItemController extends AbstractFOSRestController
                 $mapItem->setBuilding($building);
 
                 // Get which type of device/exhibit this is
-                $type = $request->request->get('type');
+                $type = $request->get('type');
                 if (!$type) {
                     return new Response("Each " . $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
                 }
@@ -653,7 +653,7 @@ class MapItemController extends AbstractFOSRestController
         $mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
         $mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
         $mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
-				$mapItem->setAdmissionsTour($request->request->get('admissionsTour'));
+        $mapItem->setAdmissionsTour($request->request->get('admissionsTour'));
         if($request->request->get('alias') != ''){
             $mapItem->setAlias($request->request->get('alias'));
         } else {
@@ -671,7 +671,7 @@ class MapItemController extends AbstractFOSRestController
         $em->persist($mapItem);
         $em->flush();
 
-        $serialized = $this->serializer->serialize($mapItem, 'json');
+        $serialized = $this->serializer->serialize($mapItem, 'json', ['groups' => 'bldgs']);
         return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 

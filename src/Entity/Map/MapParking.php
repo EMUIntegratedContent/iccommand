@@ -5,7 +5,8 @@ namespace App\Entity\Map;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Entity\Map\MapParkingType;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -32,7 +33,7 @@ class MapParking extends MapItem
      * @ORM\Column(type="boolean")
      *
      * @Assert\NotNull(message="Is the bathroom handicap accessible?")
-     * @Serializer\SerializedName("hasHandicapSpaces")
+     * @SerializedName("hasHandicapSpaces")
      * @Groups("bldgs")
      */
     private $hasHandicapSpaces;
@@ -45,7 +46,7 @@ class MapParking extends MapItem
      *      inverseJoinColumns={@ORM\JoinColumn(name="type_id", referencedColumnName="id")}
      *      )
      * @ORM\OrderBy({"name" = "ASC"})
-     * @Serializer\SerializedName("parkingTypes")
+     * @SerializedName("parkingTypes")
      * @Groups("bldgs")
      */
     private $parkingTypes;
@@ -55,8 +56,7 @@ class MapParking extends MapItem
     }
 
     /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("itemType")
+     * @SerializedName("itemType")
      * @Groups("bldgs")
      * @return String
     */

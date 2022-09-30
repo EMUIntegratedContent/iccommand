@@ -2,6 +2,7 @@
 
 namespace App\Controller\Map;
 
+use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -55,7 +56,7 @@ class MapItemController extends AbstractController
      * @Route("/map/items/{id}/edit", name="map_items_edit")
      */
     public function edit($id){
-      $item = $this->getDoctrine()->getRepository(MapItem::class)->find($id);
+      $item = $this->doctrine->getRepository(MapItem::class)->find($id);
       if (!$item) {
         throw $this->createNotFoundException('This map item does not exist.');
       }

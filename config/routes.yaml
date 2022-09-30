@@ -27,11 +27,11 @@ map_items:
     resource: App\Controller\Api\Map\MapItemController
     prefix: /api/
 
-#mapitemImages:
-#    type: annotation
-#    resource: App\Controller\Api\Map\MapItemImageController
-#    prefix: /api/
-#
+mapitemImages:
+    type: annotation
+    resource: App\Controller\Api\Map\MapItemImageController
+    prefix: /api/mapitemimages/
+
 #multimediaRequestAssignees:
 #    type: annotation
 #    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
@@ -52,7 +52,7 @@ map_items:
 #    resource: App\Controller\Api\Redirect\UncaughtController
 #    prefix: /api/
 #
-#userImages:
-#    type: annotation
-#    resource: App\Controller\Api\UserImageController
-#    prefix: /api/
+userImages:
+    type: annotation
+    resource: App\Controller\Api\UserImageController
+    prefix: /api/userimages/

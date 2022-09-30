@@ -4,9 +4,10 @@ namespace App\Entity\Map;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Serializer;
 use App\Entity\Map\MapBuildingType;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapBuildingRepository")
@@ -37,7 +38,7 @@ class MapBuilding extends MapItem
     /**
      * One building has (zero to) many dining options.
      * @ORM\OneToMany(targetEntity="MapDining", mappedBy="building", cascade={"persist"})
-     * @Serializer\SerializedName("diningOptions")
+     * @SerializedName("diningOptions")
      * @Groups("bldgs")
      */
     private $diningOptions;
@@ -45,7 +46,7 @@ class MapBuilding extends MapItem
     /**
      * One building has (zero to) many emergency devices.
      * @ORM\OneToMany(targetEntity="MapEmergency", mappedBy="building", cascade={"persist"})
-     * @Serializer\SerializedName("emergencyDevices")
+     * @SerializedName("emergencyDevices")
      * @Groups("bldgs")
      */
     private $emergencyDevices;
@@ -75,7 +76,7 @@ class MapBuilding extends MapItem
      * Many buildings have one type.
      * @ORM\ManyToOne(targetEntity="App\Entity\Map\MapBuildingType")
      * @ORM\JoinColumn(name="buildingtype_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
-     * @Serializer\SerializedName("buildingType")
+     * @SerializedName("buildingType")
      * @Groups("bldgs")
      */
     private $buildingType;
@@ -91,8 +92,7 @@ class MapBuilding extends MapItem
     }
 
     /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("itemType")
+     * @SerializedName("itemType")
      * @Groups("bldgs")
      * @return String
     */

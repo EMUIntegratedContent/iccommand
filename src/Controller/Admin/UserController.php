@@ -3,23 +3,37 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Service\UserService;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Route("/admin/users", name="users")
  */
 class UserController extends AbstractController
 {
+
+    private $service;
+    private $serializer;
+    private $doctrine;
+    private $em;
+
+    public function __construct(UserService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em){
+        $this->service = $service;
+        $this->serializer = $serializer;
+        $this->doctrine = $doctrine;
+        $this->em = $em;
+    }
+
   /**
    * @Route("/", name="users_index")
    */
-  public function index(ManagerRegistry $doctrine)
+  public function index()
   {
-    $em = $doctrine->getManager();
-    $userRepo = $em->getRepository(User::class);
-    $users = $userRepo->findAll();
+    $users = $this->doctrine->getRepository(User::class)->findAll();
     $roles = $this->getParameter('security.role_hierarchy.roles');
     return $this->render('admin/users/index.html.twig', [
         'roles' => $roles,
@@ -31,8 +45,7 @@ class UserController extends AbstractController
    * @Route("/{username}", name="user_show")
    */
   public function show($username){
-    $userManager = $this->container->get('fos_user.user_manager');
-    $user = $userManager->findUserByUsername($username);
+    $user = $this->doctrine->getRepository(User::class)->findOneByUsername($username);
     if(!$user){
       throw $this->createNotFoundException('The user name ' . $username . ' was not found.');
     }

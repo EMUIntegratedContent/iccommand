@@ -169,18 +169,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function setFirstName($firstName): self
+    public function setFirstName(?string $firstName): self
     {
         $this->firstName = $firstName;
         return $this;
     }
 
-    public function getFirstName(): ?self
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
 
-    public function setLastName($lastName): self
+    public function setLastName(?string $lastName): self
     {
         $this->lastName = $lastName;
         return $this;
@@ -191,7 +191,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->lastName;
     }
 
-    public function setJobTitle($jobTitle): self
+    public function setJobTitle(?string $jobTitle): self
     {
         $this->jobTitle = $jobTitle;
         return $this;
@@ -202,7 +202,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->jobTitle;
     }
 
-    public function setDepartment($department): self
+    public function setDepartment(?string $department): self
     {
         $this->department = $department;
         return $this;
@@ -213,7 +213,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->department;
     }
 
-    public function setPhone($phone): self
+    public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
         return $this;

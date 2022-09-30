@@ -1,6 +1,9 @@
 <?php
 namespace App\Controller\Api;
 
+use App\Service\UserService;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -11,12 +14,23 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\UserImage;
 use App\Entity\User;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class UserImageController extends AbstractFOSRestController{
+    private $em;
+    private $serializer;
+    private $doctrine;
+
+    public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, ManagerRegistry $doctrine){
+        $this->serializer = $serializer;
+        $this->em = $em;
+        $this->doctrine = $doctrine;
+    }
 
   /**
    * Process new image uploads
-   *
+   * @Rest\Post(path="/uploads")
    * @Security("is_granted('ROLE_USER')")
    */
   public function postUserimageUploadAction(Request $request) : Response
@@ -33,11 +47,8 @@ class UserImageController extends AbstractFOSRestController{
       $errors[] = "The file " . $image->getClientOriginalName() . " was not uploaded because it either already exists or is not a JPG, PNG, or GIF.";
     }
 
-    $serializer = $this->container->get('jms_serializer');
-    $serialized = $serializer->serialize(array('errors' => $errors, 'processedImage' => $processedImage), 'json');
-    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-    return $response;
+    $serialized = $this->serializer->serialize(array('errors' => $errors, 'processedImage' => $processedImage), 'json');
+    return new Response($serialized, 200, array('Content-Type' => 'application/json'));
   }
 
   /**
@@ -47,19 +58,16 @@ class UserImageController extends AbstractFOSRestController{
    */
   public function deleteUserimageAction($id) : Response
   {
-    $image = $this->getDoctrine()->getRepository(UserImage::class)->findOneBy(['id' => $id]); // find the matching image
+    $image = $this->doctrine->getRepository(UserImage::class)->findOneBy(['id' => $id]); // find the matching image
 
     if(!$image){
-        $response = new Response("That image was not found. Deletion not executed.", 404, array('Content-Type' => 'application/json'));
-        return $response;
+        return new Response("That image was not found. Deletion not executed.", 404, array('Content-Type' => 'application/json'));
     }
     // delete the image
-    $em = $this->getDoctrine()->getManager();
-    $em->remove($image);
-    $em->flush();
+    $this->em->remove($image);
+    $this->em->flush();
 
-    $response = new Response("Image deleted successfully.", 204, array('Content-Type' => 'application/json'));
-    return $response;
+    return new Response("Image deleted successfully.", 204, array('Content-Type' => 'application/json'));
   }
 
   /**
@@ -70,11 +78,11 @@ class UserImageController extends AbstractFOSRestController{
     // Make sure user is uploading a JPG, PNG, or GIF and not
     if($this->isValidImage($image)){
       // fetch the user's name. It will be the name of the image.
-      $user = $this->getDoctrine()->getRepository(User::class)->find($user_id);
+      $user = $this->doctrine->getRepository(User::class)->find($user_id);
       if(!$user){
         return null;
       }
-      $existingImage = $this->getDoctrine()->getRepository(UserImage::class)->findOneBy(['name' => $image->getClientOriginalName()]);
+      $existingImage = $this->doctrine->getRepository(UserImage::class)->findOneBy(['name' => $image->getClientOriginalName()]);
 
       // only process images that don't match an existing image name
       if(!$existingImage){
@@ -82,11 +90,10 @@ class UserImageController extends AbstractFOSRestController{
         $newImage = new UserImage();
         $newImage->setName($user->getUsername());
         $newImage->setFile($image);
-        $newImage->setSubDir($this->container->getParameter('user_images_subdirectory'));
+        $newImage->setSubDir($this->getParameter('user_images_subdirectory'));
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($newImage);
-        $em->flush();
+        $this->em->persist($newImage);
+        $this->em->flush();
 
         return $newImage;
       }
@@ -99,15 +106,14 @@ class UserImageController extends AbstractFOSRestController{
    */
   protected function linkImageToUser(UserImage $image, $userId) : bool
   {
-    $user = $this->getDoctrine()->getRepository(User::class)->find($userId);
+    $user = $this->doctrine->getRepository(User::class)->find($userId);
     if(!$user){
       return false;
     }
     $user->setImage($image);
 
-    $em = $this->getDoctrine()->getManager();
-    $em->persist($user);
-    $em->flush();
+    $this->em->persist($user);
+    $this->em->flush();
 
     return true;
   }
@@ -117,7 +123,7 @@ class UserImageController extends AbstractFOSRestController{
    */
   protected function isValidImage(UploadedFile $image) : bool {
     $mimeType = $image->getMimeType();
-    $fileSize = $image->getClientSize();
+    $fileSize = $image->getSize();
 
     // 2MB = 2097152 bytes
     return (($mimeType == 'image/jpeg' || $mimeType == 'image/png' || $mimeType == 'image/gif') && $fileSize <= 2097152);

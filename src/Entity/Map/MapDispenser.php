@@ -5,7 +5,8 @@ namespace App\Entity\Map;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Map\MapDispenserRepository")
@@ -22,8 +23,7 @@ class MapDispenser extends MapItem
 	private $building;
 
 	/**
-	 * @Serializer\VirtualProperty
-	 * @Serializer\SerializedName("itemType")
+	 * @SerializedName("itemType")
      * @Groups("bldgs")
 	 * @return String
 	 */
@@ -40,4 +40,16 @@ class MapDispenser extends MapItem
 	{
 		$this->building = $building;
 	}
+
+    /**
+     * Return details about the associated building (avoids a 'circular reference' error when trying to return the actual MapBuilding model)
+     * @SerializedName("building")
+     * @Groups("bldgs")
+     * @return ?array
+     */
+    public function getBuildingFrontend(): ?array
+    {
+        if(!$this->building) return null;
+        return ['id' => $this->building->getId(), 'name' => $this->building->getName()];
+    }
 }

@@ -133,10 +133,10 @@
                 <div class="col-md-12">
                   <google-map
                       name="campusmap"
-                      :latitudeSatellite="record.latitudeSatellite"
-                      :longitudeSatellite="record.longitudeSatellite"
-                      :latitudeIllustration="record.latitudeIllustration"
-                      :longitudeIllustration="record.longitudeIllustration"
+                      :latitudeSatellite="parseFloat(record.latitudeSatellite)"
+                      :longitudeSatellite="parseFloat(record.longitudeSatellite)"
+                      :latitudeIllustration="parseFloat(record.latitudeIllustration)"
+                      :longitudeIllustration="parseFloat(record.longitudeIllustration)"
                       @illustrationMarkerUpdated="setIllustratedLocation"
                       @satelliteMarkerUpdated="setSatelliteLocation">
                   </google-map>
@@ -873,6 +873,7 @@
                 <legend>{{ record.itemType | capitalize }} specific fields</legend>
                 <div v-if="userCanEdit && isEditMode" class="form-row">
                   <div class="form-group col-md-8">
+                    {{ record.building }}
                     <label for="building">Building (can be blank)</label>
                     <multiselect
                         v-model="record.building"
@@ -1824,7 +1825,7 @@ export default {
       this.record.images.forEach(function (image) {
         imageIdsObj.imageIds.push(image.id)
       })
-      axios.put('/api/mapitemimage/reorder', imageIdsObj)
+      axios.put('/api/mapitemimages/reorder', imageIdsObj)
       // success
       .then(function (response) {
         self.isImageOrderChanged = false

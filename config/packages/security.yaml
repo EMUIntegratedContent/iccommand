@@ -55,8 +55,10 @@ security:
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
+            user_checker: App\Security\UserChecker
         main:
+            pattern: ^/
+            user_checker: App\Security\UserChecker
             lazy: true
             form_login:
                 provider: users
@@ -74,7 +76,6 @@ security:
         - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
-#        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }

@@ -117,7 +117,7 @@
         editImage: function(image){
             let self = this
 
-            axios.put('/api/mapitemimage/rename', {image: image})
+            axios.put('/api/mapitemimages/rename', {image: image})
                 .then(function(response){
                     // mark the updated image in a colored border for 1.5 seconds, then remove the border
                     self.isImageEdited = true

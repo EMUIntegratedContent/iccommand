@@ -105,9 +105,9 @@ abstract class MapItem
     * @ORM\Column(type="integer")
     *
     * @Serializer\SerializedName("admissionsTour")
-     * @Groups("bldgs")
+    * @Groups("bldgs")
     */
-    private $admissionsTour;
+    private $admissionsTour = 0;
 
     /**
     * @Gedmo\Timestampable(on="create")

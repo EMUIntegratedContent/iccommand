@@ -1,7 +1,11 @@
 <?php
 namespace App\Controller\Api\Map;
 
+use App\Service\UserService;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\Serializer\Serializer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,12 +15,24 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\Map\MapitemImage;
 use App\Entity\Map\MapItem;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class MapItemImageController extends AbstractFOSRestController{
 
+    private $service;
+    private $serializer;
+    private $doctrine;
+    private $em;
+
+    public function __construct(UserService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em){
+        $this->service = $service;
+        $this->serializer = $serializer;
+        $this->doctrine = $doctrine;
+        $this->em = $em;
+    }
   /**
    * Process new image uploads
-   *
+   * @Rest\Post("/uploads")
    * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_IMAGE_UPLOAD')")
    */
   public function postMapitemimageUploadAction(Request $request) : Response
@@ -35,97 +51,82 @@ class MapItemImageController extends AbstractFOSRestController{
         $errors[] = "The file " . $image->getClientOriginalName() . " was not uploaded because it either already exists or is not a JPG, PNG, or GIF.";
       }
     }
-    $serializer = $this->container->get('jms_serializer');
-    $serialized = $serializer->serialize(array('errors' => $errors, 'processedImages' => $processedImages), 'json');
-    $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-    return $response;
+    $serialized = $this->serializer->serialize(array('errors' => $errors, 'processedImages' => $processedImages), 'json');
+    return new Response($serialized, 200, array('Content-Type' => 'application/json'));
   }
 
   /**
    * Reorder the images for a map item
-   *
+   * @Rest\Put(path="/reorder")
    * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_EDIT')")
    */
   public function putMapitemimageReorderAction(Request $request) : Response
   {
-    $idArray = $request->request->get('imageIds');
-
-    $em = $this->getDoctrine()->getManager();
+    $idArray = $request->get('imageIds');
 
     for($i = 0; $i < count($idArray); $i++){
-      $image = $this->getDoctrine()->getRepository(MapitemImage::class)->find($idArray[$i]); // find the matching image
+      $image = $this->doctrine->getRepository(MapitemImage::class)->find($idArray[$i]); // find the matching image
 
       // return an error if the image was not found
       if(!$image){
-        $response = new Response("An image was not found. Update was not executed.", 400, array('Content-Type' => 'application/json'));
-        return $response;
+        return new Response("An image was not found. Update was not executed.", 400, array('Content-Type' => 'application/json'));
       }
       $image->setPriority($i);
-      $em->persist($image);
+      $this->em->persist($image);
     }
-    $em->flush(); // save the reordering of all images at once
+    $this->em->flush(); // save the reordering of all images at once
 
-    $response = new Response("Reorder saved successfully.", 200, array('Content-Type' => 'application/json'));
-
-    return $response;
+    return new Response("Reorder saved successfully.", 200, array('Content-Type' => 'application/json'));
   }
 
   /**
    * Rename a single image for a map item
-   *
+   * @Rest\Put(path="/rename")
    * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_EDIT')")
    */
   public function putMapitemimageRenameAction(Request $request) : Response
   {
-    $imageArr = $request->request->get('image');
+    $imageArr = $request->get('image');
 
-    $image = $this->getDoctrine()->getRepository(MapitemImage::class)->find($imageArr['id']); // find the matching image
+    $image = $this->doctrine->getRepository(MapitemImage::class)->find($imageArr['id']); // find the matching image
 
     // return 404 if the image was not found
     if(!$image){
-      $response = new Response("An image was not found. Update was not executed.", 404, array('Content-Type' => 'application/json'));
-      return $response;
+      return new Response("An image was not found. Update was not executed.", 404, array('Content-Type' => 'application/json'));
     }
 
     $image->setName($imageArr['name']);
 
-    $em = $this->getDoctrine()->getManager();
-    $em->persist($image);
-    $em->flush(); // save the image
+    $this->em->persist($image);
+    $this->em->flush(); // save the image
 
-    $response = new Response("Image renamed to " . $image->getName() . ".", 200, array('Content-Type' => 'application/json'));
-    return $response;
+    return new Response("Image renamed to " . $image->getName() . ".", 200, array('Content-Type' => 'application/json'));
   }
 
   /**
    * Delete a single image for a map item
-   *
+   * @Rest\Delete(path="/{id}")
    * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_DELETE')")
    */
   public function deleteMapitemimageAction($id) : Response
   {
-    $image = $this->getDoctrine()->getRepository(MapitemImage::class)->find($id); // find the matching image
+    $image = $this->doctrine->getRepository(MapitemImage::class)->find($id); // find the matching image
 
       if(!$image){
-          $response = new Response("That image was not found. Deletion not executed.", 404, array('Content-Type' => 'application/json'));
-          return $response;
+          return new Response("That image was not found. Deletion not executed.", 404, array('Content-Type' => 'application/json'));
       }
       // delete the image
-      $em = $this->getDoctrine()->getManager();
-      $em->remove($image);
-      $em->flush();
+      $this->em->remove($image);
+      $this->em->flush();
 
-      $response = new Response("Image deleted successfully.", 204, array('Content-Type' => 'application/json'));
-      return $response;
+      return new Response("Image deleted successfully.", 204, array('Content-Type' => 'application/json'));
   }
 
   protected function storeImage(UploadedFile $image) : ?MapitemImage
   {
     // Make sure user is uploading a JPG, PNG, or GIF and not
     if($this->isValidImage($image)){
-      $existingImage = $this->getDoctrine()->getRepository(MapitemImage::class)->findOneBy(['path' => $image->getClientOriginalName()]);
-
+      $existingImage = $this->doctrine->getRepository(MapitemImage::class)->findOneBy(['path' => $image->getClientOriginalName()]);
       // only process images that don't match an existing image name
       if(!$existingImage){
         // save the image
@@ -133,11 +134,10 @@ class MapItemImageController extends AbstractFOSRestController{
         $newImage->setName($image->getClientOriginalName());
         $newImage->setFile($image);
         $newImage->setPriority(10000); // will be changed when associated with a map item
-        $newImage->setSubDir($this->container->getParameter('mapitem_images_subdirectory'));
+        $newImage->setSubDir($this->getParameter('mapitem_images_subdirectory'));
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($newImage);
-        $em->flush();
+        $this->em->persist($newImage);
+        $this->em->flush();
 
         return $newImage;
       }
@@ -148,14 +148,13 @@ class MapItemImageController extends AbstractFOSRestController{
 
   protected function linkImageToMapItem(MapitemImage $image, $itemId) : bool
   {
-    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($itemId);
+    $mapItem = $this->doctrine->getRepository(MapItem::class)->find($itemId);
     if(!$mapItem){
       return false;
     }
     $mapItem->addImage($image);
 
-    $em = $this->getDoctrine()->getManager();
-    $em->persist($mapItem);
+    $this->em->persist($mapItem);
 
     // Assign this image lowest priority among all associated images
     $numMapItemImages = $this->getCountMapItemImages($itemId);
@@ -165,8 +164,8 @@ class MapItemImageController extends AbstractFOSRestController{
       // first image, set as main (priority of 0)
       $image->setPriority(0);
     }
-    $em->persist($mapItem);
-    $em->flush();
+    $this->em->persist($mapItem);
+    $this->em->flush();
 
     return true;
   }
@@ -176,7 +175,7 @@ class MapItemImageController extends AbstractFOSRestController{
    */
   protected function getCountMapItemImages($itemId) : int
   {
-    $mapItem = $this->getDoctrine()->getRepository(MapItem::class)->find($itemId);
+    $mapItem = $this->doctrine->getRepository(MapItem::class)->find($itemId);
     if(!$mapItem){
       return -1;
     }
@@ -189,7 +188,7 @@ class MapItemImageController extends AbstractFOSRestController{
    */
   protected function isValidImage(UploadedFile $image) : bool {
     $mimeType = $image->getMimeType();
-    $fileSize = $image->getClientSize();
+    $fileSize = $image->getSize();
 
     // 2MB = 2097152 bytes
     return (($mimeType == 'image/jpeg' || $mimeType == 'image/png' || $mimeType == 'image/gif') && $fileSize <= 2097152);
