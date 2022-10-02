@@ -5,6 +5,7 @@ namespace App\Entity\MultimediaRequest;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\MultimediaRequest\PhotoHeadshotDate;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\HeadshotRequestRepository")
@@ -16,11 +17,13 @@ class HeadshotRequest extends MultimediaRequest
     /**
      * @ORM\ManyToOne(targetEntity="PhotoHeadshotDate", inversedBy="headshotRequests")
      * @SerializedName("timeSlot")
+     * @Groups("multi")
      */
     private $timeSlot;
 
     /**
      * @SerializedName("requestType")
+     * @Groups("multi")
      * @return String
      */
     public function getRequestType(){

@@ -4,7 +4,8 @@ namespace App\Entity\MultimediaRequest;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\VideoRequestRepository")
@@ -16,8 +17,8 @@ class VideoRequest extends MultimediaRequest
     /**
      * @ORM\Column(type="date")
      * @Assert\Date(message="You must provide a valid completion date.")
-     * @Serializer\Type("DateTime<'Y-m-d'>")
-     * @Serializer\SerializedName("completionDate")
+     * @SerializedName("completionDate")
+     * @Groups("multi")
      */
     private $completionDate;
 
@@ -25,6 +26,11 @@ class VideoRequest extends MultimediaRequest
         parent::__construct();
     }
 
+    /**
+     * @SerializedName("requestType")
+     * @Groups("multi")
+     * @return String
+     */
     public function getRequestType(){
         return constant("self::REQUEST_TYPE");
     }

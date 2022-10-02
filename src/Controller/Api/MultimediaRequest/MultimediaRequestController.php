@@ -29,6 +29,7 @@ use App\Service\MultimediaRequestService;
 use Carbon\Carbon;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 class MultimediaRequestController extends AbstractFOSRestController
 {
@@ -170,7 +171,6 @@ class MultimediaRequestController extends AbstractFOSRestController
      */
     public function getMultimediarequestsListAction($type = null): Response
     {
-        $mmRequests = null;
         switch ($type) {
             case 'headshot':
                 $mmRequests = $this->doctrine->getRepository(HeadshotRequest::class)->findBy([], ['created' => 'asc']);
@@ -189,7 +189,7 @@ class MultimediaRequestController extends AbstractFOSRestController
                 break;
         }
 
-        $serialized = $this->serializer->serialize($mmRequests, 'json', ['group' => 'multi']);
+        $serialized = $this->serializer->serialize($mmRequests, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s']);
         return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
@@ -237,7 +237,7 @@ class MultimediaRequestController extends AbstractFOSRestController
 
     /**
      * Get all status options for a multimedia request
-     *
+     * @Rest\Get("/statuses")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getMultimediarequestStatusesAction(): Response

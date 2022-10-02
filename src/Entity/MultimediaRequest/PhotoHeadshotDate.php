@@ -38,7 +38,6 @@ class PhotoHeadshotDate
     /**
      * @ORM\Column(type="time")
      * @Serializer\SerializedName("endTime")
-     * @Serializer\Type("DateTime<'g:i a'>")
      */
     private $endTime;
 

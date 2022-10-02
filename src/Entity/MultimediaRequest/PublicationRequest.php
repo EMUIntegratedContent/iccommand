@@ -4,8 +4,9 @@ namespace App\Entity\MultimediaRequest;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Entity\MultimediaRequest\PublicationRequestType;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\PublicationRequestRepository")
@@ -18,8 +19,8 @@ class PublicationRequest extends MultimediaRequest
     /**
      * @ORM\Column(type="date")
      * @Assert\DateTime(message="You must provide a valid completion date.")
-     * @Serializer\Type("DateTime<'Y-m-d'>")
-     * @Serializer\SerializedName("completionDate")
+     * @SerializedName("completionDate")
+     * @Groups("multi")
      */
     private $completionDate;
 
@@ -29,7 +30,8 @@ class PublicationRequest extends MultimediaRequest
      *      max = 20,
      *      maxMessage = "Intended use cannot be longer than {{ limit }} characters"
      * )
-     * @Serializer\SerializedName("intendedUse")
+     * @SerializedName("intendedUse")
+     * @Groups("multi")
      */
     private $intendedUse;
 
@@ -37,14 +39,16 @@ class PublicationRequest extends MultimediaRequest
      * @ORM\Column(type="boolean")
      *
      * @Assert\NotNull(message="Is photography required for this request?")
-     * @Serializer\SerializedName("isPhotographyRequired")
+     * @SerializedName("isPhotographyRequired")
+     * @Groups("multi")
      */
     private $isPhotographyRequired;
 
     /**
      * Many publication requests can have one type (e.g. "brochure" or "graphic")
      * @ORM\ManyToOne(targetEntity="PublicationRequestType")
-     * @Serializer\SerializedName("publicationRequestType")
+     * @SerializedName("publicationRequestType")
+     * @Groups("multi")
      */
     private $publicationRequestType;
 
@@ -53,6 +57,11 @@ class PublicationRequest extends MultimediaRequest
         parent::__construct();
     }
 
+    /**
+     * @SerializedName("requestType")
+     * @Groups("multi")
+     * @return String
+     */
     public function getRequestType(){
         return constant("self::REQUEST_TYPE");
     }

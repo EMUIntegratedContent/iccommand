@@ -5,7 +5,8 @@ namespace App\Entity\MultimediaRequest;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\MultimediaRequestAssigneeStatusRepository")
@@ -27,7 +28,7 @@ class MultimediaRequestAssigneeStatus
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\SerializedName("statusSlug")
+     * @SerializedName("statusSlug")
      * @Assert\NotBlank(message="You must provide a slug.")
      */
     private $statusSlug;

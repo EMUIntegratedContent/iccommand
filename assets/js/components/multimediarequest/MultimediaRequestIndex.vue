@@ -29,9 +29,9 @@
                                     <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
-                                               :class="{ active : headshotRequestStatuses.includes(status.statusSlug) }"
-                                               @click="toggleFilter(headshotRequestStatuses, status.statusSlug)">
+                                               :class="{ active : headshotRequestStatuses.includes(status.statusSlug) }">
                                             <input type="checkbox" autocomplete="off"
+                                                   @click="toggleFilter(headshotRequestStatuses, status.statusSlug)"
                                                    :checked="headshotRequestStatuses.includes(status.statusSlug)"/>{{
                                             status.status }}
                                         </label>
@@ -133,10 +133,11 @@
                                     <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
-                                               :class="{ active : photoshootRequestStatuses.includes(status.statusSlug) }"
-                                               @click="toggleFilter(photoshootRequestStatuses, status.statusSlug)">
+                                               :class="{ active : photoshootRequestStatuses.includes(status.statusSlug) }">
                                             <input type="checkbox" autocomplete="off"
-                                                   :checked="photoshootRequestStatuses.includes(status.statusSlug)"/>{{
+                                                   :checked="photoshootRequestStatuses.includes(status.statusSlug)"
+                                                   @click="toggleFilter(photoshootRequestStatuses, status.statusSlug)"
+                                            />{{
                                             status.status }}
                                         </label>
                                     </div>
@@ -235,10 +236,11 @@
                                     <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
-                                               :class="{ active : videoRequestStatuses.includes(status.statusSlug) }"
-                                               @click="toggleFilter(videoRequestStatuses, status.statusSlug)">
+                                               :class="{ active : videoRequestStatuses.includes(status.statusSlug) }">
                                             <input type="checkbox" autocomplete="off"
-                                                   :checked="videoRequestStatuses.includes(status.statusSlug)"/>{{
+                                                   :checked="videoRequestStatuses.includes(status.statusSlug)"
+                                                   @click="toggleFilter(videoRequestStatuses, status.statusSlug)"
+                                            />{{
                                             status.status }}
                                         </label>
                                     </div>
@@ -336,10 +338,11 @@
                                     <span class="pl-4 pr-2">Filters</span>
                                     <div class="btn-group" data-toggle="buttons">
                                         <label v-for="status in requestStatuses" class="btn btn-primary"
-                                               :class="{ active : publicationRequestStatuses.includes(status.statusSlug) }"
-                                               @click="toggleFilter(publicationRequestStatuses, status.statusSlug)">
+                                               :class="{ active : publicationRequestStatuses.includes(status.statusSlug) }">
                                             <input type="checkbox" autocomplete="off"
-                                                   :checked="publicationRequestStatuses.includes(status.statusSlug)"/>{{
+                                                   :checked="publicationRequestStatuses.includes(status.statusSlug)"
+                                                   @click="toggleFilter(publicationRequestStatuses, status.statusSlug)"
+                                            />{{
                                             status.status }}
                                         </label>
                                     </div>
@@ -541,17 +544,17 @@
                     .then(function (response) {
                         self.records = response.data
                         response.data.forEach(function (record) {
-                            switch (record.discr) {
-                                case 'publicationrequest':
+                            switch (record.requestType) {
+                                case 'publication':
                                     self.publicationRequests.push(record)
                                     break
-                                case 'headshotrequest':
+                                case 'headshot':
                                     self.headshotRequests.push(record)
                                     break
-                                case 'photorequest':
+                                case 'photo':
                                     self.photoshootRequests.push(record)
                                     break
-                                case 'videorequest':
+                                case 'video':
                                     self.videoshootRequests.push(record)
                                     break
                             }

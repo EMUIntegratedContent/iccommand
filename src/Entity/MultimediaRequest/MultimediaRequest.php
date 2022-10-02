@@ -14,6 +14,7 @@ use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequestStatus;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\MultimediaRequestRepository")
@@ -28,6 +29,7 @@ abstract class MultimediaRequest
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("multi")
      */
     private $id;
 
@@ -35,6 +37,7 @@ abstract class MultimediaRequest
      * @ORM\Column(type="string", length=255)
      * @SerializedName("firstName")
      * @Assert\NotBlank(message="You must provide a first name for the requester.")
+     * @Groups("multi")
      */
     private $firstName;
 
@@ -42,33 +45,39 @@ abstract class MultimediaRequest
      * @ORM\Column(type="string", length=255)
      * @SerializedName("lastName")
      * @Assert\NotBlank(message="You must provide a last name for the requester.")
+     * @Groups("multi")
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Email(message="You must provide valid email address for the requester.")
+     * @Groups("multi")
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("multi")
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("multi")
      */
     private $department;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups("multi")
      */
     private $description;
 
     /**
      * Upon public submission, this should be set to 'new' in the POST function
      * @ORM\ManyToOne(targetEntity="MultimediaRequestStatus")
+     * @Groups("multi")
      */
     private $status;
 
@@ -77,29 +86,34 @@ abstract class MultimediaRequest
      * @ORM\OneToMany(targetEntity="MultimediaRequestStatusNote", mappedBy="multimediaRequest", cascade={"persist"})
      * @ORM\OrderBy({"created" = "DESC"})
      * @SerializedName("statusNotes")
+     * @Groups("multi")
      */
     private $statusNotes;
 
     /**
      * @ORM\ManyToOne(targetEntity="MultimediaRequestAssignee", inversedBy="multimediaRequests")
+     * @Groups("multi")
      */
     private $assignee;
 
     /**
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
+     * @Groups("multi")
     */
     private $created;
 
     /**
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime")
+     * @Groups("multi")
     */
     private $updated;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Gedmo\Timestampable(on="change", field={"title", "body"})
+     * @Groups("multi")
      */
     private $contentChanged;
 

@@ -3,17 +3,17 @@
 namespace App\Entity\MultimediaRequest;
 
 use App\Entity\MultimediaRequest\MultimediaRequest;
+use App\Entity\MultimediaRequest\MultimediaRequestAssigneeStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
-use App\Entity\MultimediaRequest\MultimediaRequestAssigneeStatus;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\MultimediaRequestAssigneeRepository")
- * @Serializer\XmlRoot("multimediaAssignee")
  */
 class MultimediaRequestAssignee
 {
@@ -21,51 +21,56 @@ class MultimediaRequestAssignee
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Serializer\XmlAttribute
+     * @Groups("multi")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\SerializedName("firstName")
+     * @SerializedName("firstName")
      * @Assert\NotBlank(message="You must provide a first name.")
+     * @Groups("multi")
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\SerializedName("lastName")
+     * @SerializedName("lastName")
      * @Assert\NotBlank(message="You must provide a last name.")
+     * @Groups("multi")
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Email(message="'{{ value }}' is not a valid email.")
+     * @Groups("multi")
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("multi")
      */
     private $phone;
 
     /**
      * @ORM\ManyToOne(targetEntity="MultimediaRequestAssigneeStatus")
      * @ORM\JoinColumn(name="status_id", referencedColumnName="id", onDelete="SET NULL")
-     * @Serializer\SerializedName("status")
+     * @SerializedName("status")
+     * @Groups("multi")
      */
     private $status;
 
     /**
      * @ORM\Column(type="array")
-     * @Serializer\SerializedName("assignableRequestTypes")
+     * @SerializedName("assignableRequestTypes")
+     * @Groups("multi")
      */
     private $assignableForRequestType;
 
     /**
      * @ORM\OneToMany(targetEntity="MultimediaRequest", mappedBy="assignee")
-     * @Serializer\Exclude
      */
     private $multimediaRequests;
 
@@ -145,7 +150,7 @@ class MultimediaRequestAssignee
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?MultimediaRequestAssigneeStatus
     {
         return $this->status;
     }

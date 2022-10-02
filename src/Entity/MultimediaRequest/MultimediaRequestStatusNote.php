@@ -5,12 +5,12 @@ namespace App\Entity\MultimediaRequest;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Entity\MultimediaRequest\MultimediaRequest;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\MultimediaRequestStatusNoteRepository")
- * @Serializer\XmlRoot("multimediaStatusNote")
  */
 class MultimediaRequestStatusNote
 {
@@ -31,7 +31,7 @@ class MultimediaRequestStatusNote
      * Many notes can belong to one request.
      * @ORM\ManyToOne(targetEntity="MultimediaRequest", inversedBy="statusNotes")
      * @ORM\JoinColumn(name="multimedia_request_id", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\SerializedName("multimediaRequest")
+     * @SerializedName("multimediaRequest")
      */
     private $multimediaRequest;
 
