@@ -2,6 +2,7 @@
 
 namespace App\Controller\MultimediaRequest;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -11,9 +12,11 @@ use App\Service\MultimediaRequestService;
 class MultimediaRequestAssigneeController extends AbstractController
 {
     private $service;
+    private $doctrine;
 
-    public function __construct(MultimediaRequestService $service){
+    public function __construct(MultimediaRequestService $service, ManagerRegistry $doctrine){
         $this->service = $service;
+        $this->doctrine = $doctrine;
     }
     /**
      * @Route("/multimediarequests/assignees", name="multimediarequests_assignee_home")
@@ -36,7 +39,7 @@ class MultimediaRequestAssigneeController extends AbstractController
      * @Route("/multimediarequests/assignees/{id}", name="multimediarequests_assignee_show")
      */
     public function show($id){
-      $assignee = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($id);
+      $assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->find($id);
       if (!$assignee) {
         throw $this->createNotFoundException('This assignee does not exist.');
       }
@@ -49,7 +52,7 @@ class MultimediaRequestAssigneeController extends AbstractController
      * @Route("/multimediarequests/assignees/{id}/edit", name="multimediarequests_assignee_edit")
      */
     public function edit($id){
-      $assignee = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($id);
+      $assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->find($id);
       if (!$assignee) {
         throw $this->createNotFoundException('This assignee does not exist.');
       }

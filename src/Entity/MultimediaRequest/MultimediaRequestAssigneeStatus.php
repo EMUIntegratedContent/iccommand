@@ -23,6 +23,7 @@ class MultimediaRequestAssigneeStatus
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="You must provide a status.")
+     * @Groups("multi")
      */
     private $status;
 
@@ -30,6 +31,7 @@ class MultimediaRequestAssigneeStatus
      * @ORM\Column(type="string", length=255)
      * @SerializedName("statusSlug")
      * @Assert\NotBlank(message="You must provide a slug.")
+     * @Groups("multi")
      */
     private $statusSlug;
 

@@ -2,6 +2,7 @@
 
 namespace App\Controller\MultimediaRequest;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\MultimediaRequest\MultimediaRequest;
@@ -11,10 +12,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 class MultimediaRequestController extends AbstractController
 {
     private $service;
+    private $doctrine;
 
-    public function __construct(MultimediaRequestService $service)
+    public function __construct(MultimediaRequestService $service, ManagerRegistry $doctrine)
     {
         $this->service = $service;
+        $this->doctrine = $doctrine;
     }
 
     /**
@@ -58,7 +61,7 @@ class MultimediaRequestController extends AbstractController
      */
     public function show($id)
     {
-        $multimediaRequest = $this->getDoctrine()->getRepository(MultimediaRequest::class)->find($id);
+        $multimediaRequest = $this->doctrine->getRepository(MultimediaRequest::class)->find($id);
         if (!$multimediaRequest) {
             throw $this->createNotFoundException('This multimedia request does not exist.');
         }
@@ -73,7 +76,7 @@ class MultimediaRequestController extends AbstractController
      */
     public function edit($id)
     {
-        $multimediaRequest = $this->getDoctrine()->getRepository(MultimediaRequest::class)->find($id);
+        $multimediaRequest = $this->doctrine->getRepository(MultimediaRequest::class)->find($id);
         if (!$multimediaRequest) {
             throw $this->createNotFoundException('This request does not exist.');
         }

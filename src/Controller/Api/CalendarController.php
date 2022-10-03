@@ -3,7 +3,9 @@
 namespace App\Controller\Api;
 
 use App\Entity\MultimediaRequest\PhotoHeadshotDate;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use App\Service\MultimediaRequestService;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -14,14 +16,26 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\UserImage;
 use Carbon\Carbon;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class CalendarController extends AbstractFOSRestController
 {
+    private $serializer;
+    private $service;
+    private $doctrine;
+    private $em;
+
+    public function __construct(MultimediaRequestService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em)
+    {
+        $this->service = $service;
+        $this->serializer = $serializer;
+        $this->doctrine = $doctrine;
+        $this->em = $em;
+    }
 
     /**
      * Get calendar events for an entity type
-     *
-     * @Rest\Get("/api/calendar/{entityType}/{year}/{month}", defaults={})
+     * @Rest\Get("/{entityType}/{year}/{month}", defaults={})
      * @Security("is_granted('ROLE_USER')")
      */
     public function getCalendarMonthEventsAction($entityType, $year, $month): Response
@@ -44,7 +58,7 @@ class CalendarController extends AbstractFOSRestController
         $monthNumDays = $monthStart->daysInMonth;
 
         // Get all the days in this month that have events
-        $daysOfMonthWithEvents = $this->getDoctrine()->getRepository($entityClass)->findByGroupped($monthStart, $monthEnd);
+        $daysOfMonthWithEvents = $this->doctrine->getRepository($entityClass)->findByGroupped($monthStart, $monthEnd);
         $uniqueByDay = array(); // initialize the array that will store the day of month value
         foreach($daysOfMonthWithEvents as $dayOfMonthWithEvent){
             $uniqueByDay[] = $dayOfMonthWithEvent['dateOfShoot']->format('d'); // DateTime::format()
@@ -68,13 +82,11 @@ class CalendarController extends AbstractFOSRestController
             $dayCounter++;
         }
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize([
+        $serialized = $this->serializer->serialize([
             'uniqueByDay'         => $uniqueByDay,
             'calDaysArray'        => $calDaysArray,
         ], 'json');
 
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-        return $response;
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 }

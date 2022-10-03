@@ -11,11 +11,11 @@ admin_users:
     resource: App\Controller\Api\Admin\UserController
     prefix: /api/admin/
 
-#calendar:
-#    type: annotation
-#    resource: App\Controller\Api\CalendarController
-#    prefix: /api/calendar/
-#
+calendar:
+    type: annotation
+    resource: App\Controller\Api\CalendarController
+    prefix: /api/calendar/
+
 #emails_api:
 #    type: annotation
 #    resource: App\Controller\Api\EmailController
@@ -32,11 +32,11 @@ mapitemImages:
     resource: App\Controller\Api\Map\MapItemImageController
     prefix: /api/mapitemimages/
 
-#multimediaRequestAssignees:
-#    type: annotation
-#    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
-#    prefix: /api/
-#
+multimediaRequestAssignees:
+    type: annotation
+    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
+    prefix: /api/multimediaassignees
+
 multimediaRequests:
     type: annotation
     resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController

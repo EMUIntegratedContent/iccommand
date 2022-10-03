@@ -2,122 +2,122 @@
 
 namespace App\Controller\Api\MultimediaRequest;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\PersistentCollection;
 use Hateoas\HateoasBuilder;
-use JMS\Serializer\SerializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use FOS\RestBundle\View\View;
 use App\Entity\MultimediaRequest\MultimediaRequestAssignee;
 use App\Entity\MultimediaRequest\MultimediaRequestAssigneeStatus;
 use App\Service\MultimediaRequestService;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class MultimediaRequestAssigneeController extends AbstractFOSRestController
 {
 
     private $service;
+    private $doctrine;
+    private $serializer;
+    private $em;
 
-    public function __construct(MultimediaRequestService $service)
+    public function __construct(MultimediaRequestService $service, ManagerRegistry $doctrine, SerializerInterface $serializer, EntityManagerInterface $em)
     {
         $this->service = $service;
+        $this->doctrine = $doctrine;
+        $this->serializer = $serializer;
+        $this->em = $em;
     }
 
     /**
      * Get all multimedia request assignees
-     *
+     * @Rest\Get(path="/")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
-     * @Rest\Get("/multimediaassignees/{type}", defaults={"type" = null})
      */
     public function getMultimediaassigneesAction($type = null): Response
     {
-        $filteredAssignees = array();
-        $assignees = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->findBy([], ['lastName' => 'asc']);
+        $assignees = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->findBy([], ['lastName' => 'asc']);
 
-        // If we are getting a certain type of assignee, get a list of only those assignees who have the request type attributed to them
-        if ($type) {
-            foreach($assignees as $assignee){
-                if($assignee->hasAssignableRequestType($type)){
-                    $filteredAssignees[] = $assignee;
-                }
-            }
-        } else {
-            $filteredAssignees = $assignees;
-        }
-
-
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($filteredAssignees, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-        return $response;
+        $serialized = $this->serializer->serialize($assignees, 'json', ['groups' => 'multi']);
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
-     * Get a single request assignee
-     *
+     * Get all multimedia request assignees
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
-     * @Rest\Get("/multimediaassignee/{id}")
+     * @Rest\Get("/type/{type}", defaults={"type" = null})
      */
-    public function getMultimediaassigneeAction($id): Response
+    public function getMultimediaassigneesByTypeAction($type): Response
     {
-        $assignee = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->findOneBy(['id' => $id]);
-        if (!$assignee) {
-            $response = new Response("The multimedia request assginee was not found.", 404, array('Content-Type' => 'application/json'));
-            return $response;
+        $filteredAssignees = array();
+        $assignees = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->findBy([], ['lastName' => 'asc']);
+
+        // If we are getting a certain type of assignee, get a list of only those assignees who have the request type attributed to them
+        if ($assignees) {
+            foreach ($assignees as $assignee) {
+                if ($assignee->hasAssignableRequestType($type)) {
+                    $filteredAssignees[] = $assignee;
+                }
+            }
         }
 
-        // Need to return NULL fields too (status doesn't have to have a value)
-        // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
-        $context = new SerializationContext();
-        $context->setSerializeNull(true);
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($assignee, 'json', $context);
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
-
-        return $response;
+        $serialized = $this->serializer->serialize($filteredAssignees, 'json', ['groups' => 'multi']);
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get all status options for a multimedia request assignee
-     *
+     * @Rest\Get("/statuses")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function getMultimediaassigneestatusesAction(): Response
     {
-        $statuses = $this->getDoctrine()->getRepository(MultimediaRequestAssigneeStatus::class)->findBy([], ['statusSlug' => 'asc']);
+        $statuses = $this->doctrine->getRepository(MultimediaRequestAssigneeStatus::class)->findBy([], ['statusSlug' => 'asc']);
 
-        $serializer = $this->container->get('jms_serializer');
-        $serialized = $serializer->serialize($statuses, 'json');
-        $response = new Response($serialized, 200, array('Content-Type' => 'application/json'));
+        $serialized = $this->serializer->serialize($statuses, 'json');
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
+    }
 
-        return $response;
+    /**
+     * Get a single request assignee
+     * @Rest\Get("/{id}")
+     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
+     */
+    public function getMultimediaassigneeAction($id): Response
+    {
+        $assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->findOneBy(['id' => $id]);
+        if (!$assignee) {
+            return new Response("The multimedia request assignee was not found.", 404, array('Content-Type' => 'application/json'));
+        }
+
+        $serialized = $this->serializer->serialize($assignee, 'json', ['groups' => 'multi']);
+        return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Save a multimedia request assignee to the database
-     *
+     * @Rest\Post()
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function postMultimediaassigneeAction(Request $request): Response
     {
         $assignee = new MultimediaRequestAssignee();
 
-        $serializer = $this->container->get('jms_serializer');
-        $em = $this->getDoctrine()->getManager();
-
         // set fields
         $assignee->setFirstName($request->request->get('firstName'));
         $assignee->setLastName($request->request->get('lastName'));
         $assignee->setEmail($request->request->get('email'));
         $assignee->setPhone($request->request->get('phone'));
-        $assignee->setAssignableForRequestType($request->request->get('assignableRequestTypes'));
+        $assignee->setAssignableForRequestType($request->get('assignableRequestTypes'));
         // status
-        $status = $this->getDoctrine()->getRepository(MultimediaRequestAssigneeStatus::class)->find($request->request->get('status')['id']);
+        $status = $this->doctrine->getRepository(MultimediaRequestAssigneeStatus::class)->find($request->get('status')['id']);
         if ($status) {
             $assignee->setStatus($status);
         }
@@ -125,41 +125,35 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
         // validate assignee
         $errors = $this->service->validate($assignee);
         if (count($errors) > 0) {
-            $serialized = $serializer->serialize($errors, 'json');
-            $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-
-            return $response;
+            $serialized = $this->serializer->serialize($errors, 'json');
+            return new Response($serialized, 422, array('Content-Type' => 'application/json'));
         }
 
         // persist the assignee and commit
-        $em->persist($assignee);
-        $em->flush();
+        $this->em->persist($assignee);
+        $this->em->flush();
 
-        $serialized = $serializer->serialize($assignee, 'json');
-        $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
-        return $response;
+        $serialized = $this->serializer->serialize($assignee, 'json', ['groups' => 'multi']);
+        return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Update a multimedia request assignee to the database
-     *
+     * @Rest\Put()
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function putMultimediaassigneeAction(Request $request): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $serializer = $this->container->get('jms_serializer');
-
-        $assignee = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($request->request->get('id'));
+        $assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->find($request->request->get('id'));
 
         // set fields
         $assignee->setFirstName($request->request->get('firstName'));
         $assignee->setLastName($request->request->get('lastName'));
         $assignee->setEmail($request->request->get('email'));
         $assignee->setPhone($request->request->get('phone'));
-        $assignee->setAssignableForRequestType($request->request->get('assignableRequestTypes'));
+        $assignee->setAssignableForRequestType($request->get('assignableRequestTypes'));
         // status
-        $status = $this->getDoctrine()->getRepository(MultimediaRequestAssigneeStatus::class)->find($request->request->get('status')['id']);
+        $status = $this->doctrine->getRepository(MultimediaRequestAssigneeStatus::class)->find($request->get('status')['id']);
         if ($status) {
             $assignee->setStatus($status);
         }
@@ -167,34 +161,30 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
         // validate assignee
         $errors = $this->service->validate($assignee);
         if (count($errors) > 0) {
-            $serialized = $serializer->serialize($errors, 'json');
-            $response = new Response($serialized, 422, array('Content-Type' => 'application/json'));
-            return $response;
+            $serialized = $this->serializer->serialize($errors, 'json');
+            return new Response($serialized, 422, array('Content-Type' => 'application/json'));
         }
 
         // save the assignee
-        $em->persist($assignee);
-        $em->flush();
+        $this->em->persist($assignee);
+        $this->em->flush();
 
-        $serialized = $serializer->serialize($assignee, 'json');
-        $response = new Response($serialized, 201, array('Content-Type' => 'application/json'));
-        return $response;
+        $serialized = $this->serializer->serialize($assignee, 'json', ['groups' => 'multi']);
+        return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Delete a multimedia request assignee from the database
-     *
+     * @Rest\Delete(path="{id}")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function deleteMultimediaassigneeAction($id): Response
     {
-        $assignee = $this->getDoctrine()->getRepository(MultimediaRequestAssignee::class)->find($id);
+        $assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->find($id);
 
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($assignee);
-        $em->flush();
+        $this->em->remove($assignee);
+        $this->em->flush();
 
-        $response = new Response('Assignee has been deleted.', 204, array('Content-Type' => 'application/json'));
-        return $response;
+        return new Response('Assignee has been deleted.', 204, array('Content-Type' => 'application/json'));
     }
 }

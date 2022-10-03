@@ -935,7 +935,7 @@
 
                 self.isDataLoaded = false
 
-                axios.get('/api/multimediarequests/' + itemId)
+                axios.get('/api/multimediarequests/request/' + itemId)
                 // success
                     .then(function (response) {
                         self.record = response.data
@@ -964,7 +964,7 @@
 
                 let url = '/api/multimediaassignees'
                 if(this.requestType != ''){
-                    url += '/' + this.requestType
+                    url += '/type/' + this.requestType
                 }
                 axios.get(url)
                 // success
@@ -983,7 +983,7 @@
             fetchPublicationTypes: function() {
                 let self = this
 
-                let url = '/api/publicationrequest/types'
+                let url = '/api/multimediarequests/pubtypes'
                 axios.get(url)
                 // success
                     .then(function (response) {
@@ -1082,7 +1082,7 @@
                 // AJAX (axios) submission
                 axios({
                     method: 'PUT',
-                    url: '/api/multimediarequest',
+                    url: '/api/multimediarequests/',
                     data: self.record
                 })
                 // success

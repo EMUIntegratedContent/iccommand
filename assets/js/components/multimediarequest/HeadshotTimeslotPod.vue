@@ -143,7 +143,7 @@
             deleteTimeSlot: function(){
                 let self = this
 
-                axios.delete('/api/multimediarequests/' + this.currentTimeSlot.id + '/headshotdate')
+                axios.delete('/api/multimediarequests/headshotdates/'+ this.currentTimeSlot.id)
                     .then(function(response) {
                         self.isDeleted = true
                         setTimeout(function(){
@@ -176,7 +176,7 @@
                 let self = this
                 let timeSlotBeforeSubmit = this.currentTimeSlot
                 let method = (timeSlotBeforeSubmit.id > 0) ? 'put' : 'post'  //new time will have a NEGATIVE placeholder ID (value set in parent component)
-                let route = (timeSlotBeforeSubmit.id > 0) ? '/api/multimediarequest/headshotdate' : '/api/multimediarequests/headshotdates'
+                let route = '/api/multimediarequests/headshotdates'
                 axios({
                     method: method,
                     url: route,

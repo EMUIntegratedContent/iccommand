@@ -299,7 +299,7 @@
             },
             fetchAssignee(itemId) {
                 let self = this
-                axios.get('/api/multimediaassignee/' + itemId)
+                axios.get('/api/multimediaassignees/' + itemId)
                 // success
                     .then(function (response) {
                         self.record = response.data
@@ -315,7 +315,7 @@
             },
             fetchStatusOptions() {
                 let self = this
-                axios.get('/api/multimediaassigneestatuses')
+                axios.get('/api/multimediaassignees/statuses')
                 // success
                     .then(function (response) {
                         self.statusOptions = response.data
@@ -346,7 +346,7 @@
             submitForm: function () {
                 let self = this // 'this' loses scope within axios
                 let method = (this.itemExists) ? 'put' : 'post'
-                let route = (this.itemExists) ? '/api/multimediaassignee' : '/api/multimediaassignees'
+                let route = '/api/multimediaassignees/'
                 // AJAX (axios) submission
                 axios({
                     method: method,

@@ -163,7 +163,6 @@ class MultimediaRequestController extends AbstractFOSRestController
 
     /**
      * Get all multimedia requests (by optional type)
-     *
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      * @Rest\Get("/list/{type?}")
      * @param String $type Photo, video, publication, headshot, etc.
@@ -195,7 +194,7 @@ class MultimediaRequestController extends AbstractFOSRestController
 
     /**
      * Get a single request
-     *
+     * @Rest\Get(path="/request/{id}")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getMultimediarequestAction($id): Response
@@ -205,7 +204,7 @@ class MultimediaRequestController extends AbstractFOSRestController
             return new Response("The multimedia request was not found.", 404, array('Content-Type' => 'application/json'));
         }
 
-        $serialized = $this->serializer->serialize($mmRequest, 'json');
+        $serialized = $this->serializer->serialize($mmRequest, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d']);
         return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
@@ -218,13 +217,13 @@ class MultimediaRequestController extends AbstractFOSRestController
     {
         $types = $this->doctrine->getRepository(PhotoRequestType::class)->findBy([], ['slug' => 'asc']);
 
-        $serialized = $this->serializer->serialize($types, 'json');
+        $serialized = $this->serializer->serialize($types, 'json', ['groups' => 'multi']);
         return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get all publication request types
-     *
+     * @Rest\Get("/pubtypes")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getPublicationrequestTypesAction(): Response
@@ -250,8 +249,7 @@ class MultimediaRequestController extends AbstractFOSRestController
 
     /**
      * Get headshot time slots for a specific date
-     *
-     * @Rest\Get("multimediarequests/headshotdates/{year}/{month}/{day}", defaults={})
+     * @Rest\Get("/headshotdates/{year}/{month}/{day}", defaults={})
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
     public function getMultimediarequestHeadshotdatesAction($year, $month, $day): Response
@@ -259,13 +257,13 @@ class MultimediaRequestController extends AbstractFOSRestController
         $dateOfShoot = Carbon::parse($year . '-' . $month . '-' . $day);
         $timeSlots = $this->doctrine->getRepository(PhotoHeadshotDate::class)->findBy(['dateOfShoot' => $dateOfShoot], ['startTime' => 'asc']);
 
-        $serialized = $this->serializer->serialize($timeSlots, 'json');
+        $serialized = $this->serializer->serialize($timeSlots, 'json', [DateTimeNormalizer::FORMAT_KEY => 'g:i a']);
         return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Get headshot time slots
-     * @Rest\Get("multimediarequests/headshotdates/slots/{withPast?}")
+     * @Rest\Get("/headshotdates/slots/{withPast?}")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      * @param boolean $withPast  If true, get past time slots. If false, just get future slots
      * @return Response
@@ -289,7 +287,7 @@ class MultimediaRequestController extends AbstractFOSRestController
 
     /**
      * Add a headshot time slot to the database
-     *
+     * @Rest\Post("/headshotdates")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function postMultimediarequestHeadshotdateAction(Request $request): Response
@@ -311,32 +309,30 @@ class MultimediaRequestController extends AbstractFOSRestController
         $this->em->persist($headshotDate);
         $this->em->flush();
 
-        $serialized = $this->serializer->serialize($headshotDate, 'json');
+        $serialized = $this->serializer->serialize($headshotDate, 'json', [DateTimeNormalizer::FORMAT_KEY => 'g:i a']);
         return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Update a multimedia request to the database
-     *
+     * @Rest\Put()
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_EDIT')")
      */
     public function putMultimediarequestAction(Request $request): Response
     {
-        $em = $this->doctrine->getManager();
-
         $mmRequest = $this->doctrine->getRepository(MultimediaRequest::class)->find($request->request->get('id'));
 
         // Determine which type of Multimedia Request to create based on type & set type-specific fields
-        switch ($request->request->get('discr')) {
-            case 'headshotrequest':
+        switch ($request->request->get('requestType')) {
+            case 'headshot':
                 // Get the time slot
-                $timeSlot = $this->doctrine->getRepository(PhotoHeadshotDate::class)->find($request->request->get('timeSlot')['id']);
+                $timeSlot = $this->doctrine->getRepository(PhotoHeadshotDate::class)->find($request->get('timeSlot')['id']);
                 if ($timeSlot) {
                     $mmRequest->setTimeSlot($timeSlot);
                 }
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
-            case 'photorequest':
+            case 'photo':
                 // Get the photo request type
                 $photoRequestType = $this->doctrine->getRepository(PhotoRequestType::class)->findOneBy(['slug' => $request->request->get('photoRequestType')]);
                 if (!$photoRequestType) {
@@ -349,13 +345,13 @@ class MultimediaRequestController extends AbstractFOSRestController
                 $mmRequest->setIntendedUse($request->request->get('intendedUse'));
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
-            case 'videorequest':
+            case 'video':
                 $mmRequest->setCompletionDate(\DateTime::createFromFormat('Y-m-d', $request->request->get('completionDate')));
                 $mmRequest->setDescription($request->request->get('description'));
                 break;
-            case 'publicationrequest':
+            case 'publication':
                 // Get the publication request type
-                $publicationRequestType = $this->doctrine->getRepository(PublicationRequestType::class)->findOneBy(['slug' => $request->request->get('publicationRequestType')]);
+                $publicationRequestType = $this->doctrine->getRepository(PublicationRequestType::class)->findOneBy(['slug' => $request->get('publicationRequestType')]);
                 if (!$publicationRequestType) {
                     throw new HttpException(400, "An invalid publication request type was passed");
                 }
@@ -377,16 +373,16 @@ class MultimediaRequestController extends AbstractFOSRestController
         $mmRequest->setDepartment($request->request->get('department'));
 
         // Update request status
-        if ($request->request->get('status')) {
-            $status = $this->doctrine->getRepository(MultimediaRequestStatus::class)->find($request->request->get('status')['id']);
+        if ($request->get('status')) {
+            $status = $this->doctrine->getRepository(MultimediaRequestStatus::class)->find($request->get('status')['id']);
             if ($status) {
                 $mmRequest->setStatus($status);
             }
         }
 
         // Update request assignee
-        if ($request->request->get('assignee')) {
-            $assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->find($request->request->get('assignee')['id']);
+        if ($request->get('assignee')) {
+            $assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->find($request->get('assignee')['id']);
             // Only try to set the assignee if he/she is found.
             if ($assignee) {
                 $mmRequest->setAssignee($assignee);
@@ -396,7 +392,7 @@ class MultimediaRequestController extends AbstractFOSRestController
         }
 
         // Status notes
-        foreach ($request->request->get('statusNotes') as $statusNote) {
+        foreach ($request->get('statusNotes') as $statusNote) {
             // a new status note won't have an ID
             if (!isset($statusNote['id'])) {
                 $note = new MultimediaRequestStatusNote();
@@ -413,7 +409,7 @@ class MultimediaRequestController extends AbstractFOSRestController
 
         }
         // Compare and delete any status notes not in the updated list
-        $this->service->statusNoteCollectionCompare($mmRequest->getStatusNotes(), $request->request->get('statusNotes'));
+        $this->service->statusNoteCollectionCompare($mmRequest->getStatusNotes(), $request->get('statusNotes'));
 
         // validate request
         $errors = $this->service->validate($mmRequest);
@@ -426,13 +422,13 @@ class MultimediaRequestController extends AbstractFOSRestController
         $this->em->persist($mmRequest);
         $this->em->flush();
 
-        $serialized = $this->serializer->serialize($mmRequest, 'json');
+        $serialized = $this->serializer->serialize($mmRequest, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d']);
         return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Update a headshot time slot to the database
-     *
+     * @Rest\Put("/headshotdates")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function putMultimediarequestHeadshotdateAction(Request $request): Response
@@ -454,13 +450,13 @@ class MultimediaRequestController extends AbstractFOSRestController
         $this->em->persist($headshotDate);
         $this->em->flush();
 
-        $serialized = $this->serializer->serialize($headshotDate, 'json');
+        $serialized = $this->serializer->serialize($headshotDate, 'json', [DateTimeNormalizer::FORMAT_KEY => 'g:i a']);
         return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
     /**
      * Delete a multimedia request from the database
-     *
+     * @Rest\Delete("/request/{id}")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_DELETE')")
      */
     public function deleteMultimediarequestAction($id): Response
@@ -475,7 +471,7 @@ class MultimediaRequestController extends AbstractFOSRestController
 
     /**
      * Delete a headshot time slot from the database
-     *
+     * @Rest\Delete("/headshotdates/{id}")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN')")
      */
     public function deleteMultimediarequestHeadshotdateAction($id): Response

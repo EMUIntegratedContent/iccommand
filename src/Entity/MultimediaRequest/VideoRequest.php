@@ -16,11 +16,11 @@ class VideoRequest extends MultimediaRequest
 
     /**
      * @ORM\Column(type="date")
-     * @Assert\Date(message="You must provide a valid completion date.")
+     * @Assert\Type("\DateTimeInterface", message="You must provide a valid completion date.")
      * @SerializedName("completionDate")
      * @Groups("multi")
      */
-    private $completionDate;
+    private \DateTimeInterface $completionDate;
 
     public function __construct() {
         parent::__construct();

@@ -18,12 +18,14 @@ class MultimediaRequestStatusNote
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("multi")
      */
     private $id;
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(message="You must provide text for this note.")
+     * @Groups("multi")
      */
     private $note;
 
