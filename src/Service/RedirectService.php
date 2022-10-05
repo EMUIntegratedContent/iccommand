@@ -3,8 +3,12 @@ namespace App\Service;
 
 use App\Entity\Redirect\Redirect;
 use App\Enttiy\Redirect\Uncaught;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * The redirect service is used primary for deleting redirects, getting redirect
@@ -12,12 +16,20 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class RedirectService {
   private $container;
+  private $authorizationChecker;
+  private $validator;
+  private $doctrine;
+  private $em;
 
   /**
    * The constructor of the service of the redirects.
    */
-  public function __construct() {
+  public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine, EntityManagerInterface $em) {
     $this->container = new ContainerBuilder();
+    $this->authorizationChecker = $authorizationChecker;
+    $this->validator = $validator;
+    $this->doctrine = $doctrine;
+    $this->em = $em;
   }
 
   /**
@@ -25,9 +37,8 @@ class RedirectService {
    * @param Redirect $redirect The redirect to be removed.
    */
   public function deleteRedirect(Redirect $redirect) {
-    $manager = $this->container->get('doctrine')->getManager();
-    $manager->remove($redirect);
-    $manager->flush();
+    $this->em->remove($redirect);
+    $this->em->flush();
   }
 
   /**
@@ -42,13 +53,13 @@ class RedirectService {
     );
 
     // The admins automatically have all the permissions.
-    if ($this->container->get('security.authorization_checker')->isGranted('ROLE_REDIRECT_ADMIN') || $this->container->get('security.authorization_checker')->isGranted('ROLE_GLOBAL_ADMIN')) {
+    if ($this->authorizationChecker->isGranted('ROLE_REDIRECT_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
       $redirectPermissions['user'] = true;
       $redirectPermissions['admin'] = true;
     }
 
     // The non-admins have the "user" permission.
-    if ($this->container->get('security.authorization_checker')->isGranted('ROLE_REDIRECT_USER')) {
+    if ($this->authorizationChecker->isGranted('ROLE_REDIRECT_USER')) {
       $redirectPermissions['user'] = true;
     }
 
@@ -61,9 +72,6 @@ class RedirectService {
    * @return array A list of errors.
    */
   public function validate($redirect): ConstraintViolationList {
-    $validator = $this->container->get('validator');
-    $errors = $validator->validate($redirect);
-
-    return $errors;
+    return $this->validator->validate($redirect);
   }
 }

@@ -3,6 +3,7 @@ namespace App\Controller\Redirect;
 
 use App\Entity\Redirect\Redirect;
 use App\Service\RedirectService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -11,14 +12,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class RedirectController extends AbstractController {
   private $service;
+  private $doctrine;
 
   /**
    * The constructor of the controller for the redirects.
    * @param RedirectService $service The service of the redirects.
    */
-  public function __construct(RedirectService $service)
+  public function __construct(RedirectService $service, ManagerRegistry $doctrine)
   {
     $this->service = $service;
+    $this->doctrine = $doctrine;
   }
 
   /**
@@ -47,7 +50,7 @@ class RedirectController extends AbstractController {
    * @Route("/redirects/{id}/edit", name="redirects_edit")
    */
   public function edit($id) {
-    $redirect = $this->getDoctrine()->getRepository(Redirect::class)->find($id);
+    $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
 
     if (!$redirect) {
       throw $this->createNotFoundException('This request does not exist.');
@@ -85,7 +88,7 @@ class RedirectController extends AbstractController {
    * @Route("/redirects/{id}", name="redirects_show")
    */
   public function show($id) {
-    $redirect = $this->getDoctrine()->getRepository(Redirect::class)->find($id);
+    $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
 
     if (!$redirect) {
       throw $this->createNotFoundException('This redirect does not exist.');

@@ -4,10 +4,11 @@ namespace App\Entity\Redirect;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * A redirect is used to send someone from one link to another link.
@@ -16,7 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *    fields = {"fromLink"},
  *    message = "The link has already been redirected to another link."
  * )
- * @Serializer\XmlRoot("redirect")
  */
 class Redirect {
   /* *************************** Member Variables *************************** */
@@ -27,8 +27,9 @@ class Redirect {
    *    type = "string",
    *    length = 255
    * )
-   * @Serializer\SerializedName("fromLink")
+   * @SerializedName("fromLink")
    * @Assert\NotBlank(message = "You must provide the link that would be entered in the URL bar.")
+   * @Groups("redir")
    */
   private $fromLink;
 
@@ -37,7 +38,7 @@ class Redirect {
    * @ORM\Id()
    * @ORM\GeneratedValue()
    * @ORM\Column(type = "integer")
-   * @Serializer\XmlAttribute
+   * @Groups("redir")
    */
   private $id;
 
@@ -47,7 +48,8 @@ class Redirect {
    *    type = "string",
    *    length = 255
    * )
-   * @Serializer\SerializedName("itemType")
+   * @SerializedName("itemType")
+   * @Groups("redir")
    */
   private $itemType;
 
@@ -57,7 +59,8 @@ class Redirect {
    *    type = "datetime",
    *    nullable = true
    * )
-   * @Serializer\SerializedName("lastVisit")
+   * @SerializedName("lastVisit")
+   * @Groups("redir")
    */
   private $lastVisit;
 
@@ -67,14 +70,16 @@ class Redirect {
    *    type = "string",
    *    length = 255
    * )
-   * @Serializer\SerializedName("toLink")
+   * @SerializedName("toLink")
    * @Assert\NotBlank(message = "You must provide the actual link that one would be sent to.")
+   * @Groups("redir")
    */
   private $toLink;
 
   /**
    * The number of times users have used the $fromLink to go to the $toLink.
    * @ORM\Column(type = "integer")
+   * @Groups("redir")
    */
   private $visits;
 
@@ -83,26 +88,30 @@ class Redirect {
    * The user who last updated this redirect.
    * @ORM\Column(type = "string")
    * @Gedmo\Blameable(on = "update")
-   * @Serializer\SerializedName("contentChanged")
+   * @SerializedName("contentChanged")
+   * @Groups("redir")
    */
   private $contentChanged;
   /**
    * The time stamp when this redirect was created.
    * @ORM\Column(type = "datetime")
    * @Gedmo\Timestampable(on = "create")
+   * @Groups("redir")
    */
   private $created;
   /**
    * The user who created this redirect.
    * @ORM\Column(type = "string")
    * @Gedmo\Blameable(on = "create")
-   * @Serializer\SerializedName("createdBy")
+   * @SerializedName("createdBy")
+   * @Groups("redir")
    */
   private $createdBy;
   /**
    * The time stamp when this redirect was last updated.
    * @ORM\Column(type = "datetime")
    * @Gedmo\Timestampable(on = "update")
+   * @Groups("redir")
    */
   private $updated;
 

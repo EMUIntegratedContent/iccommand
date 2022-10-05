@@ -561,7 +561,7 @@ export default {
       /* Ajax (Axios) Submission */
       axios({
         method: "put",
-        url: "/api/redirects",
+        url: "/api/redirects/",
         data: []
       })
       .then(function(response) { // Success.
@@ -641,7 +641,7 @@ export default {
       let self = this; // "this" loses scope within Axios.
 
       /* Ajax (Axios) Submission */
-      axios.get("/api/redirects")
+      axios.get("/api/redirects/")
       .then(function(response) { // Success.
         response.data.forEach(function(redirect) {
           // Filter the redirect into their respective categories based on the itemType field.
@@ -893,7 +893,7 @@ export default {
       /* Ajax (Axios) Submission */
       axios({
         method: "put",
-        url: "/api/redirect",
+        url: "/api/redirects/",
         data: {
           id: redirect.id,
           fromLink: redirect.fromLink,

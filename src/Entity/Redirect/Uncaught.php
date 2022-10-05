@@ -4,10 +4,11 @@ namespace App\Entity\Redirect;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * An uncaught link is a broken link that a large number of users have visited
@@ -23,14 +24,15 @@ class Uncaught {
    * @ORM\Id()
    * @ORM\GeneratedValue()
    * @ORM\Column(type = "integer")
-   * @Serializer\XmlAttribute
+   * @Groups("redir")
    */
   private $id;
 
   /**
    * Determines if this uncaught item should be recommended as a redirect.
    * @ORM\Column(type = "boolean")
-   * @Serializer\SerializedName("isRecommended")
+   * @SerializedName("isRecommended")
+   * @Groups("redir")
    */
   private $isRecommended = true;
 
@@ -41,12 +43,14 @@ class Uncaught {
    *    length=191,
    *    unique=true,
    * )
+   * @Groups("redir")
    */
   private $link;
 
   /**
    * The number of times users have used the broken link.
    * @ORM\Column(type = "integer")
+   * @Groups("redir")
    */
   private $visits;
 

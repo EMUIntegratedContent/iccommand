@@ -415,7 +415,7 @@ export default {
       let self = this;
       this.fetchedUncaughts = [];
 
-      axios.get("/api/uncaughts")
+      axios.get("/api/uncaughts/")
       .then(function(response) { // Success.
         response.data.forEach(function(uncaught) {
           self.fetchedUncaughts.push(uncaught);
@@ -489,7 +489,7 @@ export default {
       /* Ajax (Axios) Submission */
       axios({
         method: "put",
-        url: "/api/uncaught",
+        url: "/api/uncaughts/",
         data: {
           id: uncaught.id,
           isRecommended: false,
@@ -526,7 +526,7 @@ export default {
     submitForm: function() {
       let self = this; // "this" loses scope within Axios.
       let method = this.itemExists ? "put" : "post";
-      let route =  this.itemExists ? "/api/redirect" : "/api/redirects";
+      let route = "/api/redirects/";
 
       /* Ajax (Axios) Submission */
       axios({

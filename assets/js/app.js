@@ -75,6 +75,7 @@ Vue.component("multimedia-assignee-index", require("./components/multimediareque
 Vue.component("multimedia-headshot-calendar", require("./components/multimediarequest/HeadshotCalendar.vue").default);
 Vue.component("multimedia-request-form", require("./components/multimediarequest/MultimediaRequestForm.vue").default);
 Vue.component("multimedia-request-index", require("./components/multimediarequest/MultimediaRequestIndex.vue").default);
+Vue.component("multimediarequest-delete-modal", require("./components/multimediarequest/MultimediaRequestDeleteModal.vue").default);
 
 /* Redirects Application */
 Vue.component("redirect-index", require("./components/redirect/RedirectIndex.vue").default);

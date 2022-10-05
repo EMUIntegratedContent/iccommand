@@ -42,16 +42,16 @@ multimediaRequests:
     resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController
     prefix: /api/multimediarequests
 
-#redirects:
-#    type: annotation
-#    resource: App\Controller\Api\Redirect\RedirectController
-#    prefix: /api/
-#
-#uncaughts:
-#    type: annotation
-#    resource: App\Controller\Api\Redirect\UncaughtController
-#    prefix: /api/
-#
+redirects:
+    type: annotation
+    resource: App\Controller\Api\Redirect\RedirectController
+    prefix: /api/redirects
+
+uncaughts:
+    type: annotation
+    resource: App\Controller\Api\Redirect\UncaughtController
+    prefix: /api/uncaughts/
+
 userImages:
     type: annotation
     resource: App\Controller\Api\UserImageController
