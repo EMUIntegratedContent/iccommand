@@ -54,6 +54,7 @@ class RedirectController extends AbstractFOSRestController
 
     /**
      * Find a redirect URL passed from an external source
+     * @Rest\Get("external/redirect")
      * @param Request $request
      * @return Response
      */
@@ -77,6 +78,7 @@ class RedirectController extends AbstractFOSRestController
 
     /**
      * Increment the number of visits a URL redirect has received
+     * @Rest\Put("external/redirect")
      * @param Request $request
      * @return Response
      */

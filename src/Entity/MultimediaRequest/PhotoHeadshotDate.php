@@ -7,7 +7,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MultimediaRequest\PhotoHeadshotDateRepository")
@@ -18,32 +19,33 @@ class PhotoHeadshotDate
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("multi")
      */
     private $id;
 
     /**
      * @ORM\Column(type="date")
-     * @Serializer\SerializedName("dateOfShoot")
-     * @Serializer\Type("DateTime<'Y-m-d'>")
+     * @SerializedName("dateOfShoot")
+     * @Groups("multi")
      */
     private $dateOfShoot;
 
     /**
      * @ORM\Column(type="time")
-     * @Serializer\SerializedName("startTime")
-     * @Serializer\Type("DateTime<'g:i a'>")
+     * @SerializedName("startTime")
+     * @Groups("multi")
      */
     private $startTime;
 
     /**
      * @ORM\Column(type="time")
-     * @Serializer\SerializedName("endTime")
+     * @SerializedName("endTime")
+     * @Groups("multi")
      */
     private $endTime;
 
     /**
      * @ORM\OneToMany(targetEntity="HeadshotRequest", mappedBy="timeSlot")
-     * @Serializer\Exclude
      */
     private $headshotRequests;
 

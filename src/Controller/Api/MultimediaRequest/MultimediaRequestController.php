@@ -48,6 +48,7 @@ class MultimediaRequestController extends AbstractFOSRestController
 
     /**
      * EXTERNAL API ENDPOINT. Get headshot time slots.
+     * @Rest\Get("external/headshotdates")
      * @return Response
      */
     public function getExternalMultimediarequestHeadshotdatesAction(): Response
@@ -64,6 +65,7 @@ class MultimediaRequestController extends AbstractFOSRestController
 
     /**
      * EXTERNAL API ENDPOINT. Get publication types.
+     * @Rest\Get("external/publicationtypes")
      * @return Response
      */
     public function getExternalMultimediarequestPublicationtypesAction(): Response
@@ -88,7 +90,7 @@ class MultimediaRequestController extends AbstractFOSRestController
                 $mmRequest = new HeadshotRequest();
 
                 // Get the time slot
-                $timeSlot = $this->doctrine->getRepository(PhotoHeadshotDate::class)->find($request->request->get('headshotTimeSlot'));
+                $timeSlot = $this->doctrine->getRepository(PhotoHeadshotDate::class)->find($request->get('headshotTimeSlot'));
                 if ($timeSlot) {
                     $mmRequest->setTimeSlot($timeSlot);
                 }
@@ -98,7 +100,7 @@ class MultimediaRequestController extends AbstractFOSRestController
                 $mmRequest = new PhotoRequest();
 
                 // Get the photo request type
-                $photoRequestType = $this->doctrine->getRepository(PhotoRequestType::class)->findOneBy(['slug' => $request->request->get('photoRequestType')]);
+                $photoRequestType = $this->doctrine->getRepository(PhotoRequestType::class)->find($request->get('photoRequestType')['id']);
                 if (!$photoRequestType) {
                     throw new HttpException(400, "An invalid photo request type was passed");
                 }
@@ -157,7 +159,7 @@ class MultimediaRequestController extends AbstractFOSRestController
         $this->em->persist($mmRequest);
         $this->em->flush();
 
-        $serialized = $this->serializer->serialize($mmRequest, 'json');
+        $serialized = $this->serializer->serialize($mmRequest, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s']);
         return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
@@ -204,7 +206,7 @@ class MultimediaRequestController extends AbstractFOSRestController
             return new Response("The multimedia request was not found.", 404, array('Content-Type' => 'application/json'));
         }
 
-        $serialized = $this->serializer->serialize($mmRequest, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d']);
+        $serialized = $this->serializer->serialize($mmRequest, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s']);
         return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
 
@@ -281,7 +283,7 @@ class MultimediaRequestController extends AbstractFOSRestController
             throw $this->createNotFoundException('No time slots were found.');
         }
 
-        $serialized = $this->serializer->serialize($timeSlots, 'json');
+        $serialized = $this->serializer->serialize($timeSlots, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s']);
         return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 
@@ -334,7 +336,7 @@ class MultimediaRequestController extends AbstractFOSRestController
                 break;
             case 'photo':
                 // Get the photo request type
-                $photoRequestType = $this->doctrine->getRepository(PhotoRequestType::class)->findOneBy(['slug' => $request->request->get('photoRequestType')]);
+                $photoRequestType = $this->doctrine->getRepository(PhotoRequestType::class)->find($request->get('photoRequestType')['id']);
                 if (!$photoRequestType) {
                     throw new HttpException(400, "An invalid photo request type was passed");
                 }
@@ -422,7 +424,7 @@ class MultimediaRequestController extends AbstractFOSRestController
         $this->em->persist($mmRequest);
         $this->em->flush();
 
-        $serialized = $this->serializer->serialize($mmRequest, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d']);
+        $serialized = $this->serializer->serialize($mmRequest, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s']);
         return new Response($serialized, 201, array('Content-Type' => 'application/json'));
     }
 

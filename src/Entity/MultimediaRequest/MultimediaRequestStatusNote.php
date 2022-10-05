@@ -40,24 +40,28 @@ class MultimediaRequestStatusNote
     /**
      * @Gedmo\Blameable(on="create")
      * @ORM\Column(type="string", nullable=true)
+     * @Groups("multi")
      */
     private $createdBy;
 
     /**
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
+     * @Groups("multi")
     */
     private $created;
 
     /**
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime")
+     * @Groups("multi")
     */
     private $updated;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Gedmo\Timestampable(on="change", field={"title", "body"})
+     * @Groups("multi")
      */
     private $contentChanged;
 

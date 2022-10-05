@@ -920,7 +920,9 @@
             // Concatenate time slot date and time fields
             concatTimeSlotData: function(timeSlot){
                 let displayDate = moment(timeSlot.dateOfShoot).local().format("ddd, MMM D, YYYY") // uses moment.js library
-                timeSlot.displayStr =  displayDate + " from " + timeSlot.startTime + " to " + timeSlot.endTime
+                let startTime = moment(timeSlot.startTime).local().format("h:mm A") // uses moment.js library
+                let endTime = moment(timeSlot.endTime).local().format("h:mm A") // uses moment.js library
+                timeSlot.displayStr =  displayDate + " from " + startTime + " to " + endTime
             },
             endTimeChanged: function(dateObj, dateStr){
                 // Must use this.$set to dynamically change the max date (https://vuejs.org/v2/guide/reactivity.html)

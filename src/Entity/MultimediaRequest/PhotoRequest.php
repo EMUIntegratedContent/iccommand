@@ -16,19 +16,19 @@ class PhotoRequest extends MultimediaRequest
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\DateTime(message="You must provide a valid starting date and time.")
+     * @Assert\Type("\DateTimeInterface", message="You must provide a valid starting date and time.")
      * @SerializedName("startTime")
      * @Groups("multi")
      */
-    private $startTime;
+    private \DateTimeInterface $startTime;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\DateTime(message="You must provide a valid ending date and time.")
+     * @Assert\Type("\DateTimeInterface", message="You must provide a valid ending date and time.")
      * @SerializedName("endTime")
      * @Groups("multi")
      */
-    private $endTime;
+    private \DateTimeInterface $endTime;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)

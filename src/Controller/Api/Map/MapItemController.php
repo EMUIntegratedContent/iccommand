@@ -49,6 +49,7 @@ class MapItemController extends AbstractFOSRestController
 
     /**
      * EXTERNAL API ENDPOINT. Get all map items
+     * @Rest\Get("external/mapitems")
      * @return Response
      */
     public function getExternalMapitemsAction()
@@ -56,12 +57,6 @@ class MapItemController extends AbstractFOSRestController
 //        $hateoas = HateoasBuilder::create()->build();
         $mapItems = $this->doctrine->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
 
-        // Need to return NULL fields too (latitude and longitude don't have to have a value)
-        // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
-//        $context = new SerializationContext();
-//        $context->setSerializeNull(true);
-
-//        $serialized = $hateoas->serialize($mapItems, 'json');
         $serialized = $this->serializer->serialize($mapItems, 'json', ['groups' => 'bldgs']);
         return new Response($serialized, 200, array('Content-Type' => 'application/json'));
     }
@@ -90,11 +85,6 @@ class MapItemController extends AbstractFOSRestController
         if (!$mapItem) {
             return new Response("The map item you requested was not found.", 404, array('Content-Type' => 'application/json'));
         }
-
-        // Need to return NULL fields too (latitude and longitude don't have to have a value)
-        // TUTORIAL: https://stackoverflow.com/questions/16784996/how-to-show-null-value-in-json-in-fos-rest-bundle-with-jms-serializer
-//        $context = new SerializationContext();
-//        $context->setSerializeNull(true);
 
         $serialized = $this->serializer->serialize($mapItem, 'json', ['groups' => ['bldgs']]);
 
@@ -191,7 +181,6 @@ class MapItemController extends AbstractFOSRestController
      */
     public function postMapitemAction(Request $request): Response
     {
-//        $mapItemJson = json_decode($request->getContent(), true);
         $itemType = $request->request->get('itemType');
 
         $em = $this->doctrine->getManager();
