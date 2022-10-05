@@ -4,40 +4,6 @@ security:
     hide_user_not_found: false
 #    always_authenticate_before_granting:  true -- DEPRECATED: no substitute found yet
 
-    # CONFIG FOR WORKING where EMU LDAP is available
-#    providers:
-#        fos_userbundle:
-#            id: fos_user.user_provider.username
-#        ldap:
-#            id: ldap_tools.security.user.ldap_user_provider
-#    firewalls:
-#        dev:
-#            pattern: ^/(_(profiler|wdt)|css|images|js)/
-#            security: false
-#        main:
-#            anonymous: ~
-#            pattern: ^/
-#            # Use the default LDAP user provider defined above
-#            provider: fos_userbundle
-#            form_login:
-#                login_path: /login
-#                check_path: /login_check
-#                csrf_token_generator: security.csrf.token_manager
-#            logout: ~
-#            remember_me:
-#                secret: '%kernel.secret%'
-#                lifetime: 604800 # 1 week in seconds
-#                path: /
-#            guard:
-#                authenticators:
-#                    - ldap_tools.security.ldap_guard_authenticator
-#        login:
-#            pattern: ^/login$
-#            anonymous: ~
-#    encoders:
-#        LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
-
-    # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
     providers:
         users:
             entity:
@@ -52,6 +18,31 @@ security:
                 default_roles: ROLE_USER
                 uid_key: uid
                 extra_fields: [ 'email' ]
+
+    # CONFIG FOR WORKING where EMU LDAP is available
+#    firewalls:
+#        dev:
+#            pattern: ^/(_(profiler|wdt)|css|images|js)/
+#            security: false
+#        main:
+#            pattern: ^/
+#            provider: emich_ldap
+#            form_login:
+#                login_path: app_login
+#                check_path: app_login
+#                enable_csrf: false
+#            logout: ~
+#            remember_me:
+#                secret: '%kernel.secret%'
+#                lifetime: 604800 # 1 week in seconds
+#                path: /
+#            lazy: true
+#        login:
+#            pattern: ^/login$
+#    password_hashers:
+#        LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
+
+    # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -70,6 +61,8 @@ security:
         # Use native password hasher, which auto-selects and migrates the best
         # possible hashing algorithm (which currently is "bcrypt")
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
