@@ -1029,12 +1029,12 @@
                 </template>
               </fieldset>
             </template>
-            <div v-if="this.$validator.errors.count() > 0" class="alert alert-danger fade show"
+            <div v-if="$validator.errors.count() > 0" class="alert alert-danger fade show"
                  role="alert">
-              You have <strong>{{ this.$validator.errors.count() }} error<span
-                v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
+              You have <strong>{{ $validator.errors.count() }} error<span
+                v-if="$validator.errors.count() > 1">s</span></strong> in your submission:
               <ul>
-                <li v-for="error in this.$validator.errors.all()">
+                <li v-for="error in $validator.errors.all()">
                   <strong>{{ error }}</strong>
                 </li>
               </ul>

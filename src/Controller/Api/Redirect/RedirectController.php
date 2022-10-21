@@ -322,10 +322,9 @@ class RedirectController extends AbstractFOSRestController
             if (get_headers($fullToLink, 1)[0] == "HTTP/1.1 404 Not Found") {
                 $message = $redirect->getItemType() == "redirect of broken link"
                     ? "The actual link is not valid." : "The full link is not valid.";
+                $serialized = $this->serializer->serialize($message, "json", ['groups' => 'redir']);
 
-                $response = new Response($message, 422, array("Content-Type" => "application/json"));
-
-                return $response;
+                return new Response($serialized, 422, array("Content-Type" => "application/json"));
             }
 
             // Check if the toLink has any spaces.

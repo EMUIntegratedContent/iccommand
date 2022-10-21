@@ -64,10 +64,10 @@
               </div>
             </div>
           </fieldset>
-          <div v-if="this.$validator.errors.count() > 0 && !success" class="alert alert-danger fade show" role="alert">
-            You have <strong>{{ this.$validator.errors.count() }} error<span v-if="this.$validator.errors.count() > 1">s</span></strong> in your submission:
+          <div v-if="$validator.errors.count() > 0 && !success" class="alert alert-danger fade show" role="alert">
+            You have <strong>{{ $validator.errors.count() }} error<span v-if="$validator.errors.count() > 1">s</span></strong> in your submission:
             <ul>
-              <li v-for="error in this.$validator.errors.all()">
+              <li v-for="error in $validator.errors.all()">
                 <strong>{{ error }}</strong>
               </li>
             </ul>
@@ -139,9 +139,7 @@ import RedirectItemDeleteModal from "./RedirectItemDeleteModal.vue";
 const STATUS_INITIAL = 0;
 
 export default {
-  created() {},
-
-  mounted() {
+  created() {
     // Detect if the form should be in edit mode from the start; default is false.
     if (this.startMode == "edit") {
       this.isEditMode = true;
@@ -156,8 +154,6 @@ export default {
       // Fetch the existing record using the property itemId.
       this.fetchRedirect(this.itemId);
     }
-
-    console.log("Redirect form mounted.");
   },
 
   components: {Heading, Multiselect, RedirectItemDeleteModal, NotFound, Draggable},
@@ -218,7 +214,7 @@ export default {
       isDeleteError: false,
 
       /**
-       * Is used to check if the unvalid error is already showing.
+       * Is used to check if the invalid error is already showing.
        * @type {boolean}
        */
       isUnvalidErrorShowing: false,
@@ -527,6 +523,7 @@ export default {
       let self = this; // "this" loses scope within Axios.
       let method = this.itemExists ? "put" : "post";
       let route = "/api/redirects/";
+      let errors = []
 
       /* Ajax (Axios) Submission */
       axios({
@@ -554,12 +551,13 @@ export default {
         self.afterSubmitSucceeds();
       })
       .catch(function(error) { // Failure.
+        // TODO: this is currently not showing an error.
         let errors = error.response.data;
 
         if (typeof errors === "string") {
           // This is for "The actual link is not valid."
           if (!self.isUnvalidErrorShowing) {
-            self.$validator.errors.add("", errors);
+            self.$validator.errors.add({field: 'record.fromLink', msg: errors});
             self.isUnvalidErrorShowing = true;
           }
         } else {
