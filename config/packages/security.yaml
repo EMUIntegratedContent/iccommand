@@ -75,7 +75,7 @@ security:
         - { path: ^/profile, role: ROLE_USER }
         - { path: ^/$, role: ROLE_USER }
 #        # EXTERNAL API - Routes that must be publicly accessible!
-        - { path: ^/api/external, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/external, role: PUBLIC_ACCESS }
     role_hierarchy:
         # Global
         ROLE_GLOBAL_ADMIN:       ROLE_USER
