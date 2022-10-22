@@ -2,61 +2,50 @@ security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     # show full user not found message
     hide_user_not_found: false
-#    always_authenticate_before_granting:  true -- DEPRECATED: no substitute found yet
+    #    always_authenticate_before_granting:  true -- DEPRECATED: no substitute found yet
 
     providers:
         users:
             entity:
                 class: 'App\Entity\User'
                 property: email
-        emich_ldap:
-            ldap:
-                service: Symfony\Component\Ldap\Ldap
-                base_dn: cn=users,dc=ad,dc=emich,dc=edu
-                search_dn: "cn=read-only-admin,dc=example,dc=com"
-                search_password: '%env(LDAP_PASSWORD)%'
-                default_roles: ROLE_USER
-                uid_key: uid
-                extra_fields: [ 'email' ]
 
     # CONFIG FOR WORKING where EMU LDAP is available
-#    firewalls:
-#        dev:
-#            pattern: ^/(_(profiler|wdt)|css|images|js)/
-#            security: false
-#        main:
-#            pattern: ^/
-#            provider: emich_ldap
-#            form_login:
-#                login_path: app_login
-#                check_path: app_login
-#                enable_csrf: false
-#            logout: ~
-#            remember_me:
-#                secret: '%kernel.secret%'
-#                lifetime: 604800 # 1 week in seconds
-#                path: /
-#            lazy: true
-#        login:
-#            pattern: ^/login$
-#    password_hashers:
-#        LdapTools\Bundle\LdapToolsBundle\Security\User\LdapUser: plaintext
-
-    # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
-            user_checker: App\Security\UserChecker
-        main:
-            pattern: ^/
-            user_checker: App\Security\UserChecker
-            lazy: true
-            form_login:
+            security: false
+            main:
+                lazy: true
                 provider: users
-                login_path: app_login
-                check_path: app_login
-            logout:
-                path: app_logout
+
+                form_login_ldap:
+                    login_path: app_login
+                    check_path: app_login
+                    service: Symfony\Component\Ldap\Ldap
+                    dn_string: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
+                    search_dn: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
+                    search_password: "%env(LDAP_PASSWORD)%"
+                logout:
+                    path: app_logout
+
+
+    # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
+#    firewalls:
+#        dev:
+#            pattern: ^/(_(profiler|wdt)|css|images|js)/
+#            user_checker: App\Security\UserChecker
+#        main:
+#            pattern: ^/
+#            user_checker: App\Security\UserChecker
+#            lazy: true
+#            form_login:
+#                provider: users
+#                login_path: app_login
+#                check_path: app_login
+#            logout:
+#                path: app_logout
+
     password_hashers:
         # Use native password hasher, which auto-selects and migrates the best
         # possible hashing algorithm (which currently is "bcrypt")
@@ -76,6 +65,7 @@ security:
         - { path: ^/$, role: ROLE_USER }
 #        # EXTERNAL API - Routes that must be publicly accessible!
         - { path: ^/api/external, role: PUBLIC_ACCESS }
+
     role_hierarchy:
         # Global
         ROLE_GLOBAL_ADMIN:       ROLE_USER
