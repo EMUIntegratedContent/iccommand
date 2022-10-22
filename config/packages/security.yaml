@@ -24,8 +24,6 @@ security:
                 check_path: app_login
                 service: Symfony\Component\Ldap\Ldap
                 dn_string: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
-                search_dn: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
-                search_password: "%env(LDAP_PASSWORD)%"
             logout:
                 path: app_logout
 
