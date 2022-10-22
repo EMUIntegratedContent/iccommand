@@ -15,19 +15,19 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-            main:
-                lazy: true
-                provider: users
+        main:
+            lazy: true
+            provider: users
 
-                form_login_ldap:
-                    login_path: app_login
-                    check_path: app_login
-                    service: Symfony\Component\Ldap\Ldap
-                    dn_string: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
-                    search_dn: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
-                    search_password: "%env(LDAP_PASSWORD)%"
-                logout:
-                    path: app_logout
+            form_login_ldap:
+                login_path: app_login
+                check_path: app_login
+                service: Symfony\Component\Ldap\Ldap
+                dn_string: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
+                search_dn: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
+                search_password: "%env(LDAP_PASSWORD)%"
+            logout:
+                path: app_logout
 
 
     # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
