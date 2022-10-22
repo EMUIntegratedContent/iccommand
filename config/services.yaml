@@ -31,7 +31,7 @@ services:
         arguments:
             - host: ad.emich.edu
               port: 389
-              encryption: tls
+              encryption: none
               options:
                   protocol_version: 3
                   referrals: false
