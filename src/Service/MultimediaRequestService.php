@@ -15,10 +15,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class MultimediaRequestService
 {
-    private $authorizationChecker;
-    private $doctrine;
-    private $validator;
-    private $em;
+    private AuthorizationCheckerInterface $authorizationChecker;
+    private ManagerRegistry $doctrine;
+    private ValidatorInterface $validator;
+    private EntityManagerInterface $em;
 
     public function __construct(AuthorizationCheckerInterface $authorizationChecker, ManagerRegistry $doctrine, ValidatorInterface $validator, EntityManagerInterface $em)
     {

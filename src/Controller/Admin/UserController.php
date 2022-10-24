@@ -17,10 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
 class UserController extends AbstractController
 {
 
-    private $service;
-    private $serializer;
-    private $doctrine;
-    private $em;
+    private UserService $service;
+    private SerializerInterface $serializer;
+    private ManagerRegistry $doctrine;
+    private EntityManagerInterface $em;
 
     public function __construct(UserService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em){
         $this->service = $service;

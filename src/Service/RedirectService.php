@@ -6,7 +6,6 @@ use App\Enttiy\Redirect\Uncaught;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -16,17 +15,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * permissions of users, and validating.
  */
 class RedirectService {
-  private $container;
-  private $authorizationChecker;
-  private $validator;
-  private $doctrine;
-  private $em;
+  private AuthorizationCheckerInterface $authorizationChecker;
+  private ValidatorInterface $validator;
+  private ManagerRegistry $doctrine;
+  private EntityManagerInterface $em;
 
   /**
    * The constructor of the service of the redirects.
    */
   public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine, EntityManagerInterface $em) {
-    $this->container = new ContainerBuilder();
     $this->authorizationChecker = $authorizationChecker;
     $this->validator = $validator;
     $this->doctrine = $doctrine;
