@@ -42,47 +42,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="boolean")
      */
-    private int $enabled;
+    private bool $enabled;
 
     /**
      * @ORM\Column(name="firstname", type="string", length=255, nullable=true)
      * @Serializer\SerializedName("firstName")
      */
-    private ?string $firstName;
+    private $firstName;
 
     /**
      * @ORM\Column(name="lastname", type="string", length=255, nullable=true)
      * @Serializer\SerializedName("lastName")
      */
-    private ?string $lastName;
+    private $lastName;
 
     /**
      * @ORM\Column(name="email", type="string", length=50, nullable=false)
      */
-    private ?string $email;
+    private $email;
 
     /**
      * @ORM\Column(name="jobtitle", type="string", length=255, nullable=true)
      * @Serializer\SerializedName("jobTitle")
      */
-    private ?string $jobTitle;
+    private $jobTitle;
 
     /**
      * @ORM\Column(name="department", type="string", length=255, nullable=true)
      */
-    private ?string $department;
+    private $department;
 
     /**
      * @ORM\Column(name="phone", type="string", length=16, nullable=true)
      */
-    private ?string $phone;
+    private $phone;
 
     /**
      * One User can have One UserImage.
      * @ORM\OneToOne(targetEntity="App\Entity\UserImage")
      * @ORM\JoinColumn(name="image_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
-    protected ?UserImage $image;
+    protected $image;
 
     public function getId(): ?int
     {
