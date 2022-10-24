@@ -18,9 +18,9 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class UserImageController extends AbstractFOSRestController{
-    private $em;
-    private $serializer;
-    private $doctrine;
+    private SerializerInterface $em;
+    private EntityManagerInterface $serializer;
+    private ManagerRegistry $doctrine;
 
     public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, ManagerRegistry $doctrine){
         $this->serializer = $serializer;

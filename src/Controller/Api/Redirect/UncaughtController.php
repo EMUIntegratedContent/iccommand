@@ -30,11 +30,11 @@ error_reporting(E_ALL);
  * adding, updating, and deleting.
  */
 class UncaughtController extends AbstractFOSRestController {
-    private $service;
-    private $logger;
-    private $doctrine;
-    private $em;
-    private $serializer;
+    private RedirectService $service;
+    private LoggerInterface $logger;
+    private ManagerRegistry $doctrine;
+    private EntityManagerInterface $em;
+    private SerializerInterface $serializer;
 
     /**
      * The constructor of the UncaughtController.
@@ -128,7 +128,7 @@ class UncaughtController extends AbstractFOSRestController {
     /**
      * Deletes the uncaught item from the specified ID.
      * @Rest\Delete("/{id}")
-     * @param string $id The ID of the uncaught item.
+     * @param $id // The ID of the uncaught item.
      * @return Response The message of the deleted uncaught item, the status code, and the HTTP headers.
      */
     public function deleteUncaughtAction($id): Response {

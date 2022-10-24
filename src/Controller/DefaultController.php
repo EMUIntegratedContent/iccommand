@@ -13,7 +13,7 @@ class DefaultController extends AbstractController
   /**
   * @Route("/", name="home")
   */
-  public function index()
+  public function index(): Response
   {
     $currentUser = null;
     $currentUserRoles = null;
@@ -33,7 +33,7 @@ class DefaultController extends AbstractController
   /**
   * @Route("/profile", name="user_profile")
   */
-  public function profile()
+  public function profile(): Response
   {
     return $this->render('profile.html.twig', []);
   }
@@ -41,7 +41,7 @@ class DefaultController extends AbstractController
   /**
   * @Route("/unittest", name="unit_test")
   */
-  public function unitTest()
+  public function unitTest(): Response
   {
     return new Response('Hello World', 201, array('Content-Type' => 'application/json; charset=UTF-8'));
   }

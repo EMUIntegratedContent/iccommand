@@ -20,10 +20,10 @@ use App\Service\UserService;
 
 class UserController extends AbstractFOSRestController{
 
-  private $service;
-  private $serializer;
-  private $doctrine;
-  private $em;
+  private UserService $service;
+  private SerializerInterface $serializer;
+  private ManagerRegistry $doctrine;
+  private EntityManagerInterface $em;
 
   public function __construct(UserService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em){
     $this->service = $service;
@@ -37,7 +37,7 @@ class UserController extends AbstractFOSRestController{
    * @Rest\Get (path="/users")
    * @Security("is_granted('ROLE_GLOBAL_ADMIN')")
    */
-  public function getUsersAction(ManagerRegistry $doctrine) : Response
+  public function getUsersAction() : Response
   {
       $userRepo = $this->em->getRepository(User::class);
       $users = $userRepo->findAll();
@@ -72,12 +72,15 @@ class UserController extends AbstractFOSRestController{
     return new Response($serialized, 200, array('Content-Type' => 'application/json'));
   }
 
-  /**
-   * Update a user's information and roles
-   * @Rest\Put(path="/users/{username}")
-   * @Security("is_granted('ROLE_USER')")
-   */
-   public function putUserAction(Request $request, $username) : Response
+    /**
+     * Update a user's information and roles
+     * @Rest\Put(path="/users/{username}")
+     * @param Request $request
+     * @param String $username
+     * @return Response
+     * @Security("is_granted('ROLE_USER')")
+     */
+   public function putUserAction(Request $request, string $username) : Response
    {
      $user = $this->doctrine->getRepository(User::class)->findOneByUsername($username);
 
@@ -104,7 +107,7 @@ class UserController extends AbstractFOSRestController{
     * @param String $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_ADMIN')")
     */
-   public function getAppusersAction($rolePrefix) : Response
+   public function getAppusersAction(string $rolePrefix) : Response
    {
      $mapAppUsers = $this->doctrine->getRepository(User::class)->findByLikeRole($rolePrefix);
 
@@ -118,7 +121,7 @@ class UserController extends AbstractFOSRestController{
     * @param String $rolePrefix (e.g. the role prefix for map app users is 'ROLE_MAP_')
     * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_ADMIN')")
     */
-   public function getAppusersNotAction($rolePrefix) : Response
+   public function getAppusersNotAction(string $rolePrefix) : Response
    {
      $mapAppUsers = $this->doctrine->getRepository(User::class)->findByLikeRole($rolePrefix, true);
 

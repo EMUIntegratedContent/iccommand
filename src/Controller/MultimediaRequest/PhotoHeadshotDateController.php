@@ -9,7 +9,7 @@ use App\Service\MultimediaRequestService;
 
 class PhotoHeadshotDateController extends AbstractController
 {
-    private $service;
+    private MultimediaRequestService $service;
 
     public function __construct(MultimediaRequestService $service)
     {

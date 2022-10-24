@@ -9,7 +9,7 @@ use App\Service\MapItemService;
 
 class MapController extends AbstractController
 {
-    private $service;
+    private MapItemService $service;
 
     public function __construct(MapItemService $service){
         $this->service = $service;

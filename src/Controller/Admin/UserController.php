@@ -9,6 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Route("/admin/users", name="users")
@@ -31,7 +32,7 @@ class UserController extends AbstractController
   /**
    * @Route("/", name="users_index")
    */
-  public function index()
+  public function index(): Response
   {
     $users = $this->doctrine->getRepository(User::class)->findAll();
     $roles = $this->getParameter('security.role_hierarchy.roles');
@@ -44,7 +45,8 @@ class UserController extends AbstractController
   /**
    * @Route("/{username}", name="user_show")
    */
-  public function show($username){
+  public function show($username): Response
+  {
     $user = $this->doctrine->getRepository(User::class)->findOneByUsername($username);
     if(!$user){
       throw $this->createNotFoundException('The user name ' . $username . ' was not found.');

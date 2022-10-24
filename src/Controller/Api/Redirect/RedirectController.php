@@ -13,6 +13,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Hateoas\HateoasBuilder;
 use JMS\Serializer\SerializationContext;
+use MongoDB\Driver\Manager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,11 +34,11 @@ error_reporting(E_ALL);
  */
 class RedirectController extends AbstractFOSRestController
 {
-    private $service;
-    private $logger;
-    private $doctrine;
-    private $em;
-    private $serializer;
+    private RedirectService $service;
+    private LoggerInterface $logger;
+    private ManagerRegistry $doctrine;
+    private EntityManagerInterface $em;
+    private SerializerInterface $serializer;
 
     /**
      * The constructor of the RedirectController.
@@ -110,7 +111,7 @@ class RedirectController extends AbstractFOSRestController
     /**
      * Deletes the redirect from the specified ID.
      * @Rest\Delete("/{id}")
-     * @param string $id The ID of the redirect.
+     * @param $id  // The ID of the redirect.
      * @return Response The message of the deleted redirect, the status code, and the HTTP headers.
      */
     public function deleteRedirectAction($id): Response
@@ -125,7 +126,7 @@ class RedirectController extends AbstractFOSRestController
 
     /**
      * Gets the redirect by the specified ID.
-     * @param string $id The ID of the redirect.
+     * @param $id // The ID of the redirect.
      * @Rest\Get("/{id}")
      * @return Response The redirect, the status code, and the HTTP headers.
      */

@@ -5,6 +5,7 @@
 namespace App\Controller\Api;
 
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -18,7 +19,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Carbon\Carbon;
 class EmailController extends AbstractFOSRestController
 {
-    private $mailer;
+    private MailerInterface $mailer;
 
     public function __construct(MailerInterface $mailer)
     {
@@ -49,7 +50,6 @@ class EmailController extends AbstractFOSRestController
 
         $this->mailer->send($message);
 
-        $response = new Response('Message was sent.', 200, array('Content-Type' => 'text/html'));
-        return $response;
+        return new Response('Message was sent.', 200, array('Content-Type' => 'text/html'));
     }
 }

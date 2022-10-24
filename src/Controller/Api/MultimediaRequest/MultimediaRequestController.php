@@ -167,28 +167,18 @@ class MultimediaRequestController extends AbstractFOSRestController
      * Get all multimedia requests (by optional type)
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      * @Rest\Get("/list/{type?}")
-     * @param String $type Photo, video, publication, headshot, etc.
+     * @param string|null $type Photo, video, publication, headshot, etc.
      * @return Response
      */
-    public function getMultimediarequestsListAction($type = null): Response
+    public function getMultimediarequestsListAction(?string $type = null): Response
     {
-        switch ($type) {
-            case 'headshot':
-                $mmRequests = $this->doctrine->getRepository(HeadshotRequest::class)->findBy([], ['created' => 'asc']);
-                break;
-            case 'photo':
-                $mmRequests = $this->doctrine->getRepository(PhotoRequest::class)->findBy([], ['created' => 'asc']);
-                break;
-            case 'video':
-                $mmRequests = $this->doctrine->getRepository(VideoRequest::class)->findBy([], ['created' => 'asc']);
-                break;
-            case 'publication':
-                $mmRequests = $this->doctrine->getRepository(PublicationRequest::class)->findBy([], ['created' => 'asc']);
-                break;
-            default:
-                $mmRequests = $this->doctrine->getRepository(MultimediaRequest::class)->findBy([], ['created' => 'asc']);
-                break;
-        }
+        $mmRequests = match ($type) {
+            'headshot' => $this->doctrine->getRepository(HeadshotRequest::class)->findBy([], ['created' => 'asc']),
+            'photo' => $this->doctrine->getRepository(PhotoRequest::class)->findBy([], ['created' => 'asc']),
+            'video' => $this->doctrine->getRepository(VideoRequest::class)->findBy([], ['created' => 'asc']),
+            'publication' => $this->doctrine->getRepository(PublicationRequest::class)->findBy([], ['created' => 'asc']),
+            default => $this->doctrine->getRepository(MultimediaRequest::class)->findBy([], ['created' => 'asc']),
+        };
 
         $serialized = $this->serializer->serialize($mmRequests, 'json', ['groups' => 'multi', DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s']);
         return new Response($serialized, 200, array('Content-Type' => 'application/json'));

@@ -22,10 +22,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 class MultimediaRequestAssigneeController extends AbstractFOSRestController
 {
 
-    private $service;
-    private $doctrine;
-    private $serializer;
-    private $em;
+    private MultimediaRequestService $service;
+    private ManagerRegistry $doctrine;
+    private SerializerInterface $serializer;
+    private EntityManagerInterface $em;
 
     public function __construct(MultimediaRequestService $service, ManagerRegistry $doctrine, SerializerInterface $serializer, EntityManagerInterface $em)
     {
@@ -40,7 +40,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
      * @Rest\Get(path="/")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW')")
      */
-    public function getMultimediaassigneesAction($type = null): Response
+    public function getMultimediaassigneesAction(): Response
     {
         $assignees = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->findBy([], ['lastName' => 'asc']);
 

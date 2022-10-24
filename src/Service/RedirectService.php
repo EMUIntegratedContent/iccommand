@@ -5,6 +5,7 @@ use App\Entity\Redirect\Redirect;
 use App\Enttiy\Redirect\Uncaught;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -36,7 +37,8 @@ class RedirectService {
    * Removes a redirect from the database.
    * @param Redirect $redirect The redirect to be removed.
    */
-  public function deleteRedirect(Redirect $redirect) {
+  public function deleteRedirect(Redirect $redirect): void
+  {
     $this->em->remove($redirect);
     $this->em->flush();
   }
@@ -45,7 +47,9 @@ class RedirectService {
    * Fetches the permissions of the user for managing redirects.
    * @return array The user's permissions for managing redirects.
    */
-  public function getUserRedirectPermissions() {
+  #[ArrayShape(['user' => "bool", 'admin' => "bool"])]
+  public function getUserRedirectPermissions(): array
+  {
     // Set all permissions to false as default.
     $redirectPermissions = array(
       'user' => false,
@@ -66,11 +70,11 @@ class RedirectService {
     return $redirectPermissions;
   }
 
-  /**
-   * Uses the Symfony container's validator to validate fields for a redirect.
-   * @param Redirect A redirect that makes one link go to another link.
-   * @return array A list of errors.
-   */
+    /**
+     * Uses the Symfony container's validator to validate fields for a redirect.
+     * @param Redirect A redirect that makes one link go to another link.
+     * @return ConstraintViolationList A list of errors.
+     */
   public function validate($redirect): ConstraintViolationList {
     return $this->validator->validate($redirect);
   }

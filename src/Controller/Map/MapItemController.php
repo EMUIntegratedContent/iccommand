@@ -9,11 +9,12 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\Map\MapItem;
 use App\Service\MapItemService;
+use Symfony\Component\HttpFoundation\Response;
 
 class MapItemController extends AbstractController
 {
-    private $service;
-    private $doctrine;
+    private MapItemService $service;
+    private ManagerRegistry $doctrine;
 
     public function __construct(MapItemService $service, ManagerRegistry $doctrine){
         $this->service = $service;
@@ -22,7 +23,7 @@ class MapItemController extends AbstractController
     /**
      * @Route("/map/items", name="map_items")
      */
-    public function index()
+    public function index(): Response
     {
       $permissions = json_encode($this->service->getUserMapPermissions());
       return $this->render('map/map_item/index.html.twig', ['permissions' => $permissions]);
@@ -31,7 +32,8 @@ class MapItemController extends AbstractController
     /**
      * @Route("/map/items/create", name="map_items_create")
      */
-    public function add(){
+    public function add(): Response
+    {
       $permissions = json_encode($this->service->getUserMapPermissions());
       return $this->render('map/map_item/create.html.twig', ['permissions' => $permissions]);
     }
@@ -39,7 +41,8 @@ class MapItemController extends AbstractController
     /**
      * @Route("/map/items/{id}", name="map_items_show")
      */
-    public function show($id){
+    public function show($id): Response
+    {
       $item = $this->doctrine->getRepository(MapItem::class)->find($id);
       if (!$item) {
         // Just a shortcut for:
@@ -55,7 +58,8 @@ class MapItemController extends AbstractController
     /**
      * @Route("/map/items/{id}/edit", name="map_items_edit")
      */
-    public function edit($id){
+    public function edit($id): Response
+    {
       $item = $this->doctrine->getRepository(MapItem::class)->find($id);
       if (!$item) {
         throw $this->createNotFoundException('This map item does not exist.');

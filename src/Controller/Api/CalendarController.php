@@ -20,10 +20,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class CalendarController extends AbstractFOSRestController
 {
-    private $serializer;
-    private $service;
-    private $doctrine;
-    private $em;
+    private MultimediaRequestService $serializer;
+    private SerializerInterface $service;
+    private ManagerRegistry $doctrine;
+    private EntityManagerInterface $em;
 
     public function __construct(MultimediaRequestService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em)
     {

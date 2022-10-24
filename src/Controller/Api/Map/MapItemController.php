@@ -52,7 +52,7 @@ class MapItemController extends AbstractFOSRestController
      * @Rest\Get("external/mapitems")
      * @return Response
      */
-    public function getExternalMapitemsAction()
+    public function getExternalMapitemsAction(): Response
     {
 //        $hateoas = HateoasBuilder::create()->build();
         $mapItems = $this->doctrine->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
@@ -96,7 +96,7 @@ class MapItemController extends AbstractFOSRestController
      * @Rest\Get (path="/mapbuildings/")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
-    public function getMapbuildingsAction()
+    public function getMapbuildingsAction(): Response
     {
         $itemRepo = $this->doctrine->getRepository(MapBuilding::class);
         $buildings = $itemRepo->findAllBuildingsWithFields(['b.id', 'b.name']); // don't need the whole MapBuilding object, so just grab ID and name from the repo method
@@ -110,7 +110,7 @@ class MapItemController extends AbstractFOSRestController
      * @Rest\Get (path="/mapbuildingtypes/")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
-    public function getMapbuildingtypesAction()
+    public function getMapbuildingtypesAction(): Response
     {
         $itemRepo = $this->doctrine->getRepository(MapBuildingType::class);
         $buildingsTypes = $itemRepo->findAllBuildingTypesWithFields(['bt.id', 'bt.name']); // don't need the whole MapBuildingType object, so just grab ID and name from the repo method
@@ -125,7 +125,7 @@ class MapItemController extends AbstractFOSRestController
      * @Rest\Get (path="/mapemergencytypes/")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW')")
      */
-    public function getMapemergencytypesAction()
+    public function getMapemergencytypesAction(): Response
     {
         $emergencyTypes = $this->doctrine->getRepository(MapEmergencyType::class)->findAll();
 
@@ -666,6 +666,8 @@ class MapItemController extends AbstractFOSRestController
 
     /**
      * Delete a map item from the database
+     * @param $id
+     * @return Response
      * @Rest\Delete (path="/mapitems/{id}")
      * @Security("is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_DELETE')")
      */

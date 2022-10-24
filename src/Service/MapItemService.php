@@ -43,7 +43,7 @@ class MapItemService
      * @param PersistentCollection $currentCollection
      * @param array $updatedArray
      */
-    public function mapItemCollectionCompare(PersistentCollection $currentCollection, array $updatedArray)
+    public function mapItemCollectionCompare(PersistentCollection $currentCollection, array $updatedArray): void
     {
         $current_ids = array();
         foreach ($currentCollection as $item) {
@@ -72,7 +72,7 @@ class MapItemService
      * @param array $updatedArray
      * @param MapBuilding $building
      */
-    public function mapBuildingTypeCompare(PersistentCollection $currentCollection, array $updatedArray, MapBuilding $building)
+    public function mapBuildingTypeCompare(PersistentCollection $currentCollection, array $updatedArray, MapBuilding $building): void
     {
         $current_ids = array();
         foreach ($currentCollection as $item) {
@@ -106,7 +106,7 @@ class MapItemService
      * @param array $updatedArray
      * @param MapParking $parkingLot
      */
-    public function mapParkingLotTypeCompare(PersistentCollection $currentCollection, array $updatedArray, MapParking $parkingLot)
+    public function mapParkingLotTypeCompare(PersistentCollection $currentCollection, array $updatedArray, MapParking $parkingLot): void
     {
         $current_ids = array();
         foreach ($currentCollection as $item) {
@@ -137,7 +137,7 @@ class MapItemService
      * Fetch the user's permissions for managing map items
      * @return array $mapPermissions
      */
-    public function getUserMapPermissions()
+    public function getUserMapPermissions(): array
     {
         $mapPermissions = array(
             'create' => false,
@@ -175,7 +175,7 @@ class MapItemService
      * Remove a map item from the database
      * @param MapItem $mapItem
      */
-    protected function deleteMapItem(MapItem $mapItem)
+    protected function deleteMapItem(MapItem $mapItem): void
     {
         $em = $this->doctrine->getManager();
         $em->remove($mapItem);

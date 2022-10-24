@@ -11,8 +11,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 class MultimediaRequestController extends AbstractController
 {
-    private $service;
-    private $doctrine;
+    private MultimediaRequestService $service;
+    private ManagerRegistry $doctrine;
 
     public function __construct(MultimediaRequestService $service, ManagerRegistry $doctrine)
     {
