@@ -29,12 +29,6 @@ Encore
         version: 3,
         runtimeCompilerBuild: true,
     })
-    .addPlugin(
-        new webpack.DefinePlugin({
-            __VUE_OPTIONS_API__: true,
-            __VUE_PROD_DEVTOOLS__: false
-        })
-    )
     .addAliases({
         '@': path.resolve('assets/js'),
         vue$: 'vue/dist/vue.esm-bundler',
