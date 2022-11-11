@@ -10,6 +10,7 @@
 
 <h1 class="display-1">Create Assignee</h1>
 <div id="app">
+    {{ encore_entry_script_tags('app') }}
     <multimedia-assignee-form :item-exists="false" start-mode="edit" :permissions="[{{ permissions }}]"></multimedia-assignee-form>
 </div>
 {% endblock %}

@@ -44,46 +44,46 @@ if (!String.prototype.includes) {
 }
 
 /* ******************************** Vue Setup ******************************* */
-import Vue from "vue";
-import VeeValidate from "vee-validate";
-import PrettyCheckbox from "pretty-checkbox-vue";
-import VueCkeditor from "vue-ckeditor2";
-
-Vue.use(VeeValidate);
-Vue.use(PrettyCheckbox);
-Vue.use(VueCkeditor);
-
-/* ************************* Declare Components Here ************************ */
-
-/* Home */
-Vue.component("home-page", require("./components/Homepage.vue").default);
-
-/* Admin */
-Vue.component("admin-user-index", require("./components/admin/UserIndex.vue").default);
-Vue.component("admin-user-manage", require("./components/admin/UserManage.vue").default);
-Vue.component("app-manage", require("./components/admin/AppManage.vue").default);
-Vue.component("user-profile", require("./components/Profile.vue").default);
-
-/* Campus Map Application */
-Vue.component("map-index", require("./components/map/MapIndex.vue").default);
-Vue.component("map-item-form", require("./components/map/MapItemForm.vue").default);
-Vue.component("new-map-item", require("./components/map/NewMapItem.vue").default);
-
-/* Multimedia Requests */
-Vue.component("multimedia-assignee-form", require("./components/multimediarequest/AssigneeForm.vue").default);
-Vue.component("multimedia-assignee-index", require("./components/multimediarequest/AssigneeIndex.vue").default);
-Vue.component("multimedia-headshot-calendar", require("./components/multimediarequest/HeadshotCalendar.vue").default);
-Vue.component("multimedia-request-form", require("./components/multimediarequest/MultimediaRequestForm.vue").default);
-Vue.component("multimedia-request-index", require("./components/multimediarequest/MultimediaRequestIndex.vue").default);
-Vue.component("multimediarequest-delete-modal", require("./components/multimediarequest/MultimediaRequestDeleteModal.vue").default);
-
-/* Redirects Application */
-Vue.component("redirect-index", require("./components/redirect/RedirectIndex.vue").default);
-Vue.component("new-redirect-item", require("./components/redirect/NewRedirectItem.vue").default);
-Vue.component("redirect-item-form", require("./components/redirect/RedirectItemForm.vue").default);
-Vue.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
+import { createApp } from "vue"
+import VeeValidate from "vee-validate"
+import PrettyCheckbox from "pretty-checkbox-vue"
+import VueCkeditor from "vue-ckeditor2"
 
 /* ********************************* Vue App ******************************** */
-const app = new Vue({
-    el: "#app",
-});
+const app = createApp({
+
+})
+/* Home */
+app.component("home-page", require("./components/Homepage.vue").default);
+
+/* Admin */
+app.component("admin-user-index", require("./components/admin/UserIndex.vue").default);
+app.component("admin-user-manage", require("./components/admin/UserManage.vue").default);
+app.component("app-manage", require("./components/admin/AppManage.vue").default);
+app.component("user-profile", require("./components/Profile.vue").default);
+
+/* Campus Map Application */
+app.component("map-index", require("./components/map/MapIndex.vue").default);
+app.component("map-item-form", require("./components/map/MapItemForm.vue").default);
+app.component("new-map-item", require("./components/map/NewMapItem.vue").default);
+
+/* Multimedia Requests */
+app.component("multimedia-assignee-form", require("./components/multimediarequest/AssigneeForm.vue").default);
+app.component("multimedia-assignee-index", require("./components/multimediarequest/AssigneeIndex.vue").default);
+app.component("multimedia-headshot-calendar", require("./components/multimediarequest/HeadshotCalendar.vue").default);
+app.component("multimedia-request-form", require("./components/multimediarequest/MultimediaRequestForm.vue").default);
+app.component("multimedia-request-index", require("./components/multimediarequest/MultimediaRequestIndex.vue").default);
+app.component("multimediarequest-delete-modal", require("./components/multimediarequest/MultimediaRequestDeleteModal.vue").default);
+
+/* Redirects Application */
+app.component("redirect-index", require("./components/redirect/RedirectIndex.vue").default);
+app.component("new-redirect-item", require("./components/redirect/NewRedirectItem.vue").default);
+app.component("redirect-item-form", require("./components/redirect/RedirectItemForm.vue").default);
+app.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
+app.mount('#app')
+app.use(VeeValidate);
+app.use(PrettyCheckbox);
+app.use(VueCkeditor);
+
+
+

@@ -1,7 +1,7 @@
 <template>
     <div>
         <heading>
-            <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
+            <span slot="icon" v-html="headingIcon"></span>
             <span slot="title">EMU Map Items</span>
         </heading>
         <!--<p v-if="userCanCreate"><a href="/map/items/create" class="btn btn-primary">New Map Item</a></p>-->

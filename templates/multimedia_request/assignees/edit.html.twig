@@ -8,6 +8,7 @@
 
 {% block body %}
 <div id="app">
+  {{ encore_entry_script_tags('app') }}
   <multimedia-assignee-form :item-exists="true" start-mode="edit" item-id="{{ id }}" :permissions="[{{ permissions }}]"></multimedia-assignee-form>
 </div>
 {% endblock %}

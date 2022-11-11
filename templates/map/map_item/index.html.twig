@@ -8,6 +8,7 @@
 
 {% block body %}
     <div id="app">
+        {{ encore_entry_script_tags('app') }}
         <map-index :permissions="[{{ permissions }}]"></map-index>
     </div>
 {% endblock %}

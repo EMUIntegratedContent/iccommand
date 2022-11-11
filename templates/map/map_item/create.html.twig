@@ -10,6 +10,7 @@
 
 <h1 class="display-1">Create Map Item</h1>
 <div id="app">
+    {{ encore_entry_script_tags('app') }}
     <new-map-item :permissions="[{{ permissions }}]"></new-map-item>
 </div>
 {% endblock %}

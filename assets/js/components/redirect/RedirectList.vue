@@ -1,7 +1,7 @@
 <template>
   <div>
     <heading>
-      <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
+      <span slot="icon" v-html="headingIcon"></span>
       <span slot="title">Redirect Items</span>
     </heading>
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
@@ -9,12 +9,12 @@
     </div>
     <div>
       <input
-        name="searchTerm"
-        type="text"
-        class="form-control"
-        placeholder="Search"
-        v-model="searchTerm"
-        @change="filterRedirects"/>
+          name="searchTerm"
+          type="text"
+          class="form-control"
+          placeholder="Search"
+          v-model="searchTerm"
+          @change="filterRedirects"/>
     </div>
     <br/>
     <div id="accordion">
@@ -23,60 +23,60 @@
         <div class="card-header" id="headingRedirectsOfBrokenLinks">
           <h5 class="mb-0">
             <button
-              class="btn btn-link"
-              data-toggle="collapse"
-              data-target="#collapseRedirectsOfBrokenLinks"
-              aria-expanded="true"
-              aria-controls="collapseRedirectsOfBrokenLinks">
+                class="btn btn-link"
+                data-toggle="collapse"
+                data-target="#collapseRedirectsOfBrokenLinks"
+                aria-expanded="true"
+                aria-controls="collapseRedirectsOfBrokenLinks">
               Redirects of Broken Links
               <span
-                v-if="!loadingRedirectsOfBrokenLinks"
-                class="badge badge-primary">{{ resultedRedirectsOfBrokenLinks.length }}</span>
+                  v-if="!loadingRedirectsOfBrokenLinks"
+                  class="badge badge-primary">{{ resultedRedirectsOfBrokenLinks.length }}</span>
               <span v-else><i class="fa fa-spinner"></i></span>
             </button>
           </h5>
         </div>
         <div
-          id="collapseRedirectsOfBrokenLinks"
-          class="collapse show"
-          aria-labelledby="headingRedirectsOfBrokenLinks"
-          data-parent="#accordion">
+            id="collapseRedirectsOfBrokenLinks"
+            class="collapse show"
+            aria-labelledby="headingRedirectsOfBrokenLinks"
+            data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingRedirectsOfBrokenLinks" class="table-responsive">
               <table class="table table-hover table-sm">
                 <thead>
-                  <tr>
-                    <th scope="col">Broken Links</th>
-                    <th scope="col">Actual Links</th>
-                    <th scope="col">Last Visit</th>
-                    <th scope="col">Visits</th>
-                    <th scope="col">Created</th>
-                    <th scope="col">Updated</th>
-                    <th scope="col">Actions</th>
-                  </tr>
+                <tr>
+                  <th scope="col">Broken Links</th>
+                  <th scope="col">Actual Links</th>
+                  <th scope="col">Last Visit</th>
+                  <th scope="col">Visits</th>
+                  <th scope="col">Created</th>
+                  <th scope="col">Updated</th>
+                  <th scope="col">Actions</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="redirect in paginatedRedirectsOfBrokenLinks" :id="redirect.id">
-                    <td>
-                      <a
+                <tr v-for="redirect in paginatedRedirectsOfBrokenLinks" :id="redirect.id">
+                  <td>
+                    <a
                         :href="'https://www.emich.edu' + redirect.fromLink"
                         target="_blank"
                         title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
-                    </td>
-                    <td>
-                      <a
+                  </td>
+                  <td>
+                    <a
                         :href="getFixedLink(redirect.toLink)"
                         target="_blank"
                         title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
-                    </td>
-                    <td>{{ formatDate(redirect.lastVisit) }}</td>
-                    <td>{{ redirect.visits }}</td>
-                    <td>{{ redirect.createdBy }}</td>
-                    <td>{{ redirect.contentChanged }}</td>
-                    <td>
-                      <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
-                    </td>
-                  </tr>
+                  </td>
+                  <td>{{ formatDate(redirect.lastVisit) }}</td>
+                  <td>{{ redirect.visits }}</td>
+                  <td>{{ redirect.createdBy }}</td>
+                  <td>{{ redirect.contentChanged }}</td>
+                  <td>
+                    <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -84,9 +84,9 @@
               <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
             </div>
             <paginator
-              v-show="!loadingRedirectsOfBrokenLinks"
-              :items="resultedRedirectsOfBrokenLinks"
-              @itemsPerPageChanged="setPaginatedRedirectsOfBrokenLinks"></paginator>
+                v-show="!loadingRedirectsOfBrokenLinks"
+                :items="resultedRedirectsOfBrokenLinks"
+                @itemsPerPageChanged="setPaginatedRedirectsOfBrokenLinks"></paginator>
           </div>
         </div>
       </div>
@@ -95,60 +95,60 @@
         <div class="card-header" id="headingRedirectsOfShortenedLinks">
           <h5 class="mb-0">
             <button
-              class="btn btn-link collapsed"
-              data-toggle="collapse"
-              data-target="#collapseRedirectsOfShortenedLinks"
-              aria-expanded="false"
-              aria-controls="collapseRedirectsOfShortenedLinks">
+                class="btn btn-link collapsed"
+                data-toggle="collapse"
+                data-target="#collapseRedirectsOfShortenedLinks"
+                aria-expanded="false"
+                aria-controls="collapseRedirectsOfShortenedLinks">
               Redirects of Shortened Links
               <span
-                v-if="!loadingRedirectsOfShortenedLinks"
-                class="badge badge-primary">{{ resultedRedirectsOfShortenedLinks.length }}</span>
+                  v-if="!loadingRedirectsOfShortenedLinks"
+                  class="badge badge-primary">{{ resultedRedirectsOfShortenedLinks.length }}</span>
               <span v-else><i class="fa fa-spinner"></i></span>
             </button>
           </h5>
         </div>
         <div
-          id="collapseRedirectsOfShortenedLinks"
-          class="collapse"
-          aria-labelledby="headingRedirectsOfShortenedLinks"
-          data-parent="#accordion">
+            id="collapseRedirectsOfShortenedLinks"
+            class="collapse"
+            aria-labelledby="headingRedirectsOfShortenedLinks"
+            data-parent="#accordion">
           <div class="card-body">
             <div v-if="!loadingRedirectsOfShortenedLinks" class="table-responsive">
               <table class="table table-hover table-sm">
                 <thead>
-                  <tr>
-                    <th scope="col">Shortened/Vanity Links</th>
-                    <th scope="col">Full Links</th>
-                    <th scope="col">Last Visit</th>
-                    <th scope="col">Visits</th>
-                    <th scope="col">Created</th>
-                    <th scope="col">Updated</th>
-                    <th scope="col">Actions</th>
-                  </tr>
+                <tr>
+                  <th scope="col">Shortened/Vanity Links</th>
+                  <th scope="col">Full Links</th>
+                  <th scope="col">Last Visit</th>
+                  <th scope="col">Visits</th>
+                  <th scope="col">Created</th>
+                  <th scope="col">Updated</th>
+                  <th scope="col">Actions</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="redirect in paginatedRedirectsOfShortenedLinks" :id="redirect.id">
-                    <td>
-                      <a
+                <tr v-for="redirect in paginatedRedirectsOfShortenedLinks" :id="redirect.id">
+                  <td>
+                    <a
                         :href="'https://www.emich.edu' + redirect.fromLink"
                         target="_blank"
                         title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
-                    </td>
-                    <td>
-                      <a
+                  </td>
+                  <td>
+                    <a
                         :href="getFixedLink(redirect.toLink)"
                         target="_blank"
                         title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
-                    </td>
-                    <td>{{ formatDate(redirect.lastVisit) }}</td>
-                    <td>{{ redirect.visits }}</td>
-                    <td>{{ redirect.createdBy }}</td>
-                    <td>{{ redirect.contentChanged }}</td>
-                    <td>
-                      <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
-                    </td>
-                  </tr>
+                  </td>
+                  <td>{{ formatDate(redirect.lastVisit) }}</td>
+                  <td>{{ redirect.visits }}</td>
+                  <td>{{ redirect.createdBy }}</td>
+                  <td>{{ redirect.contentChanged }}</td>
+                  <td>
+                    <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -156,9 +156,9 @@
               <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
             </div>
             <paginator
-              v-show="!loadingRedirectsOfShortenedLinks"
-              :items="resultedRedirectsOfShortenedLinks"
-              @itemsPerPageChanged="setPaginatedRedirectsOfShortenedLinks"></paginator>
+                v-show="!loadingRedirectsOfShortenedLinks"
+                :items="resultedRedirectsOfShortenedLinks"
+                @itemsPerPageChanged="setPaginatedRedirectsOfShortenedLinks"></paginator>
           </div>
         </div>
       </div>
@@ -302,7 +302,8 @@
           </div>
         </div>
       -->
-    </div><br/>
+    </div>
+    <br/>
     <!-- Warning Message -->
     <div v-if="emptyRedirects" class="alert alert-danger fade show" role="alert">
       There are no {{ emptyRedirects }} redirects to delete.
@@ -333,13 +334,14 @@
 
 <style></style>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
 <script>
 import Heading from "../utils/Heading.vue";
 import Paginator from "../utils/Paginator.vue";
 
 export default {
-  created() {},
+  created() {
+  },
 
   mounted() {
     this.fetchRedirects();
@@ -356,7 +358,7 @@ export default {
     }
   },
 
-  data: function() {
+  data: function () {
     return {
       /* **************************** Error Data **************************** */
 
@@ -495,7 +497,7 @@ export default {
      * Gets the heading icon.
      * @return {string} The heading icon.
      */
-    headingIcon: function() {
+    headingIcon: function () {
       return "<i class='fa fa-list'></i>";
     },
 
@@ -503,7 +505,7 @@ export default {
      * Determines if the user can create.
      * @return {boolean} True if the user can create; false otherwise.
      */
-    userCanCreate: function() {
+    userCanCreate: function () {
       return this.permissions[0].user ? true : false;
     },
 
@@ -511,7 +513,7 @@ export default {
      * Determines if the user can edit.
      * @return {boolean} True if the user can edit; false otherwise.
      */
-    userCanEdit: function() {
+    userCanEdit: function () {
       return this.permissions[0].user ? true : false;
     }
   },
@@ -521,7 +523,7 @@ export default {
      * Updates the redirects by checking if each one has not been used for more
      * than six months.
      */
-    checkForExpiredRedirects: function() {
+    checkForExpiredRedirects: function () {
       console.log("Checking for expired redirects.");
 
       this.turnOnLoadingWheels();
@@ -543,7 +545,7 @@ export default {
         }
       }
 
-      setTimeout(function() {
+      setTimeout(function () {
         self.fetchRedirects(); // Get the redirects again after marking the expired ones.
       }, 3000);
     },
@@ -552,7 +554,7 @@ export default {
      * Updates the redirects by checking if each toLink field is still a valid
      * URL.
      */
-    checkForInvalidRedirects: function() {
+    checkForInvalidRedirects: function () {
       console.log("Checking for invalid redirects.");
 
       this.turnOnLoadingWheels();
@@ -564,21 +566,21 @@ export default {
         url: "/api/redirects/",
         data: []
       })
-      .then(function(response) { // Success.
-        self.fetchRedirects(); // Get the redirects again after updating them.
-      })
-      .catch(function(error) { // Failure.
-        let errors = error.response.data;
+          .then(function (response) { // Success.
+            self.fetchRedirects(); // Get the redirects again after updating them.
+          })
+          .catch(function (error) { // Failure.
+            let errors = error.response.data;
 
-        // Add any validation errors to the Vue validator error bag.
-        errors.forEach(function(error) {
-          let key = error.property_path;
-          let message = error.message;
-          self.$validator.errors.add(key, message);
-        });
+            // Add any validation errors to the Vue validator error bag.
+            errors.forEach(function (error) {
+              let key = error.property_path;
+              let message = error.message;
+              self.$validator.errors.add(key, message);
+            });
 
-        self.turnOffLoadingWheels();
-      })
+            self.turnOffLoadingWheels();
+          })
     },
 
     /**
@@ -586,7 +588,7 @@ export default {
      * by the item type.
      * @param {string} itemType The item type of the redirects to be deleted.
      */
-    deleteRedirects: function(itemType) {
+    deleteRedirects: function (itemType) {
       console.log("Deleting all " + itemType + " redirects.");
 
       this.turnOnLoadingWheels();
@@ -599,29 +601,29 @@ export default {
         this.turnOffLoadingWheels();
 
         // Remove the message after three seconds.
-        setTimeout(function() {
+        setTimeout(function () {
           self.emptyRedirects = "";
         }, 3000);
       } else {
         for (var i = 0; i < redirects.length; i++) {
           /* Ajax (Axios) Submission */
           axios.delete("/api/redirects/" + redirects[i].id)
-          .then(function(response) { // Success.
+              .then(function (response) { // Success.
 
-          })
-          .catch(function(error) { // Failure.
-            let errors = error.response.data;
+              })
+              .catch(function (error) { // Failure.
+                let errors = error.response.data;
 
-            // Add any validation errors to the Vue validator error bag.
-            errors.forEach(function(error) {
-              let key = error.property_path;
-              let message = error.message;
-              self.$validator.errors.add(key, message);
-            });
-          });
+                // Add any validation errors to the Vue validator error bag.
+                errors.forEach(function (error) {
+                  let key = error.property_path;
+                  let message = error.message;
+                  self.$validator.errors.add(key, message);
+                });
+              });
         }
 
-        setTimeout(function() {
+        setTimeout(function () {
           self.fetchRedirects(); // Get the redirects again after deleting the expired ones.
         }, 3000);
       }
@@ -630,7 +632,7 @@ export default {
     /**
      * Gets the redirects.
      */
-    fetchRedirects: function() {
+    fetchRedirects: function () {
       console.log("Fetching redirects.");
 
       this.turnOnLoadingWheels();
@@ -642,75 +644,75 @@ export default {
 
       /* Ajax (Axios) Submission */
       axios.get("/api/redirects/")
-      .then(function(response) { // Success.
-        response.data.forEach(function(redirect) {
-          // Filter the redirect into their respective categories based on the itemType field.
-          switch (redirect.itemType) {
-            case "redirect of broken link":
-              self.fetchedRedirectsOfBrokenLinks.push(redirect);
-              break;
-            case "redirect of shortened link":
-              self.fetchedRedirectsOfShortenedLinks.push(redirect);
-              break;
-            case "expired redirect of broken link":
-            case "expired redirect of shortened link":
-              self.fetchedExpiredRedirects.push(redirect);
-              break;
-            case "invalid redirect of broken link":
-            case "invalid redirect of shortened link":
-              self.fetchedInvalidRedirects.push(redirect);
-              break;
-          }
-        });
+          .then(function (response) { // Success.
+            response.data.forEach(function (redirect) {
+              // Filter the redirect into their respective categories based on the itemType field.
+              switch (redirect.itemType) {
+                case "redirect of broken link":
+                  self.fetchedRedirectsOfBrokenLinks.push(redirect);
+                  break;
+                case "redirect of shortened link":
+                  self.fetchedRedirectsOfShortenedLinks.push(redirect);
+                  break;
+                case "expired redirect of broken link":
+                case "expired redirect of shortened link":
+                  self.fetchedExpiredRedirects.push(redirect);
+                  break;
+                case "invalid redirect of broken link":
+                case "invalid redirect of shortened link":
+                  self.fetchedInvalidRedirects.push(redirect);
+                  break;
+              }
+            });
 
-        self.resultedRedirectsOfBrokenLinks = self.fetchedRedirectsOfBrokenLinks.slice();
-        self.resultedRedirectsOfShortenedLinks = self.fetchedRedirectsOfShortenedLinks.slice();
-        self.resultedExpiredRedirects = self.fetchedExpiredRedirects.slice();
-        self.resultedInvalidRedirects = self.fetchedInvalidRedirects.slice();
+            self.resultedRedirectsOfBrokenLinks = self.fetchedRedirectsOfBrokenLinks.slice();
+            self.resultedRedirectsOfShortenedLinks = self.fetchedRedirectsOfShortenedLinks.slice();
+            self.resultedExpiredRedirects = self.fetchedExpiredRedirects.slice();
+            self.resultedInvalidRedirects = self.fetchedInvalidRedirects.slice();
 
-        // Disable any loading flags for empty arrays.
-        if (self.resultedRedirectsOfBrokenLinks.length == 0) {
-          self.loadingRedirectsOfBrokenLinks = false;
-        }
+            // Disable any loading flags for empty arrays.
+            if (self.resultedRedirectsOfBrokenLinks.length == 0) {
+              self.loadingRedirectsOfBrokenLinks = false;
+            }
 
-        if (self.resultedRedirectsOfShortenedLinks.length == 0) {
-          self.loadingRedirectsOfShortenedLinks = false;
-        }
+            if (self.resultedRedirectsOfShortenedLinks.length == 0) {
+              self.loadingRedirectsOfShortenedLinks = false;
+            }
 
-        if (self.resultedExpiredRedirects.length == 0) {
-          self.loadingExpiredRedirects = false;
-        }
+            if (self.resultedExpiredRedirects.length == 0) {
+              self.loadingExpiredRedirects = false;
+            }
 
-        if (self.resultedInvalidRedirects.length == 0) {
-          self.loadingInvalidRedirects = false;
-        }
-      })
-      .catch(function(error) { // Failure.
-        self.apiError.status = error.response.status;
+            if (self.resultedInvalidRedirects.length == 0) {
+              self.loadingInvalidRedirects = false;
+            }
+          })
+          .catch(function (error) { // Failure.
+            self.apiError.status = error.response.status;
 
-        switch (error.response.status) {
-          case 403:
-            self.apiError.message = "You do not have sufficient privileges to retrieve redirects.";
-            break;
-          case 404:
-            self.apiError.message = "Redirects were not found.";
-            break;
-          case 500:
-            self.apiError.message = "An internal error occurred.";
-            break;
-          default:
-            self.apiError.message = "An error occurred.";
-            break;
-        }
+            switch (error.response.status) {
+              case 403:
+                self.apiError.message = "You do not have sufficient privileges to retrieve redirects.";
+                break;
+              case 404:
+                self.apiError.message = "Redirects were not found.";
+                break;
+              case 500:
+                self.apiError.message = "An internal error occurred.";
+                break;
+              default:
+                self.apiError.message = "An error occurred.";
+                break;
+            }
 
-        self.turnOffLoadingWheels();
-      });
+            self.turnOffLoadingWheels();
+          });
     },
 
     /**
      * Filters the rediects based on the search term.
      */
-    filterRedirects: function() {
+    filterRedirects: function () {
       var filteredRedirectsOfBrokenLinks = [];
       var filteredRedirectsOfShortenedLinks = [];
       var filteredExpiredRedirects = [];
@@ -719,41 +721,41 @@ export default {
       if (this.searchTerm.trim()) {
         for (var i = 0; i < this.fetchedRedirectsOfBrokenLinks.length; i++) {
           if (this.fetchedRedirectsOfBrokenLinks[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-            || this.fetchedRedirectsOfBrokenLinks[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
+              || this.fetchedRedirectsOfBrokenLinks[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
             filteredRedirectsOfBrokenLinks.push(this.fetchedRedirectsOfBrokenLinks[i]);
           }
         }
 
         for (var i = 0; i < this.fetchedRedirectsOfShortenedLinks.length; i++) {
           if (this.fetchedRedirectsOfShortenedLinks[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-            || this.fetchedRedirectsOfShortenedLinks[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
+              || this.fetchedRedirectsOfShortenedLinks[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
             filteredRedirectsOfShortenedLinks.push(this.fetchedRedirectsOfShortenedLinks[i]);
           }
         }
 
         for (var i = 0; i < this.fetchedExpiredRedirects.length; i++) {
           if (this.fetchedExpiredRedirects[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-            || this.fetchedExpiredRedirects[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
+              || this.fetchedExpiredRedirects[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
             filteredExpiredRedirects.push(this.fetchedExpiredRedirects[i]);
           }
         }
 
         for (var i = 0; i < this.fetchedInvalidRedirects.length; i++) {
           if (this.fetchedInvalidRedirects[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-            || this.fetchedInvalidRedirects[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
+              || this.fetchedInvalidRedirects[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
             filteredInvalidRedirects.push(this.fetchedInvalidRedirects[i]);
           }
         }
       }
 
       this.resultedRedirectsOfBrokenLinks = this.searchTerm.trim()
-        ? filteredRedirectsOfBrokenLinks.slice() : this.fetchedRedirectsOfBrokenLinks.slice();
+          ? filteredRedirectsOfBrokenLinks.slice() : this.fetchedRedirectsOfBrokenLinks.slice();
       this.resultedRedirectsOfShortenedLinks = this.searchTerm.trim()
-        ? filteredRedirectsOfShortenedLinks.slice() : this.fetchedRedirectsOfShortenedLinks.slice();
+          ? filteredRedirectsOfShortenedLinks.slice() : this.fetchedRedirectsOfShortenedLinks.slice();
       this.resultedExpiredRedirects = this.searchTerm.trim()
-        ? filteredExpiredRedirects.slice() : this.fetchedExpiredRedirects.slice();
+          ? filteredExpiredRedirects.slice() : this.fetchedExpiredRedirects.slice();
       this.resultedInvalidRedirects = this.searchTerm.trim()
-        ? filteredInvalidRedirects.slice() : this.fetchedInvalidRedirects.slice();
+          ? filteredInvalidRedirects.slice() : this.fetchedInvalidRedirects.slice();
     },
 
     /**
@@ -761,7 +763,7 @@ export default {
      * @param {string} date The specified date to be formatted.
      * @return {string} If the date is null, return "N/A"; the formatted date otherwise.
      */
-    formatDate: function(date) {
+    formatDate: function (date) {
       if (date) {
         var newDate = new Date(date);
         var formattedDate;
@@ -819,7 +821,7 @@ export default {
      * @param {string} link The link to be fixed.
      * @return {string} The fixed link from the specified link.
      */
-    getFixedLink: function(link) {
+    getFixedLink: function (link) {
       return link.charAt(0) == "/" ? "https://www.emich.edu" + link : link;
     },
 
@@ -827,7 +829,7 @@ export default {
      * Updates the paginated expired redirects by the specified array of expired redirects.
      * @param {Array.<Redirect>} expiredRedirects The array of expired redirects used to update.
      */
-    setPaginatedExpiredRedirects: function(expiredRedirects) {
+    setPaginatedExpiredRedirects: function (expiredRedirects) {
       this.loadingExpiredRedirects = true; // Show the loading wheel.
       this.paginatedExpiredRedirects = expiredRedirects; // Set the paginated expired redirects returned from the child paginator components.
       this.loadingExpiredRedirects = false; // Turn off the loading wheel.
@@ -837,7 +839,7 @@ export default {
      * Updates the paginated broken links by the specified array of broken links.
      * @param {Array.<Redirect>} redirectsOfBrokenLinks The array of broken links used to update.
      */
-    setPaginatedRedirectsOfBrokenLinks: function(redirectsOfBrokenLinks) {
+    setPaginatedRedirectsOfBrokenLinks: function (redirectsOfBrokenLinks) {
       this.loadingRedirectsOfBrokenLinks = true; // Show the loading wheel.
       this.paginatedRedirectsOfBrokenLinks = redirectsOfBrokenLinks; // Set the paginated broken links returned from the child paginator components.
       this.loadingRedirectsOfBrokenLinks = false; // Turn off the loading wheel.
@@ -847,7 +849,7 @@ export default {
      * Updates the paginated shortened links by the specified array of shortened links.
      * @param {Array.<Redirect>} redirectsOfShortenedLinks The array of shortened links used to update.
      */
-    setPaginatedRedirectsOfShortenedLinks: function(redirectsOfShortenedLinks) {
+    setPaginatedRedirectsOfShortenedLinks: function (redirectsOfShortenedLinks) {
       this.loadingRedirectsOfShortenedLinks = true; // Show the loading wheel.
       this.paginatedRedirectsOfShortenedLinks = redirectsOfShortenedLinks; // Set the paginated shortened links returned from the child paginator components.
       this.loadingRedirectsOfShortenedLinks = false; // Turn off the loading wheel.
@@ -857,7 +859,7 @@ export default {
      * Updates the paginated invalid redirects by the specified array of invalid redirects.
      * @param {Array.<Redirect>} invalidRedirects The array of invalid redirects used to update.
      */
-    setPaginatedInvalidRedirects: function(invalidRedirects) {
+    setPaginatedInvalidRedirects: function (invalidRedirects) {
       this.loadingInvalidRedirects = true; // Show the loading wheel.
       this.paginatedInvalidRedirects = invalidRedirects; // Set the paginated invalid redirects returned from the child paginator components.
       this.loadingInvalidRedirects = false; // Turn off the loading wheel.
@@ -866,7 +868,7 @@ export default {
     /**
      * Sets the loading variables to false to hide all loading wheels.
      */
-    turnOffLoadingWheels: function() {
+    turnOffLoadingWheels: function () {
       this.loadingRedirectsOfBrokenLinks = false;
       this.loadingRedirectsOfShortenedLinks = false;
       this.loadingExpiredRedirects = false;
@@ -876,7 +878,7 @@ export default {
     /**
      * Sets the loading variables to true to show all loading wheels.
      */
-    turnOnLoadingWheels: function() {
+    turnOnLoadingWheels: function () {
       this.loadingRedirectsOfBrokenLinks = true;
       this.loadingRedirectsOfShortenedLinks = true;
       this.loadingExpiredRedirects = true;
@@ -887,7 +889,7 @@ export default {
      * Updates the specified redirect to an expired redirect.
      * @param {Redirect} redirect The redirect to be updated as an expired redirect.
      */
-    updateExpiredRedirect: function(redirect) {
+    updateExpiredRedirect: function (redirect) {
       let self = this; // "this" loses scope within Axios.
 
       /* Ajax (Axios) Submission */
@@ -901,21 +903,21 @@ export default {
           itemType: "expired " + redirect.itemType
         }
       })
-      .then(function(response) { // Success.
+          .then(function (response) { // Success.
 
-      })
-      .catch(function(error) { // Failure.
-        let errors = error.response.data;
+          })
+          .catch(function (error) { // Failure.
+            let errors = error.response.data;
 
-        // Add any validation errors to the Vue validator error bag.
-        errors.forEach(function(error) {
-          let key = error.property_path;
-          let message = error.message;
-          self.$validator.errors.add(key, message);
-        });
+            // Add any validation errors to the Vue validator error bag.
+            errors.forEach(function (error) {
+              let key = error.property_path;
+              let message = error.message;
+              self.$validator.errors.add(key, message);
+            });
 
-        self.turnOffLoadingWheels();
-      });
+            self.turnOffLoadingWheels();
+          });
     }
   },
 

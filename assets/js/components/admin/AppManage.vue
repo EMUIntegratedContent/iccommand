@@ -1,7 +1,7 @@
 <template>
   <div>
     <heading>
-      <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
+      <span slot="icon" v-html="headingIcon"></span>
       <span slot="title">{{ appName }} Users</span>
     </heading>
     <!--<p><button type="button" class="btn btn-sm btn-info" @click="openAddUserModal">Add User</button></p>-->

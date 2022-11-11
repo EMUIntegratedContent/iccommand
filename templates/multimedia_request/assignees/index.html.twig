@@ -8,6 +8,7 @@
 
 {% block body %}
 <div id="app">
+  {{ encore_entry_script_tags('app') }}
   <multimedia-assignee-index :permissions="[{{ permissions }}]"></multimedia-assignee-index>
 </div>
 {% endblock %}

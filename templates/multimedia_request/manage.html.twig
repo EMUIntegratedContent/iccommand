@@ -9,6 +9,7 @@
 {% block body %}
 <div id="app">
   <h1 class="display-1">Multimedia request app management</h1>
+  {{ encore_entry_script_tags('app') }}
   <app-manage role-prefix="ROLE_MULTIMEDIA_" app-slug="multimediarequest" app-name="Multimedia Requests App" current-user="{{ app.user.username }}"></app-manage>
 </div>
 

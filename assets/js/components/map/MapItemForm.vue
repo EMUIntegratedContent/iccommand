@@ -7,6 +7,7 @@
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>
+
     <div v-if="isDeleted === true" class="alert alert-info fade show" role="alert">
       {{ record.itemType | capitalize }} "{{ record.name }}" item has been deleted. You will now be redirected to
       the map items list page.
@@ -14,7 +15,7 @@
     <!-- MAIN AREA -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
       <heading>
-        <!--<span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>-->
+        <!--<span slot="icon" v-html="headingIcon"></span>-->
         <span v-if="!itemExists" slot="title">Step 2/2: Provide {{ record.itemType }} information</span>
         <span v-else slot="title">Map {{ record.itemType }}: {{ record.name }}</span>
       </heading>

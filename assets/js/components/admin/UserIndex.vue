@@ -1,7 +1,7 @@
 <template>
   <div>
     <heading>
-      <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
+      <span slot="icon" v-html="headingIcon"></span>
       <span slot="title">Registered Users</span>
     </heading>
     <p><a href="/register" class="btn btn-info">New User</a></p>

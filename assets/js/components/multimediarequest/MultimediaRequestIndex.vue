@@ -1,7 +1,7 @@
 <template>
     <div>
         <heading>
-            <span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>
+            <span slot="icon" v-html="headingIcon"></span>
             <span slot="title">Multimedia Requests</span>
         </heading>
         <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">

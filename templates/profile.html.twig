@@ -4,6 +4,7 @@
 
 {% block body %}
 <div id="app">
+    {{ encore_entry_script_tags('app') }}
   {% if app.user.username %}
     <user-profile username="{{ app.user.username }}"></user-profile>
   {% else %}

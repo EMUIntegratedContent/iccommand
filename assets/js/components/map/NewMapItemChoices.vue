@@ -1,7 +1,7 @@
 <template>
   <div>
     <heading>
-      <!--<span slot="icon" v-html="headingIcon">{{ headingIcon }}</span>-->
+      <!--<span slot="icon" v-html="headingIcon"></span>-->
       <span slot="title">Step 1/2: Choose item type</span>
     </heading>
     <div class="row hover-cards">

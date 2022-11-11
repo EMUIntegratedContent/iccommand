@@ -10,6 +10,7 @@
         </div>
     </div>
     <div id="app">
+        {{ encore_entry_script_tags('app') }}
         {% if currentUsername %}
             <home-page username="{{ currentUsername }}" :userroles="{{ currentUserRoles }}"></home-page>
         {% else %}
