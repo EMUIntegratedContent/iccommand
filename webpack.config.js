@@ -33,7 +33,12 @@ Encore
         '@': path.resolve('assets/js'),
         vue$: 'vue/dist/vue.esm-bundler',
     })
-;
+    .addPlugin(
+        new webpack.DefinePlugin({
+                __VUE_OPTIONS_API__: true, // Allows the old Vue2 style (options API)
+                __VUE_PROD_DEVTOOLS__: true,
+            })
+    )
 
 // export the final configuration
 module.exports = Encore.getWebpackConfig()

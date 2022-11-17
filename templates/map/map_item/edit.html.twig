@@ -8,7 +8,6 @@
 
 {% block body %}
 <div id="app">
-  {{ encore_entry_script_tags('app') }}
   <map-item-form :item-exists="true" item-type="{{ itemType }}" start-mode="edit" item-id="{{ id }}" :permissions="[{{ permissions }}]"></map-item-form>
 </div>
 {% endblock %}

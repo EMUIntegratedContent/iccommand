@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>{% block title %}Welcome!{% endblock %} – ICCommand</title>
     {% block stylesheets %}
-        <link href="{{ asset('build/app.css') }}" rel="stylesheet"/>
+        {{ encore_entry_link_tags('app') }}
     {% endblock %}
 </head>
 <body>
@@ -64,7 +64,7 @@
     {% block body %}{% endblock %}
 </main>
 {% block javascripts %}
-    <script src="{{ asset('build/app.js') }}"></script>
+    {{ encore_entry_script_tags('app') }}
     <script src="{{ asset('ckeditor4/ckeditor.js') }}"></script>
     <!--<script src="https://cdn.ckeditor.com/4.6.1/full/ckeditor.js"></script>-->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCUqoSEir9huPBCzyFRLopmjb0lmzOkj78"></script>

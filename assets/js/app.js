@@ -45,9 +45,9 @@ if (!String.prototype.includes) {
 
 /* ******************************** Vue Setup ******************************* */
 import { createApp } from "vue"
-import VeeValidate from "vee-validate"
-import PrettyCheckbox from "pretty-checkbox-vue"
-import VueCkeditor from "vue-ckeditor2"
+// import VeeValidate from "vee-validate"
+// import PrettyCheckbox from "pretty-checkbox-vue"
+// import VueCkeditor from "vue-ckeditor2"
 
 /* ********************************* Vue App ******************************** */
 const app = createApp({
@@ -81,9 +81,9 @@ app.component("new-redirect-item", require("./components/redirect/NewRedirectIte
 app.component("redirect-item-form", require("./components/redirect/RedirectItemForm.vue").default);
 app.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
 app.mount('#app')
-app.use(VeeValidate);
-app.use(PrettyCheckbox);
-app.use(VueCkeditor);
+// app.use(VeeValidate);
+// app.use(PrettyCheckbox);
+// app.use(VueCkeditor);
 
 
 
