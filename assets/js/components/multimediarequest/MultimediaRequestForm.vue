@@ -727,7 +727,7 @@
         font-size: 0.8rem;
     }
 </style>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <script>
     import MultimediaRequestDeleteModal from './MultimediaRequestDeleteModal.vue'
     import Heading from '../utils/Heading.vue'

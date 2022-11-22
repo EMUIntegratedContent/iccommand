@@ -171,7 +171,7 @@
         z-index: auto;
     }
 </style>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <script>
     import AssigneeDeleteModal from './AssigneeDeleteModal.vue'
     import Heading from '../utils/Heading.vue'

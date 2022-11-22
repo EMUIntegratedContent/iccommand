@@ -72,7 +72,7 @@
 <style scoped>
 
 </style>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <script>
     import moment from 'moment'
     import Multiselect from 'vue-multiselect'

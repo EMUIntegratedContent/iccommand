@@ -26,13 +26,15 @@
   "dependencies": {
     "@babel/core": "^7.19.1",
     "@babel/preset-env": "^7.19.1",
+    "@ckeditor/ckeditor5-basic-styles": "^35.3.2",
+    "@ckeditor/ckeditor5-build-classic": "^35.3.2",
     "@ckeditor/ckeditor5-core": "^11.1.0",
+    "@ckeditor/ckeditor5-vue": "^4.0.1",
     "@fortawesome/fontawesome": "^1.1.8",
     "ajv": "^7.2.4",
     "axios": "^0.27.2",
     "babel-loader": "^8.2.5",
     "bootstrap": "^4.6.2",
-    "ckeditor": "^4.12.1",
     "ckeditor5": "^10.1.0",
     "es6-promise": "^4.2.8",
     "font-awesome": "^4.7.0",
@@ -41,16 +43,16 @@
     "momentjs": "^2.0.0",
     "popper.js": "^1.16.1",
     "pretty-checkbox-vue": "^1.1.9",
-    "vee-validate": "^2.2.15",
+    "vee-validate": "^4.7.3",
     "vue-axios": "^2.1.5",
-    "vue-ckeditor2": "^2.1.5",
     "vue-flatpickr-component": "^7.0.6",
     "vue-js-grid": "^1.0.1",
-    "vue-multiselect": "^2.1.6",
+    "vue-multiselect": "next",
     "vue-router": "^3.6.5",
     "vue-slicksort": "^1.2.0",
     "vue2-dragula": "^2.5.5",
     "vue2-google-maps": "^0.10.7",
-    "vuedraggable": "^2.24.3"
+    "vuedraggable": "^2.24.3",
+    "yup": "^0.32.11"
   }
 }

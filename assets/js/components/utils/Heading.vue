@@ -3,7 +3,7 @@
     <!--<slot name="icon">
       icon goes here
     </slot>-->
-    <slot name="title">Title goes here</slot>
+    <slot>Title goes here!!</slot>
   </h2>
 </template>
 <style>
@@ -16,6 +16,6 @@
 </style>
 <script>
     export default {
-        mounted() {}
+        created() {}
     }
 </script>
