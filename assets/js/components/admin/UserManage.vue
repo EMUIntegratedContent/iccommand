@@ -25,83 +25,86 @@
           <div class="form-group row">
             <div class="col-sm-6">
               <label>First Name</label>
-              <input
-                  data-vv-as="first name"
-                  name="firstName"
-                  type="text"
-                  class="form-control"
-                  :class="{ 'is-invalid': errors.has('firstName'), 'form-control-plaintext': !isEditMode }"
-                  :readonly="!isEditMode"
-                  v-model="user.firstName">
-              <div class="invalid-feedback">
-                {{ errors.first('firstName') }}
-              </div>
+<!--              <input-->
+<!--                  data-vv-as="first name"-->
+<!--                  name="firstName"-->
+<!--                  type="text"-->
+<!--                  class="form-control"-->
+<!--                  :class="{ 'is-invalid': errors.has('firstName'), 'form-control-plaintext': !isEditMode }"-->
+<!--                  :readonly="!isEditMode"-->
+<!--                  v-model="user.firstName">-->
+<!--              <div class="invalid-feedback">-->
+<!--                {{ errors.first('firstName') }}-->
+<!--              </div>-->
             </div>
             <div class="col-sm-6">
               <label>Last Name</label>
-              <input
-                  data-vv-as="last name"
-                  name="lastName"
-                  type="text"
-                  class="form-control"
-                  :class="{ 'is-invalid': errors.has('lastName'), 'form-control-plaintext': !isEditMode }"
-                  :readonly="!isEditMode"
-                  v-model="user.lastName">
-              <div class="invalid-feedback">
-                {{ errors.first('lastName') }}
-              </div>
+<!--              <input-->
+<!--                  data-vv-as="last name"-->
+<!--                  name="lastName"-->
+<!--                  type="text"-->
+<!--                  class="form-control"-->
+<!--                  :class="{ 'is-invalid': errors.has('lastName'), 'form-control-plaintext': !isEditMode }"-->
+<!--                  :readonly="!isEditMode"-->
+<!--                  v-model="user.lastName">-->
+<!--              <div class="invalid-feedback">-->
+<!--                {{ errors.first('lastName') }}-->
+<!--              </div>-->
             </div>
           </div>
           <div class="form-group row">
             <div class="col-sm-6">
               <label>Job Title</label>
-              <input
-                  data-vv-as="job title"
-                  name="jobTitle"
-                  type="text"
-                  class="form-control"
-                  :class="{ 'is-invalid': errors.has('jobTitle'), 'form-control-plaintext': !isEditMode }"
-                  :readonly="!isEditMode"
-                  v-model="user.jobTitle">
-              <div class="invalid-feedback">
-                {{ errors.first('jobTitle') }}
-              </div>
+<!--              <input-->
+<!--                  data-vv-as="job title"-->
+<!--                  name="jobTitle"-->
+<!--                  type="text"-->
+<!--                  class="form-control"-->
+<!--                  :class="{ 'is-invalid': errors.has('jobTitle'), 'form-control-plaintext': !isEditMode }"-->
+<!--                  :readonly="!isEditMode"-->
+<!--                  v-model="user.jobTitle">-->
+<!--              <div class="invalid-feedback">-->
+<!--                {{ errors.first('jobTitle') }}-->
+<!--              </div>-->
             </div>
             <div class="col-sm-3">
               <label>Department</label>
-              <input
-                  data-vv-as="department"
-                  name="department"
-                  type="text"
-                  class="form-control"
-                  :class="{ 'is-invalid': errors.has('department'), 'form-control-plaintext': !isEditMode }"
-                  :readonly="!isEditMode"
-                  v-model="user.department">
-              <div class="invalid-feedback">
-                {{ errors.first('department') }}
-              </div>
+<!--              <input-->
+<!--                  data-vv-as="department"-->
+<!--                  name="department"-->
+<!--                  type="text"-->
+<!--                  class="form-control"-->
+<!--                  :class="{ 'is-invalid': errors.has('department'), 'form-control-plaintext': !isEditMode }"-->
+<!--                  :readonly="!isEditMode"-->
+<!--                  v-model="user.department">-->
+<!--              <div class="invalid-feedback">-->
+<!--                {{ errors.first('department') }}-->
+<!--              </div>-->
             </div>
             <div class="col-sm-3">
               <label>Phone Number</label>
-              <input
-                  v-validate="{max: 16}"
-                  data-vv-as="phone"
-                  name="phone"
-                  type="text"
-                  class="form-control"
-                  :class="{ 'is-invalid': errors.has('phone'), 'form-control-plaintext': !isEditMode }"
-                  :readonly="!isEditMode"
-                  v-model="user.phone">
-              <div class="invalid-feedback">
-                {{ errors.first('phone') }}
-              </div>
+<!--              <input-->
+<!--                  v-validate="{max: 16}"-->
+<!--                  data-vv-as="phone"-->
+<!--                  name="phone"-->
+<!--                  type="text"-->
+<!--                  class="form-control"-->
+<!--                  :class="{ 'is-invalid': errors.has('phone'), 'form-control-plaintext': !isEditMode }"-->
+<!--                  :readonly="!isEditMode"-->
+<!--                  v-model="user.phone">-->
+<!--              <div class="invalid-feedback">-->
+<!--                {{ errors.first('phone') }}-->
+<!--              </div>-->
             </div>
           </div>
           <div class="form-group">
-            <p-check :disabled="!isEditMode || (username == loggedInUser)" class="p-switch p-slim"
-                     v-model="user.enabled" color="success">{{ user.enabled ? 'Enabled' : 'Disabled' }}
-              {{ (username == loggedInUser) && isEditMode ? '(you cannot disable your own account)' : '' }}
-            </p-check>
+              <input type="checkbox"
+                     v-model="user.enabled"
+                     :disabled="username == loggedInUser || !isEditMode"
+                     true-value="1"
+                     false-value="0"
+              > {{ user.enabled ? 'Enabled' : 'Disabled' }}
+            {{ (username == loggedInUser) && isEditMode ? '(you cannot disable your own account)' : '' }}
           </div>
         </fieldset>
         <fieldset>
@@ -112,10 +115,13 @@
                 <div class="card-header">Administrative</div>
                 <div class="card-body">
                   <p v-if="username == loggedInUser">You cannot change your own administrative settings.</p>
-                  <p-check v-for="role in rolesAdmin" :disabled="(username == loggedInUser) || !isEditMode"
-                           v-model="user.roles" :key="role" :value="role" class="p-default p-thick" color="primary-o">
-                    {{ role }}
-                  </p-check>
+                  <template v-for="role in rolesAdmin" :key="'admin-role-'+role">
+                    <input type="checkbox"
+                       v-model="user.roles"
+                       :disabled="username == loggedInUser || !isEditMode"
+                       :value="role"
+                    > {{ role }} <br>
+                  </template>
                 </div>
               </div>
             </div>
@@ -123,9 +129,13 @@
               <div class="card card-accent card-accent-blue">
                 <div class="card-header">Campus Map</div>
                 <div class="card-body">
-                  <p-check v-for="role in rolesMap" :disabled="!isEditMode" v-model="user.roles" :key="role"
-                           :value="role" class="p-default p-thick" color="primary-o">{{ role }}
-                  </p-check>
+                  <template v-for="role in rolesMap" :key="'user-map-'+role">
+                    <input type="checkbox"
+                           v-model="user.roles"
+                           :disabled="!isEditMode"
+                           :value="role"
+                    > {{ role }} <br>
+                  </template>
                 </div>
               </div>
             </div>
@@ -133,9 +143,13 @@
               <div class="card card-accent card-accent-blue">
                 <div class="card-header">Redirect</div>
                 <div class="card-body">
-                  <p-check v-for="role in rolesRedirect" :disabled="!isEditMode" v-model="user.roles" :key="role"
-                           :value="role" class="p-default p-thick" color="primary-o">{{ role }}
-                  </p-check>
+                  <template v-for="role in rolesRedirect" :key="'user-redirect-'+role">
+                    <input type="checkbox"
+                           v-model="user.roles"
+                           :disabled="!isEditMode"
+                           :value="role"
+                    > {{ role }} <br>
+                  </template>
                 </div>
               </div>
             </div>
@@ -143,23 +157,27 @@
               <div class="card card-accent card-accent-blue">
                 <div class="card-header">Multimedia Request</div>
                 <div class="card-body">
-                  <p-check v-for="role in rolesMultimedia" :disabled="!isEditMode" v-model="user.roles" :key="role"
-                           :value="role" class="p-default p-thick" color="primary-o">{{ role }}
-                  </p-check>
+                  <template v-for="role in rolesMultimedia" :key="'user-multi-'+role">
+                    <input type="checkbox"
+                           v-model="user.roles"
+                           :disabled="!isEditMode"
+                           :value="role"
+                    > {{ role }} <br>
+                  </template>
                 </div>
               </div>
             </div>
           </div>
           <!-- VALIDATION AND SUCCESS/ERROR MESSAGES -->
-          <div v-if="$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">
-            You have <strong>{{ $validator.errors.count() }} error<span
-              v-if="$validator.errors.count() > 1">s</span></strong> in your submission:
-            <ul>
-              <li v-for="error in $validator.errors.all()">
-                <strong>{{ error }}</strong>
-              </li>
-            </ul>
-          </div>
+<!--          <div v-if="$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">-->
+<!--            You have <strong>{{ $validator.errors.count() }} error<span-->
+<!--              v-if="$validator.errors.count() > 1">s</span></strong> in your submission:-->
+<!--            <ul>-->
+<!--              <li v-for="error in $validator.errors.all()">-->
+<!--                <strong>{{ error }}</strong>-->
+<!--              </li>-->
+<!--            </ul>-->
+<!--          </div>-->
           <div v-if="success" class="alert alert-success fade show" role="alert">
             {{ successMessage }}
           </div>
@@ -248,18 +266,18 @@ export default {
     // Run prior to submitting
     checkForm: function () {
       let self = this
-      this.$validator.validateAll()
-          .then((result) => {
-            // if all fields valid, submit the form
-            if (result) {
-              self.submitForm()
-              return
-            }
-          })
-          .catch((error) => {
-            self.apiError.status = 500
-            self.apiError.message = "Something went wrong that wasn't validation related."
-          });
+      // this.$validator.validateAll()
+      //     .then((result) => {
+      //       // if all fields valid, submit the form
+      //       if (result) {
+      //         self.submitForm()
+      //         return
+      //       }
+      //     })
+      //     .catch((error) => {
+      //       self.apiError.status = 500
+      //       self.apiError.message = "Something went wrong that wasn't validation related."
+      //     });
     },
     fetchRoles: function () {
       let self = this

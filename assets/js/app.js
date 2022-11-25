@@ -46,7 +46,6 @@ if (!String.prototype.includes) {
 /* ******************************** Vue Setup ******************************* */
 import { createApp } from "vue"
 import CKEditor from '@ckeditor/ckeditor5-vue';
-// import PrettyCheckbox from "pretty-checkbox-vue"
 
 /* ********************************* Vue App ******************************** */
 const app = createApp({
@@ -81,7 +80,6 @@ app.component("redirect-item-form", require("./components/redirect/RedirectItemF
 app.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
 app.use(CKEditor)
 app.mount('#app')
-// app.use(PrettyCheckbox);
 
 
 

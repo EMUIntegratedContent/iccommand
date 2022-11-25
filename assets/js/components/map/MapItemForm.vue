@@ -110,15 +110,15 @@
                 marker.</p>
               <div class="row">
                 <div class="col-md-12">
-<!--                  <google-map-->
-<!--                      name="campusmap"-->
-<!--                      :latitudeSatellite="parseFloat(record.latitudeSatellite)"-->
-<!--                      :longitudeSatellite="parseFloat(record.longitudeSatellite)"-->
-<!--                      :latitudeIllustration="parseFloat(record.latitudeIllustration)"-->
-<!--                      :longitudeIllustration="parseFloat(record.longitudeIllustration)"-->
-<!--                      @illustrationMarkerUpdated="setIllustratedLocation"-->
-<!--                      @satelliteMarkerUpdated="setSatelliteLocation">-->
-<!--                  </google-map>-->
+                  <google-map
+                      name="campusmap"
+                      :latitudeSatellite="parseFloat(record.latitudeSatellite)"
+                      :longitudeSatellite="parseFloat(record.longitudeSatellite)"
+                      :latitudeIllustration="parseFloat(record.latitudeIllustration)"
+                      :longitudeIllustration="parseFloat(record.longitudeIllustration)"
+                      @illustrationMarkerUpdated="setIllustratedLocation"
+                      @satelliteMarkerUpdated="setSatelliteLocation">
+                  </google-map>
                 </div>
               </div>
             </fieldset>
@@ -293,12 +293,10 @@
                                   </div>
                                   <div class="form-group">
                                     <div class="form-check">
-<!--                                      <p-check-->
-<!--                                          :id="'bathroomGenderNeutral-' + index"-->
-<!--                                          class="p-switch p-slim"-->
-<!--                                          v-model="bathroom.isGenderNeutral"-->
-<!--                                          color="success">Gender neutral-->
-<!--                                      </p-check>-->
+                                      <input type="checkbox"
+                                        :id="'bathroomGenderNeutral-' + index"
+                                        v-model="bathroom.isGenderNeutral"
+                                        color="success" /> Gender neutral
                                     </div>
                                   </div>
                                 </div>
@@ -942,16 +940,16 @@
 <!--                        <span v-html="record.hours"></span>-->
 <!--                      </template>-->
 <!--                      <template v-else>-->
-<!--                        <div :class="{'is-invalid-ckeditor': errors.has('hours')}">-->
-<!--                          <vue-ckeditor-->
+<!--                        <div :class="{'is-invalid-ckeditor': errors.hours)}">-->
+<!--                          <ckeditor-->
 <!--                              v-model="record.hours"-->
 <!--                              :config="ckConfig"-->
 <!--                              name="hours"-->
 <!--                          >-->
-<!--                          </vue-ckeditor>-->
+<!--                          </ckeditor>-->
 <!--                        </div>-->
-<!--                        <div v-if="errors.has('hours')" class="invalid-feedback-ckeditor">-->
-<!--                          {{ errors.first('hours') }}-->
+<!--                        <div v-if="errors.hours" class="invalid-feedback-ckeditor">-->
+<!--                          {{ errors.hours }}-->
 <!--                        </div>-->
 <!--                      </template>-->
 <!--                    </div>-->
@@ -1230,11 +1228,6 @@ import GoogleMap from './GoogleMap.vue'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Field, Form as VeeForm, ErrorMessage } from 'vee-validate'
 import * as Yup from 'yup'
-// import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
-// import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
-// import Code from '@ckeditor/ckeditor5-basic-styles/src/code';
-// import Subscript from '@ckeditor/ckeditor5-basic-styles/src/subscript';
-// import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
 
 const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3
 
@@ -1284,7 +1277,7 @@ export default {
     // ImageThumbnailPod,
     NotFound,
     // Draggable,
-    // GoogleMap,
+    GoogleMap,
     Field,
     VeeForm,
     ErrorMessage,
@@ -1324,7 +1317,7 @@ export default {
       buildings: [], // for multiselect
       buildingTypes: [], // for multiselect
       ckConfig: {
-        toolbar: ['Bold', 'Italic', 'Underline', 'Cut', 'Copy', 'Paste', 'PasteText', 'Undo', 'Redo', 'NumberedList', 'BulletedList', 'Link', 'Unlink'],
+        toolbar: ['Bold', 'Italic', 'Underline', 'Undo', 'Redo', 'NumberedList', 'BulletedList', 'Link'],
         height: 250
       },
       editor: ClassicEditor,
@@ -1808,38 +1801,38 @@ export default {
       this.uploadedFiles = [];
       this.uploadErrors = [];
     },
-    // setIllustratedLocation: function (position) {
-    //   if (position) {
-    //     this.record.latitudeIllustration = position.lat()
-    //     this.record.longitudeIllustration = position.lng()
-    //   }
-    //   else {
-    //     this.record.latitudeIllustration = null
-    //     this.record.longitudeIllustration = null
-    //   }
-    // },
-    // // JSON.stringify the original image order in case a user wants to reset the drag and drop order
-    // setOriginalImages: function (imageArr) {
-    //   this.originalImageOrder = JSON.parse(JSON.stringify(imageArr))
-    // },
-    // setSatelliteLocation: function (position) {
-    //   if (position) {
-    //     this.record.latitudeSatellite = position.lat()
-    //     this.record.longitudeSatellite = position.lng()
-    //   }
-    //   else {
-    //     this.record.latitudeSatellite = null
-    //     this.record.longitudeSatellite = null
-    //   }
-    // },
-    // // Called as a result of $emit from child component
-    // spliceDeletedImage: function (image) {
-    //   for (let i = this.record.images.length - 1; i >= 0; i--) {
-    //     if (this.record.images[i].id == image.id) {
-    //       this.record.images.splice(i, 1) // splice the deleted item from the record
-    //     }
-    //   }
-    // },
+    setIllustratedLocation: function (position) {
+      if (position) {
+        this.record.latitudeIllustration = position.lat()
+        this.record.longitudeIllustration = position.lng()
+      }
+      else {
+        this.record.latitudeIllustration = null
+        this.record.longitudeIllustration = null
+      }
+    },
+    // JSON.stringify the original image order in case a user wants to reset the drag and drop order
+    setOriginalImages: function (imageArr) {
+      this.originalImageOrder = JSON.parse(JSON.stringify(imageArr))
+    },
+    setSatelliteLocation: function (position) {
+      if (position) {
+        this.record.latitudeSatellite = position.lat()
+        this.record.longitudeSatellite = position.lng()
+      }
+      else {
+        this.record.latitudeSatellite = null
+        this.record.longitudeSatellite = null
+      }
+    },
+    // Called as a result of $emit from child component
+    spliceDeletedImage: function (image) {
+      for (let i = this.record.images.length - 1; i >= 0; i--) {
+        if (this.record.images[i].id == image.id) {
+          this.record.images.splice(i, 1) // splice the deleted item from the record
+        }
+      }
+    },
     // Submit the form via the API
     submitForm: function () {
       let self = this // 'this' loses scope within axios
@@ -1868,87 +1861,87 @@ export default {
         })
       })
     },
-    // updateImageOrder: function () {
-    //   let self = this
-    //   // Get current images in order
-    //   let imageIdsObj = {
-    //     imageIds: []
-    //   }
-    //   this.record.images.forEach(function (image) {
-    //     imageIdsObj.imageIds.push(image.id)
-    //   })
-    //   axios.put('/api/mapitemimages/reorder', imageIdsObj)
-    //   // success
-    //   .then(function (response) {
-    //     self.isImageOrderChanged = false
-    //     // flash the success message for three seconds
-    //     self.isImageOrderUpdated = true
-    //     setTimeout(function () {
-    //       self.isImageOrderUpdated = false
-    //     }, 3000)
-    //     self.setOriginalImages(self.record.images) // make these the new 'original' images, reflecting the proper order
-    //   })
-    //   // fail
-    //   .catch(function (error) {
-    //     switch (error.response.status) {
-    //       case 403:
-    //         self.apiError.message = "You do not have sufficient privileges to reorder images."
-    //         break
-    //       case 404:
-    //         self.apiError.message = "Images were not found."
-    //         break
-    //       case 500:
-    //         self.apiError.message = "An internal error occurred."
-    //         break
-    //       default:
-    //         self.apiError.message = "An error occurred."
-    //         break
-    //     }
-    //   })
-    // },
-    // uploadImages: function (formData) {
-    //   let self = this
-    //   this.currentStatus = STATUS_SAVING
-    //   // append map item ID to form data
-    //   formData.append('mapitem_id', this.record.id)
-    //
-    //   // AJAX (axios) submission
-    //   axios.post('/api/mapitemimages/uploads', formData, {
-    //     headers: {
-    //       'Content-Type': 'multipart/form-data'
-    //     }
-    //   })
-    //   // success
-    //   .then(function (response) {
-    //     // add the new images to the record's array of images
-    //     response.data.processedImages.forEach(function (image) {
-    //       self.record.images.push(image)
-    //     })
-    //     self.setOriginalImages(self.record.images) // set original image order to reflect new image
-    //     self.uploadedFiles = [].concat(response.data.processedImages)
-    //     self.uploadErrors = response.data.errors
-    //     self.currentStatus = STATUS_SUCCESS
-    //   })
-    //   // fail
-    //   .catch(function (error) {
-    //     self.currentStatus = STATUS_FAILED
-    //     switch (error.response.status) {
-    //       case 403:
-    //         self.apiError.message = "You do not have sufficient privileges to upload images."
-    //         break
-    //       case 404:
-    //         self.apiError.message = "Images were not found."
-    //         break
-    //       case 500:
-    //         self.apiError.message = "An internal error occurred."
-    //         break
-    //       default:
-    //         self.apiError.message = "An error occurred."
-    //         break
-    //     }
-    //
-    //   })
-    // },
+    updateImageOrder: function () {
+      let self = this
+      // Get current images in order
+      let imageIdsObj = {
+        imageIds: []
+      }
+      this.record.images.forEach(function (image) {
+        imageIdsObj.imageIds.push(image.id)
+      })
+      axios.put('/api/mapitemimages/reorder', imageIdsObj)
+      // success
+      .then(function (response) {
+        self.isImageOrderChanged = false
+        // flash the success message for three seconds
+        self.isImageOrderUpdated = true
+        setTimeout(function () {
+          self.isImageOrderUpdated = false
+        }, 3000)
+        self.setOriginalImages(self.record.images) // make these the new 'original' images, reflecting the proper order
+      })
+      // fail
+      .catch(function (error) {
+        switch (error.response.status) {
+          case 403:
+            self.apiError.message = "You do not have sufficient privileges to reorder images."
+            break
+          case 404:
+            self.apiError.message = "Images were not found."
+            break
+          case 500:
+            self.apiError.message = "An internal error occurred."
+            break
+          default:
+            self.apiError.message = "An error occurred."
+            break
+        }
+      })
+    },
+    uploadImages: function (formData) {
+      let self = this
+      this.currentStatus = STATUS_SAVING
+      // append map item ID to form data
+      formData.append('mapitem_id', this.record.id)
+
+      // AJAX (axios) submission
+      axios.post('/api/mapitemimages/uploads', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      // success
+      .then(function (response) {
+        // add the new images to the record's array of images
+        response.data.processedImages.forEach(function (image) {
+          self.record.images.push(image)
+        })
+        self.setOriginalImages(self.record.images) // set original image order to reflect new image
+        self.uploadedFiles = [].concat(response.data.processedImages)
+        self.uploadErrors = response.data.errors
+        self.currentStatus = STATUS_SUCCESS
+      })
+      // fail
+      .catch(function (error) {
+        self.currentStatus = STATUS_FAILED
+        switch (error.response.status) {
+          case 403:
+            self.apiError.message = "You do not have sufficient privileges to upload images."
+            break
+          case 404:
+            self.apiError.message = "Images were not found."
+            break
+          case 500:
+            self.apiError.message = "An internal error occurred."
+            break
+          default:
+            self.apiError.message = "An error occurred."
+            break
+        }
+
+      })
+    },
     toggleEdit: function () {
       this.isEditMode === true ? this.isEditMode = false : this.isEditMode = true
     },

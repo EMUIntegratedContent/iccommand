@@ -26,7 +26,15 @@
                 </div>
               </template>
               <template v-else>
-                <p-check v-for="role in roles" v-model="user.roles" :key="role" :value="role" @change="flagCardModified(index)" class="p-default p-thick" color="primary-o">{{ role }}</p-check>
+                <template v-for="role in roles" :key="role">
+                  <input type="checkbox"
+                         v-model="user.roles"
+                         :value="role"
+                         @change="flagCardModified(index)"
+                         class="p-default p-thick"
+                         color="primary-o"
+                  /> {{ role }}<br>
+                </template>
                 <div v-if="isCardModified(index) && isCardError(index)" class="alert alert-danger fade show mt-4" role="alert">
                   There was a problem saving this user.
                 </div>
@@ -48,26 +56,26 @@
             <div class="form-row">
               <div class="form-group col-md-12">
                 <label for="newuser" class="sr-only">New User</label>
-                <multiselect
-                  v-validate="'required'"
-                  data-vv-as="user"
-                  :options="usersWithoutAppPermissions"
-                  :multiple="false"
-                  :clear-on-select="true"
-                  placeholder="Choose user"
-                  label="username"
-                  track-by="id"
-                  id="newuser"
-                  class="form-control"
-                  style="padding:0"
-                  name="userWithoutAppPermissions"
-                  :class="{'is-invalid': errors.has('newuser') }"
-                  @input="newUserSelected"
-                  >
-                </multiselect>
-                <div class="invalid-feedback">
-                  {{ errors.first('newuser') }}
-                </div>
+<!--                <multiselect-->
+<!--                  v-validate="'required'"-->
+<!--                  data-vv-as="user"-->
+<!--                  :options="usersWithoutAppPermissions"-->
+<!--                  :multiple="false"-->
+<!--                  :clear-on-select="true"-->
+<!--                  placeholder="Choose user"-->
+<!--                  label="username"-->
+<!--                  track-by="id"-->
+<!--                  id="newuser"-->
+<!--                  class="form-control"-->
+<!--                  style="padding:0"-->
+<!--                  name="userWithoutAppPermissions"-->
+<!--                  :class="{'is-invalid': errors.has('newuser') }"-->
+<!--                  @input="newUserSelected"-->
+<!--                  >-->
+<!--                </multiselect>-->
+<!--                <div class="invalid-feedback">-->
+<!--                  {{ errors.first('newuser') }}-->
+<!--                </div>-->
               </div>
             </div>
           </div>
