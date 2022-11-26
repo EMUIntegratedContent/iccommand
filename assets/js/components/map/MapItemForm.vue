@@ -9,19 +9,17 @@
     </div>
 
     <div v-if="isDeleted === true" class="alert alert-info fade show" role="alert">
-      {{ record.itemType | capitalize }} "{{ record.name }}" item has been deleted. You will now be redirected to
+      {{ capitalize(record.itemType) }} "{{ record.name }}" item has been deleted. You will now be redirected to
       the map items list page.
     </div>
     <!-- MAIN AREA -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
-<!--      {{ record }}-->
       <heading>
         <span slot="icon" v-html="headingIcon"></span>
         <span v-if="!itemExists">Step 2/2: Provide {{ record.itemType }} information</span>
         <span v-else>Map {{ record.itemType }}: {{ record.name }}</span>
       </heading>
       <div class="btn-group" role="group" aria-label="form navigation buttons">
-        <!--<a v-if="!newForm" href="/map/items" class="btn btn-info pull-left" aria-label="back to map items list"><i class="fa fa-arrow-left"></i></a>-->
         <button v-if="newForm" class="btn btn-info pull-left" @click="goBack"><i
             class="fa fa-chevron-circle-left"></i> Step 1
         </button>
@@ -168,9 +166,10 @@
                       <Field
                           name="buildingType"
                           v-slot="{ field }"
+                          v-model="record.buildingType"
                       >
-                        <VueMutiselect
-                            data-vv-as="device type"
+                        <VueMultiselect
+                            data-vv-as="building type"
                             v-model="record.buildingType"
                             v-bind="field"
                             :options="buildingTypes"
@@ -182,7 +181,7 @@
                             id="buildingType"
                             :class="{'is-invalid': errors.buildingType }"
                         >
-                        </VueMutiselect>
+                        </VueMultiselect>
                       </Field>
                       <div class="invalid-feedback">
                         {{ errors.buildingType }}
@@ -453,8 +452,9 @@
                                     <Field
                                         :name="'emergency-type-' + index"
                                         v-slot="{ field }"
+                                        v-model="record.emergencyDevices[index].type"
                                     >
-                                      <VueMutiselect
+                                      <VueMultiselect
                                           data-vv-as="device type"
                                           v-model="record.emergencyDevices[index].type"
                                           v-bind="field"
@@ -467,7 +467,7 @@
                                           :id="'emergencyType-' + index"
                                           :class="{'is-invalid': errors['emergency-type-' + index] }"
                                       >
-                                      </VueMutiselect>
+                                      </VueMultiselect>
                                     </Field>
                                     <div class="invalid-feedback">
                                       {{ errors['emergency-type-' + index] }}
@@ -539,6 +539,7 @@
                                     <Field
                                         :name="'exhibit-description-' + index"
                                         v-slot="{ field }"
+                                        v-model="exhibit.description"
                                     >
                                       <textarea
                                           data-vv-as="description"
@@ -561,8 +562,9 @@
                                     <Field
                                         :name="'exhibit-type-' + index"
                                         v-slot="{ field }"
+                                        v-model="record.exhibits[index].type"
                                     >
-                                      <VueMutiselect
+                                      <VueMultiselect
                                           data-vv-as="device type"
                                           v-model="record.exhibits[index].type"
                                           v-bind="field"
@@ -575,7 +577,7 @@
                                           :id="'exhibitType-' + index"
                                           :class="{'is-invalid': errors['exhibit-type-' + index] }"
                                       >
-                                      </VueMutiselect>
+                                      </VueMultiselect>
                                     </Field>
                                     <div class="invalid-feedback">
                                       {{ errors['exhibit-type-' + index] }}
@@ -647,6 +649,7 @@
                                     <Field
                                         :name="'service-description-' + index"
                                         v-slot="{ field }"
+                                        v-model="service.description"
                                     >
                                       <textarea
                                           data-vv-as="description"
@@ -669,8 +672,9 @@
                                     <Field
                                         :name="'service-type-' + index"
                                         v-slot="{ field }"
+                                        v-model="record.services[index].type"
                                     >
-                                      <VueMutiselect
+                                      <VueMultiselect
                                           data-vv-as="device type"
                                           v-model="record.services[index].type"
                                           v-bind="field"
@@ -683,7 +687,7 @@
                                           :id="'serviceType-' + index"
                                           :class="{'is-invalid': errors['service-type-' + index] }"
                                       >
-                                      </VueMutiselect>
+                                      </VueMultiselect>
                                     </Field>
                                     <div class="invalid-feedback">
                                       {{ errors['service-type-' + index] }}
@@ -757,6 +761,7 @@
                                     <Field
                                         :name="'dispenser-description-' + index"
                                         v-slot="{ field }"
+                                        v-model="dispenser.description"
                                     >
                                       <textarea
                                           data-vv-as="description"
@@ -805,241 +810,247 @@
               </fieldset>
             </template>
             <!-- EMERGENCY DEVICE FIELDS -->
-<!--            <template v-if="record.itemType == 'emergency device'">-->
-<!--              <fieldset>-->
-<!--                <legend>{{ record.itemType | capitalize }} specific fields</legend>-->
-<!--                <div v-if="userCanEdit && isEditMode" class="form-row">-->
-<!--                  <div class="form-group col-md-8">-->
-<!--                    <label for="building">Building (can be blank)</label>-->
-<!--                    <multiselect-->
-<!--                        v-model="record.building"-->
-<!--                        :options="buildings"-->
-<!--                        :multiple="false"-->
-<!--                        placeholder="Choose building"-->
-<!--                        label="name"-->
-<!--                        track-by="id"-->
-<!--                        id="building"-->
-<!--                        class="form-control"-->
-<!--                        style="padding:0"-->
-<!--                        name="building"-->
-<!--                        :class="{'is-invalid': errors.has('building') }"-->
-<!--                    >-->
-<!--                    </multiselect>-->
-<!--                    <div class="invalid-feedback">-->
-<!--                      {{ errors.first('building') }}-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                  <div class="form-group col-md-4">-->
-<!--                    <label for="deviceType">Type *</label>-->
-<!--                    <multiselect-->
-<!--                        v-validate="'required'"-->
-<!--                        data-vv-as="device type"-->
-<!--                        v-model="record.type"-->
-<!--                        :options="emergencyTypes"-->
-<!--                        :multiple="false"-->
-<!--                        placeholder="Choose type"-->
-<!--                        label="name"-->
-<!--                        track-by="id"-->
-<!--                        id="deviceType"-->
-<!--                        class="form-control"-->
-<!--                        style="padding:0"-->
-<!--                        :name="'emergency-type'"-->
-<!--                        :class="{'is-invalid': errors.has('emergency-type') }"-->
-<!--                    >-->
-<!--                    </multiselect>-->
-<!--                    <div class="invalid-feedback">-->
-<!--                      {{ errors.first('emergency-type') }}-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--                <div v-else>-->
-<!--                  <p v-if="record.building">This device is in {{ record.building.name }}</p>-->
-<!--                  <p v-else>This devices is located outside.</p>-->
-<!--                  <p>Device type: {{ record.type.name }}</p>-->
-<!--                </div>-->
-<!--              </fieldset>-->
-<!--            </template>-->
-<!--            &lt;!&ndash; EXHIBIT FIELDS &ndash;&gt;-->
-<!--            <template v-if="record.itemType == 'exhibit'">-->
-<!--              <fieldset>-->
-<!--                <legend>{{ record.itemType | capitalize }} specific fields</legend>-->
-<!--                <div v-if="userCanEdit && isEditMode" class="form-row">-->
-<!--                  <div class="form-group col-md-8">-->
-<!--                    {{ record.building }}-->
-<!--                    <label for="building">Building (can be blank)</label>-->
-<!--                    <multiselect-->
-<!--                        v-model="record.building"-->
-<!--                        :options="buildings"-->
-<!--                        :multiple="false"-->
-<!--                        placeholder="Choose building"-->
-<!--                        label="name"-->
-<!--                        track-by="id"-->
-<!--                        id="building"-->
-<!--                        class="form-control"-->
-<!--                        style="padding:0"-->
-<!--                        name="building"-->
-<!--                        :class="{'is-invalid': errors.has('building') }"-->
-<!--                    >-->
-<!--                    </multiselect>-->
-<!--                    <div class="invalid-feedback">-->
-<!--                      {{ errors.first('building') }}-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                  <div class="form-group col-md-4">-->
-<!--                    <label for="exhibitType">Type *</label>-->
-<!--                    <multiselect-->
-<!--                        v-validate="'required'"-->
-<!--                        data-vv-as="device type"-->
-<!--                        v-model="record.type"-->
-<!--                        :options="exhibitTypes"-->
-<!--                        :multiple="false"-->
-<!--                        placeholder="Choose type"-->
-<!--                        label="name"-->
-<!--                        track-by="id"-->
-<!--                        id="exhibitType"-->
-<!--                        class="form-control"-->
-<!--                        style="padding:0"-->
-<!--                        :name="'exhibit-type'"-->
-<!--                        :class="{'is-invalid': errors.has('exhibit-type') }"-->
-<!--                    >-->
-<!--                    </multiselect>-->
-<!--                    <div class="invalid-feedback">-->
-<!--                      {{ errors.first('exhibit-type') }}-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--                <div v-else>-->
-<!--                  <p v-if="record.building">This exhibit is in {{ record.building.name }}</p>-->
-<!--                  <p v-else>This exhibit is located outside.</p>-->
-<!--                  <p>Exhibit type: {{ record.type.name }}</p>-->
-<!--                </div>-->
-<!--              </fieldset>-->
-<!--            </template>-->
-<!--            &lt;!&ndash; PARKING FIELDS &ndash;&gt;-->
-<!--            <template v-if="record.itemType == 'parking'">-->
-<!--              <fieldset>-->
-<!--                <legend>{{ record.itemType | capitalize }} specific fields</legend>-->
-<!--                <template v-if="userCanEdit && isEditMode" class="form-row">-->
-<!--                  <div class="form-row">-->
-<!--                    &lt;!&ndash;<div class="form-group col-md-6">-->
-<!--                        <label>Lot hours</label>-->
-<!--                        <textarea-->
-<!--                                class="form-control"-->
-<!--                                name="hours"-->
-<!--                                :class="{'is-invalid': errors.has('description'), 'form-control-plaintext': !userCanEdit || !isEditMode}"-->
-<!--                                :readonly="!userCanEdit || !isEditMode"-->
-<!--                                v-model="record.hours">-->
-<!--                        </textarea>-->
-<!--                        <div class="invalid-feedback">-->
-<!--                            {{ errors.first('hours') }}-->
-<!--                        </div>-->
-<!--                    </div>&ndash;&gt;-->
-<!--                    <div class="form-group col-md-6">-->
-<!--                      <label>Lot hours</label>-->
-<!--                      <template v-if="!userCanEdit || !isEditMode">-->
-<!--                        <span v-html="record.hours"></span>-->
-<!--                      </template>-->
-<!--                      <template v-else>-->
-<!--                        <div :class="{'is-invalid-ckeditor': errors.hours)}">-->
-<!--                          <ckeditor-->
-<!--                              v-model="record.hours"-->
-<!--                              :config="ckConfig"-->
-<!--                              name="hours"-->
-<!--                          >-->
-<!--                          </ckeditor>-->
-<!--                        </div>-->
-<!--                        <div v-if="errors.hours" class="invalid-feedback-ckeditor">-->
-<!--                          {{ errors.hours }}-->
-<!--                        </div>-->
-<!--                      </template>-->
-<!--                    </div>-->
-<!--                    <div class="form-group col-md-6">-->
-<!--                      <div class="form-group">-->
-<!--                        <label>Spaces</label>-->
-<!--                        <input-->
-<!--                            name="spaces"-->
-<!--                            type="number"-->
-<!--                            min="0"-->
-<!--                            step="1"-->
-<!--                            class="form-control"-->
-<!--                            :class="{ 'is-invalid': errors.has('spaces'), 'form-control-plaintext': !userCanEdit || !isEditMode }"-->
-<!--                            :readonly="!userCanEdit || !isEditMode"-->
-<!--                            v-model="record.spaces">-->
-<!--                        <div class="invalid-feedback">-->
-<!--                          {{ errors.first('spaces') }}-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                  <div class="form-row">-->
-<!--                    <div class="form-group col-md-6">-->
-<!--                      <label>Lot type(s)</label>-->
-<!--                      <multiselect-->
-<!--                          v-model="record.parkingTypes"-->
-<!--                          :options="parkingTypes"-->
-<!--                          :multiple="true"-->
-<!--                          placeholder="Choose lot types"-->
-<!--                          label="name"-->
-<!--                          track-by="id"-->
-<!--                          id="parkingTypes"-->
-<!--                          class="form-control"-->
-<!--                          style="padding:0"-->
-<!--                          name="parkingTypes"-->
-<!--                          :class="{'is-invalid': errors.has('parkingTypes') }"-->
-<!--                      >-->
-<!--                      </multiselect>-->
-<!--                      <div class="invalid-feedback">-->
-<!--                        {{ errors.first('parkingTypes') }}-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    <div class="form-group col-md-6">-->
-<!--                      <div class="form-check">-->
-<!--                        <input v-model="record.hasHandicapSpaces" class="form-check-input"-->
-<!--                               type="checkbox" id="hasHandicapSpaces">-->
-<!--                        <label class="form-check-label" for="hasHandicapSpaces">-->
-<!--                          Handicap parking-->
-<!--                        </label>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </template>-->
-<!--                <template v-else>-->
-<!--                  <div class="row">-->
-<!--                    <div class="col-md-4">-->
-<!--                      Lot Type(s):-->
-<!--                      <ul v-if="record.parkingTypes.length > 0">-->
-<!--                        <li v-for="lotType in record.parkingTypes">{{ lotType.name }}</li>-->
-<!--                      </ul>-->
-<!--                    </div>-->
-<!--                    <div class="col-md-4">-->
-<!--                      Hours: {{ record.hours }}-->
-<!--                    </div>-->
-<!--                    <div class="col-md-4">-->
-<!--                      Parking Spaces: {{ record.spaces }}-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </template>-->
-<!--              </fieldset>-->
-<!--            </template>-->
-<!--            <div v-if="$validator.errors.count() > 0" class="alert alert-danger fade show"-->
-<!--                 role="alert">-->
-<!--              You have <strong>{{ $validator.errors.count() }} error<span-->
-<!--                v-if="$validator.errors.count() > 1">s</span></strong> in your submission:-->
-<!--              <ul>-->
-<!--                <li v-for="error in $validator.errors.all()">-->
-<!--                  <strong>{{ error }}</strong>-->
-<!--                </li>-->
-<!--              </ul>-->
-<!--            </div>-->
-<!--            <div v-if="success" class="alert alert-success fade show" role="alert">-->
-<!--              {{ successMessage }}-->
-<!--            </div>-->
-<!--            <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">-->
-<!--              There was an error deleting this item.-->
-<!--            </div>-->
+            <template v-if="record.itemType == 'emergency device'">
+              <fieldset>
+                <legend>{{ capitalize(record.itemType) }} specific fields</legend>
+                <div v-if="userCanEdit && isEditMode" class="form-row">
+                  <div class="form-group col-md-8">
+                    <label for="building">Building (can be blank)</label>
+                    <VueMultiselect
+                        v-model="record.building"
+                        :options="buildings"
+                        :multiple="false"
+                        placeholder="Choose building"
+                        label="name"
+                        track-by="id"
+                        class="form-control"
+                        style="padding:0"
+                        name="building"
+                        id="building"
+                        :class="{'is-invalid': errors.building }"
+                    >
+                    </VueMultiselect>
+                    <div class="invalid-feedback">
+                      {{ errors.building }}
+                    </div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="deviceType">Type *</label>
+                    <Field
+                        name="emergency-type"
+                        v-slot="{ field }"
+                        v-model="record.type"
+                    >
+                      <VueMultiselect
+                          data-vv-as="device type"
+                          v-model="record.type"
+                          :options="emergencyTypes"
+                          :multiple="false"
+                          placeholder="Choose type *"
+                          label="name"
+                          track-by="id"
+                          class="form-control"
+                          style="padding:0"
+                          id="deviceType"
+                          :class="{'is-invalid': errors['emergency-type'] }"
+                      >
+                      </VueMultiselect>
+                    </Field>
+                    <div class="invalid-feedback">
+                      {{ errors['emergency-type'] }}
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <p v-if="record.building">This device is in {{ record.building.name }}</p>
+                  <p v-else>This devices is located outside.</p>
+                  <p>Device type: {{ record.type.name }}</p>
+                </div>
+              </fieldset>
+            </template>
+            <!-- EXHIBIT FIELDS -->
+            <template v-if="record.itemType == 'exhibit'">
+              <fieldset>
+                <legend>{{ capitalize(record.itemType) }} specific fields</legend>
+                <div v-if="userCanEdit && isEditMode" class="form-row">
+                  <div class="form-group col-md-8">
+                    {{ record.building }}
+                    <label for="building">Building (can be blank)</label>
+                    <VueMultiselect
+                        v-model="record.building"
+                        :options="buildings"
+                        :multiple="false"
+                        placeholder="Choose building"
+                        label="name"
+                        track-by="id"
+                        class="form-control"
+                        style="padding:0"
+                        name="building"
+                        id="building"
+                        :class="{'is-invalid': errors.building }"
+                    >
+                    </VueMultiselect>
+                    <div class="invalid-feedback">
+                      {{ errors.building }}
+                    </div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="exhibitType">Type *</label>
+                    <Field
+                        name="exhibit-type"
+                        v-slot="{ field }"
+                        v-model="record.type"
+                    >
+                      <VueMultiselect
+                          data-vv-as="exhibit type"
+                          v-model="record.type"
+                          :options="exhibitTypes"
+                          :multiple="false"
+                          placeholder="Choose type *"
+                          label="name"
+                          track-by="id"
+                          class="form-control"
+                          style="padding:0"
+                          id="exhibitType"
+                          :class="{'is-invalid': errors['exhibit-type'] }"
+                      >
+                      </VueMultiselect>
+                    </Field>
+                    <div class="invalid-feedback">
+                      {{ errors['exhibit-type'] }}
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <p v-if="record.building">This exhibit is in {{ record.building.name }}</p>
+                  <p v-else>This exhibit is located outside.</p>
+                  <p>Exhibit type: {{ record.type.name }}</p>
+                </div>
+              </fieldset>
+            </template>
+            <!-- PARKING FIELDS -->
+            <template v-if="record.itemType == 'parking'">
+              <fieldset>
+                <legend>{{ capitalize(record.itemType) }} specific fields</legend>
+                <template v-if="userCanEdit && isEditMode" class="form-row">
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Lot hours</label>
+                        <textarea
+                                class="form-control"
+                                name="hours"
+                                :class="{'is-invalid': errors.description, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                                :readonly="!userCanEdit || !isEditMode"
+                                v-model="record.hours">
+                        </textarea>
+                        <div class="invalid-feedback">
+                            {{ errors.hours }}
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label>Lot hours</label>
+                      <template v-if="!userCanEdit || !isEditMode">
+                        <span v-html="record.hours"></span>
+                      </template>
+                      <template v-else>
+                        <div :class="{'is-invalid-ckeditor': errors.hours }">
+                          <ckeditor
+                              v-model="record.hours"
+                              :config="ckConfig"
+                              name="hours"
+                          >
+                          </ckeditor>
+                        </div>
+                        <div v-if="errors.hours" class="invalid-feedback-ckeditor">
+                          {{ errors.hours }}
+                        </div>
+                      </template>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <div class="form-group">
+                        <label>Spaces</label>
+                        <input
+                            name="spaces"
+                            type="number"
+                            min="0"
+                            step="1"
+                            class="form-control"
+                            :class="{ 'is-invalid': errors.spaces, 'form-control-plaintext': !userCanEdit || !isEditMode }"
+                            :readonly="!userCanEdit || !isEditMode"
+                            v-model="record.spaces">
+                        <div class="invalid-feedback">
+                          {{ errors.spaces }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label>Lot type(s)</label>
+                      <VueMultiselect
+                          v-model="record.parkingTypes"
+                          :options="parkingTypes"
+                          :multiple="true"
+                          placeholder="Choose lot types"
+                          label="name"
+                          track-by="id"
+                          class="form-control"
+                          style="padding:0"
+                          name="building"
+                          id="parkingTypes"
+                          :class="{'is-invalid': errors.parkingTypes }"
+                      >
+                      </VueMultiselect>
+                      <div class="invalid-feedback">
+                        {{ errors.parkingTypes }}
+                      </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <div class="form-check">
+                        <input v-model="record.hasHandicapSpaces" class="form-check-input"
+                               type="checkbox" id="hasHandicapSpaces">
+                        <label class="form-check-label" for="hasHandicapSpaces">
+                          Handicap parking
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="row">
+                    <div class="col-md-4">
+                      Lot Type(s):
+                      <ul v-if="record.parkingTypes.length > 0">
+                        <li v-for="lotType in record.parkingTypes">{{ lotType.name }}</li>
+                      </ul>
+                    </div>
+                    <div class="col-md-4">
+                      Hours: {{ record.hours }}
+                    </div>
+                    <div class="col-md-4">
+                      Parking Spaces: {{ record.spaces }}
+                    </div>
+                  </div>
+                </template>
+              </fieldset>
+            </template>
+            <div v-if="Object.keys(errors).length && isEditMode" class="alert alert-danger fade show"
+                 role="alert">
+              Please fix all errors before submitting:
+              <ul>
+                <li v-for="error in errors">
+                  <strong>{{ error }}</strong>
+                </li>
+              </ul>
+            </div>
+            <div v-if="success" class="alert alert-success fade show" role="alert">
+              {{ successMessage }}
+            </div>
+            <div v-if="isDeleteError === true" class="alert alert-danger fade show" role="alert">
+              There was an error deleting this item.
+            </div>
             <!-- ACTION BUTTONS -->
             <div v-if="userCanEdit && isEditMode" aria-label="action buttons" class="mb-4">
-              <p v-if="!meta.valid" class="red">Please fill in all errors before submitting.</p>
               <button class="btn btn-success" type="submit"><i class="fa fa-save fa-2x"></i></button>
               <button v-if="itemExists && this.permissions[0].delete" type="button"
                       class="btn btn-danger ml-4" data-toggle="modal" data-target="#deleteModal"><i
@@ -1047,122 +1058,124 @@
             </div>
             </form>
           </VeeForm><!-- /end form -->
-<!--        </div>&lt;!&ndash; end .tab-pane #information &ndash;&gt;-->
-<!--        &lt;!&ndash; IMAGE TAB &ndash;&gt;-->
-<!--        <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">-->
-<!--          <div class="row">-->
-<!--            <div class="col-xs-12 col-md-6">-->
-<!--              <h3>{{ record.itemType | capitalize }} Images ({{ record.images.length }})</h3>-->
-<!--              &lt;!&ndash; Image order change buttons &ndash;&gt;-->
-<!--              <template v-if="isImageOrderChanged">-->
-<!--                <button class="btn btn-success" @click="updateImageOrder()">Confirm</button>-->
-<!--                <button class="btn btn-default" @click="resetImageOrder()">Reset</button>-->
-<!--              </template>-->
-<!--              <div v-if="isImageOrderUpdated" class="alert alert-success fade show" role="alert">-->
-<!--                Image order has been updated-->
-<!--              </div>-->
-<!--              <template v-if="itemExists && userCanEdit && isEditMode">-->
-<!--                <draggable v-model="record.images" :options="{'disabled':isModalOpen}"-->
-<!--                           @start="drag=true" @end="onDragEnd">-->
-<!--                  <image-thumbnail-pod-->
-<!--                      v-for="(image, index) in record.images"-->
-<!--                      :key="index"-->
-<!--                      :image="image"-->
-<!--                      v-model="record.images"-->
-<!--                      :isEditMode="true"-->
-<!--                      :userCanDelete="permissions[0].delete"-->
-<!--                      @imageDeleteRequested="spliceDeletedImage"-->
-<!--                      @imageRenamed="renameImage"-->
-<!--                  >-->
-<!--                  </image-thumbnail-pod>-->
-<!--                </draggable>-->
-<!--              </template>-->
-<!--              <template v-else>-->
-<!--                <image-thumbnail-pod-->
-<!--                    v-for="(image, index) in record.images"-->
-<!--                    :key="index"-->
-<!--                    :image="image"-->
-<!--                    v-model="record.images"-->
-<!--                    :isEditMode="false"-->
-<!--                >-->
-<!--                </image-thumbnail-pod>-->
-<!--              </template>-->
-<!--            </div>&lt;!&ndash; end .col-md-6 (images)&ndash;&gt;-->
-<!--            <div class="col-xs-12 col-md-6">-->
-<!--              <h5>Primary Photo</h5>-->
-<!--              <template v-if="record.images.length > 0">-->
-<!--                <img id="primary-image" :src="record.images[0].subdir + '/' + record.images[0].path"-->
-<!--                     :alt="record.images[0].name"/>-->
-<!--                <p><a :href="record.images[0].subdir + '/' + record.images[0].path" target="_blank">Full-->
-<!--                  Size</a></p>-->
-<!--              </template>-->
-<!--              <template v-else>-->
-<!--                <p>No photos have been uploaded yet.</p>-->
-<!--              </template>-->
-<!--            </div>&lt;!&ndash; end .col-md-6 (images)&ndash;&gt;-->
-<!--          </div>&lt;!&ndash; end .row (images) &ndash;&gt;-->
-<!--          &lt;!&ndash;IMAGE UPLOAD&ndash;&gt;-->
-<!--          <div class="row">-->
-<!--            <div class="col-xs-12 col-md-12">-->
-<!--              <template v-if="itemExists && userCanEdit && isEditMode">-->
-<!--                &lt;!&ndash;SUCCESS&ndash;&gt;-->
-<!--                <div v-if="isUploadSuccess">-->
-<!--                  <div v-if="uploadErrors.length == 0" class="alert alert-success" role="alert">-->
-<!--                    <p><strong>Uploaded {{ uploadedFiles.length }} file(s).</strong> <a-->
-<!--                        class="btn btn-default" href="javascript:void(0)"-->
-<!--                        @click="resetUploadForm()">Upload more images</a></p>-->
-<!--                  </div>-->
-<!--                  <div v-else class="alert alert-warning" role="alert">-->
-<!--                    <p><strong>Uploaded {{ uploadedFiles.length }} file(s) with the following-->
-<!--                      errors.</strong> <a class="btn btn-default" href="javascript:void(0)"-->
-<!--                                          @click="resetUploadForm()">Upload more images</a></p>-->
-<!--                    <ul>-->
-<!--                      <li v-for="uploadError in uploadErrors">{{ uploadError }}</li>-->
-<!--                    </ul>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--                &lt;!&ndash;FAILED&ndash;&gt;-->
-<!--                <div v-if="isUploadFailed" class="alert alert-danger" role="alert">-->
-<!--                  <p><strong>Upload failed.</strong> <a href="javascript:void(0)"-->
-<!--                                                        @click="resetUploadForm()">Try again</a></p>-->
-<!--                  <pre v-for="uploadError in uploadErrors">{{ uploadErrors }}</pre>-->
-<!--                </div>-->
-<!--                &lt;!&ndash; UPLOAD FORM &ndash;&gt;-->
-<!--                <form enctype="multipart/form-data" novalidate-->
-<!--                      v-if="permissions[0].imageUpload && (isUploadInitial || isUploadSaving)">-->
-<!--                  <fieldset>-->
-<!--                    <legend>Upload Images</legend>-->
-<!--                    <div class="dropbox">-->
-<!--                      <input type="file" multiple name="uploadFiles[]" :disabled="isUploadSaving"-->
-<!--                             @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length"-->
-<!--                             accept="image/*" class="input-file">-->
-<!--                      <p v-if="isUploadInitial">Drag your image(s) here to begin<br> or click to-->
-<!--                        browse.</p>-->
-<!--                      <p v-if="isUploadSaving">Uploading {{ fileCount }} files...</p>-->
-<!--                    </div>-->
-<!--                  </fieldset>-->
-<!--                </form>-->
-<!--              </template>-->
-<!--              <template v-else>-->
-<!--                <div class="alert alert-info" role="alert">-->
-<!--                  <p v-if="!itemExists">You will be able to upload images once you create the {{-->
-<!--                      record.itemType-->
-<!--                    }}</p>-->
-<!--                  <p v-if="!userCanEdit">You do not have sufficient privileges to upload images</p>-->
-<!--                  <p v-if="!isEditMode">Photo upload only available in edit mode</p>-->
-<!--                </div>-->
-<!--              </template>-->
-<!--            </div>&lt;!&ndash; end .col-xs-12 (uploads) &ndash;&gt;-->
-<!--          </div>&lt;!&ndash; end .row (uploads) &ndash;&gt;-->
+        </div><!-- end .tab-pane #information -->
+        <!-- IMAGE TAB -->
+        <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
+          <div class="row">
+            <div class="col-xs-12 col-md-6">
+              <h3>{{ capitalize(record.itemType) }} Images ({{ record.images.length }})</h3>
+              <!-- Image order change buttons -->
+              <template v-if="isImageOrderChanged">
+                <button class="btn btn-success" @click="updateImageOrder()">Confirm</button>
+                <button class="btn btn-default" @click="resetImageOrder()">Reset</button>
+              </template>
+              <div v-if="isImageOrderUpdated" class="alert alert-success fade show" role="alert">
+                Image order has been updated
+              </div>
+              <template v-if="itemExists && userCanEdit && isEditMode">
+                <draggable v-model="record.images" item-key="images" :options="{'disabled':isModalOpen}"
+                           @start="drag=true" @end="onDragEnd">
+                  <template v-slot:item="{ element, index }">
+                    <image-thumbnail-pod
+                      :key="'image-thumb-' + index"
+                      :image="element"
+                      :slot-no="index"
+                      v-model="record.images"
+                      :isEditMode="true"
+                      :userCanDelete="permissions[0].delete"
+                      @imageDeleteRequested="spliceDeletedImage"
+                      @imageRenamed="renameImage"
+                    >
+                    </image-thumbnail-pod>
+                  </template>
+                </draggable>
+              </template>
+              <template v-else>
+                <image-thumbnail-pod
+                    v-for="(image, index) in record.images"
+                    :key="'image-thumb-' + index"
+                    :image="image"
+                    :slot-no="index"
+                    v-model="record.images"
+                    :isEditMode="false"
+                >
+                </image-thumbnail-pod>
+              </template>
+            </div><!-- end .col-md-6 (images)-->
+            <div class="col-xs-12 col-md-6">
+              <h5>Primary Photo</h5>
+              <template v-if="record.images.length > 0">
+                <img id="primary-image" :src="record.images[0].subdir + '/' + record.images[0].path"
+                     :alt="record.images[0].name"/>
+                <p><a :href="record.images[0].subdir + '/' + record.images[0].path" target="_blank">Full
+                  Size</a></p>
+              </template>
+              <template v-else>
+                <p>No photos have been uploaded yet.</p>
+              </template>
+            </div><!-- end .col-md-6 (images)-->
+          </div><!-- end .row (images) -->
+          <!--IMAGE UPLOAD-->
+          <div class="row">
+            <div class="col-xs-12 col-md-12">
+              <template v-if="itemExists && userCanEdit && isEditMode">
+                <!--SUCCESS-->
+                <div v-if="isUploadSuccess">
+                  <div v-if="uploadErrors.length == 0" class="alert alert-success" role="alert">
+                    <p><strong>Uploaded {{ uploadedFiles.length }} file(s).</strong> <a
+                        class="btn btn-default" href="javascript:void(0)"
+                        @click="resetUploadForm()">Upload more images</a></p>
+                  </div>
+                  <div v-else class="alert alert-warning" role="alert">
+                    <p><strong>Uploaded {{ uploadedFiles.length }} file(s) with the following
+                      errors.</strong> <a class="btn btn-default" href="javascript:void(0)"
+                                          @click="resetUploadForm()">Upload more images</a></p>
+                    <ul>
+                      <li v-for="uploadError in uploadErrors">{{ uploadError }}</li>
+                    </ul>
+                  </div>
+                </div>
+                <!--FAILED-->
+                <div v-if="isUploadFailed" class="alert alert-danger" role="alert">
+                  <p><strong>Upload failed.</strong> <a href="javascript:void(0)"
+                                                        @click="resetUploadForm()">Try again</a></p>
+                  <pre v-for="uploadError in uploadErrors">{{ uploadErrors }}</pre>
+                </div>
+                <!-- UPLOAD FORM -->
+                <form enctype="multipart/form-data" novalidate
+                      v-if="permissions[0].imageUpload && (isUploadInitial || isUploadSaving)">
+                  <fieldset>
+                    <legend>Upload Images</legend>
+                    <div class="dropbox">
+                      <input type="file" multiple name="uploadFiles[]" :disabled="isUploadSaving"
+                             @change="filesChange($event.target.name, $event.target.files); fileCount = $event.target.files.length"
+                             accept="image/*" class="input-file">
+                      <p v-if="isUploadInitial">Drag your image(s) here to begin<br> or click to
+                        browse.</p>
+                      <p v-if="isUploadSaving">Uploading {{ fileCount }} files...</p>
+                    </div>
+                  </fieldset>
+                </form>
+              </template>
+              <template v-else>
+                <div class="alert alert-info" role="alert">
+                  <p v-if="!itemExists">You will be able to upload images once you create the {{
+                      record.itemType }}</p>
+                  <p v-if="!userCanEdit">You do not have sufficient privileges to upload images</p>
+                  <p v-if="!isEditMode">Photo upload only available in edit mode</p>
+                </div>
+              </template>
+            </div><!-- end .col-xs-12 (uploads) -->
+          </div><!-- end .row (uploads) -->
         </div><!-- end .tab-pane #photos -->
       </div><!-- end .tab-content -->
     </div>
-<!--    &lt;!&ndash; DELETE ITEM MODAL &ndash;&gt;-->
-<!--    <mapitem-delete-modal-->
-<!--        :mapitem="record"-->
-<!--        @itemDeleted="markItemDeleted"-->
-<!--        @itemDeleteError="markItemDeleteError"-->
-<!--    ></mapitem-delete-modal>-->
+    <!-- DELETE ITEM MODAL -->
+    <mapitem-delete-modal
+        :mapitem="record"
+        @itemDeleted="markItemDeleted"
+        @itemDeleteError="markItemDeleteError"
+    ></mapitem-delete-modal>
   </div>
 </template>
 <style>
@@ -1221,7 +1234,7 @@ import MapitemImageDeleteModal from './MapitemImageDeleteModal.vue'
 import MapitemImageEditModal from './MapitemImageEditModal.vue'
 import ImageThumbnailPod from './ImageThumbnailPod.vue'
 import Heading from '../utils/Heading.vue'
-import VueMutiselect from 'vue-multiselect'
+import VueMultiselect from 'vue-multiselect'
 import NotFound from '../utils/NotFound.vue'
 import Draggable from 'vuedraggable'
 import GoogleMap from './GoogleMap.vue'
@@ -1269,14 +1282,13 @@ export default {
   },
   components: {
     Heading,
-    VueMutiselect,
-    // Multiselect,
-    // MapitemDeleteModal,
-    // MapitemImageDeleteModal,
-    // MapitemImageEditModal,
-    // ImageThumbnailPod,
+    VueMultiselect,
+    MapitemDeleteModal,
+    MapitemImageDeleteModal,
+    MapitemImageEditModal,
+    ImageThumbnailPod,
     NotFound,
-    // Draggable,
+    Draggable,
     GoogleMap,
     Field,
     VeeForm,
@@ -1317,7 +1329,7 @@ export default {
       buildings: [], // for multiselect
       buildingTypes: [], // for multiselect
       ckConfig: {
-        toolbar: ['Bold', 'Italic', 'Underline', 'Undo', 'Redo', 'NumberedList', 'BulletedList', 'Link'],
+        toolbar: ['Bold', 'Italic', 'Undo', 'Redo', 'NumberedList', 'BulletedList', 'Link'],
         height: 250
       },
       editor: ClassicEditor,
@@ -1377,54 +1389,62 @@ export default {
     mapItemSchema() {
       let yupObj = {
         name: Yup.string().required(),
-        buildingType: Yup.object().required()
+        buildingType: Yup.object().required().label('Building type '),
+      }
+      if(this.record.itemType == 'parking') {
+        yupObj['parkingTypes'] = Yup.object().required().label('Parking type ')
+      }
+      if(this.record.itemType == 'building') {
+        yupObj['buildingType'] = Yup.object().required().label('Building type ')
+      }
+      if(this.record.itemType == 'emergency device') {
+        yupObj['emergency-type'] = Yup.object().required().label('Device type ')
+      }
+      if(this.record.itemType == 'exhibit') {
+        yupObj['exhibit-type'] = Yup.object().required().label('Exhibit type ')
       }
       const bathrooms = this.record.bathrooms
       for(let i = 0; i < bathrooms.length; i++) {
         bathrooms.forEach(() => {
-          yupObj['bathroom-location-' + i] = Yup.string().required()
+          yupObj['bathroom-location-' + i] = Yup.string().required().label('Bathroom #' + (i+1) + ' location ')
         })
       }
       const diningOptions = this.record.diningOptions
       for(let i = 0; i < diningOptions.length; i++) {
         diningOptions.forEach(() => {
-          yupObj['dining-name-' + i] = Yup.string().required()
+          yupObj['dining-name-' + i] = Yup.string().required().label('Dining option #' + (i+1) + ' name ')
         })
       }
       const emergencyDevices = this.record.emergencyDevices
       for(let i = 0; i < emergencyDevices.length; i++) {
         emergencyDevices.forEach(() => {
-          yupObj['emergency-location-' + i] = Yup.string().required()
-          yupObj['emergency-type-' + i] = Yup.object().required()
+          yupObj['emergency-location-' + i] = Yup.string().required().label('Emergency device #' + (i+1) + ' location ')
+          yupObj['emergency-type-' + i] = Yup.object().required().label('Emergency device #' + (i+1) + ' type ')
         })
       }
       const exhibits = this.record.exhibits
       for(let i = 0; i < exhibits.length; i++) {
         exhibits.forEach(() => {
-          yupObj['exhibit-name-' + i] = Yup.string().required()
-          yupObj['exhibit-type-' + i] = Yup.object().required()
+          yupObj['exhibit-name-' + i] = Yup.string().required().label('Exhibit #' + (i+1) + ' name ')
+          yupObj['exhibit-type-' + i] = Yup.object().required().label('Exhibit #' + (i+1) + ' type ')
         })
       }
       const services = this.record.services
       for(let i = 0; i < services.length; i++) {
         services.forEach(() => {
-          yupObj['service-name-' + i] = Yup.string().required()
-          yupObj['service-type-' + i] = Yup.object().required()
+          yupObj['service-name-' + i] = Yup.string().required().label('Service #' + (i+1) + ' name ')
+          yupObj['service-type-' + i] = Yup.object().required().label('Service #' + (i+1) + ' type ')
         })
       }
       const dispensers = this.record.dispensers
       for(let i = 0; i < dispensers.length; i++) {
         dispensers.forEach(() => {
-          yupObj['dispenser-name-' + i] = Yup.string().required()
-          yupObj['dispenser-description-' + i] = Yup.string().required()
+          yupObj['dispenser-name-' + i] = Yup.string().required().label('Dispenser #' + (i+1) + ' name ')
+          yupObj['dispenser-description-' + i] = Yup.string().required().label('Dispenser #' + (i+1) + ' description ')
         })
       }
       return Yup.object(yupObj)
     },
-    // are there any validation errors?
-    // haveErrors: function () {
-    //   return this.$validator.errors.count() > 0 ? true : false
-    // },
     headingIcon: function () {
       switch (this.record.itemType) {
         case 'building':
@@ -1435,26 +1455,26 @@ export default {
           return '<i class="fa fa-map"></i>'
       }
     },
-    // imageDeleted: function () {
-    //   return this.isImageDeleted ? 'image-deleted-border' : ''
-    // },
-    // isInvalid: function () {
-    //   return 'is-invalid'
-    // },
-    // // PHOTOS
-    // isUploadInitial () {
-    //   return this.currentStatus === STATUS_INITIAL;
-    // },
-    // isUploadSaving () {
-    //   return this.currentStatus === STATUS_SAVING;
-    // },
-    // isUploadSuccess () {
-    //   return this.currentStatus === STATUS_SUCCESS;
-    // },
-    // isUploadFailed () {
-    //   return this.currentStatus === STATUS_FAILED;
-    // },
-    // // -end PHOTOS
+    imageDeleted: function () {
+      return this.isImageDeleted ? 'image-deleted-border' : ''
+    },
+    isInvalid: function () {
+      return 'is-invalid'
+    },
+    // PHOTOS
+    isUploadInitial () {
+      return this.currentStatus === STATUS_INITIAL;
+    },
+    isUploadSaving () {
+      return this.currentStatus === STATUS_SAVING;
+    },
+    isUploadSuccess () {
+      return this.currentStatus === STATUS_SUCCESS;
+    },
+    isUploadFailed () {
+      return this.currentStatus === STATUS_FAILED;
+    },
+    // -end PHOTOS
     lockIcon: function () {
       return this.isEditMode ? '<i class="fa fa-unlock"></i>' : '<i class="fa fa-lock"></i>'
     },
@@ -1464,6 +1484,13 @@ export default {
     }
   },
   methods: {
+    capitalize: function (value) {
+      if (!value) {
+        return ''
+      }
+      value = value.toString()
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    },
     // e.g. add a new bathroom to a building
     addRecordSubitem: function (itemType) {
       switch (itemType) {
@@ -1509,25 +1536,25 @@ export default {
           break;
       }
     },
-    // afterSubmitSucceeds: function () {
-    //   let self = this
-    //   // New item has been submitted, go to edit
-    //   if (!this.itemExists) {
-    //     this.success = true
-    //     this.successMessage = "Item created."
-    //     let newurl = '/map/items/' + this.record.id
-    //     document.location = newurl
-    //   }
-    //   else {
-    //     this.success = true
-    //     this.successMessage = "Update successful."
-    //   }
-    //   // remove the message after 3 seconds
-    //   setTimeout(function () {
-    //     self.success = false
-    //   }, 3000)
-    // },
-    // // Run prior to submitting
+    afterSubmitSucceeds: function () {
+      let self = this
+      // New item has been submitted, go to edit
+      if (!this.itemExists) {
+        this.success = true
+        this.successMessage = "Item created."
+        let newurl = '/map/items/' + this.record.id
+        document.location = newurl
+      }
+      else {
+        this.success = true
+        this.successMessage = "Update successful."
+      }
+      // remove the message after 3 seconds
+      setTimeout(function () {
+        self.success = false
+      }, 3000)
+    },
+    // Run prior to submitting
     checkForm: function () {
       let self = this
       // this.$validator.validateAll()
@@ -1651,7 +1678,7 @@ export default {
       .then(function (response) {
         self.record = response.data
         self.isDataLoaded = true
-        // self.setOriginalImages(self.record.images)
+        self.setOriginalImages(self.record.images)
       })
       // fail
       .catch(function (error) {
@@ -1711,55 +1738,55 @@ export default {
         }
       })
     },
-    // filesChange (fieldName, fileList) {
-    //   // handle file changes
-    //   const formData = new FormData()
-    //   if (!fileList.length) {
-    //     return
-    //   }
-    //   // append the files to FormData
-    //   Array
-    //   .from(Array(fileList.length).keys())
-    //   .map(x => {
-    //     formData.append(fieldName, fileList[x], fileList[x].name)
-    //   });
-    //   // save it
-    //   this.uploadImages(formData);
-    // },
+    filesChange (fieldName, fileList) {
+      // handle file changes
+      const formData = new FormData()
+      if (!fileList.length) {
+        return
+      }
+      // append the files to FormData
+      Array
+      .from(Array(fileList.length).keys())
+      .map(x => {
+        formData.append(fieldName, fileList[x], fileList[x].name)
+      });
+      // save it
+      this.uploadImages(formData);
+    },
     // Emit an event to the parent component telling to go back to the last screen (applies to new item creation)
     goBack: function () {
       this.$emit('goBackStep1')
     },
-    // // Error checking for emergency devices
-    // isEmergencyError: function (index) {
-    //   let key = "emergencyDeviceIndex" + index
-    //   // there was an error found for this key
-    //   if (this.errors[key]) {
-    //     return true
-    //   }
-    //   return false
-    // },
-    // // Called from the @itemDeleted event emission from the Delete Modal
-    // markItemDeleted: function () {
-    //   this.isDeleteError = false
-    //   this.isDeleted = true
-    //   setTimeout(function () {
-    //     // This record doesn't exist anymore, so send the user back to the map items list page
-    //     window.location.replace('/map/items')
-    //   }, 3000)
-    // },
-    // markItemDeleteError: function () {
-    //   let self = this
-    //   this.isDeleted = false
-    //   this.isDeleteError = true
-    //   setTimeout(function () {
-    //     self.isDeleteError = false
-    //   }, 5000)
-    // },
-    // // When a user has finished dragging (re-ordering) an image
-    // onDragEnd: function (evt) {
-    //   this.isImageOrderChanged = true
-    // },
+    // Error checking for emergency devices
+    isEmergencyError: function (index) {
+      let key = "emergencyDeviceIndex" + index
+      // there was an error found for this key
+      if (this.errors[key]) {
+        return true
+      }
+      return false
+    },
+    // Called from the @itemDeleted event emission from the Delete Modal
+    markItemDeleted: function () {
+      this.isDeleteError = false
+      this.isDeleted = true
+      setTimeout(function () {
+        // This record doesn't exist anymore, so send the user back to the map items list page
+        window.location.replace('/map/items')
+      }, 3000)
+    },
+    markItemDeleteError: function () {
+      let self = this
+      this.isDeleted = false
+      this.isDeleteError = true
+      setTimeout(function () {
+        self.isDeleteError = false
+      }, 5000)
+    },
+    // When a user has finished dragging (re-ordering) an image
+    onDragEnd: function (evt) {
+      this.isImageOrderChanged = true
+    },
     // use the map item's array index
     removeSubitemFromBuilding (type, index) {
       switch (type) {
@@ -1784,17 +1811,17 @@ export default {
       }
     },
     // // Called as a result of $emit from child component
-    // renameImage: function (image) {
-    //   for (let i = this.record.images.length - 1; i >= 0; i--) {
-    //     if (this.record.images[i].id == image.id) {
-    //       this.record.images[i].name = image.name
-    //     }
-    //   }
-    // },
-    // resetImageOrder: function () {
-    //   this.record.images = this.originalImageOrder
-    //   this.isImageOrderChanged = false
-    // },
+    renameImage: function (image) {
+      for (let i = this.record.images.length - 1; i >= 0; i--) {
+        if (this.record.images[i].id == image.id) {
+          this.record.images[i].name = image.name
+        }
+      }
+    },
+    resetImageOrder: function () {
+      this.record.images = this.originalImageOrder
+      this.isImageOrderChanged = false
+    },
     resetUploadForm: function () {
       // reset form to initial state
       this.currentStatus = STATUS_INITIAL
@@ -1947,15 +1974,6 @@ export default {
     },
     toggleDragEnable: function () {
       $('.deleteImageModal').hasClass('show') || $('.editImageModal').hasClass('show') ? this.isModalOpen = true : this.isModalOpen = false;
-    }
-  },
-  filters: {
-    capitalize: function (value) {
-      if (!value) {
-        return ''
-      }
-      value = value.toString()
-      return value.charAt(0).toUpperCase() + value.slice(1)
     }
   }
 }

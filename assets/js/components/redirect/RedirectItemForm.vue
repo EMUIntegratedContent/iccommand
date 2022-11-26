@@ -130,11 +130,10 @@
 </style>
 
 <script>
-import Draggable from "vuedraggable";
-import Heading from "../utils/Heading.vue";
-import Multiselect from "vue-multiselect";
-import NotFound from "../utils/NotFound.vue";
-import RedirectItemDeleteModal from "./RedirectItemDeleteModal.vue";
+import Heading from "../utils/Heading.vue"
+import Multiselect from "vue-multiselect"
+import NotFound from "../utils/NotFound.vue"
+import RedirectItemDeleteModal from "./RedirectItemDeleteModal.vue"
 
 const STATUS_INITIAL = 0;
 
@@ -156,7 +155,7 @@ export default {
     }
   },
 
-  components: {Heading, Multiselect, RedirectItemDeleteModal, NotFound, Draggable},
+  components: {Heading, Multiselect, RedirectItemDeleteModal, NotFound},
 
   props: {
     itemExists: {

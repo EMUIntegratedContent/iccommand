@@ -46,8 +46,7 @@
     "vue-multiselect": "next",
     "vue-router": "^3.6.5",
     "vue-slicksort": "^1.2.0",
-    "vue2-dragula": "^2.5.5",
-    "vuedraggable": "^2.24.3",
+    "vuedraggable": "^4.1.0",
     "yup": "^0.32.11"
   }
 }

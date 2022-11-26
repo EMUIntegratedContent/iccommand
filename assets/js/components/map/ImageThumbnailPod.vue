@@ -13,7 +13,7 @@
                       <img width="103px" height="103px" :src="uploadsThumbnailURL + image.path" :alt="image.name" />
                     </div>
                     <button v-if="isEditMode && userCanDelete" type="button" class="btn btn-sm btn-danger pull-right" @click="openDeleteImageModal(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
-                    <h6 class="box-title heading-primary"><i v-if="this.$vnode.key == 0" class="fa fa-star" aria-hidden="true"></i> {{ imageName }}</h6>
+                    <h6 class="box-title heading-primary"><i v-if="slotNo == 0" class="fa fa-star" aria-hidden="true"></i> {{ imageName }}</h6>
                     <p v-if="isEditMode" class="hand"><span @click="openEditImageModal(image)"><i class="fa fa-pencil" aria-hidden="true"></i> Edit name</span></p>
                     <p><a :href="image.subdir + '/' + image.path" target="_blank">Full Size</a></p>
                 </div>
@@ -21,8 +21,8 @@
         </li><!-- /li -->
         <!-- DELETE IMAGE MODAL -->
         <mapitem-image-delete-modal
-                :podIndex="this.$vnode.key"
-                :id="'deleteImageModal-' + this.$vnode.key"
+                :podIndex="slotNo"
+                :id="'deleteImageModal-' + slotNo"
                 class="deleteImageModal"
                 :image="deleteImageModalData"
                 @imageDeleteRequested="deleteImage(deleteImageModalData)"
@@ -30,8 +30,8 @@
         ></mapitem-image-delete-modal>
         <!-- EDIT IMAGE MODAL -->
         <mapitem-image-edit-modal
-                :podIndex="this.$vnode.key"
-                :id="'editImageModal-' + this.$vnode.key"
+                :podIndex="slotNo"
+                :id="'editImageModal-' + slotNo"
                 class="editImageModal"
                 :image="editImageModalDataCopy"
                 @imageEditRequested="editImage(editImageModalDataCopy)"
@@ -67,6 +67,10 @@
       },
       userCanDelete: {
         default: false
+      },
+      slotNo: {
+        type: Number,
+        required: true
       }
     },
     data: function() {
@@ -140,13 +144,11 @@
         },
         openDeleteImageModal(image){
             this.deleteImageModalData = JSON.parse(JSON.stringify(image))
-            $('#deleteImageModal-' + this.$vnode.key).modal('show')
+            $('#deleteImageModal-' + this.slotNo).modal('show')
         },
         openEditImageModal(image){
             this.editImageModalDataCopy = JSON.parse(JSON.stringify(image))
-            // this.$vnode.key is the :key property on the component
-            // TUTORIAL: https://stackoverflow.com/questions/47783396/access-key-from-child-component-in-vue
-            $('#editImageModal-' + this.$vnode.key).modal('show')
+            $('#editImageModal-' + this.slotNo).modal('show')
         },
         resetImageInformation: function(type){
             // clear the temp data
