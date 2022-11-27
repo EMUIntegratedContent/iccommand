@@ -136,3 +136,10 @@ INTERNET EXPLORER FIXES
 - Polyfills:
   - startsWith(): https://stackoverflow.com/questions/30867172/code-not-running-in-ie-11-works-fine-in-chrome
   - includes(): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+
+WEBPACK WITH NODE-SASS
+ - Node-sass is deprecated, but it's still required by webpack for compiling sass.
+ - So use an older version of node when trying to npm install :
+ - nvm install 14.17.3
+ - nvm use 14.7.3
+ - Managing multiple versions: https://www.baeldung.com/linux/multiple-node-js-versions
