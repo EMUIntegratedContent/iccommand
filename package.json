@@ -27,7 +27,7 @@
     "@babel/preset-env": "^7.19.1",
     "@ckeditor/ckeditor5-core": "^11.1.0",
     "@fortawesome/fontawesome": "^1.1.8",
-    "ajv": "^7.2.4",
+    "ajv": "^8.0.0",
     "axios": "^0.27.2",
     "babel-loader": "^8.2.5",
     "bootstrap": "^4.6.2",
