@@ -40,8 +40,7 @@
       <div class="tab-content pt-2" id="mapitemTabContent">
         <div class="tab-pane fade show active" id="information" role="tabpanel"
              aria-labelledby="information-tab">
-          <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="checkForm" :validation-schema="mapItemSchema">
-            <form @submit="submitForm">
+          <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="submitMapItem" :validation-schema="mapItemSchema">
             <fieldset>
               <legend>Basic Information</legend>
               <div class="form-group">
@@ -1056,7 +1055,6 @@
                       class="btn btn-danger ml-4" data-toggle="modal" data-target="#deleteModal"><i
                   class="fa fa-trash fa-2x"></i></button>
             </div>
-            </form>
           </VeeForm><!-- /end form -->
         </div><!-- end .tab-pane #information -->
         <!-- IMAGE TAB -->
@@ -1073,8 +1071,13 @@
                 Image order has been updated
               </div>
               <template v-if="itemExists && userCanEdit && isEditMode">
-                <draggable v-model="record.images" item-key="images" :options="{'disabled':isModalOpen}"
-                           @start="drag=true" @end="onDragEnd">
+                <draggable
+                    v-model="record.images"
+                    item-key="images"
+                    :options="{'disabled':isModalOpen}"
+                    @start="drag=true"
+                    @end="onDragEnd"
+                >
                   <template v-slot:item="{ element, index }">
                     <image-thumbnail-pod
                       :key="'image-thumb-' + index"
@@ -1242,7 +1245,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Field, Form as VeeForm, ErrorMessage } from 'vee-validate'
 import * as Yup from 'yup'
 
-const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3
+const STATUS_INITIAL = 0, STATUS_SAVING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3, STATUS_SAVE_FAILED = 4
 
 export default {
   created () {
@@ -1332,6 +1335,7 @@ export default {
         toolbar: ['Bold', 'Italic', 'Undo', 'Redo', 'NumberedList', 'BulletedList', 'Link'],
         height: 250
       },
+      drag: false,
       editor: ClassicEditor,
       currentStatus: null,
       emergencyTypes: [], // for multiselect
@@ -1474,6 +1478,9 @@ export default {
     isUploadFailed () {
       return this.currentStatus === STATUS_FAILED;
     },
+    isSaveFailed () {
+      return this.currentStatus === STATUS_SAVE_FAILED;
+    },
     // -end PHOTOS
     lockIcon: function () {
       return this.isEditMode ? '<i class="fa fa-unlock"></i>' : '<i class="fa fa-lock"></i>'
@@ -1553,22 +1560,6 @@ export default {
       setTimeout(function () {
         self.success = false
       }, 3000)
-    },
-    // Run prior to submitting
-    checkForm: function () {
-      let self = this
-      // this.$validator.validateAll()
-      .then((result) => {
-        // if all fields valid, submit the form
-        if (result) {
-          self.submitForm()
-          return
-        }
-      })
-      .catch((error) => {
-        self.apiError.status = 500
-        self.apiError.message = "Something went wrong that wasn't validation related."
-      });
     },
     fetchBuildings () {
       let self = this
@@ -1785,6 +1776,7 @@ export default {
     },
     // When a user has finished dragging (re-ordering) an image
     onDragEnd: function (evt) {
+      this.drag = false
       this.isImageOrderChanged = true
     },
     // use the map item's array index
@@ -1861,8 +1853,9 @@ export default {
       }
     },
     // Submit the form via the API
-    submitForm: function () {
+    submitMapItem: function () {
       let self = this // 'this' loses scope within axios
+      self.currentStatus = null
       let method = (this.itemExists) ? 'put' : 'post'
       let route = (this.itemExists) ? '/api/mapitem' : '/api/mapitems'
       // AJAX (axios) submission
@@ -1877,15 +1870,8 @@ export default {
         self.afterSubmitSucceeds()
       })
       // fail
-      .catch(function (error) {
-        let errors = error.response.data
-        // Add any validation errors to the vee validator error bag
-        errors.forEach(function (error) {
-          console.log(error)
-          // let key = error.property_path
-          // let message = error.message
-          // self.$validator.errors.add(key, message)
-        })
+      .catch(() => {
+        this.currentStatus = STATUS_SAVE_FAILED
       })
     },
     updateImageOrder: function () {

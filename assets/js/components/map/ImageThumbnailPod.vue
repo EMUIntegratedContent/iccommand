@@ -109,6 +109,7 @@
                     setTimeout(function(){
                         self.imageDeleteRequested() // function to emit notice of deletion to parent
                         self.isImageDeleted = false
+                        $('#deleteImageModal-' + self.slotNo).modal('hide')
                     }, 1500)
                 })
                 .catch(function(error){
@@ -128,6 +129,7 @@
                     self.$emit('imageRenamed', image)
                     setTimeout(function(){
                         self.isImageEdited = false
+                        $('#editImageModal-' + self.slotNo).modal('hide')
                     }, 3000)
                 })
                 .catch(function(error){
