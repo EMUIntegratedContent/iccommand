@@ -40,7 +40,7 @@
                                    {'yes-events': day.hasevents == yesEventClass },
                                    {'no-events': day.hasevents == noEventClass },
                                 ]">
-                            {{ day.day | removex }}
+                            {{ removex(day.day) }}
                         </div>
                     </li>
                 </ul>
@@ -274,13 +274,9 @@
                         }
                     })
             },
-        },
-        watch: {},
-        events: {},
-        filters: {
-            removex: function (value) {
-                return (value[0] == 'x') ? '_' : value;
-            }
-        },
+          removex: function (value) {
+            return (value[0] == 'x') ? '_' : value;
+          }
+        }
     };
 </script>

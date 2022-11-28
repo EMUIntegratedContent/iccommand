@@ -33,8 +33,8 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 class MultimediaRequestController extends AbstractFOSRestController
 {
-    private MultimediaRequestService $serializer;
-    private SerializerInterface $service;
+    private SerializerInterface $serializer;
+    private MultimediaRequestService $service;
     private ManagerRegistry $doctrine;
     private EntityManagerInterface $em;
 

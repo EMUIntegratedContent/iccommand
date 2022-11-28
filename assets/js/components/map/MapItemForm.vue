@@ -1877,7 +1877,7 @@ export default {
       })
       // fail
       .catch(() => {
-        this.currentStatus = STATUS_SAVE_FAILED
+        self.currentStatus = STATUS_SAVE_FAILED
       })
     },
     updateImageOrder: function () {

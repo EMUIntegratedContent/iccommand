@@ -19,7 +19,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" @click="timeslotDeleteCanceled">Cancel</button>
                     <button type="button" class="btn btn-danger" data-dismiss="modal" @click="timeslotDeleteRequested"
-                            :disabled="deleteConfirm != 'delete'">Delete image
+                            :disabled="deleteConfirm != 'delete'">Delete slot
                     </button>
                 </div>
             </div>

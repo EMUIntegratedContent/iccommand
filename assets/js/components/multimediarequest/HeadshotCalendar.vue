@@ -17,9 +17,10 @@
                 <div class="row">
                     <template v-if="timeSlots">
                         <headshot-timeslot-pod
-                            v-for="timeSlot in timeSlots"
+                            v-for="(timeSlot, index) in timeSlots"
                             :time-slot="timeSlot"
-                            :key="timeSlot.id"
+                            :key="'timeslot-' + timeSlot.id"
+                            :slot-index="index"
                             @addTimeSlot="placeNewTimeSlot"
                             @updateTimeSlot="updateTimeSlot"
                             @removeTimeSlot="removeTimeSlot">
@@ -69,10 +70,7 @@
             }
         },
         created: function () {
-
-        },
-        mounted: function () {
-            this.fetchPhotoshootsForDate(moment())
+          this.fetchPhotoshootsForDate(moment())
         },
         computed: {
 
