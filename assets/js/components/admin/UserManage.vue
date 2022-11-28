@@ -11,7 +11,7 @@
     <!-- MAIN AREA -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
       <heading>
-        <span slot="icon" v-html="headingIcon"></span>
+<!--        <span slot="icon" v-html="headingIcon"></span>-->
         <span slot="title">Configure user {{ username }}</span>
       </heading>
       <div class="button-holder" role="group">

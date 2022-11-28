@@ -10,7 +10,7 @@
                       <i class="fa fa-bars"></i>
                     </div>
                     <div class="iccommand-thumb-image">
-                      <img width="103px" height="103px" :src="uploadsThumbnailURL + image.path" :alt="image.name" />
+                      <img width="103" height="103" :src="uploadsThumbnailURL + image.path" :alt="image.name" />
                     </div>
                     <button v-if="isEditMode && userCanDelete" type="button" class="btn btn-sm btn-danger pull-right" @click="openDeleteImageModal(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
                     <h6 class="box-title heading-primary"><i v-if="slotNo == 0" class="fa fa-star" aria-hidden="true"></i> {{ imageName }}</h6>

@@ -15,7 +15,7 @@
     <!-- MAIN AREA -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
       <heading>
-        <span slot="icon" v-html="headingIcon"></span>
+<!--        <span slot="icon" v-html="headingIcon"></span>-->
         <span v-if="!itemExists">Step 2/2: Provide {{ record.itemType }} information</span>
         <span v-else>Map {{ record.itemType }}: {{ record.name }}</span>
       </heading>
@@ -934,19 +934,6 @@
                 <template v-if="userCanEdit && isEditMode" class="form-row">
                   <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label>Lot hours</label>
-                        <textarea
-                                class="form-control"
-                                name="hours"
-                                :class="{'is-invalid': errors.description, 'form-control-plaintext': !userCanEdit || !isEditMode}"
-                                :readonly="!userCanEdit || !isEditMode"
-                                v-model="record.hours">
-                        </textarea>
-                        <div class="invalid-feedback">
-                            {{ errors.hours }}
-                        </div>
-                    </div>
-                    <div class="form-group col-md-6">
                       <label>Lot hours</label>
                       <template v-if="!userCanEdit || !isEditMode">
                         <span v-html="record.hours"></span>
@@ -955,6 +942,7 @@
                         <div :class="{'is-invalid-ckeditor': errors.hours }">
                           <ckeditor
                               v-model="record.hours"
+                              :editor="editor"
                               :config="ckConfig"
                               name="hours"
                           >
@@ -985,21 +973,27 @@
                   </div>
                   <div class="form-row">
                     <div class="form-group col-md-6">
-                      <label>Lot type(s)</label>
-                      <VueMultiselect
+                      <label>Lot type(s)*</label>
+                      <Field
+                          name="parkingTypes"
+                          v-slot="{ field }"
                           v-model="record.parkingTypes"
-                          :options="parkingTypes"
-                          :multiple="true"
-                          placeholder="Choose lot types"
-                          label="name"
-                          track-by="id"
-                          class="form-control"
-                          style="padding:0"
-                          name="building"
-                          id="parkingTypes"
-                          :class="{'is-invalid': errors.parkingTypes }"
                       >
-                      </VueMultiselect>
+                        <VueMultiselect
+                            v-model="record.parkingTypes"
+                            :options="parkingTypes"
+                            :multiple="true"
+                            placeholder="Choose lot types"
+                            label="name"
+                            track-by="id"
+                            class="form-control"
+                            style="padding:0"
+                            name="building"
+                            id="parkingTypes"
+                            :class="{'is-invalid': errors.parkingTypes }"
+                        >
+                        </VueMultiselect>
+                      </Field>
                       <div class="invalid-feedback">
                         {{ errors.parkingTypes }}
                       </div>
@@ -1050,6 +1044,7 @@
             </div>
             <!-- ACTION BUTTONS -->
             <div v-if="userCanEdit && isEditMode" aria-label="action buttons" class="mb-4">
+              <p v-if="isSaveFailed" class="red">Error saving this map item.</p>
               <button class="btn btn-success" type="submit"><i class="fa fa-save fa-2x"></i></button>
               <button v-if="itemExists && this.permissions[0].delete" type="button"
                       class="btn btn-danger ml-4" data-toggle="modal" data-target="#deleteModal"><i
@@ -1393,10 +1388,9 @@ export default {
     mapItemSchema() {
       let yupObj = {
         name: Yup.string().required(),
-        buildingType: Yup.object().required().label('Building type '),
       }
       if(this.record.itemType == 'parking') {
-        yupObj['parkingTypes'] = Yup.object().required().label('Parking type ')
+        yupObj['parkingTypes'] = Yup.array().min(1).label('Parking type ')
       }
       if(this.record.itemType == 'building') {
         yupObj['buildingType'] = Yup.object().required().label('Building type ')
@@ -1408,44 +1402,56 @@ export default {
         yupObj['exhibit-type'] = Yup.object().required().label('Exhibit type ')
       }
       const bathrooms = this.record.bathrooms
-      for(let i = 0; i < bathrooms.length; i++) {
-        bathrooms.forEach(() => {
-          yupObj['bathroom-location-' + i] = Yup.string().required().label('Bathroom #' + (i+1) + ' location ')
-        })
+      if(bathrooms) {
+        for(let i = 0; i < bathrooms.length; i++) {
+          bathrooms.forEach(() => {
+            yupObj['bathroom-location-' + i] = Yup.string().required().label('Bathroom #' + (i+1) + ' location ')
+          })
+        }
       }
       const diningOptions = this.record.diningOptions
-      for(let i = 0; i < diningOptions.length; i++) {
-        diningOptions.forEach(() => {
-          yupObj['dining-name-' + i] = Yup.string().required().label('Dining option #' + (i+1) + ' name ')
-        })
+      if(diningOptions) {
+        for(let i = 0; i < diningOptions.length; i++) {
+          diningOptions.forEach(() => {
+            yupObj['dining-name-' + i] = Yup.string().required().label('Dining option #' + (i+1) + ' name ')
+          })
+        }
       }
       const emergencyDevices = this.record.emergencyDevices
-      for(let i = 0; i < emergencyDevices.length; i++) {
-        emergencyDevices.forEach(() => {
-          yupObj['emergency-location-' + i] = Yup.string().required().label('Emergency device #' + (i+1) + ' location ')
-          yupObj['emergency-type-' + i] = Yup.object().required().label('Emergency device #' + (i+1) + ' type ')
-        })
+      if(emergencyDevices) {
+        for(let i = 0; i < emergencyDevices.length; i++) {
+          emergencyDevices.forEach(() => {
+            yupObj['emergency-location-' + i] = Yup.string().required().label('Emergency device #' + (i+1) + ' location ')
+            yupObj['emergency-type-' + i] = Yup.object().required().label('Emergency device #' + (i+1) + ' type ')
+          })
+        }
       }
       const exhibits = this.record.exhibits
-      for(let i = 0; i < exhibits.length; i++) {
-        exhibits.forEach(() => {
-          yupObj['exhibit-name-' + i] = Yup.string().required().label('Exhibit #' + (i+1) + ' name ')
-          yupObj['exhibit-type-' + i] = Yup.object().required().label('Exhibit #' + (i+1) + ' type ')
-        })
+      if(exhibits) {
+        for(let i = 0; i < exhibits.length; i++) {
+          exhibits.forEach(() => {
+            yupObj['exhibit-name-' + i] = Yup.string().required().label('Exhibit #' + (i+1) + ' name ')
+            yupObj['exhibit-type-' + i] = Yup.object().required().label('Exhibit #' + (i+1) + ' type ')
+          })
+        }
       }
       const services = this.record.services
-      for(let i = 0; i < services.length; i++) {
-        services.forEach(() => {
-          yupObj['service-name-' + i] = Yup.string().required().label('Service #' + (i+1) + ' name ')
-          yupObj['service-type-' + i] = Yup.object().required().label('Service #' + (i+1) + ' type ')
-        })
+      if(services) {
+        for(let i = 0; i < services.length; i++) {
+          services.forEach(() => {
+            yupObj['service-name-' + i] = Yup.string().required().label('Service #' + (i+1) + ' name ')
+            yupObj['service-type-' + i] = Yup.object().required().label('Service #' + (i+1) + ' type ')
+          })
+        }
       }
       const dispensers = this.record.dispensers
-      for(let i = 0; i < dispensers.length; i++) {
-        dispensers.forEach(() => {
-          yupObj['dispenser-name-' + i] = Yup.string().required().label('Dispenser #' + (i+1) + ' name ')
-          yupObj['dispenser-description-' + i] = Yup.string().required().label('Dispenser #' + (i+1) + ' description ')
-        })
+      if(dispensers) {
+        for(let i = 0; i < dispensers.length; i++) {
+          dispensers.forEach(() => {
+            yupObj['dispenser-name-' + i] = Yup.string().required().label('Dispenser #' + (i+1) + ' name ')
+            yupObj['dispenser-description-' + i] = Yup.string().required().label('Dispenser #' + (i+1) + ' description ')
+          })
+        }
       }
       return Yup.object(yupObj)
     },

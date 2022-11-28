@@ -1,8 +1,7 @@
 <template>
   <div>
-    <div v-if="this.permissions[0].create">
-      <!-- :is = a magic vue word -->
-      <div :is="currentComponent" @mapItemChosen="setItemType" @goBackStep1="swapComponent(previousStep)" :itemType="itemType" :itemExists="false" :permissions="this.permissions" :newForm="true" startMode="edit"></div>
+    <div v-if="permissions[0].create">
+      <component :is="currentComponent" @mapItemChosen="setItemType" @goBackStep1="swapComponent(previousStep)" :itemType="itemType" :itemExists="false" :permissions="this.permissions" :newForm="true" startMode="edit"></component>
       <div v-show="!currentComponent" v-for="component in componentsArray">
         <button @click="swapComponent(component)">{{component}}</button>
       </div>
@@ -20,9 +19,6 @@
   import NewMapItemChoices from './NewMapItemChoices.vue'
   import MapItemForm from './MapItemForm.vue'
   export default {
-    mounted() {
-      console.log('Component mounted.')
-    },
     components: {
       'new-map-item-choices': NewMapItemChoices,
       'map-item-form': MapItemForm,
