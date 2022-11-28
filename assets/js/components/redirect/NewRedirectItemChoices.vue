@@ -32,10 +32,6 @@
 import Heading from "../utils/Heading.vue";
 
 export default {
-  mounted() {
-    console.log("Choices mounted.");
-  },
-
   components: {Heading},
 
   data: function() { return {}; },

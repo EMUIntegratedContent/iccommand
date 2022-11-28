@@ -1,8 +1,8 @@
 <template>
   <div>
     <heading>
-      <span slot="icon" v-html="headingIcon"></span>
-      <span slot="title">EMU Map Items</span>
+<!--      <span slot="icon" v-html="headingIcon"></span>-->
+      <span>EMU Map Items</span>
     </heading>
     <div id="accordion">
       <div class="card">

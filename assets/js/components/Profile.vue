@@ -10,8 +10,8 @@
     <!-- MAIN AREA -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
       <heading>
-        <span slot="icon" v-html="headingIcon"></span>
-        <span slot="title">Configure user {{ username }}</span>
+<!--        <span slot="icon" v-html="headingIcon"></span>-->
+        <span>Configure user {{ username }}</span>
       </heading>
       <div class="button-holder" role="group">
         <a href="/" class="btn btn-primary pull-left"><i class="fa fa-home"></i></a>

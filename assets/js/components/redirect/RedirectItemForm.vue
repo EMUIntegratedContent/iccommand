@@ -14,15 +14,15 @@
     <!-- Main Area -->
     <div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
       <heading>
-        <span v-if="!itemExists" slot="title">Step 2/2: Provide redirect information</span>
-        <span v-else slot="title">Existing Redirect Information</span>
+        <span v-if="!itemExists">Step 2/2: Provide redirect information</span>
+        <span v-else>Existing Redirect Information</span>
       </heading>
       <div class="btn-group" role="group" aria-label="form navigation buttons">
         <button v-if="newForm" class="btn btn-info pull-left" @click="goBack()"><i class="fa fa-chevron-circle-left"></i> Step 1</button>
-        <button v-if="itemExists && this.permissions[0].user" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button>
+        <button v-if="itemExists && permissions[0].user" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button>
       </div>
       <div class="pt-2" id="redirectItemTabContent">
-        <form class="form" @submit.prevent="checkForm">
+        <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="submitRedirect" :validation-schema="redirectSchema">
           <fieldset>
             <legend>Basic Information</legend>
             <div class="form-group">
@@ -32,16 +32,16 @@
               <template v-if="record.itemType == 'redirect of shortened link'">
                 <label>Shortened/Vanity Link *</label>
               </template>
-              <input
-                v-validate="'required'"
-                name="fromLink"
-                type="text"
-                class="form-control"
-                :class="{'is-invalid': errors.has('fromLink'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
-                :readonly="!userCanEdit || !isEditMode"
-                v-model="record.fromLink"/>
+              <Field
+                  name="fromLink"
+                  type="text"
+                  class="form-control"
+                  :class="{'is-invalid': errors.fromLink, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                  :readonly="!userCanEdit || !isEditMode"
+                  v-model="record.fromLink">
+              </Field>
               <div class="invalid-feedback">
-                {{ errors.first("fromLink") }}
+                {{ errors.fromLink }}
               </div>
             </div>
             <div class="form-group">
@@ -51,23 +51,23 @@
               <template v-if="record.itemType == 'redirect of shortened link'">
                 <label>Full Link *</label>
               </template>
-              <input
-                v-validate="'required'"
-                name="toLink"
-                type="text"
-                class="form-control"
-                :class="{'is-invalid': errors.has('fromLink'), 'form-control-plaintext': !userCanEdit || !isEditMode}"
-                :readonly="!userCanEdit || !isEditMode"
-                v-model="record.toLink"/>
+              <Field
+                  name="toLink"
+                  type="text"
+                  class="form-control"
+                  :class="{'is-invalid': errors.toLink, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                  :readonly="!userCanEdit || !isEditMode"
+                  v-model="record.toLink">
+              </Field>
               <div class="invalid-feedback">
-                {{ errors.first("toLink") }}
+                {{ errors.toLink }}
               </div>
             </div>
           </fieldset>
-          <div v-if="$validator.errors.count() > 0 && !success" class="alert alert-danger fade show" role="alert">
-            You have <strong>{{ $validator.errors.count() }} error<span v-if="$validator.errors.count() > 1">s</span></strong> in your submission:
+          <div v-if="Object.keys(errors).length && isEditMode" class="alert alert-danger fade show" role="alert">
+            Please fix all errors before submitting:
             <ul>
-              <li v-for="error in $validator.errors.all()">
+              <li v-for="error in errors">
                 <strong>{{ error }}</strong>
               </li>
             </ul>
@@ -80,6 +80,7 @@
           </div>
           <!-- Action Buttons -->
           <div v-if="userCanEdit && isEditMode" aria-label="action buttons" class="mb-4">
+            <p v-if="isSaveFailed" class="red">Error saving this redirect. {{ apiError.message }}</p>
             <button type="submit" class="btn btn-success"><i class="fa fa-save fa-2x"></i></button>
             <button
               v-if="itemExists && this.permissions[0].user"
@@ -88,7 +89,7 @@
               data-toggle="modal"
               data-target="#deleteModal"><i class="fa fa-trash fa-2x"></i></button>
           </div>
-        </form>
+        </VeeForm>
         <!-- Recommended Section for Redirects of Broken Links -->
         <div v-if="!itemExists && record.itemType == 'redirect of broken link'" class="table-responsive">
           <legend>Recommended</legend>
@@ -113,7 +114,9 @@
     <redirect-item-delete-modal
       :redirect="record"
       @itemDeleted="markItemDeleted"
-      @itemDeleteError="markItemDeleteError"></redirect-item-delete-modal>
+      @itemDeleteError="markItemDeleteError"
+    >
+    </redirect-item-delete-modal>
   </div>
 </template>
 
@@ -131,11 +134,13 @@
 
 <script>
 import Heading from "../utils/Heading.vue"
-import Multiselect from "vue-multiselect"
+import VueMultiselect from "vue-multiselect"
 import NotFound from "../utils/NotFound.vue"
 import RedirectItemDeleteModal from "./RedirectItemDeleteModal.vue"
-
-const STATUS_INITIAL = 0;
+import { Field, Form as VeeForm, ErrorMessage } from 'vee-validate'
+import * as Yup from "yup";
+const STATUS_INITIAL = 0
+const STATUS_SAVE_FAILED = 1
 
 export default {
   created() {
@@ -155,7 +160,7 @@ export default {
     }
   },
 
-  components: {Heading, Multiselect, RedirectItemDeleteModal, NotFound},
+  components: {Heading, VueMultiselect, RedirectItemDeleteModal, NotFound, Field, VeeForm, ErrorMessage},
 
   props: {
     itemExists: {
@@ -190,6 +195,7 @@ export default {
 
   data: function() {
     return {
+      currentStatus: null,
       /* **************************** Error Data **************************** */
 
       /**
@@ -279,12 +285,18 @@ export default {
   },
 
   computed: {
-    /**
-     * Determines if there are errors.
-     * @return {boolean} True if there are errors; false otherwise.
-     */
-    haveErrors: function() {
-      return (this.$validator.errors.count() > 0) ? true : false;
+    isStatusInitial () {
+      return this.currentStatus === STATUS_INITIAL;
+    },
+    isSaveFailed () {
+      return this.currentStatus === STATUS_SAVE_FAILED;
+    },
+    redirectSchema() {
+      let yupObj = {
+        fromLink: Yup.string().required().label('From link '),
+        toLink: Yup.string().required().label('To link ')
+      }
+      return Yup.object(yupObj)
     },
 
     /**
@@ -342,44 +354,18 @@ export default {
     },
 
     /**
-     * Checks the form; this will run prior to submitting.
-     */
-    checkForm: function() {
-      let self = this;
-      this.$validator.validateAll()
-      .then((result) => { // Success.
-        // If all fields are valid, submit the form.
-        if (result) {
-          self.submitForm();
-          return;
-        }
-      })
-      .catch((error) => { // Failure.
-        self.apiError.status = 500;
-        self.apiError.message = "Something went wrong that wasn't validation related.";
-      });
-    },
-
-    /**
      * Deletes the uncaught item specified by the ID.
      * @param {number} id The ID of the uncaught item to be deleted.
      */
     deleteUncaught: function(id) {
       let self = this; // "this" loses scope within Axios.
-
+      self.currentStatus = null
       axios.delete("/api/uncaughts/" + id)
       .then(function(response) { // Success.
 
       })
       .catch(function(error) { // Failure.
-        let errors = error.response.data;
-
-        // Add any validation errors to the Vue validator error bag.
-        errors.forEach(function(error) {
-          let key = error.property_path;
-          let message = error.message;
-          self.$validator.errors.add(key, message);
-        });
+        self.currentStatus = STATUS_SAVE_FAILED
       });
     },
 
@@ -480,7 +466,7 @@ export default {
      */
     removeFromRecommended: function(uncaught) {
       let self = this; // "this" loses scope within Axios.
-
+      self.currentStatus = null
       /* Ajax (Axios) Submission */
       axios({
         method: "put",
@@ -496,14 +482,7 @@ export default {
         self.fetchUncaughts(); // Get the uncaught items again after this update.
       })
       .catch(function(error) { // Failure.
-        let errors = error.response.data;
-
-        // Add any validation errors to the Vue validator error bag.
-        errors.forEach(function(error) {
-          let key = error.property_path;
-          let message = error.message;
-          self.$validator.errors.add(key, message);
-        });
+        self.currentStatus = STATUS_SAVE_FAILED
       });
     },
 
@@ -518,8 +497,9 @@ export default {
     /**
      * Submits the form via the API.
      */
-    submitForm: function() {
+    submitRedirect: function() {
       let self = this; // "this" loses scope within Axios.
+      self.currentStatus = null
       let method = this.itemExists ? "put" : "post";
       let route = "/api/redirects/";
       let errors = []
@@ -534,9 +514,9 @@ export default {
         self.record.id = response.data.id; // This sets the redirect's ID.
 
         // If there is an uncaught item that has the same link as this record's fromLink, delete it.
-        var id = -1;
+        let id = -1;
 
-        for (var i = 0; i < self.fetchedUncaughts.length; i++) {
+        for (let i = 0; i < self.fetchedUncaughts.length; i++) {
           if (self.fetchedUncaughts[i].link == self.record.fromLink) {
             id = self.fetchedUncaughts[i].id;
             break;
@@ -550,23 +530,9 @@ export default {
         self.afterSubmitSucceeds();
       })
       .catch(function(error) { // Failure.
-        // TODO: this is currently not showing an error.
-        let errors = error.response.data;
-
-        if (typeof errors === "string") {
-          // This is for "The actual link is not valid."
-          if (!self.isUnvalidErrorShowing) {
-            self.$validator.errors.add({field: 'record.fromLink', msg: errors});
-            self.isUnvalidErrorShowing = true;
-          }
-        } else {
-          // Add any other validation errors to the Vue validator error bag.
-          errors.forEach(function(error) {
-            let key = error.property_path;
-            let message = error.message;
-            self.$validator.errors.add(key, message);
-          });
-        }
+        self.currentStatus = STATUS_SAVE_FAILED
+        self.apiError.status = error.response.status;
+        self.apiError.message = error.response.data;
       });
     },
 

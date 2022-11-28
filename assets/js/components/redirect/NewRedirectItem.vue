@@ -1,13 +1,13 @@
 <template>
   <div>
     <div v-if="this.permissions[0].user">
-      <div
+      <component
         :is="currentComponent"
         @redirectItemChosen="setItemType"
         @goBackStep1="setComponent(previousStep)"
         :itemType="itemType" :itemExists="false"
         :permissions="this.permissions"
-        :newForm="true" startMode="edit"></div>
+        :newForm="true" startMode="edit"></component>
       <div v-show="!currentComponent" v-for="component in componentsArray">
         <button @click="setComponent(component)">{{ component }}</button>
       </div>
@@ -25,10 +25,6 @@ import NewRedirectItemChoices from "./NewRedirectItemChoices.vue";
 import RedirectItemForm from "./RedirectItemForm.vue";
 
 export default {
-  mounted() {
-    console.log("Component mounted.");
-  },
-
   components: {
     "new-redirect-item-choices": NewRedirectItemChoices,
     "redirect-item-form": RedirectItemForm,

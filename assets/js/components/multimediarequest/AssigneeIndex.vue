@@ -1,8 +1,8 @@
 <template>
     <div>
         <heading>
-            <span slot="icon" v-html="headingIcon"></span>
-            <span slot="title">Multimedia Request Assignees</span>
+<!--            <span slot="icon" v-html="headingIcon"></span>-->
+            <span>Multimedia Request Assignees</span>
         </heading>
         <p><a href="/multimediarequests/assignees/create" class="btn btn-info">New Assignee</a></p>
         <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">

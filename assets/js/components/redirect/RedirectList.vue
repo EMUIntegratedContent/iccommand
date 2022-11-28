@@ -1,8 +1,8 @@
 <template>
   <div>
     <heading>
-      <span slot="icon" v-html="headingIcon"></span>
-      <span slot="title">Redirect Items</span>
+<!--      <span slot="icon" v-html="headingIcon"></span>-->
+      <span>Redirect Items</span>
     </heading>
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
