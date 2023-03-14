@@ -185,7 +185,7 @@
             There was an error deleting this item.
           </div>
           <!-- ACTION BUTTONS -->
-          <button v-if="isEditMode" class="btn btn-success spacer-top" type="submit">{{ 'Update ' + username }}</button>
+          <button v-if="isEditMode" class="btn btn-success spacer-top" type="submit" @click="submitForm">{{ 'Update ' + username }}</button>
         </fieldset>
       </form>
     </div>
