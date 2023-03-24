@@ -55,9 +55,9 @@
                 getTileUrl: function(coord, zoom) {
                     zoom = zoom - 2 // Scales the whole map down
                     if(coord.x < Math.pow(2, zoom) && (coord.y < Math.pow(2, zoom) && (coord.y > -1))) {
-                        return '/images/maptiles/' + zoom + '_' + coord.x + '_' + coord.y + '.png';
+                        return '/images/maptiles/' + zoom + '_' + coord.x + '_' + coord.y + '.jpg';
                     } else {
-                        return '/images/maptiles/empty_' + zoom + '.png';
+                        return '/images/maptiles/empty_' + zoom + '.jpg';
                     }
                 },
 

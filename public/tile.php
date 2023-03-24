@@ -5,7 +5,7 @@
  *
  **/
 if (isset($_GET['zoom']) && isset($_GET['x']) && isset($_GET['y'])) {
-    $name = dirname(__FILE__) . '/images/maptiles/' . $_GET['zoom'] . '/' . $_GET['zoom'] . '_' . $_GET['x'] . '_' . $_GET['y'] . '.png';
+    $name = dirname(__FILE__) . '/images/maptiles/' . $_GET['zoom'] . '/' . $_GET['zoom'] . '_' . $_GET['x'] . '_' . $_GET['y'] . '.jpg';
 
     if (file_exists($name)) {
         $fp = fopen($name, 'rb');
@@ -17,7 +17,7 @@ if (isset($_GET['zoom']) && isset($_GET['x']) && isset($_GET['y'])) {
         exit;
     }
     else {
-        $name = dirname(__FILE__) . '/images/maptiles/' . $_GET['zoom'] . '/empty.png';
+        $name = dirname(__FILE__) . '/images/maptiles/' . $_GET['zoom'] . '/empty.jpg';
         $fp   = fopen($name, 'rb');
 
         header('Content-Type: image/png');
