@@ -35,3 +35,9 @@ services:
               options:
                   protocol_version: 3
                   referrals: false
+
+    # Rate limiting for API calls
+    ratelimit_subscriber:
+        class: App\EventSubscriber\RateLimitSubscriber
+        tags:
+            - { name: kernel.request, connection: default }

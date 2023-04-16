@@ -19,6 +19,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -61,20 +63,21 @@ class RedirectController extends AbstractFOSRestController
      */
     public function getExternalRedirectAction(Request $request): Response
     {
+        $userAgent = $request->headers->get('User-Agent');
+        $botUserAgents = ['Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'facebot', 'Applebot'];
+        if(in_array($userAgent, $botUserAgents)) {
+            return new Response('Bot Detected', Response::HTTP_FORBIDDEN);
+        }
+
         $url = $request->query->get('url');
 
         $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
 
-        // $this->logger->info('!!! GET /api/external/redirect is running !!! URL: ' . $url);
-        //
-        // $memstart = memory_get_peak_usage(true);
-        // $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
-
         if (!$redirect) {
-            return new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
+            return new Response(json_encode("The redirect you requested was not found."), Response::HTTP_NOT_FOUND, array('Content-Type' => 'application/json'));
         }
 
-        return new Response(json_encode($redirect->getToLink()), 200, array('Content-Type' => 'application/json'));
+        return new Response(json_encode($redirect->getToLink()), Response::HTTP_OK, array('Content-Type' => 'application/json'));
     }
 
     /**
