@@ -4,9 +4,9 @@ framework:
     external_redirects:
       # use 'sliding_window' if you prefer that policy
       policy: 'fixed_window'
-      limit: 5
+      limit: 50
       interval: '60 minutes'
-#    authenticated_api:
+#    example_of_bucket_policy:
 #      policy: 'token_bucket'
 #      limit: 5000
 #      rate: { interval: '15 minutes', amount: 500 }

@@ -63,12 +63,6 @@ class RedirectController extends AbstractFOSRestController
      */
     public function getExternalRedirectAction(Request $request): Response
     {
-        $userAgent = $request->headers->get('User-Agent');
-        $botUserAgents = ['Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'facebot', 'Applebot'];
-        if(in_array($userAgent, $botUserAgents)) {
-            return new Response('Bot Detected', Response::HTTP_FORBIDDEN);
-        }
-
         $url = $request->query->get('url');
 
         $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);

@@ -40,7 +40,7 @@ class RateLimitSubscriber implements EventSubscriberInterface
             $request = $event->getRequest();
 
             $userAgent = $request->headers->get('User-Agent');
-            $botUserAgents = ['Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'facebot', 'Applebot',
+            $botUserAgents = ['Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'facebot', 'Applebot',
                 //'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/111.0'
             ];
 
