@@ -65,7 +65,7 @@
 </main>
 {% block javascripts %}
     {{ encore_entry_script_tags('app') }}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCUqoSEir9huPBCzyFRLopmjb0lmzOkj78"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}"></script>
 {% endblock %}
 
 </body>
