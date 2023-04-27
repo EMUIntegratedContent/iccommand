@@ -1,13 +1,17 @@
 nelmio_cors:
     defaults:
         origin_regex: true
-        allow_origin: ['^https?://localhost:?[0-9]*$']
+#        allow_origin: ['%env(resolve:CORS_ALLOW_ORIGIN)%']
+        allow_origin: []
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
         allow_headers: ['Content-Type', 'Authorization']
         max_age: 3600
     paths:
         '^/api/':
-            allow_origin: ['^https?://localhost:?[0-9]*$']
+#            allow_origin: ['%env(resolve:CORS_ALLOW_ORIGIN)%']
+            allow_origin:
+                dev: '^https?://webstage.emich.edu*$'
+                prod: '^https?://(www.)?(webstage.)?(wwwtmp.)?(wwwcache.)?emich.edu$'
             allow_headers: ['X-Custom-Auth']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
             max_age: 3600
