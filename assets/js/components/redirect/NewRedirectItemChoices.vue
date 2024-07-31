@@ -23,6 +23,9 @@
         </div>
       </div>
     </div>
+    <div class="mt-2">
+      <button type="button" class="col-sm-12 btn btn-dark" @click="openUploadModal">Bulk Upload</button>
+    </div>
   </div>
 </template>
 
@@ -54,7 +57,11 @@ export default {
     setItem: function(itemType) {
       // Vue 2 has done away with $dispatch in favor of $emit.
       this.$emit("redirectItemChosen", itemType);
-    }
+    },
+
+    openUploadModal: function() {
+      $('#uploadModal').modal('show')
+    },
   }
 }
 </script>
