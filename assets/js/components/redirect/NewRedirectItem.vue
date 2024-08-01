@@ -30,9 +30,17 @@
 
         <form enctype="multipart/form-data" novalidate v-if="isUploadInitial">
           <div class="modal-body">
-            <p>Select a CSV to upload.</p>
+            <p><a href="/bulk_redirect_template.csv" target="_blank" class="text-info">Sample CSV template</a><br>Note that the options for the "item_type" column are:
+              <ul>
+                <li>redirect of broken link <small> -- most common</small></li>
+                <li>redirect of shortened link</li>
+                <li>invalid redirect of broken link</li>
+                <li>invalid redirect of shortened link</li>
+              </ul>
+            </p>
             <div class="form-group">
                 <label>
+                  Upload a CSV file:
                   <input type="file" name="uploadCsv" id="uploadCsv" class="form-control-file" accept="text/csv"
                          @change="onFileChange">
                   <span class="custom-file-control"></span>
