@@ -438,6 +438,8 @@ class RedirectController extends AbstractFOSRestController
         $added = 0;
         $rejected = 0;
 
+        $rejectedArr = [];
+
         if(count($csv) > 0){
             foreach($csv as $redirect){
                 $newRedirect = $this->_addRedirect($redirect);
@@ -448,12 +450,13 @@ class RedirectController extends AbstractFOSRestController
                     case 422:
                     default:
                         ++$rejected;
+                        $rejectedArr[] = $redirect['from_link'];
                         break;
                 }
             }
         }
 
-        return new Response(sprintf('%d added, %d rejected or skipped.', $added, $rejected), 201, array("Content-Type" => "application/json"));
+        return new Response(sprintf('%d added.<br>%d rejected or skipped (from_link):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
     }
 
     private function _addRedirect($data): Response

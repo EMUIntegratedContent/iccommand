@@ -4,6 +4,7 @@
       <component
         :is="currentComponent"
         @redirectItemChosen="setItemType"
+        @openUploadModal="openUploadModal"
         @goBackStep1="setComponent(previousStep)"
         :itemType="itemType" :itemExists="false"
         :permissions="this.permissions"
@@ -30,14 +31,6 @@
 
         <form enctype="multipart/form-data" novalidate v-if="isUploadInitial">
           <div class="modal-body">
-            <p><a href="/bulk_redirect_template.csv" target="_blank" class="text-info">Sample CSV template</a><br>Note that the options for the "item_type" column are:
-              <ul>
-                <li>redirect of broken link <small> -- most common</small></li>
-                <li>redirect of shortened link</li>
-                <li>invalid redirect of broken link</li>
-                <li>invalid redirect of shortened link</li>
-              </ul>
-            </p>
             <div class="form-group">
                 <label>
                   Upload a CSV file:
@@ -61,7 +54,7 @@
         <template v-if="isUploadSuccess">
           <div class="modal-body">
             <p>Success!</p>
-            <p>{{ processMessage }}</p>
+            <p class="overflow-auto" style="max-height: 250px" v-html="processMessage"></p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" @click="resetUploader">Close</button>
@@ -71,7 +64,7 @@
         <template v-if="isUploadFailed">
           <div class="modal-body">
             <p class="text-danger">Failed</p>
-            <p>{{ uploadErrors }}</p>
+            <p class="overflow-auto" style="max-height: 250px" v-html="uploadErrors"></p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" @click="resetUploader">Close</button>
@@ -225,8 +218,12 @@ export default {
             })
     },
     resetUploader: function(){
-        this.currentStatus = STATUS_INITIAL;
         $('#uploadModal').modal('hide')
+    },
+    openUploadModal: function(){
+        this.currentStatus = STATUS_INITIAL;
+        $('#uploadModal').modal('show');
+        $('#uploadCsv').click();
     }
   },
 
