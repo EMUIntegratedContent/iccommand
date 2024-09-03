@@ -2,19 +2,22 @@ app_logout:
   path: /logout
   methods: GET
 
-controllers:
-    resource: '../src/Controller/'
-    type:     annotation
-
-admin_users:
-    type: annotation
-    resource: App\Controller\Api\Admin\UserController
-    prefix: /api/admin/
-
-calendar:
-    type: annotation
-    resource: App\Controller\Api\CalendarController
-    prefix: /api/calendar/
+####
+# Use native PHP attributes instead of annotations for routes (CP 9/3/24)
+####
+#controllers:
+#    resource: '../src/Controller/'
+#    type:     annotation
+#
+#admin_users:
+#    type: annotation
+#    resource: App\Controller\Api\Admin\UserController
+#    prefix: /api/admin/
+#
+#calendar:
+#    type: annotation
+#    resource: App\Controller\Api\CalendarController
+#    prefix: /api/calendar/
 
 #emails_api:
 #    type: annotation
@@ -22,37 +25,37 @@ calendar:
 #    prefix: /api/
 #
 
-map_items:
-    type: annotation
-    resource: App\Controller\Api\Map\MapItemController
-    prefix: /api/
-
-mapitemImages:
-    type: annotation
-    resource: App\Controller\Api\Map\MapItemImageController
-    prefix: /api/mapitemimages/
-
-multimediaRequestAssignees:
-    type: annotation
-    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
-    prefix: /api/multimediaassignees
-
-multimediaRequests:
-    type: annotation
-    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController
-    prefix: /api/multimediarequests
-
-redirects:
-    type: annotation
-    resource: App\Controller\Api\Redirect\RedirectController
-    prefix: /api/redirects
-
-uncaughts:
-    type: annotation
-    resource: App\Controller\Api\Redirect\UncaughtController
-    prefix: /api/uncaughts/
-
-userImages:
-    type: annotation
-    resource: App\Controller\Api\UserImageController
-    prefix: /api/userimages/
+#map_items:
+#    type: annotation
+#    resource: App\Controller\Api\Map\MapItemController
+#    prefix: /api/
+#
+#mapitemImages:
+#    type: annotation
+#    resource: App\Controller\Api\Map\MapItemImageController
+#    prefix: /api/mapitemimages/
+#
+#multimediaRequestAssignees:
+#    type: annotation
+#    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
+#    prefix: /api/multimediaassignees
+#
+#multimediaRequests:
+#    type: annotation
+#    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController
+#    prefix: /api/multimediarequests
+#
+#redirects:
+#    type: annotation
+#    resource: App\Controller\Api\Redirect\RedirectController
+#    prefix: /api/redirects
+#
+#uncaughts:
+#    type: annotation
+#    resource: App\Controller\Api\Redirect\UncaughtController
+#    prefix: /api/uncaughts/
+#
+#userImages:
+#    type: annotation
+#    resource: App\Controller\Api\UserImageController
+#    prefix: /api/userimages/

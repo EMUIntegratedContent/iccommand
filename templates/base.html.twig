@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>{% block title %}Welcome!{% endblock %} – ICCommand</title>
     {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
 </head>
@@ -64,6 +65,7 @@
     {% block body %}{% endblock %}
 </main>
 {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
     {{ encore_entry_script_tags('app') }}
     <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}"></script>
 {% endblock %}

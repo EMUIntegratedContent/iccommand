@@ -2,27 +2,16 @@
 namespace App\Controller\Api\Redirect;
 
 use App\Entity\Redirect\Redirect;
-use App\Entity\Redirect\Uncaught;
 use App\Service\RedirectService;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\PersistentCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\View\View;
-use Hateoas\HateoasBuilder;
-use JMS\Serializer\SerializationContext;
-use MongoDB\Driver\Manager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Routing\Annotation\Route;
 
 if (!ini_get('display_errors')) {
     ini_set('display_errors', '1');
@@ -57,10 +46,10 @@ class RedirectController extends AbstractFOSRestController
 
     /**
      * Find a redirect URL passed from an external source
-     * @Rest\Get("external/redirect")
      * @param Request $request
      * @return Response
      */
+    #[Route('external/redirect', methods: ['GET'])]
     public function getExternalRedirectAction(Request $request): Response
     {
         $url = $request->query->get('url');
@@ -76,10 +65,10 @@ class RedirectController extends AbstractFOSRestController
 
     /**
      * Increment the number of visits a URL redirect has received
-     * @Rest\Put("external/redirect")
      * @param Request $request
      * @return Response
      */
+    #[Route('external/redirect', methods: ['PUT'])]
     public function putExternalRedirectincrementAction(Request $request): Response
     {
         $url = $request->request->get('url');
@@ -107,10 +96,10 @@ class RedirectController extends AbstractFOSRestController
 
     /**
      * Deletes the redirect from the specified ID.
-     * @Rest\Delete("/{id}")
      * @param $id  // The ID of the redirect.
      * @return Response The message of the deleted redirect, the status code, and the HTTP headers.
      */
+    #[Route('/{id}', methods: ['DELETE'])]
     public function deleteRedirectAction($id): Response
     {
         $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
@@ -124,9 +113,9 @@ class RedirectController extends AbstractFOSRestController
     /**
      * Gets the redirect by the specified ID.
      * @param $id // The ID of the redirect.
-     * @Rest\Get("/{id}")
      * @return Response The redirect, the status code, and the HTTP headers.
      */
+    #[Route('/{id}', methods: ['GET'])]
     public function getRedirectAction($id): Response
     {
         $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(["id" => $id]);
@@ -143,9 +132,9 @@ class RedirectController extends AbstractFOSRestController
 
     /**
      * Gets all redirects.
-     * @Rest\Get("/")
      * @return Response All redirects, the status code, and the HTTP headers.
      */
+    #[Route('/', methods: ['GET'])]
     public function getRedirectsAction(): Response
     {
         $redirects = $this->doctrine->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
@@ -158,9 +147,9 @@ class RedirectController extends AbstractFOSRestController
     /**
      * Posts the new redirect from the specified request.
      * @param Request $request The holder of the information about the new redirect.
-     * @Rest\Post("/")
      * @return Response The redirect, the status code, and the HTTP headers.
      */
+    #[Route('/', methods: ['POST'])]
     public function postRedirectAction(Request $request): Response
     {
         $redirect = new Redirect();
@@ -253,9 +242,9 @@ class RedirectController extends AbstractFOSRestController
     /**
      * Updates the redirect from the specified request.
      * @param Request $request The holder of the information about the updated redirect.
-     * @Rest\Put()
      * @return Response The redirect, the status code, and the HTTP headers.
      */
+    #[Route('/', methods: ['PUT'])]
     public function putRedirectAction(Request $request): Response
     {
         $redirect = $this->doctrine->getRepository(Redirect::class)->find($request->request->get("id"));
@@ -420,9 +409,9 @@ class RedirectController extends AbstractFOSRestController
     /**
      * Updates the redirect from the specified request.
      * @param Request $request The holder of the information about the updated redirect.
-     * @Rest\Post("upload")
      * @return Response The redirect, the status code, and the HTTP headers.
      */
+    #[Route('upload', methods: ['POST'])]
     public function postRedirectBulkAction(Request $request): Response
     {
         $file = file($request->files->get('csv'));

@@ -4,20 +4,15 @@ namespace App\Controller\Api\Redirect;
 use App\Entity\Redirect\Uncaught;
 use App\Service\RedirectService;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\PersistentCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\View\View;
-use Hateoas\HateoasBuilder;
-use JMS\Serializer\SerializationContext;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Routing\Annotation\Route;
 
 if (!ini_get('display_errors')) {
     ini_set('display_errors', '1');
@@ -50,10 +45,10 @@ class UncaughtController extends AbstractFOSRestController {
 
     /**
      * Find an uncaught URL passed from an external source
-     * @Rest\Get("external/uncaught")
      * @param Request $request
      * @return Response
      */
+		#[Route('external/uncaught', methods: ['GET'])]
     public function getExternalUncaughtAction(Request $request): Response
     {
         $url = $request->query->get('url');
@@ -73,10 +68,10 @@ class UncaughtController extends AbstractFOSRestController {
 
     /**
      * Add a new uncaught URL from an external source
-     * @Rest\Post("external/uncaught")
      * @param Request $request
      * @return Response
      */
+		#[Route('external/uncaught', methods: ['POST'])]
     public function postExternalUncaughtAction(Request $request): Response
     {
         if(!$request->request->get('url') ){
@@ -98,10 +93,10 @@ class UncaughtController extends AbstractFOSRestController {
 
     /**
      * Increment the number of visits an uncaught URL redirect has received
-     * @Rest\Put("external/uncaught")
      * @param Request $request
      * @return Response
      */
+		#[Route('external/uncaught', methods: ['PUT'])]
     public function putExternalUncaughtincrementAction(Request $request): Response
     {
         $url = $request->request->get('url');
@@ -127,10 +122,10 @@ class UncaughtController extends AbstractFOSRestController {
 
     /**
      * Deletes the uncaught item from the specified ID.
-     * @Rest\Delete("/{id}")
      * @param $id // The ID of the uncaught item.
      * @return Response The message of the deleted uncaught item, the status code, and the HTTP headers.
      */
+		#[Route('/{id}', methods: ['DELETE'])]
     public function deleteUncaughtAction($id): Response {
         $uncaught = $this->doctrine->getRepository(Uncaught::class)->find($id);
 
@@ -142,9 +137,9 @@ class UncaughtController extends AbstractFOSRestController {
 
     /**
      * Gets all uncaught items.
-     * @Rest\Get("/")
      * @return Response All uncaught items, the status code, and the HTTP headers.
      */
+		#[Route('/', methods: ['GET'])]
     public function getUncaughtsAction(): Response {
         $uncaughts = $this->doctrine->getRepository(Uncaught::class)->findBy(["isRecommended" => true], ["visits" => "desc"]);
         $serialized = $this->serializer->serialize($uncaughts, "json", ['groups' => 'redir']);
@@ -153,10 +148,10 @@ class UncaughtController extends AbstractFOSRestController {
 
     /**
      * Puts the new uncaught item from the specified request.
-     * @Rest\Put("/")
      * @param Request $request The holder of the information about the updated uncaught item.
      * @return Response The uncaught item, the status code, and the HTTP headers.
      */
+		#[Route('/', methods: ['PUT'])]
     public function putUncaughtAction(Request $request): Response {
         $uncaught = $this->doctrine->getRepository(Uncaught::class)->find($request->request->get("id"));
 
