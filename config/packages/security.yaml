@@ -59,6 +59,7 @@ security:
         - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
         - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }
+        - { path: ^/applinks, role: ROLE_USER }
         - { path: ^/profile, role: ROLE_USER }
         - { path: ^/$, role: ROLE_USER }
 #        # EXTERNAL API - Routes that must be publicly accessible!

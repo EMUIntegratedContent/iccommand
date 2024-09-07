@@ -11,8 +11,7 @@
           <div v-if="module.display" class="card col-sm-6 col-md-4" :key="'mod-'+i">
             <div class="card-body">
               <h5 class="card-title">{{ module.title }}</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-                content.</p>
+              <p class="card-text">{{ module.description }}</p>
               <a :href="module.buttonLink" class="btn btn-primary">{{ module.buttonText }}</a>
             </div>
           </div>
@@ -72,6 +71,13 @@ export default {
           buttonText: "Manage Redirects",
           buttonLink: "/redirects",
           display: false
+        },
+        links: { // Added Sept. 2024
+          title: "External Application Links",
+          description: "A list of links to admin panels and front-ends for various external applications.",
+          buttonText: "See Apps",
+          buttonLink: "/applinks",
+          display: true // No permissions required for this module; it's just a list of links
         },
       }
     }

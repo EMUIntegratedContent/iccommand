@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}External Application Links{% endblock %}
+
+{% block modulenav %}
+    {% include 'applinks/nav_redirect.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="card col-sm-6 col-md-4 my-3">
+            <div class="card-body">
+                <h5 class="card-title">CHHS Scholarships</h5>
+                <a class="btn btn-info mr-2" href="https://www.emich.edu/scholarships-application/admin/login.php" target="_blank">Admin Panel</a>
+                <a class="btn btn-secondary" href="https://www.emich.edu/scholarships-application/index.php" target="_blank">Front End</a>
+            </div>
+        </div>
+        <div class="card col-sm-6 col-md-4 my-3">
+            <div class="card-body">
+                <h5 class="card-title">Financial Aid Scholarships</h5>
+                <a class="btn btn-info mr-2 mb-2" href="https://www.emich.edu/finaid/admin/index.php" target="_blank">Admin Panel</a>
+                <a class="btn btn-secondary mr-2 mb-2" href="https://www.emich.edu/coe/scholarships/index.php" target="_blank">COE Front End</a>
+                <a class="btn btn-secondary" href="https://www.emich.edu/finaid/types/scholarships/search.php" target="_blank">FinAid Front End</a>
+            </div>
+        </div>
+        <div class="card col-sm-6 col-md-4 my-3">
+            <div class="card-body">
+                <h5 class="card-title">Nursing BSN Application</h5>
+                <a class="btn btn-info mr-2" href="https://www.emich.edu/chhs/nursing/application/admin/login.php" target="_blank">Admin Panel</a>
+                <a class="btn btn-secondary" href="https://www.emich.edu/chhs/nursing/application/index.php" target="_blank">Front End</a>
+            </div>
+        </div>
+
+        <div class="card col-sm-6 col-md-4 my-3">
+            <div class="card-body">
+                <h5 class="card-title">Social Media Directory</h5>
+                <a class="btn btn-info mr-2" href="https://www.emich.edu/communications/expertise/social-media/social-media-directory-edit.php" target="_blank">Admin Panel</a>
+                <a class="btn btn-secondary" href="https://www.emich.edu/communications/expertise/social-media/social-media-directory.php" target="_blank">Front End</a>
+            </div>
+        </div>
+        <div class="card col-sm-6 col-md-4 my-3">
+            <div class="card-body">
+                <h5 class="card-title">Music & Dance</h5>
+                <a class="btn btn-info mr-2 mb-2" href="https://www.emich.edu/music-dance/admin/auditions/index.html" target="_blank">Admin Panel</a>
+                <a class="btn btn-secondary mr-2 mb-2" href="https://www.emich.edu/music-dance/apply/undergraduate-dance.php" target="_blank">Dance Front End</a>
+                <a class="btn btn-secondary mr-2 mb-2" href="https://www.emich.edu/music-dance/apply/undergraduate-music.php" target="_blank">Music UG Front End</a>
+                <a class="btn btn-secondary mr-2 mb-2" href="https://www.emich.edu/music-dance/apply/graduate-music.php" target="_blank">Music Grad Front End</a>
+            </div>
+        </div>
+        <div class="card col-sm-6 col-md-4 my-3">
+            <div class="card-body">
+                <h5 class="card-title">Find Your Advisor</h5>
+                <a class="btn btn-info mr-2" href="https://www.emich.edu/uacdc/admin/advisors/login.php" target="_blank">Admin Panel</a>
+                <a class="btn btn-secondary" href="https://www.emich.edu/uacdc/findadvisor/index.php" target="_blank">Front End</a>
+            </div>
+        </div>
+        <div class="card col-sm-6 col-md-4 my-3">
+            <div class="card-body">
+                <h5 class="card-title">Daily Crime Log</h5>
+                <a class="btn btn-info mr-2" href="https://www.emich.edu/police/_site/csv/insert.php" target="_blank">Admin Panel</a>
+                <a class="btn btn-secondary" href="https://www.emich.edu/police/crime-alerts-stats/daily-crime-log.php" target="_blank">Front End</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
