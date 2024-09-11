@@ -1,7 +1,6 @@
 <?php
 namespace App\Controller\Applinks;
 
-use App\Entity\Redirect\Redirect;
 use App\Service\RedirectService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,8 +26,8 @@ class ApplinksController extends AbstractController {
 
   /**
    * The index page of the app links.
-   * @Route("/applinks", name="applinks_index")
    */
+	#[Route('/applinks', name: 'applinks_index')]
   public function index(): Response
   {
     return $this->render('applinks/index.html.twig', []);

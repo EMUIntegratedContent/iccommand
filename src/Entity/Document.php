@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Map\MapitemImage;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -9,300 +10,193 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ImageRepository")
- * @ORM\HasLifecycleCallbacks
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"document" = "Document", "image" = "Image", "mapitemimage" = "App\Entity\Map\MapitemImage", "userimage" = "App\Entity\UserImage"})
-*/
- abstract class Document
- {
-     /**
-      * @var integer
-      *
-      * @ORM\Column(name="id", type="integer")
-      * @ORM\Id
-      * @ORM\GeneratedValue(strategy="AUTO")
-      * @Groups("bldgs")
-      */
-     private $id;
+#[ORM\Entity(repositoryClass: "App\Repository\ImageRepository")]
+#[ORM\HasLifecycleCallbacks]
+#[ORM\InheritanceType("JOINED")]
+#[ORM\DiscriminatorColumn(name: "discr", type: "string")]
+#[ORM\DiscriminatorMap(
+	['document' => Document::class, 'image' => Image::class, "mapiteminage" => MapitemImage::class, "userimage" => UserImage::class]
+)]
+abstract class Document
+{
+	#[ORM\Id]
+	#[ORM\Column(name: "id", type: "integer")]
+	#[ORM\GeneratedValue(strategy: "AUTO")]
+	#[Groups("bldgs")]
+	private $id;
 
-     /**
-      * @var string
-      *
-      * @ORM\Column(name="name", type="string", length=255)
-      * @Assert\NotBlank
-      * @Groups("bldgs")
-      */
-     private $name;
+	#[ORM\Column(name: "name", type: "string", length: 255)]
+	#[Assert\NotBlank]
+	#[Groups("bldgs")]
+	private $name;
 
-     /**
-      * @var string
-      *
-      * @ORM\Column(name="path", type="string", length=255, nullable=true)
-      * @Groups("bldgs")
-      */
-     private $path;
+	#[ORM\Column(name: "path", type: "string", length: 255, nullable: true)]
+	#[Groups("bldgs")]
+	private $path;
 
-     /**
-      * @Assert\File(maxSize = "8M")
-      * @Groups("bldgs")
-      */
-     private $file;
+	#[Assert\File(maxSize: "8M")]
+	#[Groups("bldgs")]
+	private $file;
 
-     /**
-      * @var string
-      *
-      * @ORM\Column(name="subdirectory", type="string", length=255)
-      * @Groups("bldgs")
-      */
-     private $subdir;
+	#[ORM\Column(name: "subdirectory", type: "string", length: 255)]
+	#[Groups("bldgs")]
+	private $subdir;
 
-     private $temp;
+	private $temp;
 
-     /**
-      * @Gedmo\Timestampable(on="create")
-      * @ORM\Column(type="datetime")
-     */
-     private $created;
+	#[Gedmo\Timestampable(on: "create")]
+	#[ORM\Column(type: "datetime")]
+	private $created;
 
-     /**
-      * @Gedmo\Timestampable(on="update")
-      * @ORM\Column(type="datetime")
-     */
-     private $updated;
+	#[Gedmo\Timestampable(on: "update")]
+	#[ORM\Column(type: "datetime")]
+	private $updated;
 
-     /**
-      * @ORM\Column(type="datetime", nullable=true)
-      * @Gedmo\Timestampable(on="change", field={"title", "body"})
-      */
-     private $contentChanged;
+	#[ORM\Column(type: "datetime", nullable: true)]
+	#[Gedmo\Timestampable(on: "change", field: ["title", "body"])]
+	private $contentChanged;
 
-     /**
-      * Get id
-      *
-      * @return integer
-      */
-     public function getId()
-     {
-         return $this->id;
-     }
+	public function getId()
+	{
+		return $this->id;
+	}
 
-     /**
-      * Set name
-      *
-      * @param string $name
-      *
-      * @return Document
-      */
-     public function setName($name)
-     {
-         if($name !== null){
-             $this->name = $name;
-         }
+	public function setName($name)
+	{
+		if ($name !== null) {
+			$this->name = $name;
+		}
 
-         return $this;
-     }
+		return $this;
+	}
 
-     /**
-      * Get name
-      *
-      * @return string
-      */
-     public function getName()
-     {
-         return $this->name;
-     }
+	public function getName()
+	{
+		return $this->name;
+	}
 
-     /**
-      * Set path
-      *
-      * @param string $path
-      *
-      * @return Document
-      */
-     public function setPath($path)
-     {
-         $this->path = $path;
+	public function setPath($path)
+	{
+		$path = $path;
 
-         return $this;
-     }
+		return $this;
+	}
 
-     /**
-      * Get path
-      *
-      * @return string
-      */
-     public function getPath()
-     {
-         return $this->path;
-     }
+	public function getPath()
+	{
+		return $this->path;
+	}
 
-     /**
-      * Sets file.
-      *
-      * @param UploadedFile $file
-      */
-     public function setFile(UploadedFile $file = null)
-     {
-         $this->file = $file;
-         // check if we have an old image path
-         if (isset($this->path)) {
-             // store the old name to delete after the update
-             $this->temp = $this->path;
-             $this->path = null;
-         } else {
-             $this->path = 'initial';
-         }
-     }
+	public function setFile(UploadedFile $file = null)
+	{
+		$this->file = $file;
+		if (isset($this->path)) {
+			$this->temp = $this->path;
+			$this->path = null;
+		} else {
+			$this->path = 'initial';
+		}
+	}
 
-     /**
-      * Get file.
-      *
-      * @return UploadedFile
-      */
-     public function getFile()
-     {
-         return $this->file;
-     }
+	public function getFile()
+	{
+		return $this->file;
+	}
 
-     /**
-      * Set sub directory
-      *
-      * @param string $subdir
-      *
-      * @return Document
-      */
-     public function setSubDir($subdir)
-     {
-         if($subdir !== null){
-             $this->subdir = $subdir;
-         }
-         return $this;
-     }
+	public function setSubDir($subdir)
+	{
+		if ($subdir !== null) {
+			$this->subdir = $subdir;
+		}
+		return $this;
+	}
 
-     /**
-      * Get sub directory
-      *
-      * @return string
-      */
-     public function getSubDir()
-     {
-         return $this->subdir;
-     }
+	public function getSubDir()
+	{
+		return $this->subdir;
+	}
 
-     public function getAbsolutePath()
-     {
-         return null === $this->path
-             ? null
-             : $this->getUploadRootDir().'/'.$this->path;
-     }
+	public function getAbsolutePath()
+	{
+		return null === $this->path
+			? null
+			: $this->getUploadRootDir() . '/' . $this->path;
+	}
 
-     public function getWebPath()
-     {
-         return null === $this->path
-             ? null
-             : $this->getUploadDir().'/'.$this->path;
-     }
+	public function getWebPath()
+	{
+		return null === $this->path
+			? null
+			: $this->getUploadDir() . '/' . $this->path;
+	}
 
-     protected function getUploadRootDir()
-     {
-         // the absolute directory path where uploaded
-         // documents should be saved
-         return __DIR__.'/../../public/'.$this->getUploadDir();
-     }
+	protected function getUploadRootDir()
+	{
+		return __DIR__ . '/../../public/' . $this->getUploadDir();
+	}
 
-     protected function getUploadDir()
-     {
-         // get rid of the __DIR__ so it doesn't screw up
-         // when displaying uploaded doc/image in the view.
-         if(null === $this->getSubDir()){
-             return 'uploads';
-         } else {
-             return $this->getSubDir();
-         }
-     }
+	protected function getUploadDir()
+	{
+		if (null === $this->getSubDir()) {
+			return 'uploads';
+		} else {
+			return $this->getSubDir();
+		}
+	}
 
-     /**
-      * The PreUpdate and PostUpdate callbacks are only triggered if there is a change in one of the entity's fields that are persisted.
-      * This means that, by default, if you modify only the $file property, these events will not be triggered,
-      * as the property itself is not directly persisted via Doctrine.
-      * One solution would be to use an updated field that's persisted to Doctrine, and to modify it manually when changing the file.
-      */
+	#[ORM\PrePersist]
+	#[ORM\PreUpdate]
+	public function preUpload()
+	{
+		if (null !== $this->getFile()) {
+			$filename = preg_replace('/[^A-Za-z0-9 _ .-]/', '', $this->getFile()->getClientOriginalName());
+			$this->path = $filename;
+		}
+	}
 
-     /**
-      * NOTE: PrePersist() and PreUpdate() are part of the Lifecycle Callbacks declared before the class
-      *
-      * @ORM\PrePersist()
-      * @ORM\PreUpdate()
-      */
-     public function preUpload()
-     {
-         if (null !== $this->getFile()) {
-             // do whatever you want to generate a unique name
-             //$filename = sha1(uniqid(mt_rand(), true));
-             //$filename = preg_replace('/[^A-Za-z0-9 _ .-]/', '', time(). '_' .$this->getFile()->getClientOriginalName());
-             $filename = preg_replace('/[^A-Za-z0-9 _ .-]/', '', $this->getFile()->getClientOriginalName());
-             $this->path = $filename;
-         }
-     }
+	#[ORM\PostPersist]
+	#[ORM\PostUpdate]
+	public function upload()
+	{
+		if (null === $this->getFile()) {
+			return;
+		}
 
-     /**
-      * NOTE: PostPersist() and PostUpdate() are part of the Lifecycle Callbacks declared before the class
-      *
-      * @ORM\PostPersist()
-      * @ORM\PostUpdate()
-      */
-     public function upload()
-     {
-         if (null === $this->getFile()) {
-             return;
-         }
+		$this->getFile()->move($this->getUploadRootDir(), $this->path);
 
-         // if there is an error when moving the file, an exception will
-         // be automatically thrown by move(). This will properly prevent
-         // the entity from being persisted to the database on error
-         $this->getFile()->move($this->getUploadRootDir(), $this->path);
+		if (isset($this->temp)) {
+			unlink($this->getUploadRootDir() . '/' . $this->temp);
+			$this->temp = null;
+		}
+		$this->file = null;
+	}
 
-         // check if we have an old image
-         if (isset($this->temp)) {
-             // delete the old image
-             unlink($this->getUploadRootDir().'/'.$this->temp);
-             // clear the temp image path
-             $this->temp = null;
-         }
-         $this->file = null;
-     }
+	#[ORM\PostRemove]
+	public function removeUpload()
+	{
+		$file = $this->getAbsolutePath();
+		if ($file) {
+			unlink($file);
+		}
+	}
 
-     /**
-      * NOTE: PostRemove() is part of the Lifecycle Callbacks declared before the class
-      *
-      * @ORM\PostRemove()
-      */
-     public function removeUpload()
-     {
-         $file = $this->getAbsolutePath();
-         if ($file) {
-             unlink($file);
-         }
-     }
+	public function __toString()
+	{
+		return $this->getName();
+	}
 
-     public function __toString(){
-         return $this->getName();
-     }
+	public function getCreated()
+	{
+		return $this->created;
+	}
 
-     /** GEDMO FIELDS **/
+	public function getUpdated()
+	{
+		return $this->updated;
+	}
 
-     public function getCreated(){
-         return $this->created;
-     }
-
-     public function getUpdated(){
-         return $this->updated;
-     }
-
-     public function getContentChanged(){
-         return $this->contentChanged;
-     }
- }
+	public function getContentChanged()
+	{
+		return $this->contentChanged;
+	}
+}
