@@ -3,75 +3,62 @@
 namespace App\Entity\Map;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
-use Hateoas\Configuration\Annotation as Hateoas;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use App\Entity\Map\MapParking;
-use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Map\MapParkingTypeRepository")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\Map\MapParkingTypeRepository")]
 class MapParkingType
 {
-  /**
-   * @ORM\Id
-   * @ORM\GeneratedValue
-   * @ORM\Column(type="integer")
-   * @Groups("bldgs")
-   */
-  private $id;
+	#[ORM\Id]
+	#[ORM\GeneratedValue]
+	#[ORM\Column(type: "integer")]
+	#[Groups("bldgs")]
+	private $id;
 
-  /**
-   * @ORM\Column(type="string")
-   * @Assert\NotBlank(message="You must provide a name for parking lot type.")
-   * @Groups("bldgs")
-   */
-  private $name;
+	#[ORM\Column(type: "string")]
+	#[Assert\NotBlank(message: "You must provide a name for parking lot type.")]
+	#[Groups("bldgs")]
+	private $name;
 
-  /**
-   * @ORM\ManyToMany(targetEntity="MapParking", mappedBy="parkingTypes")
-   * @Serializer\Exclude
-   */
-  private $parkingLots;
+	#[ORM\ManyToMany(targetEntity: "MapParking", mappedBy: "parkingTypes")]
+	private $parkingLots;
 
-  // Getters and setters
-  public function getId()
-  {
-      return $this->id;
-  }
+	// Getters and setters
+	public function getId(): ?int
+	{
+		return $this->id;
+	}
 
-  public function getName()
-  {
-      return $this->name;
-  }
+	public function getName(): ?string
+	{
+		return $this->name;
+	}
 
-  public function setName($name)
-  {
-      $this->name = $name;
-  }
+	public function setName(string $name): void
+	{
+		$this->name = $name;
+	}
 
-  public function addParkingLot(MapParking $parkingLot)
-  {
-      if ($this->parkingLots->contains($parkingLot)) {
-          return;
-      }
-      $this->parkingLots->add($parkingLot);
-      $parkingLot->addParkingType($this);
-  }
+	public function addParkingLot(MapParking $parkingLot): void
+	{
+		if ($this->parkingLots->contains($parkingLot)) {
+			return;
+		}
+		$this->parkingLots->add($parkingLot);
+		$parkingLot->addParkingType($this);
+	}
 
-  public function removeParkingLot(MapParking $parkingLot)
-  {
-      if (!$this->parkingLots->contains($parkingLot)) {
-          return;
-      }
-      $this->parkingLots->removeElement($parkingLot);
-      $parkingLot->removeParkingType($this);
-  }
+	public function removeParkingLot(MapParking $parkingLot): void
+	{
+		if (!$this->parkingLots->contains($parkingLot)) {
+			return;
+		}
+		$this->parkingLots->removeElement($parkingLot);
+		$parkingLot->removeParkingType($this);
+	}
 
-  public function __toString(){
-    return $this->getName();
-  }
+	public function __toString(): string
+	{
+		return $this->getName();
+	}
 }

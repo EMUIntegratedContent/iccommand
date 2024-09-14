@@ -1,13 +1,6 @@
-app_logout:
-  path: /logout
-  methods: GET
-
 ####
-# Use native PHP attributes instead of annotations for routes (CP 9/3/24)
+# Use native PHP attributes instead of annotations for routes in PHP 8 & Symfony >= 7.x (CP 9/3/24)
 ####
-#controllers:
-#    resource: '../src/Controller/'
-#    type:     annotation
 
 admin_users:
     resource: App\Controller\Api\Admin\UserController
@@ -31,15 +24,15 @@ mapitemImages:
 
 multimediaRequestAssignees:
     resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
-    prefix: /api/multimediaassignees
+    prefix: /api/multimediaassignees/
 
 multimediaRequests:
     resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController
-    prefix: /api/multimediarequests
+    prefix: /api/multimediarequests/
 
 redirects:
     resource: App\Controller\Api\Redirect\RedirectController
-    prefix: /api/redirects
+    prefix: /api/redirects/
 
 uncaughts:
     resource: App\Controller\Api\Redirect\UncaughtController

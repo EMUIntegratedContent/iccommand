@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\InheritanceType("JOINED")]
 #[ORM\DiscriminatorColumn(name: "discr", type: "string")]
 #[ORM\DiscriminatorMap(
-	['document' => Document::class, 'image' => Image::class, "mapiteminage" => MapitemImage::class, "userimage" => UserImage::class]
+	['document' => Document::class, 'image' => Image::class, "mapitemimage" => MapitemImage::class, "userimage" => UserImage::class]
 )]
 abstract class Document
 {

@@ -8,18 +8,16 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Map\MapBusRepository")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\Map\MapBusRepository")]
 class MapBus extends MapItem
 {
   const ITEM_TYPE = 'bus';
 
   /**
-   * @SerializedName("itemType")
-   * @Groups("bldgs")
    * @return String
   */
+	#[SerializedName("itemType")]
+	#[Groups("bldgs")]
   public function getItemType(){
     return constant("self::ITEM_TYPE");
   }

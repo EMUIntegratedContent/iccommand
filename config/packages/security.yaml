@@ -25,7 +25,7 @@ security:
 #                service: Symfony\Component\Ldap\Ldap
 #                dn_string: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
 #            logout:
-#                path: app_logout
+#                path: /logout
 
 
     # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
@@ -42,7 +42,7 @@ security:
                 login_path: app_login
                 check_path: app_login
             logout:
-                path: app_logout
+                path: /logout
 
     password_hashers:
         # Use native password hasher, which auto-selects and migrates the best
