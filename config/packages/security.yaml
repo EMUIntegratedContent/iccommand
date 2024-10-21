@@ -11,21 +11,7 @@ security:
                 property: email
 
     # CONFIG FOR WORKING where EMU LDAP is available
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-        main:
-            lazy: true
-            provider: users
 
-            form_login_ldap:
-                login_path: app_login
-                check_path: app_login
-                service: Symfony\Component\Ldap\Ldap
-                dn_string: "cn={username},cn=users,dc=ad,dc=emich,dc=edu"
-            logout:
-                path: /logout
 
 
     # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
