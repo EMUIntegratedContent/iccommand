@@ -75,4 +75,94 @@ class RedirectService {
   public function validate($redirect): ConstraintViolationList {
     return $this->validator->validate($redirect);
   }
+
+	/**
+	 * Gets the broken redirects with pagination.
+	 * @param $currentPage
+	 * @param $pageSize
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getBrokenRedirectsPagination($currentPage, $pageSize)
+	{
+		// Calculate the offset
+		$offset = ($currentPage - 1) * $pageSize;
+
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Redirect::class);
+
+		// Build the query for getting paginated records
+		$queryBuilder = $repository->createQueryBuilder('r')
+			->where('r.itemType = :itemType')
+			->orderBy('r.fromLink', 'ASC')
+			->setFirstResult($offset)
+			->setMaxResults($pageSize)
+		  ->setParameter('itemType', 'redirect of broken link');
+
+		$query = $queryBuilder->getQuery();
+
+		// Execute the query to get paginated records
+		$redirects = $query->getResult();
+
+		// Count the total number of rows
+		$totalBrokenQueryBuilder = $repository->createQueryBuilder('r')
+			->select('COUNT(r.id)')
+			->where('r.itemType = :itemType')
+			->setParameter('itemType', 'redirect of broken link');
+
+		$totalBrokenQuery = $totalBrokenQueryBuilder->getQuery();
+
+		$totalBroken = $totalBrokenQuery->getSingleScalarResult();
+
+		// Return both paginated results and total count
+		return [
+			'redirects' => $redirects,
+			'totalRows' => $totalBroken
+		];
+	}
+
+	/**
+	 * Gets the shortened redirects with pagination.
+	 * @param $currentPage
+	 * @param $pageSize
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getShortenedRedirectsPagination($currentPage, $pageSize)
+	{
+		// Calculate the offset
+		$offset = ($currentPage - 1) * $pageSize;
+
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Redirect::class);
+
+		// Build the query for getting paginated records
+		$queryBuilder = $repository->createQueryBuilder('r')
+			->where('r.itemType = :itemType')
+			->orderBy('r.fromLink', 'ASC')
+			->setFirstResult($offset)
+			->setMaxResults($pageSize)
+			->setParameter('itemType', 'redirect of shortened link');
+
+		$query = $queryBuilder->getQuery();
+
+		// Execute the query to get paginated records
+		$redirects = $query->getResult();
+
+		$totalShortenedQueryBuilder = $repository->createQueryBuilder('r')
+			->select('COUNT(r.id)')
+			->where('r.itemType = :itemType')
+			->setParameter('itemType', 'redirect of shortened link');
+
+		$totalShortenedQuery = $totalShortenedQueryBuilder->getQuery();
+		$totalShortened = $totalShortenedQuery->getSingleScalarResult();
+
+		// Return both paginated results and total count
+		return [
+			'redirects' => $redirects,
+			'totalRows' => $totalShortened,
+		];
+	}
 }

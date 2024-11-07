@@ -115,7 +115,7 @@ class RedirectController extends AbstractFOSRestController
      * @param $id // The ID of the redirect.
      * @return Response The redirect, the status code, and the HTTP headers.
      */
-    #[Route('/{id}', methods: ['GET'])]
+    #[Route('/broken/{id}', methods: ['GET'])]
     public function getRedirectAction($id): Response
     {
         $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(["id" => $id]);
@@ -131,13 +131,33 @@ class RedirectController extends AbstractFOSRestController
     }
 
     /**
-     * Gets all redirects.
-     * @return Response All redirects, the status code, and the HTTP headers.
+     * Gets paginated broken redirects.
+     * @return Response Broken redirects, the status code, and the HTTP headers.
      */
-    #[Route('/', methods: ['GET'])]
-    public function getRedirectsAction(): Response
+    #[Route('/broken', methods: ['GET'])]
+    public function getBrokenRedirectsAction(Request $request): Response
     {
-        $redirects = $this->doctrine->getRepository(Redirect::class)->findBy([], ['fromLink' => 'asc']);
+        $page = $request->query->get('page') ?? 1;
+        $pageSize = $request->query->get('limit') ?? 10;
+
+        $redirects = $this->service->getBrokenRedirectsPagination($page, $pageSize);
+
+        $serialized = $this->serializer->serialize($redirects, "json", ['groups' => 'redir']);
+
+        return new Response($serialized, 200, array("Content-Type" => "application/json"));
+    }
+
+    /**
+     * Gets paginated shortened redirects.
+     * @return Response Shortened redirects, the status code, and the HTTP headers.
+     */
+    #[Route('/shortened', methods: ['GET'])]
+    public function getShortenedRedirectsAction(Request $request): Response
+    {
+        $page = $request->query->get('page') ?? 1;
+        $pageSize = $request->query->get('limit') ?? 10;
+
+        $redirects = $this->service->getShortenedRedirectsPagination($page, $pageSize);
 
         $serialized = $this->serializer->serialize($redirects, "json", ['groups' => 'redir']);
 

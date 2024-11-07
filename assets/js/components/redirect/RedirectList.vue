@@ -30,7 +30,7 @@
               Redirects of Broken Links
               <span
                   v-if="!loadingRedirectsOfBrokenLinks"
-                  class="badge badge-primary">{{ resultedRedirectsOfBrokenLinks.length }}</span>
+                  class="badge badge-primary">{{ totalBrokenRedirects }}</span>
               <span v-else><i class="fa fa-spinner"></i></span>
             </button>
           </h5>
@@ -82,10 +82,13 @@
             <div v-else>
               <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
             </div>
-            <paginator
+            <external-paginator
                 v-show="!loadingRedirectsOfBrokenLinks"
+                :ext-curr-pg="redirectsCurrentPage"
+                :ext-items-per-pg="redirectsItemsPerPage"
+                :total-recs="totalBrokenRedirects"
                 :items="resultedRedirectsOfBrokenLinks"
-                @itemsPerPageChanged="setPaginatedRedirectsOfBrokenLinks"></paginator>
+                @itemsPerPageChanged="setPaginatedRedirectsOfBrokenLinks"></external-paginator>
           </div>
         </div>
       </div>
@@ -102,7 +105,7 @@
               Redirects of Shortened Links
               <span
                   v-if="!loadingRedirectsOfShortenedLinks"
-                  class="badge badge-primary">{{ resultedRedirectsOfShortenedLinks.length }}</span>
+                  class="badge badge-primary">{{ totalShortenedRedirects }}</span>
               <span v-else><i class="fa fa-spinner"></i></span>
             </button>
           </h5>
@@ -154,10 +157,13 @@
             <div v-else>
               <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
             </div>
-            <paginator
+            <external-paginator
                 v-show="!loadingRedirectsOfShortenedLinks"
                 :items="resultedRedirectsOfShortenedLinks"
-                @itemsPerPageChanged="setPaginatedRedirectsOfShortenedLinks"></paginator>
+                :ext-curr-pg="redirectsCurrentPage"
+                :ext-items-per-pg="redirectsItemsPerPage"
+                :total-recs="totalShortenedRedirects"
+                @itemsPerPageChanged="setPaginatedRedirectsOfShortenedLinks"></external-paginator>
           </div>
         </div>
       </div>
@@ -172,19 +178,19 @@
 <style></style>
 <script>
 import Heading from "../utils/Heading.vue";
-import Paginator from "../utils/Paginator.vue";
+import ExternalPaginator from "../utils/ExternalPaginator.vue";
 
 export default {
-  created() {
+  created () {
   },
 
-  mounted() {
+  mounted () {
     this.fetchRedirects();
 
     console.log("Redirect list mounted.");
   },
 
-  components: {Heading, Paginator},
+  components: { Heading, ExternalPaginator },
 
   props: {
     permissions: {
@@ -323,7 +329,14 @@ export default {
        * The search term/key that filters the redirects.
        * @type {string}
        */
-      searchTerm: ""
+      searchTerm: "",
+
+      brokenRedirectsCurrentPage: 1,
+      brokenRedirectsItemsPerPage: 10,
+      totalBrokenRedirects: 0,
+      shortenedRedirectsCurrentPage: 1,
+      shortenedRedirectsItemsPerPage: 10,
+      totalShortenedRedirects: 0
     };
   },
 
@@ -401,21 +414,21 @@ export default {
         url: "/api/redirects/",
         data: []
       })
-          .then(function (response) { // Success.
-            self.fetchRedirects(); // Get the redirects again after updating them.
-          })
-          .catch(function (error) { // Failure.
-            let errors = error.response.data;
+      .then(function (response) { // Success.
+        self.fetchRedirects(); // Get the redirects again after updating them.
+      })
+      .catch(function (error) { // Failure.
+        let errors = error.response.data;
 
-            // Add any validation errors to the Vue validator error bag.
-            errors.forEach(function (error) {
-              let key = error.property_path;
-              let message = error.message;
-              self.$validator.errors.add(key, message);
-            });
+        // Add any validation errors to the Vue validator error bag.
+        errors.forEach(function (error) {
+          let key = error.property_path;
+          let message = error.message;
+          self.$validator.errors.add(key, message);
+        });
 
-            self.turnOffLoadingWheels();
-          })
+        self.turnOffLoadingWheels();
+      })
     },
 
     /**
@@ -439,23 +452,24 @@ export default {
         setTimeout(function () {
           self.emptyRedirects = "";
         }, 3000);
-      } else {
+      }
+      else {
         for (var i = 0; i < redirects.length; i++) {
           /* Ajax (Axios) Submission */
           axios.delete("/api/redirects/" + redirects[i].id)
-              .then(function (response) { // Success.
+          .then(function (response) { // Success.
 
-              })
-              .catch(function (error) { // Failure.
-                let errors = error.response.data;
+          })
+          .catch(function (error) { // Failure.
+            let errors = error.response.data;
 
-                // Add any validation errors to the Vue validator error bag.
-                errors.forEach(function (error) {
-                  let key = error.property_path;
-                  let message = error.message;
-                  self.$validator.errors.add(key, message);
-                });
-              });
+            // Add any validation errors to the Vue validator error bag.
+            errors.forEach(function (error) {
+              let key = error.property_path;
+              let message = error.message;
+              self.$validator.errors.add(key, message);
+            });
+          });
         }
 
         setTimeout(function () {
@@ -473,76 +487,75 @@ export default {
       this.turnOnLoadingWheels();
       this.fetchedRedirectsOfBrokenLinks = [];
       this.fetchedRedirectsOfShortenedLinks = [];
-      this.fetchedExpiredRedirects = [];
-      this.fetchedInvalidRedirects = [];
       let self = this; // "this" loses scope within Axios.
 
       /* Ajax (Axios) Submission */
-      axios.get("/api/redirects/")
-          .then(function (response) { // Success.
-            response.data.forEach(function (redirect) {
-              console.log(redirect)
-              // Filter the redirect into their respective categories based on the itemType field.
-              switch (redirect.itemType) {
-                case "redirect of broken link":
-                  self.fetchedRedirectsOfBrokenLinks.push(redirect);
-                  break;
-                case "redirect of shortened link":
-                  self.fetchedRedirectsOfShortenedLinks.push(redirect);
-                  break;
-                case "expired redirect of broken link":
-                case "expired redirect of shortened link":
-                  self.fetchedExpiredRedirects.push(redirect);
-                  break;
-                case "invalid redirect of broken link":
-                case "invalid redirect of shortened link":
-                  self.fetchedInvalidRedirects.push(redirect);
-                  break;
-              }
-            });
+      axios.get(`/api/redirects/broken?page=${this.brokenRedirectsCurrentPage}&limit=${this.brokenRedirectsItemsPerPage}`)
+      .then(function (response) { // Success.
+        self.totalBrokenRedirects = response.data.totalRows;
+        self.fetchedRedirectsOfBrokenLinks = response.data.redirects;
 
-            self.resultedRedirectsOfBrokenLinks = self.fetchedRedirectsOfBrokenLinks.slice();
-            self.resultedRedirectsOfShortenedLinks = self.fetchedRedirectsOfShortenedLinks.slice();
-            self.resultedExpiredRedirects = self.fetchedExpiredRedirects.slice();
-            self.resultedInvalidRedirects = self.fetchedInvalidRedirects.slice();
 
-            // Disable any loading flags for empty arrays.
-            if (self.resultedRedirectsOfBrokenLinks.length == 0) {
-              self.loadingRedirectsOfBrokenLinks = false;
-            }
+        self.resultedRedirectsOfBrokenLinks = self.fetchedRedirectsOfBrokenLinks.slice();
 
-            if (self.resultedRedirectsOfShortenedLinks.length == 0) {
-              self.loadingRedirectsOfShortenedLinks = false;
-            }
+        // Disable any loading flags for empty arrays.
+        if (self.resultedRedirectsOfBrokenLinks.length == 0) {
+          self.loadingRedirectsOfBrokenLinks = false;
+        }
+      })
+      .catch(function (error) { // Failure.
+        self.apiError.status = error.response.status;
 
-            if (self.resultedExpiredRedirects.length == 0) {
-              self.loadingExpiredRedirects = false;
-            }
+        switch (error.response.status) {
+          case 403:
+            self.apiError.message = "You do not have sufficient privileges to retrieve redirects.";
+            break;
+          case 404:
+            self.apiError.message = "Redirects were not found.";
+            break;
+          case 500:
+            self.apiError.message = "An internal error occurred.";
+            break;
+          default:
+            self.apiError.message = "An error occurred.";
+            break;
+        }
 
-            if (self.resultedInvalidRedirects.length == 0) {
-              self.loadingInvalidRedirects = false;
-            }
-          })
-          .catch(function (error) { // Failure.
-            self.apiError.status = error.response.status;
+        self.turnOffLoadingWheels();
+      });
 
-            switch (error.response.status) {
-              case 403:
-                self.apiError.message = "You do not have sufficient privileges to retrieve redirects.";
-                break;
-              case 404:
-                self.apiError.message = "Redirects were not found.";
-                break;
-              case 500:
-                self.apiError.message = "An internal error occurred.";
-                break;
-              default:
-                self.apiError.message = "An error occurred.";
-                break;
-            }
+      axios.get(`/api/redirects/shortened?page=${this.shortenedRedirectsCurrentPage}&limit=${this.shortenedRedirectsItemsPerPage}`)
+      .then(function (response) { // Success.
+        self.totalShortenedRedirects = response.data.totalRows;
+        self.fetchedRedirectsOfShortenedLinks = response.data.redirects;
 
-            self.turnOffLoadingWheels();
-          });
+        self.resultedRedirectsOfShortenedLinks = self.fetchedRedirectsOfShortenedLinks.slice();
+
+        // Disable any loading flags for empty arrays.
+        if (self.resultedRedirectsOfShortenedLinks.length == 0) {
+          self.loadingRedirectsOfShortenedLinks = false;
+        }
+      })
+      .catch(function (error) { // Failure.
+        self.apiError.status = error.response.status;
+
+        switch (error.response.status) {
+          case 403:
+            self.apiError.message = "You do not have sufficient privileges to retrieve redirects.";
+            break;
+          case 404:
+            self.apiError.message = "Redirects were not found.";
+            break;
+          case 500:
+            self.apiError.message = "An internal error occurred.";
+            break;
+          default:
+            self.apiError.message = "An error occurred.";
+            break;
+        }
+
+        self.turnOffLoadingWheels();
+      });
     },
 
     /**
@@ -646,7 +659,8 @@ export default {
         formattedDate += newDate.getDate() + ", " + newDate.getFullYear();
 
         return formattedDate;
-      } else {
+      }
+      else {
         return "N/A";
       }
     },
@@ -691,15 +705,15 @@ export default {
       this.loadingRedirectsOfShortenedLinks = false; // Turn off the loading wheel.
     },
 
-    /**
-     * Updates the paginated invalid redirects by the specified array of invalid redirects.
-     * @param {Array.<Redirect>} invalidRedirects The array of invalid redirects used to update.
-     */
-    setPaginatedInvalidRedirects: function (invalidRedirects) {
-      this.loadingInvalidRedirects = true; // Show the loading wheel.
-      this.paginatedInvalidRedirects = invalidRedirects; // Set the paginated invalid redirects returned from the child paginator components.
-      this.loadingInvalidRedirects = false; // Turn off the loading wheel.
-    },
+    // /**
+    //  * Updates the paginated invalid redirects by the specified array of invalid redirects.
+    //  * @param {Array.<Redirect>} invalidRedirects The array of invalid redirects used to update.
+    //  */
+    // setPaginatedInvalidRedirects: function (invalidRedirects) {
+    //   this.loadingInvalidRedirects = true; // Show the loading wheel.
+    //   this.paginatedInvalidRedirects = invalidRedirects; // Set the paginated invalid redirects returned from the child paginator components.
+    //   this.loadingInvalidRedirects = false; // Turn off the loading wheel.
+    // },
 
     /**
      * Sets the loading variables to false to hide all loading wheels.
@@ -739,21 +753,21 @@ export default {
           itemType: "expired " + redirect.itemType
         }
       })
-          .then(function (response) { // Success.
+      .then(function (response) { // Success.
 
-          })
-          .catch(function (error) { // Failure.
-            let errors = error.response.data;
+      })
+      .catch(function (error) { // Failure.
+        let errors = error.response.data;
 
-            // Add any validation errors to the Vue validator error bag.
-            errors.forEach(function (error) {
-              let key = error.property_path;
-              let message = error.message;
-              self.$validator.errors.add(key, message);
-            });
+        // Add any validation errors to the Vue validator error bag.
+        errors.forEach(function (error) {
+          let key = error.property_path;
+          let message = error.message;
+          self.$validator.errors.add(key, message);
+        });
 
-            self.turnOffLoadingWheels();
-          });
+        self.turnOffLoadingWheels();
+      });
     }
   },
 
