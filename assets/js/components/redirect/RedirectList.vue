@@ -7,13 +7,13 @@
       {{ apiError.message }}
     </div>
     <div>
-      <input
-          name="searchTerm"
-          type="text"
-          class="form-control"
-          placeholder="Search"
-          v-model="searchTerm"
-          @change="filterRedirects"/>
+<!--      <input-->
+<!--          name="searchTerm"-->
+<!--          type="text"-->
+<!--          class="form-control"-->
+<!--          placeholder="Search"-->
+<!--          v-model="searchTerm"-->
+<!--          @change="filterRedirects"/>-->
     </div>
     <br/>
     <div id="accordion">
@@ -55,7 +55,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="redirect in paginatedRedirectsOfBrokenLinks" :id="redirect.id">
+                <tr v-for="redirect in fetchedRedirectsOfBrokenLinks" :id="redirect.id" :key="`broken-${redirect.id}`">
                   <td>
                     <a
                         :href="'https://www.emich.edu' + redirect.fromLink"
@@ -84,11 +84,12 @@
             </div>
             <external-paginator
                 v-show="!loadingRedirectsOfBrokenLinks"
-                :ext-curr-pg="redirectsCurrentPage"
-                :ext-items-per-pg="redirectsItemsPerPage"
+                :ext-curr-pg="brokenRedirectsCurrentPage"
+                :ext-items-per-pg="brokenRedirectsItemsPerPage"
                 :total-recs="totalBrokenRedirects"
-                :items="resultedRedirectsOfBrokenLinks"
-                @itemsPerPageChanged="setPaginatedRedirectsOfBrokenLinks"></external-paginator>
+                :items="fetchedRedirectsOfBrokenLinks"
+                @itemsPerPageChanged="handleBrokenItemsPerPageChanged"
+                @pageChanged="handleBrokenItemsPageChanged"></external-paginator>
           </div>
         </div>
       </div>
@@ -130,7 +131,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="redirect in paginatedRedirectsOfShortenedLinks" :id="redirect.id">
+                <tr v-for="redirect in fetchedRedirectsOfShortenedLinks" :id="redirect.id" :key="`shortened-${redirect.id}`">
                   <td>
                     <a
                         :href="'https://www.emich.edu' + redirect.fromLink"
@@ -160,18 +161,14 @@
             <external-paginator
                 v-show="!loadingRedirectsOfShortenedLinks"
                 :items="resultedRedirectsOfShortenedLinks"
-                :ext-curr-pg="redirectsCurrentPage"
-                :ext-items-per-pg="redirectsItemsPerPage"
+                :ext-curr-pg="shortenedRedirectsCurrentPage"
+                :ext-items-per-pg="shortenedRedirectsItemsPerPage"
                 :total-recs="totalShortenedRedirects"
-                @itemsPerPageChanged="setPaginatedRedirectsOfShortenedLinks"></external-paginator>
+                @itemsPerPageChanged="handleShortenedItemsPerPageChanged"
+                @pageChanged="handleShortenedItemsPageChanged"></external-paginator>
           </div>
         </div>
       </div>
-    </div>
-    <br/>
-    <!-- Warning Message -->
-    <div v-if="emptyRedirects" class="alert alert-danger fade show" role="alert">
-      There are no {{ emptyRedirects }} redirects to delete.
     </div>
   </div>
 </template>
@@ -182,23 +179,16 @@ import ExternalPaginator from "../utils/ExternalPaginator.vue";
 
 export default {
   created () {
+    this.fetchBrokenRedirects();
+    this.fetchShortenedRedirects();
   },
-
-  mounted () {
-    this.fetchRedirects();
-
-    console.log("Redirect list mounted.");
-  },
-
   components: { Heading, ExternalPaginator },
-
   props: {
     permissions: {
       type: Array,
       required: true
     }
   },
-
   data: function () {
     return {
       /* **************************** Error Data **************************** */
@@ -211,13 +201,6 @@ export default {
         message: null,
         status: null
       },
-
-      /**
-       * This is used to show a message to the user if a specific group of
-       * redirects is empty.
-       * @type {string}
-       */
-      emptyRedirects: "",
 
       /* *************************** Fetched Data *************************** */
 
@@ -276,61 +259,14 @@ export default {
       loadingInvalidRedirects: true,
 
       /**
-       * The expired redirects that are paginated.
-       * @type {Array.<Redirect>}
-       */
-      paginatedExpiredRedirects: [],
-
-      /**
-       * The redirects of the broken links that are paginated.
-       * @type {Array.<Redirect>}
-       */
-      paginatedRedirectsOfBrokenLinks: [],
-
-      /**
-       * The redirects of the shortened links that are paginated.
-       * @type {Array.<Redirect>}
-       */
-      paginatedRedirectsOfShortenedLinks: [],
-
-      /**
-       * The invalid redirects that are paginated.
-       * @type {Array.<Redirect>}
-       */
-      paginatedInvalidRedirects: [],
-
-      /**
-       * The resulted expired redirects after being filtered by the search term.
-       * @type {Array.<Redirect>}
-       */
-      resultedExpiredRedirects: [],
-
-      /**
-       * The resulted redirects of the broken links after being filtered by the
-       * search term.
-       * @type {Array.<Redirect>}
-       */
-      resultedRedirectsOfBrokenLinks: [],
-
-      /**
-       * The resulted redirects of the shortened links after being filtered by
-       * the search term.
-       * @type {Array.<Redirect>}
-       */
-      resultedRedirectsOfShortenedLinks: [],
-
-      /**
-       * The resulted invalid redirects after being filtered by the search term.
-       * @type {Array.<Redirect>}
-       */
-      resultedInvalidRedirects: [],
-
-      /**
        * The search term/key that filters the redirects.
        * @type {string}
        */
       searchTerm: "",
 
+      /**
+       * External Paginator Data
+       */
       brokenRedirectsCurrentPage: 1,
       brokenRedirectsItemsPerPage: 10,
       totalBrokenRedirects: 0,
@@ -350,14 +286,6 @@ export default {
     },
 
     /**
-     * Determines if the user can create.
-     * @return {boolean} True if the user can create; false otherwise.
-     */
-    userCanCreate: function () {
-      return this.permissions[0].user ? true : false;
-    },
-
-    /**
      * Determines if the user can edit.
      * @return {boolean} True if the user can edit; false otherwise.
      */
@@ -365,128 +293,49 @@ export default {
       return this.permissions[0].user ? true : false;
     }
   },
-
   methods: {
     /**
-     * Updates the redirects by checking if each one has not been used for more
-     * than six months.
+     * When paginator items per page is changed.
+     * @param itemsPerPage
      */
-    checkForExpiredRedirects: function () {
-      console.log("Checking for expired redirects.");
-
-      this.turnOnLoadingWheels();
-      let self = this; // "this" loses scope within Axios and setTimeout function.
-
-      for (var i = 0; i < this.fetchedRedirectsOfBrokenLinks.length; i++) {
-        if (Date.now() - Date.parse(this.fetchedRedirectsOfBrokenLinks[i].lastVisit) > 15552000000) {
-          // There is 15552000000 milliseconds in six months.
-          // If a redirect has not been used for more than six months, it is now expired.
-          this.updateExpiredRedirect(this.fetchedRedirectsOfBrokenLinks[i]);
-        }
-      }
-
-      for (var i = 0; i < this.fetchedRedirectsOfShortenedLinks.length; i++) {
-        if (Date.now() - Date.parse(this.fetchedRedirectsOfShortenedLinks[i].lastVisit) > 15552000000) {
-          // There is 15552000000 milliseconds in six months.
-          // If a redirect has not been used for more than six months, it is now expired.
-          this.updateExpiredRedirect(this.fetchedRedirectsOfShortenedLinks[i]);
-        }
-      }
-
-      setTimeout(function () {
-        self.fetchRedirects(); // Get the redirects again after marking the expired ones.
-      }, 3000);
+    handleBrokenItemsPerPageChanged: function (itemsPerPage) {
+      this.brokenRedirectsItemsPerPage = itemsPerPage;
+      this.fetchBrokenRedirects();
     },
 
     /**
-     * Updates the redirects by checking if each toLink field is still a valid
-     * URL.
+     * When paginator page is changed.
+     * @param currentPage
      */
-    checkForInvalidRedirects: function () {
-      console.log("Checking for invalid redirects.");
-
-      this.turnOnLoadingWheels();
-      let self = this; // "this" loses scope within Axios.
-
-      /* Ajax (Axios) Submission */
-      axios({
-        method: "put",
-        url: "/api/redirects/",
-        data: []
-      })
-      .then(function (response) { // Success.
-        self.fetchRedirects(); // Get the redirects again after updating them.
-      })
-      .catch(function (error) { // Failure.
-        let errors = error.response.data;
-
-        // Add any validation errors to the Vue validator error bag.
-        errors.forEach(function (error) {
-          let key = error.property_path;
-          let message = error.message;
-          self.$validator.errors.add(key, message);
-        });
-
-        self.turnOffLoadingWheels();
-      })
+    handleBrokenItemsPageChanged: function (currentPage) {
+      this.brokenRedirectsCurrentPage = currentPage;
+      this.fetchBrokenRedirects();
     },
 
     /**
-     * Deletes either the expired redirects or the invalid redirects specified
-     * by the item type.
-     * @param {string} itemType The item type of the redirects to be deleted.
+     * When paginator items per page is changed.
+     * @param itemsPerPage
      */
-    deleteRedirects: function (itemType) {
-      console.log("Deleting all " + itemType + " redirects.");
-
-      this.turnOnLoadingWheels();
-      this.emptyRedirects = "";
-      var redirects = itemType == "expired" ? this.fetchedExpiredRedirects : this.fetchedInvalidRedirects;
-      let self = this; // "this" loses scope within Axios and setTimeout function.
-
-      if (redirects.length == 0) {
-        this.emptyRedirects = itemType;
-        this.turnOffLoadingWheels();
-
-        // Remove the message after three seconds.
-        setTimeout(function () {
-          self.emptyRedirects = "";
-        }, 3000);
-      }
-      else {
-        for (var i = 0; i < redirects.length; i++) {
-          /* Ajax (Axios) Submission */
-          axios.delete("/api/redirects/" + redirects[i].id)
-          .then(function (response) { // Success.
-
-          })
-          .catch(function (error) { // Failure.
-            let errors = error.response.data;
-
-            // Add any validation errors to the Vue validator error bag.
-            errors.forEach(function (error) {
-              let key = error.property_path;
-              let message = error.message;
-              self.$validator.errors.add(key, message);
-            });
-          });
-        }
-
-        setTimeout(function () {
-          self.fetchRedirects(); // Get the redirects again after deleting the expired ones.
-        }, 3000);
-      }
+    handleShortenedItemsPerPageChanged: function (itemsPerPage) {
+      this.shortenedRedirectsItemsPerPage = itemsPerPage;
+      this.fetchShortenedRedirects();
     },
 
     /**
-     * Gets the redirects.
+     * When paginator page is changed.
+     * @param currentPage
      */
-    fetchRedirects: function () {
-      console.log("Fetching redirects.");
+    handleShortenedItemsPageChanged: function (currentPage) {
+      this.shortenedRedirectsCurrentPage = currentPage;
+      this.fetchShortenedRedirects();
+    },
 
-      this.turnOnLoadingWheels();
+    /**
+     * Gets the broken redirects.
+     */
+    fetchBrokenRedirects: function () {
+      this.loadingRedirectsOfBrokenLinks = true;
       this.fetchedRedirectsOfBrokenLinks = [];
-      this.fetchedRedirectsOfShortenedLinks = [];
       let self = this; // "this" loses scope within Axios.
 
       /* Ajax (Axios) Submission */
@@ -494,14 +343,6 @@ export default {
       .then(function (response) { // Success.
         self.totalBrokenRedirects = response.data.totalRows;
         self.fetchedRedirectsOfBrokenLinks = response.data.redirects;
-
-
-        self.resultedRedirectsOfBrokenLinks = self.fetchedRedirectsOfBrokenLinks.slice();
-
-        // Disable any loading flags for empty arrays.
-        if (self.resultedRedirectsOfBrokenLinks.length == 0) {
-          self.loadingRedirectsOfBrokenLinks = false;
-        }
       })
       .catch(function (error) { // Failure.
         self.apiError.status = error.response.status;
@@ -520,21 +361,23 @@ export default {
             self.apiError.message = "An error occurred.";
             break;
         }
-
-        self.turnOffLoadingWheels();
       });
+      self.loadingRedirectsOfBrokenLinks = false;
+    },
 
+    /**
+     * Gets the shortened redirects.
+     */
+    fetchShortenedRedirects: function () {
+      this.loadingRedirectsOfShortenedLinks = true;
+      this.fetchedRedirectsOfShortenedLinks = [];
+      let self = this; // "this" loses scope within Axios.
+
+      /* Ajax (Axios) Submission */
       axios.get(`/api/redirects/shortened?page=${this.shortenedRedirectsCurrentPage}&limit=${this.shortenedRedirectsItemsPerPage}`)
       .then(function (response) { // Success.
         self.totalShortenedRedirects = response.data.totalRows;
         self.fetchedRedirectsOfShortenedLinks = response.data.redirects;
-
-        self.resultedRedirectsOfShortenedLinks = self.fetchedRedirectsOfShortenedLinks.slice();
-
-        // Disable any loading flags for empty arrays.
-        if (self.resultedRedirectsOfShortenedLinks.length == 0) {
-          self.loadingRedirectsOfShortenedLinks = false;
-        }
       })
       .catch(function (error) { // Failure.
         self.apiError.status = error.response.status;
@@ -553,58 +396,8 @@ export default {
             self.apiError.message = "An error occurred.";
             break;
         }
-
-        self.turnOffLoadingWheels();
       });
-    },
-
-    /**
-     * Filters the rediects based on the search term.
-     */
-    filterRedirects: function () {
-      var filteredRedirectsOfBrokenLinks = [];
-      var filteredRedirectsOfShortenedLinks = [];
-      var filteredExpiredRedirects = [];
-      var filteredInvalidRedirects = [];
-
-      if (this.searchTerm.trim()) {
-        for (var i = 0; i < this.fetchedRedirectsOfBrokenLinks.length; i++) {
-          if (this.fetchedRedirectsOfBrokenLinks[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-              || this.fetchedRedirectsOfBrokenLinks[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
-            filteredRedirectsOfBrokenLinks.push(this.fetchedRedirectsOfBrokenLinks[i]);
-          }
-        }
-
-        for (var i = 0; i < this.fetchedRedirectsOfShortenedLinks.length; i++) {
-          if (this.fetchedRedirectsOfShortenedLinks[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-              || this.fetchedRedirectsOfShortenedLinks[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
-            filteredRedirectsOfShortenedLinks.push(this.fetchedRedirectsOfShortenedLinks[i]);
-          }
-        }
-
-        for (var i = 0; i < this.fetchedExpiredRedirects.length; i++) {
-          if (this.fetchedExpiredRedirects[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-              || this.fetchedExpiredRedirects[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
-            filteredExpiredRedirects.push(this.fetchedExpiredRedirects[i]);
-          }
-        }
-
-        for (var i = 0; i < this.fetchedInvalidRedirects.length; i++) {
-          if (this.fetchedInvalidRedirects[i]["fromLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1
-              || this.fetchedInvalidRedirects[i]["toLink"].toLowerCase().indexOf(this.searchTerm.trim().toLowerCase()) != -1) {
-            filteredInvalidRedirects.push(this.fetchedInvalidRedirects[i]);
-          }
-        }
-      }
-
-      this.resultedRedirectsOfBrokenLinks = this.searchTerm.trim()
-          ? filteredRedirectsOfBrokenLinks.slice() : this.fetchedRedirectsOfBrokenLinks.slice();
-      this.resultedRedirectsOfShortenedLinks = this.searchTerm.trim()
-          ? filteredRedirectsOfShortenedLinks.slice() : this.fetchedRedirectsOfShortenedLinks.slice();
-      this.resultedExpiredRedirects = this.searchTerm.trim()
-          ? filteredExpiredRedirects.slice() : this.fetchedExpiredRedirects.slice();
-      this.resultedInvalidRedirects = this.searchTerm.trim()
-          ? filteredInvalidRedirects.slice() : this.fetchedInvalidRedirects.slice();
+      self.loadingRedirectsOfShortenedLinks = false;
     },
 
     /**
@@ -676,101 +469,18 @@ export default {
     },
 
     /**
-     * Updates the paginated expired redirects by the specified array of expired redirects.
-     * @param {Array.<Redirect>} expiredRedirects The array of expired redirects used to update.
+     * Filters the redirects based on the search term. Abandoned 11/7/24. If needed, uncomment and fix by sending the search term to the API.
+     * There will be potentially lots of results, so maybe only return the top n results based on the search term or something.
+     * I doubt this is used much though...
      */
-    setPaginatedExpiredRedirects: function (expiredRedirects) {
-      this.loadingExpiredRedirects = true; // Show the loading wheel.
-      this.paginatedExpiredRedirects = expiredRedirects; // Set the paginated expired redirects returned from the child paginator components.
-      this.loadingExpiredRedirects = false; // Turn off the loading wheel.
-    },
-
-    /**
-     * Updates the paginated broken links by the specified array of broken links.
-     * @param {Array.<Redirect>} redirectsOfBrokenLinks The array of broken links used to update.
-     */
-    setPaginatedRedirectsOfBrokenLinks: function (redirectsOfBrokenLinks) {
-      this.loadingRedirectsOfBrokenLinks = true; // Show the loading wheel.
-      this.paginatedRedirectsOfBrokenLinks = redirectsOfBrokenLinks; // Set the paginated broken links returned from the child paginator components.
-      this.loadingRedirectsOfBrokenLinks = false; // Turn off the loading wheel.
-    },
-
-    /**
-     * Updates the paginated shortened links by the specified array of shortened links.
-     * @param {Array.<Redirect>} redirectsOfShortenedLinks The array of shortened links used to update.
-     */
-    setPaginatedRedirectsOfShortenedLinks: function (redirectsOfShortenedLinks) {
-      this.loadingRedirectsOfShortenedLinks = true; // Show the loading wheel.
-      this.paginatedRedirectsOfShortenedLinks = redirectsOfShortenedLinks; // Set the paginated shortened links returned from the child paginator components.
-      this.loadingRedirectsOfShortenedLinks = false; // Turn off the loading wheel.
-    },
-
-    // /**
-    //  * Updates the paginated invalid redirects by the specified array of invalid redirects.
-    //  * @param {Array.<Redirect>} invalidRedirects The array of invalid redirects used to update.
-    //  */
-    // setPaginatedInvalidRedirects: function (invalidRedirects) {
-    //   this.loadingInvalidRedirects = true; // Show the loading wheel.
-    //   this.paginatedInvalidRedirects = invalidRedirects; // Set the paginated invalid redirects returned from the child paginator components.
-    //   this.loadingInvalidRedirects = false; // Turn off the loading wheel.
-    // },
-
-    /**
-     * Sets the loading variables to false to hide all loading wheels.
-     */
-    turnOffLoadingWheels: function () {
-      this.loadingRedirectsOfBrokenLinks = false;
-      this.loadingRedirectsOfShortenedLinks = false;
-      this.loadingExpiredRedirects = false;
-      this.loadingInvalidRedirects = false;
-    },
-
-    /**
-     * Sets the loading variables to true to show all loading wheels.
-     */
-    turnOnLoadingWheels: function () {
-      this.loadingRedirectsOfBrokenLinks = true;
-      this.loadingRedirectsOfShortenedLinks = true;
-      this.loadingExpiredRedirects = true;
-      this.loadingInvalidRedirects = true;
-    },
-
-    /**
-     * Updates the specified redirect to an expired redirect.
-     * @param {Redirect} redirect The redirect to be updated as an expired redirect.
-     */
-    updateExpiredRedirect: function (redirect) {
-      let self = this; // "this" loses scope within Axios.
-
-      /* Ajax (Axios) Submission */
-      axios({
-        method: "put",
-        url: "/api/redirects/",
-        data: {
-          id: redirect.id,
-          fromLink: redirect.fromLink,
-          toLink: redirect.toLink,
-          itemType: "expired " + redirect.itemType
-        }
-      })
-      .then(function (response) { // Success.
-
-      })
-      .catch(function (error) { // Failure.
-        let errors = error.response.data;
-
-        // Add any validation errors to the Vue validator error bag.
-        errors.forEach(function (error) {
-          let key = error.property_path;
-          let message = error.message;
-          self.$validator.errors.add(key, message);
-        });
-
-        self.turnOffLoadingWheels();
-      });
-    }
-  },
-
-  filters: {}
+    // filterRedirects: function () {
+    //   if(this.searchTerm.length > 3) {
+    //     this.fetchedRedirectsOfBrokenLinks = this.fetchedRedirectsOfBrokenLinks.filter((redirect) => {
+    //       return redirect.fromLink.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+    //           redirect.toLink.toLowerCase().includes(this.searchTerm.toLowerCase());
+    //     });
+    //   }
+    // }
+  }
 };
 </script>

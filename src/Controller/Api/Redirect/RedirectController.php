@@ -111,26 +111,6 @@ class RedirectController extends AbstractFOSRestController
     }
 
     /**
-     * Gets the redirect by the specified ID.
-     * @param $id // The ID of the redirect.
-     * @return Response The redirect, the status code, and the HTTP headers.
-     */
-    #[Route('/broken/{id}', methods: ['GET'])]
-    public function getRedirectAction($id): Response
-    {
-        $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(["id" => $id]);
-
-        if (!$redirect) {
-            // Do the following if the redirect is not found.
-            return new Response("The redirect you requested was not found.", 404, array("Content-Type" => "application/json"));
-        }
-
-        $serialized = $this->serializer->serialize($redirect, "json", ['groups' => 'redir']);
-
-        return new Response($serialized, 200, array("Content-Type" => "application/json"));
-    }
-
-    /**
      * Gets paginated broken redirects.
      * @return Response Broken redirects, the status code, and the HTTP headers.
      */
@@ -160,6 +140,26 @@ class RedirectController extends AbstractFOSRestController
         $redirects = $this->service->getShortenedRedirectsPagination($page, $pageSize);
 
         $serialized = $this->serializer->serialize($redirects, "json", ['groups' => 'redir']);
+
+        return new Response($serialized, 200, array("Content-Type" => "application/json"));
+    }
+
+    /**
+     * Gets the redirect by the specified ID.
+     * @param $id // The ID of the redirect.
+     * @return Response The redirect, the status code, and the HTTP headers.
+     */
+    #[Route('/{id}', methods: ['GET'])]
+    public function getRedirectAction($id): Response
+    {
+        $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(["id" => $id]);
+
+        if (!$redirect) {
+            // Do the following if the redirect is not found.
+            return new Response("The redirect you requested was not found.", 404, array("Content-Type" => "application/json"));
+        }
+
+        $serialized = $this->serializer->serialize($redirect, "json", ['groups' => 'redir']);
 
         return new Response($serialized, 200, array("Content-Type" => "application/json"));
     }

@@ -104,23 +104,15 @@ export default {
   computed: {
     totalPages: function () {
       return Math.ceil(this.totalRecs / this.itemsPerPage)
-    },
-    paginatedItems: function () {
-      const startRecord = (this.currentPage - 1) * this.itemsPerPage
-
-      let itemArray = []
-      for (let i = 0; i < this.itemsPerPage; i++) {
-        if (typeof this.items[startRecord + i] != 'undefined') {
-          itemArray.push(this.items[startRecord + i])
-        }
-      }
-      return itemArray
     }
   },
   methods: {
     // emits the event to the parent with the list of paginated items
     changeItemsPerPage: function () {
-      this.$emit('itemsPerPageChanged', this.paginatedItems)
+      this.$emit('itemsPerPageChanged', this.itemsPerPage)
+    },
+    changePage: function () {
+      this.$emit('pageChanged', this.currentPage)
     },
     // When the 'next' '...' paginator button is clicked
     nextBatch: function () {
@@ -132,6 +124,7 @@ export default {
       else {
         this.endRange = this.endRange + 7
       }
+      this.changePage()
       this.resetRange()
     },
     // When the 'previous' '...' paginator button is clicked
@@ -144,6 +137,7 @@ export default {
         this.startRange = this.startRange - 7
       }
       this.endRange = this.startRange + 7
+      this.changePage()
       this.resetRange(true)
     },
     setPage: function (pageNumber) {
@@ -157,6 +151,8 @@ export default {
         this.endRange = this.totalPages
         this.resetRange()
       }
+
+      this.changePage()
     },
     // Reset the pagination range
     resetRange: function (isBackwards) {
@@ -175,13 +171,7 @@ export default {
           }
         }
       }
-    },
-  },
-  watch: {
-    // Any time the paginatedItems computed property changes, run the function to emit those paginated items
-    paginatedItems: function () {
-      this.changeItemsPerPage()
     }
-  },
+  }
 }
 </script>
