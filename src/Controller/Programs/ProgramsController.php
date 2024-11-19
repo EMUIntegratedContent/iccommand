@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller\Programs;
 
+use App\Entity\Programs\Programs;
 use App\Service\ProgramsService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
@@ -47,66 +48,62 @@ class ProgramsController extends AbstractController {
     return $this->render('programs/list.html.twig', ['permissions' => $permissions]);
   }
 
-//  /**
-//   * The create page of the redirects.
-//   */
-//	#[Route('/programs/create', name: 'programs_create')]
-//  public function add(): Response
-//  {
-//    $permissions = json_encode($this->service->getUserRedirectPermissions());
-//    return $this->render('redirect/create.html.twig', ['permissions' => $permissions]);
-//  }
-//
-//  /**
-//   * The edit page of the programs.
-//   */
-//	#[Route('/programs/{id}/edit', name: 'programs_edit')]
-//  public function edit($id): Response
-//  {
-//    $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
-//
-//    if (!$redirect) {
-//      throw $this->createNotFoundException('This request does not exist.');
-//    }
-//
-//    $itemType = $redirect->getItemType();
-//    $permissions = json_encode($this->service->getUserRedirectPermissions());
-//
-//    return $this->render('redirect/edit.html.twig', [
-//      'id' => $id,
-//      'itemType' => $itemType,
-//      'permissions' => $permissions
-//    ]);
-//  }
-//
-//  /**
-//   * The management page of the programs.
-//   */
-//	#[Route('/programs/manage', name: 'redirects_manage')]
-//  public function manage(): Response
-//  {
-//    return $this->render('redirect/manage.html.twig', []);
-//  }
-//
-//  /**
-//   * The show page of the programs.
-//   */
-//	#[Route('/programs/{id}', name: 'redirects_show')]
-//  public function show($id): Response
-//  {
-//    $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
-//
-//    if (!$redirect) {
-//      throw $this->createNotFoundException('This redirect does not exist.');
-//    }
-//
-//    $itemType = $redirect->getItemType();
-//    $permissions = json_encode($this->service->getUserRedirectPermissions());
-//
-//    return $this->render('redirect/show.html.twig', [
-//      'id' => $id,
-//      'itemType' => $itemType,
-//      'permissions' => $permissions
-//    ]);
-//  }
+  /**
+   * The create page of the program.
+   */
+	#[Route('/programs/create', name: 'programs_create')]
+  public function add(): Response
+  {
+    $permissions = json_encode($this->service->getProgramsPermissions());
+    return $this->render('programs/create.html.twig', ['permissions' => $permissions]);
+  }
+
+  /**
+   * The edit page of the programs.
+   */
+	#[Route('/programs/{id}/edit', name: 'programs_edit')]
+  public function edit($id): Response
+  {
+    $program = $this->doctrine->getRepository(Programs::class)->find($id);
+
+    if (!$program) {
+      throw $this->createNotFoundException('This program does not exist.');
+    }
+
+    $permissions = json_encode($this->service->getProgramsPermissions());
+
+    return $this->render('programs/edit.html.twig', [
+      'id' => $id,
+      'permissions' => $permissions
+    ]);
+  }
+
+  /**
+   * The management page of the programs.
+   */
+	#[Route('/programs/manage', name: 'programs_manage')]
+  public function manage(): Response
+  {
+    return $this->render('programs/manage.html.twig', []);
+  }
+
+  /**
+   * The show page of the program.
+   */
+	#[Route('/programs/{id}', name: 'programs_show')]
+  public function show($id): Response
+  {
+    $program = $this->doctrine->getRepository(Programs::class)->find($id);
+
+    if (!$program) {
+      throw $this->createNotFoundException('This program does not exist.');
+    }
+
+    $permissions = json_encode($this->service->getProgramsPermissions());
+
+    return $this->render('programs/show.html.twig', [
+      'id' => $id,
+      'permissions' => $permissions
+    ]);
+  }
 }

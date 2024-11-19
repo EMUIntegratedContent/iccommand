@@ -24,8 +24,6 @@
     </template>
   </div>
 </template>
-<style>
-</style>
 <script>
 export default {
   created() {
@@ -72,6 +70,13 @@ export default {
           buttonLink: "/redirects",
           display: false
         },
+        programs: {
+          title: "Catalog Programs Manager",
+          description: "The catalog programs manager allows for the editing of program names, websites, etc., from the Acalog course catalog.",
+          buttonText: "Manage Programs",
+          buttonLink: "/programs",
+          display: false
+        },
         links: { // Added Sept. 2024
           title: "External Application Links",
           description: "A list of links to admin panels and front-ends for various external applications.",
@@ -97,14 +102,17 @@ export default {
   methods: {
     // Based on permissions passed to this component, enable module display for appropriate system applications
     registerUserModule: function (role) {
-      if (role.includes('ROLE_MAP_') || role.includes('ROLE_GLOBAL_ADMIN_')) {
+      if (role.includes('ROLE_MAP_') || role.includes('ROLE_GLOBAL_ADMIN')) {
         this.userModules.map.display = true
       }
-      if (role.includes('ROLE_MULTIMEDIA_') || role.includes('ROLE_GLOBAL_ADMIN_')) {
+      if (role.includes('ROLE_MULTIMEDIA_') || role.includes('ROLE_GLOBAL_ADMIN')) {
         this.userModules.multimedia.display = true
       }
-      if (role.includes('ROLE_REDIRECT_') || role.includes('ROLE_GLOBAL_ADMIN_')) {
+      if (role.includes('ROLE_REDIRECT_') || role.includes('ROLE_GLOBAL_ADMIN')) {
         this.userModules.redirect.display = true
+      }
+      if (role.includes('ROLE_PROGRAMS_') || role.includes('ROLE_GLOBAL_ADMIN')) {
+        this.userModules.programs.display = true
       }
     },
   },
