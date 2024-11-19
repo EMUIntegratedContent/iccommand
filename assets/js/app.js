@@ -82,6 +82,7 @@ app.component("redirect-list", require("./components/redirect/RedirectList.vue")
 /* Catalog Programs */
 app.component("programs-index", require("./components/programs/ProgramsIndex.vue").default);
 app.component("programs-list", require("./components/programs/ProgramsList.vue").default);
+app.component("program-form", require("./components/programs/ProgramForm.vue").default);
 
 app.use(CKEditor)
 app.mount('#app')

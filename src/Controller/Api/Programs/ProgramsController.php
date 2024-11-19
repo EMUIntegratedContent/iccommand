@@ -2,6 +2,7 @@
 namespace App\Controller\Api\Programs;
 
 use App\Service\ProgramsService;
+use App\Entity\Programs\Programs;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -58,10 +59,26 @@ class ProgramsController extends AbstractFOSRestController
         $serialized = $this->serializer->serialize($redirects, "json");
 
         return new Response($serialized, 200, array("Content-Type" => "application/json"));
-//        $programs = $this->doctrine->getRepository(Programs::class)->findBy([], ['program' => 'asc']);
-//
-//        $serialized = $this->serializer->serialize($programs, 'json', []);
-//        return new Response($serialized, 200, ['Content-Type' => 'application/json']);
+    }
+
+    /**
+     * Gets the program by the specified ID.
+     * @param $id // The ID of the program.
+     * @return Response The program, the status code, and the HTTP headers.
+     */
+    #[Route('/{id}', methods: ['GET'])]
+    public function getRedirectAction($id): Response
+    {
+        $program = $this->doctrine->getRepository(Programs::class)->findOneBy(["id" => $id]);
+
+        if (!$program) {
+            // Do the following if the program is not found.
+            return new Response("The program you requested was not found.", 404, array("Content-Type" => "application/json"));
+        }
+
+        $serialized = $this->serializer->serialize($program, "json");
+
+        return new Response($serialized, 200, array("Content-Type" => "application/json"));
     }
 }
 

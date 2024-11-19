@@ -8,7 +8,6 @@
 
 {% block body %}
 <div id="app">
-  program-item-form component here
-{#  <redirect-item-form :item-exists="true" item-type="{{ itemType }}" start-mode="show" item-id="{{ id }}" :permissions="[{{ permissions }}]"></redirect-item-form>#}
+  <program-form :prog-exists="true" start-mode="show" prog-id="{{ id }}" :permissions="[{{ permissions }}]"></program-form>
 </div>
 {% endblock %}

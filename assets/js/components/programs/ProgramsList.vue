@@ -17,13 +17,76 @@
     </div>
     <br/>
     <div id="accordion">
-      {{ programs }}
+      <div class="card">
+        <div class="card-header" id="headingPrograms">
+          <h5 class="mb-0">
+            <button
+                class="btn btn-link"
+                data-toggle="collapse"
+                data-target="#collapsePrograms"
+                aria-expanded="true"
+                aria-controls="collapsePrograms">
+              Catalog Programs
+              <span
+                  v-if="!loadingPrograms"
+                  class="badge badge-primary">{{ totalPrograms }}</span>
+              <span v-else><i class="fa fa-spinner"></i></span>
+            </button>
+          </h5>
+        </div>
+        <div
+            id="collapsePrograms"
+            class="collapse show"
+            aria-labelledby="headingPrograms"
+            data-parent="#accordion">
+          <div class="card-body">
+<!--                  {{ programs }}-->
+            <div v-if="!loadingPrograms" class="table-responsive">
+              <table class="table table-hover table-sm">
+                <thead>
+                <tr>
+                  <th scope="col">Program</th>
+                  <th scope="col">Catalog</th>
+                  <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="program in programs" :id="program.id" :key="`program-${program.id}`">
+                  <td>
+                    {{ program.program }}
+                  </td>
+                  <td>
+                    {{ program.catalog }}
+                  </td>
+                  <td>
+                    <a v-if="userCanEdit" :href="'/programs/' + program.id"><i class="fa fa-eye"></i></a>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div v-else>
+              <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
+            </div>
+            <external-paginator
+                v-show="!loadingPrograms"
+                :ext-curr-pg="programsCurrentPage"
+                :ext-items-per-pg="programsItemsPerPage"
+                :total-recs="totalPrograms"
+                :items="programs"
+                @itemsPerPageChanged="handleProgramsItemsPerPageChanged"
+                @pageChanged="handleProgramsPageChanged"
+            >
+            </external-paginator>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <style></style>
 <script>
-import Heading from "../utils/Heading.vue";
+// import Heading from "../utils/Heading.vue";
 import ExternalPaginator from "../utils/ExternalPaginator.vue";
 
 export default {
@@ -32,7 +95,7 @@ export default {
   },
   components: {
     // Heading,
-    // ExternalPaginator
+    ExternalPaginator
   },
   props: {
     permissions: {
@@ -80,8 +143,17 @@ export default {
      * When paginator page is changed.
      * @param currentPage
      */
-    handleProgramsItemsPageChanged: function (currentPage) {
-      this.shortenedRedirectsCurrentPage = currentPage;
+    handleProgramsPageChanged: function (currentPage) {
+      this.programsCurrentPage = currentPage;
+      this.fetchPrograms();
+    },
+
+    /**
+     * When paginator items per page is changed.
+     * @param itemsPerPage
+     */
+    handleProgramsItemsPerPageChanged: function (itemsPerPage) {
+      this.programsItemsPerPage = itemsPerPage;
       this.fetchPrograms();
     },
 
