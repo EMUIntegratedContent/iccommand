@@ -1,0 +1,17 @@
+<h3 class="module-nav-heading">Catalog Programs Management</h3>
+<ul class="nav nav-pills module-nav-pills" role="navigation">
+  <li class="nav-item">
+    <a class="nav-link active" href="/programs"><i class="fa fa-home"></i></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/programs/list">All programs</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/programs/create">Create new program</a>
+  </li>
+  {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_ADMIN') %}
+  <li class="nav-item">
+    <a class="nav-link" href="/programs/manage">Manage app</a>
+  </li>
+  {% endif %}
+</ul>

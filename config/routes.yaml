@@ -41,3 +41,7 @@ uncaughts:
 userImages:
     resource: App\Controller\Api\UserImageController
     prefix: /api/userimages/
+
+programs:
+    resource: App\Controller\Api\Programs\ProgramsController
+    prefix: /api/programs/
