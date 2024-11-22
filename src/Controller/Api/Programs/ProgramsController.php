@@ -52,11 +52,65 @@ class ProgramsController extends AbstractFOSRestController
     public function getProgramsAction(Request $request): Response
     {
         $page = $request->query->get('page') ?? 1;
-        $pageSize = $request->query->get('limit') ?? 10;
+        $pageSize = $request->query->get('limit') ?? 25;
+        $catalog = $request->query->get('catalog') ?? 'undergraduate';
 
-        $redirects = $this->service->getProgramsPagination($page, $pageSize);
+        $programs = $this->service->getProgramsPagination($page, $pageSize, $catalog);
 
-        $serialized = $this->serializer->serialize($redirects, "json");
+        $serialized = $this->serializer->serialize($programs, "json");
+
+        return new Response($serialized, 200, array("Content-Type" => "application/json"));
+    }
+
+    /**
+     * Filter out programs by name
+     * @param Request $request
+     * @return Response
+     */
+    #[Route('/search', methods: ['GET'])]
+    public function searchProgramsAction(Request $request): Response
+    {
+        $searchTerm = $request->query->get('searchterm');
+        $catalog = $request->query->get('catalog') ?? 'undergraduate';
+
+        $programs = $this->service->getProgramsByName($searchTerm, $catalog);
+
+        $serialized = $this->serializer->serialize($programs, "json");
+
+        return new Response($serialized, 200, array("Content-Type" => "application/json"));
+    }
+
+    /**
+     * Get all program websites
+     * @param Request $request
+     * @return Response
+     */
+    #[Route('/websites', methods: ['GET'])]
+    public function getWebsitesAction(Request $request): Response
+    {
+        $page = $request->query->get('page') ?? 1;
+        $pageSize = $request->query->get('limit') ?? 25;
+
+        $websites = $this->service->getWebsitesPagination($page, $pageSize);
+
+        $serialized = $this->serializer->serialize($websites, "json");
+
+        return new Response($serialized, 200, array("Content-Type" => "application/json"));
+    }
+
+    /**
+     * Filter out program websites by name
+     * @param Request $request
+     * @return Response
+     */
+    #[Route('/searchwebsites', methods: ['GET'])]
+    public function searchWebsitesAction(Request $request): Response
+    {
+        $searchTerm = $request->query->get('searchterm');
+
+        $websites = $this->service->getWebsitesByProg($searchTerm);
+
+        $serialized = $this->serializer->serialize($websites, "json");
 
         return new Response($serialized, 200, array("Content-Type" => "application/json"));
     }

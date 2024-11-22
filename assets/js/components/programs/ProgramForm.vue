@@ -17,26 +17,26 @@
         Program Information
       </heading>
       <div class="btn-group" role="group" aria-label="form navigation buttons">
-        <button v-if="progExists && permissions[0].user" type="button" class="btn btn-info pull-right" @click="toggleEdit"><span v-html="lockIcon"></span></button>
+        <button v-if="progExists && permissions[0].user" type="button" class="btn btn-info pull-right"
+                @click="toggleEdit"><span v-html="lockIcon"></span></button>
       </div>
       <div class="pt-2" id="programTabContent">
-        <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="submitProgram" :validation-schema="programSchema">
-<!--          <fieldset>-->
-<!--            <legend>Basic Information</legend>-->
-            <div class="form-group">
-              <label>Program name</label>
-              <Field
-                  name="programName"
-                  type="text"
-                  class="form-control"
-                  :class="{'is-invalid': errors.program, 'form-control-plaintext': !userCanEdit || !isEditMode}"
-                  :readonly="!userCanEdit || !isEditMode"
-                  v-model="record.program">
-              </Field>
-              <div class="invalid-feedback">
-                {{ errors.program }}
-              </div>
+        <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="submitProgram"
+                 :validation-schema="programSchema">
+          <div class="form-group">
+            <label>Program name</label>
+            <Field
+                name="programName"
+                type="text"
+                class="form-control"
+                :class="{'is-invalid': errors.program, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                :readonly="!userCanEdit || !isEditMode"
+                v-model="record.program">
+            </Field>
+            <div class="invalid-feedback">
+              {{ errors.program }}
             </div>
+          </div>
           <div v-if="Object.keys(errors).length && isEditMode" class="alert alert-danger fade show" role="alert">
             Please fix all errors before submitting:
             <ul>
@@ -56,28 +56,28 @@
             <p v-if="isSaveFailed" class="red">Error saving this program. {{ apiError.message }}</p>
             <button type="submit" class="btn btn-success"><i class="fa fa-save fa-2x"></i></button>
             <button
-              v-if="progExists && this.permissions[0].user"
-              type="button"
-              class="btn btn-danger ml-4"
-              data-toggle="modal"
-              data-target="#deleteModal"><i class="fa fa-trash fa-2x"></i></button>
+                v-if="progExists && this.permissions[0].user"
+                type="button"
+                class="btn btn-danger ml-4"
+                data-toggle="modal"
+                data-target="#deleteModal"><i class="fa fa-trash fa-2x"></i></button>
           </div>
         </VeeForm>
       </div>
     </div>
     <!-- Delete Item Modal -->
     <program-delete-modal
-      :program="record"
-      @programDeleted="markProgramDeleted"
-      @programDeleteError="markProgramDeleteError"
+        :program="record"
+        @programDeleted="markProgramDeleted"
+        @programDeleteError="markProgramDeleteError"
     >
     </program-delete-modal>
   </div>
 </template>
 
 <style>
-.red{
-    color:#FF0033;
+.red {
+  color: #FF0033;
 }
 </style>
 
@@ -93,18 +93,18 @@ const STATUS_INITIAL = 0
 const STATUS_SAVE_FAILED = 1
 
 export default {
-  created() {
+  created () {
     // Detect if the form should be in edit mode from the start; default is false.
     if (this.startMode === "edit") {
       this.isEditMode = true;
     }
 
-    if(this.progId) {
+    if (this.progId) {
       this.fetchProgram(this.progId);
     }
   },
 
-  components: {Heading, VueMultiselect, ProgramDeleteModal, NotFound, Field, VeeForm, ErrorMessage},
+  components: { Heading, VueMultiselect, ProgramDeleteModal, NotFound, Field, VeeForm, ErrorMessage },
 
   props: {
     progExists: {
@@ -112,7 +112,7 @@ export default {
       required: true
     },
 
-    progId:{
+    progId: {
       type: String,
       required: false
     },
@@ -132,86 +132,25 @@ export default {
     }
   },
 
-  data: function() {
+  data: function () {
     return {
       currentStatus: null,
-      /* **************************** Error Data **************************** */
-
-      /**
-       * The error for the API controller consists of a message and a status.
-       * @type {Object}
-       */
       apiError: {
         message: null,
         status: null
       },
-
-      /**
-       * Is used to check if the request status is 404.
-       * @type {boolean}
-       */
       is404: false,
-
-      /**
-       * Is used to check if there is an error in deleting the program.
-       */
       isDeleteError: false,
-
-      /**
-       * Is used to check if the invalid error is already showing.
-       * @type {boolean}
-       */
-      isUnvalidErrorShowing: false,
-
-      /* *************************** Fetched Data *************************** */
-
-      /**
-       * Is used to check if the data is fetched and loaded.
-       * @type {boolean}
-       */
       isDataLoaded: false,
-
-      /* ************************** Processing Data ************************* */
-
-      /**
-       * Is used to check if the program is deleted.
-       * @type {boolean}
-       */
       isDeleted: false,
-
-      /**
-       * Is used to check if the user is in edit mode.
-       * @type {boolean}
-       */
       isEditMode: false, // This is true if the forms are editable.
-
-      /**
-       * The current program to be update upon or created.
-       * @type {Object}
-       */
       record: {
         id: "",
         program: "",
         catalog: ""
       },
-
-      /**
-       * Is used to check if it is successful to make or update the program.
-       * @type {boolean}
-       */
       success: false,
-
-      /**
-       * The message of the successful update or creation of the program.
-       * @type {string}
-       */
       successMessage: "",
-
-      /**
-       * The uncaught items that can be in the recommended section.
-       * @type {Array.<Uncaught>}
-       */
-      uncaughtsInRecommended: [],
     }
   },
 
@@ -223,7 +162,7 @@ export default {
       return this.currentStatus === STATUS_SAVE_FAILED;
     },
 
-    programSchema() {
+    programSchema () {
       let yupObj = {
         programName: Yup.string().required().label('Program name '),
         // toLink: Yup.string().required().label('To link ')
@@ -235,7 +174,7 @@ export default {
      * Gets the heading icon.
      * @return {string} The heading icon.
      */
-    headingIcon: function() {
+    headingIcon: function () {
       return "<i class='fa fa-map'></i>";
     },
 
@@ -243,7 +182,7 @@ export default {
      * Gets the string of "is-invalid".
      * @return {string} "is-invalid".
      */
-    isInvalid: function() {
+    isInvalid: function () {
       return "is-invalid";
     },
 
@@ -252,7 +191,7 @@ export default {
      * @return {string} The lock icon being unlocked if the user is in edit
      * mode; the lock icon being locked otherwise.
      */
-    lockIcon: function() {
+    lockIcon: function () {
       return this.isEditMode ? "<i class='fa fa-unlock'></i>" : "<i class='fa fa-lock'></i>";
     },
 
@@ -260,9 +199,9 @@ export default {
      * Determines if the user can edit.
      * @return {boolean} True if the user can edit; false otherwise.
      */
-    userCanEdit: function() {
+    userCanEdit: function () {
       return ((this.progExists && this.permissions[0].user)
-        || (!this.progExists && this.permissions[0].user)) ? true : false;
+          || (!this.progExists && this.permissions[0].user)) ? true : false;
     }
   },
 
@@ -270,13 +209,14 @@ export default {
     /**
      * Goes to edit mode after submitting the new program.
      */
-    afterSubmitSucceeds: function() {
+    afterSubmitSucceeds: function () {
       // Since the new item has been submitted, go to edit mode.
       if (!this.progExists) {
         this.success = true;
         this.successMessage = "Program created.";
         document.location = "/programs/" + this.record.id;
-      } else {
+      }
+      else {
         this.success = true;
         this.successMessage = "Update successful.";
       }
@@ -286,15 +226,15 @@ export default {
      * Gets the program by using the specified ID.
      * @param {string} progId The ID of the program.
      */
-    fetchProgram: function(progId) {
+    fetchProgram: function (progId) {
       const self = this
       axios.get("/api/programs/" + progId)
-      .then(function(response) { // Success.
+      .then(function (response) { // Success.
         self.record = response.data;
         self.isDataLoaded = true;
       })
-      .catch(function(error) { // Failure.
-        if(error.request.status == 404) {
+      .catch(function (error) { // Failure.
+        if (error.request.status == 404) {
           self.is404 = true;
           self.isDataLoaded = true;
         }
@@ -304,10 +244,10 @@ export default {
     /**
      * Gets called from the @programDeleted event emission from the delete Modal.
      */
-    markProgramDeleted: function() {
+    markProgramDeleted: function () {
       this.isDeleteError = false;
       this.isDeleted = true;
-      setTimeout(function() {
+      setTimeout(function () {
         // This record doesn't exist anymore, so send the user back to the
         // programs list page.
         window.location.replace("/programs/list");
@@ -318,11 +258,11 @@ export default {
      * Marks the item delete error; gets called if there is an error in deleting
      * an item.
      */
-    markProgramDeleteError: function() {
+    markProgramDeleteError: function () {
       let self = this;
       this.isDeleted = false;
       this.isDeleteError = true;
-      setTimeout(function() {
+      setTimeout(function () {
         self.isDeleteError = false;
       }, 5000);
     },
@@ -330,7 +270,7 @@ export default {
     /**
      * Submits the form via the API.
      */
-    submitProgram: function() {
+    submitProgram: function () {
       this.currentStatus = null
       const method = this.progExists ? "put" : "post"
       const route = "/api/programs/"
@@ -342,11 +282,11 @@ export default {
         url: route,
         data: self.record
       })
-      .then(function(response) { // Success.
+      .then(function (response) { // Success.
         self.record.id = response.data.id; // This sets the program's ID.
         self.afterSubmitSucceeds();
       })
-      .catch(function(error) { // Failure.
+      .catch(function (error) { // Failure.
         self.currentStatus = STATUS_SAVE_FAILED
         self.apiError.status = error.response.status;
         self.apiError.message = error.response.data;
@@ -356,7 +296,7 @@ export default {
     /**
      * Sets the variable @isEditMode to the appropriate boolean value.
      */
-    toggleEdit: function() {
+    toggleEdit: function () {
       (this.isEditMode === true) ? this.isEditMode = false : this.isEditMode = true;
     }
   },

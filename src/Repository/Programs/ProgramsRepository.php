@@ -16,28 +16,45 @@ class ProgramsRepository extends ServiceEntityRepository
         parent::__construct($registry, Programs::class);
     }
 
-    //    /**
-    //     * @return Programs[] Returns an array of Programs objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+	public function paginatedPrograms($currentPage, $pageSize, $catalog): array
+	{
+		// Calculate the offset
+		$offset = ($currentPage - 1) * $pageSize;
 
-    //    public function findOneBySomeField($value): ?Programs
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+		// Build the query for getting paginated records
+		$programs = $this->createQueryBuilder('p')
+			->where('p.catalog = :catalog')
+			->orderBy('p.program', 'ASC')
+			->setFirstResult($offset)
+			->setMaxResults($pageSize)
+			->setParameter('catalog', $catalog)
+			->getQuery()
+			->getResult();
+
+		// Count the total number of rows
+		$totalProgs = $this->createQueryBuilder('p')
+			->select('COUNT(p.id)')
+			->where('p.catalog = :catalog')
+			->setParameter('catalog', $catalog)
+			->getQuery()
+			->getSingleScalarResult();
+
+		return [
+			'programs' => $programs,
+			'totalRows' => $totalProgs
+		];
+	}
+
+	public function searchResults($searchTerm, $catalog): array {
+		// Build the query for getting paginated records
+		return $this->createQueryBuilder('p')
+			->where('p.catalog = :catalog')
+			->andWhere('p.program LIKE :searchTerm')
+			->orderBy('p.program', 'ASC')
+			->setMaxResults(30)
+			->setParameter('catalog', $catalog)
+			->setParameter('searchTerm', '%' . $searchTerm . '%')
+			->getQuery()
+			->getResult();
+	}
 }

@@ -87,6 +87,16 @@ class ProgramsController extends AbstractController {
     return $this->render('programs/manage.html.twig', []);
   }
 
+	/**
+	 * The programs websites list (needs to be managed separately because of lack of FK constraints year-to-year).
+	 */
+	#[Route('/programs/websites', name: 'programs_manage')]
+	public function websites(): Response
+	{
+		$permissions = json_encode($this->service->getProgramsPermissions());
+		return $this->render('programs/websites.html.twig', ['permissions' => $permissions]);
+	}
+
   /**
    * The show page of the program.
    */
