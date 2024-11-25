@@ -537,11 +537,11 @@ export default {
       let searchTerm = ''
       if(type === 'broken') {
         searchTerm = this.brokenSearchTerm
-      } else {
+      } else if(type === 'shortened') {
         searchTerm = this.shortenedSearchTerm
       }
 
-      if(this.brokenSearchTerm.length > 2) {
+      if(searchTerm.length > 2) {
         /* Ajax (Axios) Submission */
         axios.get(`/api/redirects/search?searchterm=${searchTerm}&type=${type}`)
         .then(function (response) { // Success.
