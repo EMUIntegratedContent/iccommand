@@ -122,16 +122,96 @@ class ProgramsService {
 	}
 
 	/**
-	 * Get websites based on the program name.
+	 * Get websites based on LIKE program name.
 	 * @param $searchTerm
 	 * @return array
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
-	public function getWebsitesByProg($searchTerm)
+	public function searchWebsites($searchTerm)
 	{
 		// Get the Doctrine repository
 		$repository = $this->doctrine->getRepository(ProgramWebsites::class);
 		return $repository->searchResults($searchTerm);
+	}
+
+	/**
+	 * A single website based on the exact program name.
+	 * @param $progName
+	 * @return ?ProgramWebsites
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getWebsiteByProg($progName)
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(ProgramWebsites::class);
+		return $repository->getWebsiteByProg($progName);
+	}
+
+	/**
+	 * Return a single program with join data for website info
+	 * @param $id
+	 * @return Programs
+	 */
+	public function getProgram($id) {
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Programs::class);
+		return $repository->getProgram($id);
+	}
+
+	/**
+	 * Return a single program website
+	 * @param $id
+	 * @return ProgramWebsites
+	 */
+	public function getWebsite($id) {
+		return $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
+	}
+
+	/**
+	 * Update a program's website information in program_websites
+	 * @param $origName
+	 * @param $newName
+	 * @param $url
+	 * @return ?ProgramWebsites
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function updateProgWebsite($origName, $newName, $url = null): ?ProgramWebsites {
+		// Case 1. If there is a program without a URL. See if there is a website record with that program name and remove the record
+		// Case 2. If there is a program with a URL. See if there is a website record with that program name. If there is, update the record. If there isn't, create a new record.
+
+		// Strip out any host information from the URL
+		if($url) {
+			$parsedUrl = parse_url($url);
+
+			if (array_key_exists("host", $parsedUrl) && preg_match("/emich\.edu/", $parsedUrl["host"])) {
+				if ($parsedUrl["path"][0] != "/") {
+					$url = "/" . $parsedUrl["path"];
+				} else {
+					$url = $parsedUrl["path"];
+				}
+			} else if (!array_key_exists("host", $parsedUrl) && $parsedUrl["path"][0] != "/") {
+				$url = "/" . $parsedUrl["path"];
+			}
+		}
+
+		$website = $this->getWebsiteByProg($origName);
+		if($website && !$url){
+			$this->em->remove($website);
+		} else if ($website && $url) {
+			$website->setProgram($newName);
+			$website->setUrl($url);
+			$this->em->persist($website);
+		} else if(!$website && $url) {
+			$website = new ProgramWebsites();
+			$website->setProgram($newName);
+			$website->setUrl($url);
+			$this->em->persist($website);
+		}
+		$this->em->flush();
+
+		return $this->getWebsiteByProg($newName);
 	}
 }

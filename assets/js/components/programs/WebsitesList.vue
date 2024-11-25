@@ -37,8 +37,8 @@
                   :multiple="false"
                   :clear-on-select="true"
                   placeholder="Search program websites (type at least 3 characters of the program name)"
-                  label="program"
-                  track-by="id"
+                  label="display"
+                  track-by="prog_id"
                   id="selectedwebsite"
                   class="form-control"
                   style="padding:0"
@@ -52,21 +52,27 @@
               <table class="table table-hover table-sm">
                 <thead>
                 <tr>
-                  <th scope="col">Program</th>
                   <th scope="col">Website</th>
+                  <th scope="col">Program</th>
                   <th scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="site in websites" :id="`website-${site.id}`" :key="`website-${site.id}`">
                   <td>
-                    {{ site.program }}
-                  </td>
-                  <td>
                     {{ site.url }}
                   </td>
                   <td>
-                    <a v-if="userCanEdit" :href="'/programs/websites/' + site.id"><i class="fa fa-eye"></i></a>
+                    {{ site.program }}
+                  </td>
+                  <td>
+                    <template v-if="userCanEdit">
+                      <a v-if="site.prog_id" :href="'/programs/' + site.prog_id"><i class="fa fa-eye"></i></a>
+                      <a v-else :href="'/programs/websites/' + site.id">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="badge badge-info" title="This link is not affiliated with a current catalog program">UN</span>
+                      </a>
+                    </template>
                   </td>
                 </tr>
                 </tbody>
@@ -158,7 +164,11 @@ export default {
     },
     handleWebsiteSelected: function (evt) {
       if (this.userCanEdit) {
-        window.location.href = '/programs/websites/' + evt.id
+        if(evt.prog_id) {
+          window.location.href = '/programs/' + evt.prog_id
+        } else {
+          window.location.href = '/programs/websites' + evt.id
+        }
       }
     },
     fetchWebsites: function () {

@@ -37,6 +37,20 @@
               {{ errors.program }}
             </div>
           </div>
+          <div class="form-group">
+            <label>Program website</label>
+            <Field
+                name="programUrl"
+                type="text"
+                class="form-control"
+                :class="{'is-invalid': errors.url, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                :readonly="!userCanEdit || !isEditMode"
+                v-model="record.url">
+            </Field>
+            <div class="invalid-feedback">
+              {{ errors.url }}
+            </div>
+          </div>
           <div v-if="Object.keys(errors).length && isEditMode" class="alert alert-danger fade show" role="alert">
             Please fix all errors before submitting:
             <ul>
@@ -219,6 +233,10 @@ export default {
       else {
         this.success = true;
         this.successMessage = "Update successful.";
+        setTimeout(() => {
+          this.success = false;
+          self.currentStatus = STATUS_INITIAL
+        }, 3000);
       }
     },
 
@@ -283,7 +301,7 @@ export default {
         data: self.record
       })
       .then(function (response) { // Success.
-        self.record.id = response.data.id; // This sets the program's ID.
+        self.record = response.data; // This sets the program's ID.
         self.afterSubmitSucceeds();
       })
       .catch(function (error) { // Failure.

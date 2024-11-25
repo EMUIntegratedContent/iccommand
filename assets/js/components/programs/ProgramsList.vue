@@ -62,7 +62,7 @@
                   <td>
                     {{ ugp.program }}
                   </td>
-                  <td>TODO</td>
+                  <td>{{ ugp.url }}</td>
                   <td>
                     <a v-if="userCanEdit" :href="'/programs/' + ugp.id"><i class="fa fa-eye"></i></a>
                   </td>

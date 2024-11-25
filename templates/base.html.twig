@@ -33,6 +33,11 @@
                     <a class="nav-link" href="/redirects">Redirects</a>
                 </li>
             {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/programs">Catalog Programs</a>
+                </li>
+            {% endif %}
             {% if is_granted('ROLE_USER') %}
             <li class="nav-item">
                 <a class="nav-link" href="/applinks">Ext. App Links</a>

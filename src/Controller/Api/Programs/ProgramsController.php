@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller\Api\Programs;
 
+use App\Entity\Programs\ProgramWebsites;
 use App\Service\ProgramsService;
 use App\Entity\Programs\Programs;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,128 +13,218 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-if (!ini_get('display_errors')) {
-    ini_set('display_errors', '1');
+if(!ini_get('display_errors')){
+	ini_set('display_errors', '1');
 }
 error_reporting(E_ALL);
 
 /**
- * API Redirect Controller
- * This controller manages the redirects with the actions of getting, adding,
+ * API Catalog Programs Controller
+ * This controller manages the programs (and associated websites) with the actions of getting, adding,
  * updating, and deleting.
  */
-class ProgramsController extends AbstractFOSRestController
-{
-    private ProgramsService $service;
-    private LoggerInterface $logger;
-    private ManagerRegistry $doctrine;
-    private EntityManagerInterface $em;
-    private SerializerInterface $serializer;
+class ProgramsController extends AbstractFOSRestController{
+	private ProgramsService $service;
+	private LoggerInterface $logger;
+	private ManagerRegistry $doctrine;
+	private EntityManagerInterface $em;
+	private SerializerInterface $serializer;
 
-    /**
-     * The constructor of the ProgramsController.
-     * @param ProgramsService $service The service container of this controller.
-     */
-    public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer)
-    {
-        $this->service = $service;
-        $this->logger = $logger;
-        $this->doctrine = $doctrine;
-        $this->em = $em;
-        $this->serializer = $serializer;
-    }
+	/**
+	 * The constructor of the ProgramsController.
+	 * @param ProgramsService $service The service container of this controller.
+	 */
+	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer){
+		$this->service = $service;
+		$this->logger = $logger;
+		$this->doctrine = $doctrine;
+		$this->em = $em;
+		$this->serializer = $serializer;
+	}
 
-    /**
-     * Get all programs
-     * @param Request $request
-     * @return Response
-     */
-    #[Route('/list', methods: ['GET'])]
-    public function getProgramsAction(Request $request): Response
-    {
-        $page = $request->query->get('page') ?? 1;
-        $pageSize = $request->query->get('limit') ?? 25;
-        $catalog = $request->query->get('catalog') ?? 'undergraduate';
+	/**
+	 * Get all programs
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/list', methods: ['GET'])]
+	public function getProgramsAction(Request $request): Response{
+		$page = $request->query->get('page') ?? 1;
+		$pageSize = $request->query->get('limit') ?? 25;
+		$catalog = $request->query->get('catalog') ?? 'undergraduate';
 
-        $programs = $this->service->getProgramsPagination($page, $pageSize, $catalog);
+		$programs = $this->service->getProgramsPagination($page, $pageSize, $catalog);
 
-        $serialized = $this->serializer->serialize($programs, "json");
+		$serialized = $this->serializer->serialize($programs, "json");
 
-        return new Response($serialized, 200, array("Content-Type" => "application/json"));
-    }
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
 
-    /**
-     * Filter out programs by name
-     * @param Request $request
-     * @return Response
-     */
-    #[Route('/search', methods: ['GET'])]
-    public function searchProgramsAction(Request $request): Response
-    {
-        $searchTerm = $request->query->get('searchterm');
-        $catalog = $request->query->get('catalog') ?? 'undergraduate';
+	/**
+	 * Filter out programs by name
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/search', methods: ['GET'])]
+	public function searchProgramsAction(Request $request): Response{
+		$searchTerm = $request->query->get('searchterm');
+		$catalog = $request->query->get('catalog') ?? 'undergraduate';
 
-        $programs = $this->service->getProgramsByName($searchTerm, $catalog);
+		$programs = $this->service->getProgramsByName($searchTerm, $catalog);
 
-        $serialized = $this->serializer->serialize($programs, "json");
+		$serialized = $this->serializer->serialize($programs, "json");
 
-        return new Response($serialized, 200, array("Content-Type" => "application/json"));
-    }
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
 
-    /**
-     * Get all program websites
-     * @param Request $request
-     * @return Response
-     */
-    #[Route('/websites', methods: ['GET'])]
-    public function getWebsitesAction(Request $request): Response
-    {
-        $page = $request->query->get('page') ?? 1;
-        $pageSize = $request->query->get('limit') ?? 25;
+	/**
+	 * Get all program websites
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/websites', methods: ['GET'])]
+	public function getWebsitesAction(Request $request): Response{
+		$page = $request->query->get('page') ?? 1;
+		$pageSize = $request->query->get('limit') ?? 25;
 
-        $websites = $this->service->getWebsitesPagination($page, $pageSize);
+		$websites = $this->service->getWebsitesPagination($page, $pageSize);
 
-        $serialized = $this->serializer->serialize($websites, "json");
+		$serialized = $this->serializer->serialize($websites, "json");
 
-        return new Response($serialized, 200, array("Content-Type" => "application/json"));
-    }
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
 
-    /**
-     * Filter out program websites by name
-     * @param Request $request
-     * @return Response
-     */
-    #[Route('/searchwebsites', methods: ['GET'])]
-    public function searchWebsitesAction(Request $request): Response
-    {
-        $searchTerm = $request->query->get('searchterm');
+	/**
+	 * Filter out program websites by name
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/searchwebsites', methods: ['GET'])]
+	public function searchWebsitesAction(Request $request): Response{
+		$searchTerm = $request->query->get('searchterm');
 
-        $websites = $this->service->getWebsitesByProg($searchTerm);
+		$websites = $this->service->searchWebsites($searchTerm);
 
-        $serialized = $this->serializer->serialize($websites, "json");
+		$serialized = $this->serializer->serialize($websites, "json");
 
-        return new Response($serialized, 200, array("Content-Type" => "application/json"));
-    }
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
 
-    /**
-     * Gets the program by the specified ID.
-     * @param $id // The ID of the program.
-     * @return Response The program, the status code, and the HTTP headers.
-     */
-    #[Route('/{id}', methods: ['GET'])]
-    public function getRedirectAction($id): Response
-    {
-        $program = $this->doctrine->getRepository(Programs::class)->findOneBy(["id" => $id]);
+	/**
+	 * Gets the program website by the specified ID.
+	 * @param $id // The ID of the website.
+	 * @return Response The program, the status code, and the HTTP headers.
+	 */
+	#[Route('websites/{id}', methods: ['GET'])]
+	public function getWebsiteAction($id): Response{
+		$website = $this->service->getWebsite($id);
+		if(!$website){
+			return new Response("The website you requested was not found.", 404, array("Content-Type" => "application/json"));
+		}
+		$serialized = $this->serializer->serialize($website, "json");
 
-        if (!$program) {
-            // Do the following if the program is not found.
-            return new Response("The program you requested was not found.", 404, array("Content-Type" => "application/json"));
-        }
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
 
-        $serialized = $this->serializer->serialize($program, "json");
+	/**
+	 * Gets the program by the specified ID.
+	 * @param $id // The ID of the program.
+	 * @return Response The program, the status code, and the HTTP headers.
+	 */
+	#[Route('/{id}', methods: ['GET'])]
+	public function getProgramAction($id): Response{
+		$program = $this->service->getProgram($id);
+		if(!$program){
+			return new Response("The program you requested was not found.", 404, array("Content-Type" => "application/json"));
+		}
+		$serialized = $this->serializer->serialize($program, "json");
 
-        return new Response($serialized, 200, array("Content-Type" => "application/json"));
-    }
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * TODO: new programs need much more information than when editing a program. See if they need this.
+	 * Posts the new program from the specified request.
+	 * @param Request $request The holder of the information about the new program.
+	 * @return Response The program, the status code, and the HTTP headers.
+	 */
+	#[Route('/', methods: ['POST'])]
+	public function postProgramAction(Request $request): Response{
+//        $catalog = strtolower($request->request->get("catalog"));
+//
+//        $program = new Programs();
+//        $program->setProgram($request->request->get("program"));
+//        $program->setCatalog($catalog);
+//
+//        $errors = $this->service->validate($program); // Validate the program.
+//
+//        if (count($errors) > 0) {
+//            // Do the following if there is more than one error.
+//            $serialized = $this->serializer->serialize($errors, "json");
+//
+//            return new Response($serialized, 422, array("Content-Type" => "application/json"));
+//        }
+//
+//        $this->em->persist($program); // Persist the program.
+//        $this->em->flush(); // Commit everything to the database.
+//
+//        $serialized = $this->serializer->serialize($program, "json");
+//
+//        return new Response($serialized, 201, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Updates the program from the specified request.
+	 * @param Request $request The holder of the information about the updated program.
+	 * @return Response The program, the status code, and the HTTP headers.
+	 */
+	#[Route('/', methods: ['PUT'])]
+	public function putProgramAction(Request $request): Response{
+		$id = $request->request->get("id");
+		$progName = $request->request->get("program");
+		$catalog = strtolower($request->request->get("catalog"));
+		$url = strtolower($request->request->get("url"));
+
+		$program = $this->doctrine->getRepository(Programs::class)->find($id);
+		$progOrig = clone $program;
+		$origProgName = $progOrig->getProgram();
+		$program->setProgram($progName);
+		$program->setCatalog($catalog);
+
+		$errors = $this->service->validate($program); // Validate the program.
+
+		if(count($errors) > 0){
+			// Do the following if there is more than one error.
+			$serialized = $this->serializer->serialize($errors, "json");
+
+			return new Response($serialized, 422, array("Content-Type" => "application/json"));
+		}
+
+		$this->em->persist($program); // Persist the program.
+		$this->em->flush(); // Commit everything to the database.
+
+		// Update the program website information
+		$this->service->updateProgWebsite($origProgName, $progName, $url);
+
+		$serialized = $this->serializer->serialize($this->service->getProgram($id), "json");
+
+		return new Response($serialized, 201, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Deletes the program from the specified ID.
+	 * @param $id // The ID of the program.
+	 * @return Response The message of the deleted program, the status code, and the HTTP headers.
+	 */
+	#[Route('/{id}', methods: ['DELETE'])]
+	public function deleteProgramAction($id): Response{
+		$program = $this->doctrine->getRepository(Programs::class)->find($id);
+
+		$this->em->remove($program);
+		$this->em->flush();
+
+		return new Response("Program has been deleted.", 204, array("Content-Type" => "application/json"));
+	}
 }
 
 ?>
