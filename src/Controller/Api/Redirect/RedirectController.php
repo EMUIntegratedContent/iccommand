@@ -145,6 +145,24 @@ class RedirectController extends AbstractFOSRestController
     }
 
     /**
+     * Filter out redirects by from_link and to_link
+     * @param Request $request
+     * @return Response
+     */
+    #[Route('/search', methods: ['GET'])]
+    public function searchRedirectsAction(Request $request): Response
+    {
+        $searchTerm = $request->query->get('searchterm');
+        $type = $request->query->get('type');
+
+        $redirects = $this->service->getRedirectsByName($searchTerm, $type);
+
+        $serialized = $this->serializer->serialize($redirects, "json");
+
+        return new Response($serialized, 200, array("Content-Type" => "application/json"));
+    }
+
+    /**
      * Gets the redirect by the specified ID.
      * @param $id // The ID of the redirect.
      * @return Response The redirect, the status code, and the HTTP headers.

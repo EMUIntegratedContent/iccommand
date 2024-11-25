@@ -165,4 +165,19 @@ class RedirectService {
 			'totalRows' => $totalShortened,
 		];
 	}
+
+	/**
+	 * Get programs that are like the passed progStr for the given catalog.
+	 * @param $searchTerm
+	 * @param string $type
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getRedirectsByName($searchTerm, string $type = 'broken')
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Redirect::class);
+		return $repository->searchResultsRedirects($searchTerm, $type);
+	}
 }

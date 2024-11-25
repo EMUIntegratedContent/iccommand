@@ -6,15 +6,6 @@
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>
-    <div>
-<!--      <input-->
-<!--          name="searchTerm"-->
-<!--          type="text"-->
-<!--          class="form-control"-->
-<!--          placeholder="Search"-->
-<!--          v-model="searchTerm"-->
-<!--          @change="filterRedirects"/>-->
-    </div>
     <br/>
     <div id="accordion">
       <!-- Broken Links Section -->
@@ -41,6 +32,24 @@
             aria-labelledby="headingRedirectsOfBrokenLinks"
             data-parent="#accordion">
           <div class="card-body">
+            <div>
+              <label for="selectedredir" class="sr-only">Search broken redirects</label>
+              <VueMultiselect
+                  :options="brokenSearchResults"
+                  :multiple="false"
+                  :clear-on-select="true"
+                  placeholder="Search broken redirects (type at least 3 characters)"
+                  label="linkDescr"
+                  track-by="id"
+                  id="selectedredir"
+                  class="form-control"
+                  style="padding:0"
+                  name="selectedredir"
+                  @input="handleBrokenSearchInput"
+                  @select="handleRedirectSelected"
+              >
+              </VueMultiselect>
+            </div>
             <div v-if="!loadingRedirectsOfBrokenLinks" class="table-responsive">
               <table class="table table-hover table-sm">
                 <thead>
@@ -93,6 +102,7 @@
           </div>
         </div>
       </div>
+      <br>
       <!-- Shortened Links Section -->
       <div class="card">
         <div class="card-header" id="headingRedirectsOfShortenedLinks">
@@ -117,6 +127,24 @@
             aria-labelledby="headingRedirectsOfShortenedLinks"
             data-parent="#accordion">
           <div class="card-body">
+            <div>
+              <label for="selectedshort" class="sr-only">Search shortened redirects</label>
+              <VueMultiselect
+                  :options="shortenedSearchResults"
+                  :multiple="false"
+                  :clear-on-select="true"
+                  placeholder="Search shortened redirects (type at least 3 characters)"
+                  label="linkDescr"
+                  track-by="id"
+                  id="selectedshort"
+                  class="form-control"
+                  style="padding:0"
+                  name="selectedshort"
+                  @input="handleShortenedSearchInput"
+                  @select="handleRedirectSelected"
+              >
+              </VueMultiselect>
+            </div>
             <div v-if="!loadingRedirectsOfShortenedLinks" class="table-responsive">
               <table class="table table-hover table-sm">
                 <thead>
@@ -160,7 +188,7 @@
             </div>
             <external-paginator
                 v-show="!loadingRedirectsOfShortenedLinks"
-                :items="resultedRedirectsOfShortenedLinks"
+                :items="fetchedRedirectsOfShortenedLinks"
                 :ext-curr-pg="shortenedRedirectsCurrentPage"
                 :ext-items-per-pg="shortenedRedirectsItemsPerPage"
                 :total-recs="totalShortenedRedirects"
@@ -176,13 +204,13 @@
 <script>
 import Heading from "../utils/Heading.vue";
 import ExternalPaginator from "../utils/ExternalPaginator.vue";
-
+import VueMultiselect from 'vue-multiselect'
 export default {
   created () {
     this.fetchBrokenRedirects();
     this.fetchShortenedRedirects();
   },
-  components: { Heading, ExternalPaginator },
+  components: { Heading, ExternalPaginator, VueMultiselect },
   props: {
     permissions: {
       type: Array,
@@ -272,7 +300,13 @@ export default {
       totalBrokenRedirects: 0,
       shortenedRedirectsCurrentPage: 1,
       shortenedRedirectsItemsPerPage: 10,
-      totalShortenedRedirects: 0
+      totalShortenedRedirects: 0,
+
+      // Search results
+      brokenSearchTerm: '',
+      brokenSearchResults: [],
+      shortenedSearchTerm: '',
+      shortenedSearchResults: []
     };
   },
 
@@ -294,6 +328,35 @@ export default {
     }
   },
   methods: {
+    /**
+     * When the broken redirects search input is changed.
+     * @param evt
+     */
+    handleBrokenSearchInput: function (evt) {
+      this.brokenSearchTerm = evt.target.value;
+      if(this.brokenSearchTerm.length > 2) {
+        this.searchRedirects('broken');
+      }
+    },
+    /**
+     * When a redirect is selected from the search results
+     * @param evt
+     */
+    handleRedirectSelected: function (evt) {
+      if(this.userCanEdit) {
+        window.location.href = '/redirects/' + evt.id
+      }
+    },
+    /**
+     * When the shortened redirects search input is changed.
+     * @param evt
+     */
+    handleShortenedSearchInput: function (evt) {
+      this.shortenedSearchTerm = evt.target.value;
+      if(this.shortenedSearchTerm.length > 2) {
+        this.searchRedirects('shortened');
+      }
+    },
     /**
      * When paginator items per page is changed.
      * @param itemsPerPage
@@ -468,19 +531,46 @@ export default {
       return link.charAt(0) == "/" ? "https://www.emich.edu" + link : link;
     },
 
-    /**
-     * Filters the redirects based on the search term. Abandoned 11/7/24. If needed, uncomment and fix by sending the search term to the API.
-     * There will be potentially lots of results, so maybe only return the top n results based on the search term or something.
-     * I doubt this is used much though...
-     */
-    // filterRedirects: function () {
-    //   if(this.searchTerm.length > 3) {
-    //     this.fetchedRedirectsOfBrokenLinks = this.fetchedRedirectsOfBrokenLinks.filter((redirect) => {
-    //       return redirect.fromLink.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-    //           redirect.toLink.toLowerCase().includes(this.searchTerm.toLowerCase());
-    //     });
-    //   }
-    // }
+    searchRedirects: function (type) {
+      let self = this; // "this" loses scope within Axios.
+
+      let searchTerm = ''
+      if(type === 'broken') {
+        searchTerm = this.brokenSearchTerm
+      } else {
+        searchTerm = this.shortenedSearchTerm
+      }
+
+      if(this.brokenSearchTerm.length > 2) {
+        /* Ajax (Axios) Submission */
+        axios.get(`/api/redirects/search?searchterm=${searchTerm}&type=${type}`)
+        .then(function (response) { // Success.
+          if(type === 'broken') {
+            self.brokenSearchResults = response.data;
+          } else {
+            self.shortenedSearchResults = response.data;
+          }
+        })
+        .catch(function (error) { // Failure.
+          self.apiError.status = error.response.status;
+
+          switch (error.response.status) {
+            case 403:
+              self.apiError.message = "You do not have sufficient privileges to retrieve redirects.";
+              break;
+            case 404:
+              self.apiError.message = "Programs were not found.";
+              break;
+            case 500:
+              self.apiError.message = "An internal error occurred.";
+              break;
+            default:
+              self.apiError.message = "An error occurred.";
+              break;
+          }
+        });
+      }
+    }
   }
 };
 </script>
