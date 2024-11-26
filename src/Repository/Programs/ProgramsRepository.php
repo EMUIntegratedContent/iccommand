@@ -78,4 +78,62 @@ class ProgramsRepository extends ServiceEntityRepository{
 			->getQuery()
 			->getResult();
 	}
+	public function getColleges(): array {
+		$clgSql = "
+			SELECT *
+			FROM programs.program_colleges
+			ORDER BY college ASC
+		";
+
+		$stmt = $this->em->prepare($clgSql);
+		return $stmt->executeQuery()->fetchAllAssociative();
+	}
+
+	public function getDepartments(): array {
+		$departmentsSql = "
+			SELECT id, department
+			FROM programs.program_departments
+			ORDER BY department ASC
+		";
+
+		$stmt = $this->em->prepare($departmentsSql);
+		return $stmt->executeQuery()->fetchAllAssociative();
+	}
+
+	public function getProgTypes(): array {
+		$typesSql = "
+			SELECT *
+			FROM programs.program_types
+			ORDER BY type ASC
+		";
+
+		$stmt = $this->em->prepare($typesSql);
+		return $stmt->executeQuery()->fetchAllAssociative();
+	}
+
+	public function getDegrees(): array {
+		$degreesSql = "
+			SELECT *
+			FROM programs.program_degrees
+			ORDER BY degree ASC
+		";
+
+		$stmt = $this->em->prepare($degreesSql);
+		return $stmt->executeQuery()->fetchAllAssociative();
+	}
+
+	/**
+	 * Get all unique catalog IDs (they change every year).
+	 * @return array
+	 */
+	public function getCatalogIds(): array {
+		$catalogSql = "
+			SELECT DISTINCT catalog, catalog_id
+			FROM programs.program_programs
+			ORDER BY catalog_id ASC
+		";
+
+		$stmt = $this->em->prepare($catalogSql);
+		return $stmt->executeQuery()->fetchAllAssociative();
+	}
 }

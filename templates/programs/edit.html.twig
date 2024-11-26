@@ -8,6 +8,6 @@
 
 {% block body %}
 <div id="app">
-  <program-form :item-exists="true" start-mode="edit" prog-id="{{ id }}" :permissions="[{{ permissions }}]"></program-form>
+  <program-form :prog-exists="true" start-mode="edit" prog-id="{{ id }}" :permissions="[{{ permissions }}]"></program-form>
 </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <not-found v-if="is404 === true"></not-found>
-    <div v-if="isDataLoaded === false">
+    <not-found v-if="is404"></not-found>
+    <div v-if="!isDataLoaded">
       <p style="text-align: center;"><img src="/images/loading.gif" alt="Loading..."/></p>
     </div>
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
@@ -24,28 +24,300 @@
         <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="submitProgram"
                  :validation-schema="programSchema">
           <div class="form-group">
-            <label>Program name <span class="red">*</span></label>
+            <label>Program name <span class="red" v-if="isEditMode">*</span></label>
             <Field
-                name="programName"
+                name="progName"
                 type="text"
                 class="form-control"
-                :class="{'is-invalid': errors.program, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                :class="{'is-invalid': errors.progName, 'form-control-plaintext': !userCanEdit || !isEditMode}"
                 :readonly="!userCanEdit || !isEditMode"
-                v-model="record.program">
+                v-model="record.program"
+                @update:modelValue="formDirty = true"
+            >
             </Field>
             <div class="invalid-feedback">
-              {{ errors.program }}
+              {{ errors.progName }}
             </div>
           </div>
+          <div>
+            <template v-if="isEditMode">
+              <Field
+                name="progCatalog"
+                type="hidden"
+                v-model="record.catalog"
+              >
+                <!-- for validation purposes only -->
+              </Field>
+              <label for="selectcatalog">Catalog <span class="red">*</span></label>
+              <VueMultiselect
+                  v-model="record.catalog"
+                  :options="['undergraduate', 'graduate']"
+                  :multiple="false"
+                  :clear-on-select="true"
+                  placeholder="Select catalog"
+                  id="selectcatalog"
+                  class="form-control"
+                  style="padding:0"
+                  name="selectcatalog"
+                  :class="{ 'is-invalid': errors.progCatalog }"
+                  @update:modelValue="formDirty = true"
+              >
+              </VueMultiselect>
+              <div class="invalid-feedback">
+                {{ errors.progCatalog }}
+              </div>
+            </template>
+            <template v-else>
+              <div class="form-group">
+                <label>Catalog</label>
+                <Field
+                    v-model="record.catalog"
+                    name="catalog"
+                    type="text"
+                    class="form-control"
+                    :class="{'is-invalid': errors.catalog, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                    :readonly="true"
+                >
+                </Field>
+              </div>
+            </template>
+          </div>
+          <div>
+            <template v-if="isEditMode">
+              <Field
+                  name="progCollege"
+                  type="hidden"
+                  v-model="record.college_id"
+              >
+                <!-- for validation purposes only -->
+              </Field>
+              <label for="selectclg" class="mt-2">College <span class="red">*</span></label>
+              <VueMultiselect
+                  v-model="selectedCollege"
+                  :options="colleges"
+                  :multiple="false"
+                  :clear-on-select="true"
+                  placeholder="Select college"
+                  label="college"
+                  id="selectclg"
+                  class="form-control"
+                  :class="{ 'is-invalid': errors.progCollege }"
+                  style="padding:0"
+                  name="selectclg"
+                  @update:modelValue="formDirty = true"
+              >
+              </VueMultiselect>
+              <div class="invalid-feedback">
+                {{ errors.progCollege }}
+              </div>
+            </template>
+            <template v-else>
+              <div class="form-group">
+                <label>College</label>
+                <Field
+                    v-if="selectedCollege"
+                    v-model="selectedCollege.college"
+                    name="college"
+                    type="text"
+                    class="form-control"
+                    :class="{'is-invalid': errors.college_id, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                    :readonly="true"
+                >
+                </Field>
+              </div>
+            </template>
+          </div>
+          <div>
+            <template v-if="isEditMode">
+              <Field
+                  name="progDept"
+                  type="hidden"
+                  v-model="record.department_id"
+              >
+                <!-- for validation purposes only -->
+              </Field>
+              <label for="selectdept" class="mt-2">Department <span class="red">*</span></label>
+              <VueMultiselect
+                  v-model="selectedDepartment"
+                  :options="departments"
+                  :multiple="false"
+                  :clear-on-select="true"
+                  placeholder="Select department"
+                  label="department"
+                  id="selectdept"
+                  class="form-control"
+                  :class="{ 'is-invalid': errors.progDept }"
+                  style="padding:0"
+                  name="selectdept"
+                  @update:modelValue="formDirty = true"
+              >
+              </VueMultiselect>
+              <div class="invalid-feedback">
+                {{ errors.progDept }}
+              </div>
+            </template>
+            <template v-else>
+              <div class="form-group">
+                <label>Department</label>
+                <Field
+                    v-if="selectedDepartment"
+                    v-model="selectedDepartment.department"
+                    name="department"
+                    type="text"
+                    class="form-control"
+                    :class="{'is-invalid': errors.department_id, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                    :readonly="true"
+                >
+                </Field>
+              </div>
+            </template>
+          </div>
+          <div>
+            <template v-if="isEditMode">
+              <Field
+                  name="progType"
+                  type="hidden"
+                  v-model="record.type_id"
+              >
+                <!-- for validation purposes only -->
+              </Field>
+              <label for="selectprogtype" class="mt-2">Program Type <span class="red">*</span></label>
+              <VueMultiselect
+                  v-model="selectedProgType"
+                  :options="progTypes"
+                  :multiple="false"
+                  :clear-on-select="true"
+                  placeholder="Select program type"
+                  label="type"
+                  id="selectprogtype"
+                  class="form-control"
+                  :class="{ 'is-invalid': errors.progDept }"
+                  style="padding:0"
+                  name="selectprogtype"
+                  @update:modelValue="formDirty = true"
+              >
+              </VueMultiselect>
+              <div class="invalid-feedback">
+                {{ errors.progType }}
+              </div>
+            </template>
+            <template v-else>
+              <div class="form-group">
+                <label>Program Type</label>
+                <Field
+                    v-if="selectedProgType"
+                    v-model="selectedProgType.type"
+                    name="progtype"
+                    type="text"
+                    class="form-control"
+                    :class="{'is-invalid': errors.type_id, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                    :readonly="true"
+                >
+                </Field>
+              </div>
+            </template>
+          </div>
+          <div>
+            <template v-if="isEditMode">
+              <Field
+                  name="progDegree"
+                  type="hidden"
+                  v-model="record.degree_id"
+              >
+                <!-- for validation purposes only -->
+              </Field>
+              <label for="selectdegree" class="mt-2">Degree Classification <span class="red">*</span></label>
+              <VueMultiselect
+                  v-model="selectedDegree"
+                  :options="degrees"
+                  :multiple="false"
+                  :clear-on-select="true"
+                  placeholder="Select degree classification"
+                  label="degree"
+                  id="selectdegree"
+                  class="form-control"
+                  :class="{ 'is-invalid': errors.progDegree }"
+                  style="padding:0"
+                  name="selectdegree"
+                  @update:modelValue="formDirty = true"
+              >
+              </VueMultiselect>
+              <div class="invalid-feedback">
+                {{ errors.progDegree }}
+              </div>
+            </template>
+            <template v-else>
+              <div class="form-group">
+                <label>Degree Classification</label>
+                <Field
+                    v-if="selectedDegree"
+                    v-model="selectedDegree.degree"
+                    name="degree"
+                    type="text"
+                    class="form-control"
+                    :class="{'is-invalid': errors.degree_id, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                    :readonly="true"
+                >
+                </Field>
+              </div>
+            </template>
+          </div>
+          <div>
+            <template v-if="isEditMode">
+              <Field
+                  name="progMode"
+                  type="hidden"
+                  v-model="record.class_type"
+              >
+                <!-- for validation purposes only -->
+              </Field>
+              <label for="selectmode" class="mt-2">Mode <span class="red">*</span></label>
+              <VueMultiselect
+                  v-model="selectedMode"
+                  :options="modes"
+                  :multiple="false"
+                  :clear-on-select="true"
+                  placeholder="Select mode"
+                  label="mode"
+                  id="selectmode"
+                  class="form-control"
+                  :class="{ 'is-invalid': errors.progMode }"
+                  style="padding:0"
+                  name="selectmode"
+                  @update:modelValue="formDirty = true"
+              >
+              </VueMultiselect>
+              <div class="invalid-feedback">
+                {{ errors.progMode }}
+              </div>
+            </template>
+            <template v-else>
+              <div class="form-group">
+                <label>Mode</label>
+                <Field
+                    v-if="selectedMode"
+                    v-model="selectedMode.mode"
+                    name="mode"
+                    type="text"
+                    class="form-control"
+                    :class="{'is-invalid': errors.class_type, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                    :readonly="true"
+                >
+                </Field>
+              </div>
+            </template>
+          </div>
           <div class="form-group">
-            <label>Program website</label>
+            <label class="mt-2">Website</label>
             <Field
                 name="programUrl"
                 type="text"
                 class="form-control"
                 :class="{'is-invalid': errors.url, 'form-control-plaintext': !userCanEdit || !isEditMode}"
                 :readonly="!userCanEdit || !isEditMode"
-                v-model="record.url">
+                v-model="record.url"
+                @update:modelValue="formDirty = true"
+            >
             </Field>
             <div class="invalid-feedback">
               {{ errors.url }}
@@ -67,6 +339,7 @@
           </div>
           <!-- Action Buttons -->
           <div v-if="userCanEdit && isEditMode" aria-label="action buttons" class="mb-4">
+            <p v-if="formDirty" class="red">You have unsaved changes.</p>
             <p v-if="isSaveFailed" class="red">Error saving this program. {{ apiError.message }}</p>
             <button type="submit" class="btn btn-success"><i class="fa fa-save fa-2x"></i></button>
             <button
@@ -115,7 +388,14 @@ export default {
 
     if (this.progId) {
       this.fetchProgram(this.progId);
+    } else {
+      this.currentStatus = STATUS_INITIAL
+      this.isDataLoaded = true
     }
+    this.fetchColleges();
+    this.fetchDepts();
+    this.fetchProgTypes();
+    this.fetchDegrees();
   },
 
   components: { Heading, VueMultiselect, ProgramDeleteModal, NotFound, Field, VeeForm, ErrorMessage },
@@ -153,16 +433,26 @@ export default {
         message: null,
         status: null
       },
+      colleges: [],
+      degrees: [],
+      departments: [],
       is404: false,
       isDeleteError: false,
       isDataLoaded: false,
       isDeleted: false,
       isEditMode: false, // This is true if the forms are editable.
+      modes: [{ id: 0, mode: "In-Person/Hybrid" }, { id: 1, mode: "Online" }, { id: 2, mode: "Hyflex" }],
+      progTypes: [],
       record: {
-        id: "",
-        program: "",
-        catalog: ""
+        id: 0,
+        program: null,
+        catalog: null,
+        department_id: null,
+        class_type: null,
+        type_id: null,
+        degree_id: null
       },
+      formDirty: false,
       success: false,
       successMessage: "",
     }
@@ -175,15 +465,18 @@ export default {
     isSaveFailed () {
       return this.currentStatus === STATUS_SAVE_FAILED;
     },
-
     programSchema () {
       let yupObj = {
-        programName: Yup.string().required().label('Program name '),
-        // toLink: Yup.string().required().label('To link ')
+        progName: Yup.string().required().label('Program name '),
+        progCatalog: Yup.string().required().label('Catalog '),
+        progCollege: Yup.number().required().label('College '),
+        progDept: Yup.number().required().label('Department '),
+        progType: Yup.number().required().label('Program Type '),
+        progDegree: Yup.number().required().label('Degree Classification '),
+        progMode: Yup.number().required().label('Mode ')
       }
       return Yup.object(yupObj)
     },
-
     /**
      * Gets the heading icon.
      * @return {string} The heading icon.
@@ -216,7 +509,52 @@ export default {
     userCanEdit: function () {
       return ((this.progExists && this.permissions[0].user)
           || (!this.progExists && this.permissions[0].user)) ? true : false;
-    }
+    },
+    // for the multiselect since it can't bind directly to the record.college_id without the full object
+    selectedCollege: ({
+      get() {
+        return this.colleges.find(d => d.id === this.record.college_id) || null;
+      },
+      set(newValue) {
+        this.record.college_id = newValue ? newValue.id : null;
+      }
+    }),
+    // for the multiselect since it can't bind directly to the record.department_id without the full object
+    selectedDepartment: ({
+      get() {
+        return this.departments.find(dept => dept.id === this.record.department_id) || null;
+      },
+      set(newValue) {
+        this.record.department_id = newValue ? newValue.id : null;
+      }
+    }),
+    // for the multiselect since it can't bind directly to the record.class_type without the full object
+    selectedMode: ({
+      get() {
+        return this.modes.find(mode => mode.id === this.record.class_type) || null;
+      },
+      set(newValue) {
+        this.record.class_type = newValue ? newValue.id : null;
+      }
+    }),
+    // for the multiselect since it can't bind directly to the record.type_id without the full object
+    selectedProgType: ({
+      get() {
+        return this.progTypes.find(mode => mode.id === this.record.type_id) || null;
+      },
+      set(newValue) {
+        this.record.type_id = newValue ? newValue.id : null;
+      }
+    }),
+    // for the multiselect since it can't bind directly to the record.degree_id without the full object
+    selectedDegree: ({
+      get() {
+        return this.degrees.find(d => d.id === this.record.degree_id) || null;
+      },
+      set(newValue) {
+        this.record.degree_id = newValue ? newValue.id : null;
+      }
+    })
   },
 
   methods: {
@@ -224,6 +562,7 @@ export default {
      * Goes to edit mode after submitting the new program.
      */
     afterSubmitSucceeds: function () {
+      this.formDirty = false
       // Since the new item has been submitted, go to edit mode.
       if (!this.progExists) {
         this.success = true;
@@ -256,6 +595,62 @@ export default {
           self.is404 = true;
           self.isDataLoaded = true;
         }
+      });
+    },
+
+    /**
+     * Get the list of colleges
+     */
+    fetchColleges: function () {
+      const self = this
+      axios.get("/api/programs/colleges")
+      .then(function (response) { // Success.
+        self.colleges = response.data;
+      })
+      .catch(function (error) { // Failure.
+        console.log(error)
+      });
+    },
+
+    /**
+     * Get the list of departments
+     */
+    fetchDepts: function () {
+      const self = this
+      axios.get("/api/programs/departments")
+      .then(function (response) { // Success.
+        self.departments = response.data;
+      })
+      .catch(function (error) { // Failure.
+        console.log(error)
+      });
+    },
+
+    /**
+     * Get the list of program types
+     */
+    fetchProgTypes: function () {
+      const self = this
+      axios.get("/api/programs/types")
+      .then(function (response) { // Success.
+        self.progTypes = response.data;
+      })
+      .catch(function (error) { // Failure.
+        console.log(error)
+      });
+    },
+
+    /**
+     * Get the list of degrees
+     */
+    fetchDegrees: function () {
+      const self = this
+      axios.get("/api/programs/degrees")
+      .then(function (response) { // Success.
+        self.degrees = response.data;
+      })
+      .catch(function (error) { // Failure.
+        console.log(error)
       });
     },
 
@@ -317,8 +712,6 @@ export default {
     toggleEdit: function () {
       (this.isEditMode === true) ? this.isEditMode = false : this.isEditMode = true;
     }
-  },
-
-  filters: {}
+  }
 };
 </script>

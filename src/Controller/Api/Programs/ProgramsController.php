@@ -125,6 +125,62 @@ class ProgramsController extends AbstractFOSRestController{
 	}
 
 	/**
+	 * Get all colleges
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/colleges', methods: ['GET'])]
+	public function progCollegesAction(Request $request): Response{
+		$colleges = $this->service->getColleges();
+
+		$serialized = $this->serializer->serialize($colleges, "json");
+
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Get all departments
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/departments', methods: ['GET'])]
+	public function progDeptsAction(Request $request): Response{
+		$depts = $this->service->getDepartments();
+
+		$serialized = $this->serializer->serialize($depts, "json");
+
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Get all program types
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/types', methods: ['GET'])]
+	public function progTypesAction(Request $request): Response{
+		$progTypes = $this->service->getProgTypes();
+
+		$serialized = $this->serializer->serialize($progTypes, "json");
+
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Get all degrees
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/degrees', methods: ['GET'])]
+	public function degreesAction(Request $request): Response{
+		$degrees = $this->service->getDegrees();
+
+		$serialized = $this->serializer->serialize($degrees, "json");
+
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
+
+	/**
 	 * Gets the program website by the specified ID.
 	 * @param $id // The ID of the website.
 	 * @return Response The program, the status code, and the HTTP headers.
@@ -157,34 +213,49 @@ class ProgramsController extends AbstractFOSRestController{
 	}
 
 	/**
-	 * TODO: new programs need much more information than when editing a program. See if they need this.
 	 * Posts the new program from the specified request.
 	 * @param Request $request The holder of the information about the new program.
 	 * @return Response The program, the status code, and the HTTP headers.
 	 */
 	#[Route('/', methods: ['POST'])]
 	public function postProgramAction(Request $request): Response{
-//        $catalog = strtolower($request->request->get("catalog"));
-//
-//        $program = new Programs();
-//        $program->setProgram($request->request->get("program"));
-//        $program->setCatalog($catalog);
-//
-//        $errors = $this->service->validate($program); // Validate the program.
-//
-//        if (count($errors) > 0) {
-//            // Do the following if there is more than one error.
-//            $serialized = $this->serializer->serialize($errors, "json");
-//
-//            return new Response($serialized, 422, array("Content-Type" => "application/json"));
-//        }
-//
-//        $this->em->persist($program); // Persist the program.
-//        $this->em->flush(); // Commit everything to the database.
-//
-//        $serialized = $this->serializer->serialize($program, "json");
-//
-//        return new Response($serialized, 201, array("Content-Type" => "application/json"));
+		$catalog = strtolower($request->request->get("catalog"));
+		$progName = $request->request->get("program");
+		$url = strtolower($request->request->get("url"));
+
+		$program = new Programs();
+		// Get the max id and increment by 1
+
+		$program->setProgram($progName);
+		$program->setFullName($progName);
+		$program->setCatalog($catalog);
+		$program->setClassType($request->request->get("class_type"));
+		$program->setDepartmentId($request->request->get("department_id"));
+		$program->setDegreeId($request->request->get("degree_id"));
+		$program->setTypeId($request->request->get("type_id"));
+		$program->setClassType($request->request->get("class_type"));
+		$program->setCollegeId($request->request->get("college_id"));
+		$program->setSlug($this->service->makeProgramSlug($progName));
+		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
+
+		$errors = $this->service->validate($program); // Validate the program.
+
+		if (count($errors) > 0) {
+				// Do the following if there is more than one error.
+				$serialized = $this->serializer->serialize($errors, "json");
+
+				return new Response($serialized, 422, array("Content-Type" => "application/json"));
+		}
+
+		$this->em->persist($program); // Persist the program.
+		$this->em->flush(); // Commit everything to the database.
+
+		// Update the program website information
+		$this->service->updateProgWebsite('', $progName, $url);
+
+		$serialized = $this->serializer->serialize($program, "json");
+
+		return new Response($serialized, 201, array("Content-Type" => "application/json"));
 	}
 
 	/**
@@ -234,6 +305,14 @@ class ProgramsController extends AbstractFOSRestController{
 		$origProgName = $progOrig->getProgram();
 		$program->setProgram($progName);
 		$program->setCatalog($catalog);
+		$program->setFullName($progName);
+		$program->setClassType($request->request->get("class_type"));
+		$program->setDepartmentId($request->request->get("department_id"));
+		$program->setDegreeId($request->request->get("degree_id"));
+		$program->setTypeId($request->request->get("type_id"));
+		$program->setClassType($request->request->get("class_type"));
+		$program->setCollegeId($request->request->get("college_id"));
+		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
 
 		$errors = $this->service->validate($program); // Validate the program.
 

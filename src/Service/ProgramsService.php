@@ -133,6 +133,56 @@ class ProgramsService {
 //	}
 
 	/**
+	 * Get all colleges.
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getColleges()
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Programs::class);
+		return $repository->getColleges();
+	}
+
+	/**
+	 * Get all departments.
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getDepartments()
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Programs::class);
+		return $repository->getDepartments();
+	}
+
+	/**
+	 * Get all program types.
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getProgTypes()
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Programs::class);
+		return $repository->getProgTypes();
+	}
+
+	/**
+	 * Get all degrees.
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getDegrees() {
+		$repository = $this->doctrine->getRepository(Programs::class);
+		return $repository->getDegrees();
+	}
+
+	/**
 	 * Get websites based on LIKE program name.
 	 * @param $searchTerm
 	 * @return array
@@ -189,26 +239,32 @@ class ProgramsService {
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
-	public function updateProgWebsite($origName, $newName, $url = null): ?ProgramWebsites {
+	public function updateProgWebsite($origName, $newName, $url = null): ?ProgramWebsites{
 		// Case 1. If there is a program without a URL. See if there is a website record with that program name and remove the record
 		// Case 2. If there is a program with a URL. See if there is a website record with that program name. If there is, update the record. If there isn't, create a new record.
 
 		// Strip out any host information from the URL
-		if($url) {
+		if($url){
 			$parsedUrl = parse_url($url);
 
-			if (array_key_exists("host", $parsedUrl) && preg_match("/emich\.edu/", $parsedUrl["host"])) {
-				if ($parsedUrl["path"][0] != "/") {
-					$url = "/" . $parsedUrl["path"];
-				} else {
+			if(array_key_exists("host", $parsedUrl) && preg_match("/emich\.edu/", $parsedUrl["host"])){
+				if($parsedUrl["path"][0] != "/"){
+					$url = "/".$parsedUrl["path"];
+				}
+				else{
 					$url = $parsedUrl["path"];
 				}
-			} else if (!array_key_exists("host", $parsedUrl) && $parsedUrl["path"][0] != "/") {
-				$url = "/" . $parsedUrl["path"];
+			}
+			else if(!array_key_exists("host", $parsedUrl) && $parsedUrl["path"][0] != "/"){
+				$url = "/".$parsedUrl["path"];
 			}
 		}
 
-		$website = $this->getWebsiteByProg($origName);
+		$website = null;
+		if($origName !== ''){
+			$website = $this->getWebsiteByProg($origName);
+		}
+
 		if($website && !$url){
 			$this->em->remove($website);
 		} else if ($website && $url) {
@@ -224,5 +280,35 @@ class ProgramsService {
 		$this->em->flush();
 
 		return $this->getWebsiteByProg($newName);
+	}
+
+	/**
+	 * Each year, the ids for undergraduate and graduate catalogs change. Return the id of the catalog based on the catalog name passed.
+	 * @param $catalog
+	 * @return int|null
+	 */
+	public function getCatalogIdFromName ($catalog) {
+		$repository = $this->doctrine->getRepository(Programs::class);
+		$catRows = $repository->getCatalogIds();
+		$catId = null;
+		foreach($catRows as $catRow){
+			if($catRow['catalog'] == $catalog){
+				$catId = $catRow['catalog_id'];
+			}
+		}
+		return $catId;
+	}
+
+	/**
+	 * Create a slug based on the name of the program.
+	 * @param $programName
+	 * @return string
+	 */
+	public function makeProgramSlug($programName){
+		$slug = strtolower($programName);
+		$slug = preg_replace('/[^a-z0-9]/', '-', $slug);
+		$slug = preg_replace('/-+/', '-', $slug);
+		$slug = trim($slug, '-');
+		return $slug;
 	}
 }
