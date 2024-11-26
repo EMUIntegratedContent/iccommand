@@ -15,7 +15,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 	protected Connection $em;
 	public function __construct(ManagerRegistry $registry){
 		parent::__construct($registry, Programs::class);
-		$this->em = $this->getEntityManager()->getConnection();
+		$this->em = $registry->getManager('programs')->getConnection();
 	}
 
 	public function getProgram($id) {
