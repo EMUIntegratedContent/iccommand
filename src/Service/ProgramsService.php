@@ -121,6 +121,17 @@ class ProgramsService {
 		return $repository->paginatedWebsites($currentPage, $pageSize);
 	}
 
+//	/**
+//	 * Get programs that are unaffiliated with a website.
+//	 * @return array
+//	 * @throws \Doctrine\ORM\NoResultException
+//	 * @throws \Doctrine\ORM\NonUniqueResultException
+//	 */
+//	public function getWebsitesUnaffiliated() {
+//		$repository = $this->doctrine->getRepository(ProgramWebsites::class);
+//		return $repository->unaffiliatedProgs();
+//	}
+
 	/**
 	 * Get websites based on LIKE program name.
 	 * @param $searchTerm

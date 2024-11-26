@@ -4,6 +4,7 @@ namespace App\Entity\Programs;
 
 use App\Repository\Programs\ProgramWebsitesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProgramWebsitesRepository::class)]
 #[ORM\Table(name: 'program_websites', schema: 'programs')]
@@ -14,6 +15,7 @@ class ProgramWebsites{
 	private ?int $id = null;
 
 	#[ORM\Column(length: 255, unique: true)]
+	#[Assert\Unique(message: 'This program already has a website.')]
 	private ?string $program = null;
 
 	#[ORM\Column(length: 255)]

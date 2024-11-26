@@ -94,6 +94,20 @@ class ProgramsController extends AbstractFOSRestController{
 		return new Response($serialized, 200, array("Content-Type" => "application/json"));
 	}
 
+//	/**
+//	 * Get all programs from the catalogs that aren't affiliated with a website
+//	 * @param Request $request
+//	 * @return Response
+//	 */
+//	#[Route('/websites/unaffiliated', methods: ['GET'])]
+//	public function getWebsitesUnaffiliatedAction(Request $request): Response{
+//		$unaffiliated = $this->service->getWebsitesUnaffiliated();
+//
+//		$serialized = $this->serializer->serialize($unaffiliated, "json");
+//
+//		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+//	}
+
 	/**
 	 * Filter out program websites by name
 	 * @param Request $request
@@ -174,6 +188,36 @@ class ProgramsController extends AbstractFOSRestController{
 	}
 
 	/**
+	 * Updates the website from the specified request.
+	 * @param Request $request The holder of the information about the updated website.
+	 * @return Response The website, the status code, and the HTTP headers.
+	 */
+	#[Route('/websites/', methods: ['PUT'])]
+	public function putWebsiteAction(Request $request): Response{
+		$id = $request->request->get("id");
+		$progName = $request->request->get("program");
+		$url = strtolower($request->request->get("url"));
+
+		// Make sure there isn't already a website with the same program name.
+		$existing = $this->service->getWebsiteByProg($progName);
+		if($existing && $existing->getId() != $id){
+			$url = $existing->getUrl();
+			return new Response("This program already has a website ($url).", 422, array("Content-Type" => "application/json"));
+		}
+
+		$website = $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
+		$website->setProgram($progName);
+		$website->setUrl($url);
+
+		$this->em->persist($website); // Persist the program.
+		$this->em->flush(); // Commit everything to the database.
+
+		$serialized = $this->serializer->serialize($this->service->getWebsite($id), "json");
+
+		return new Response($serialized, 201, array("Content-Type" => "application/json"));
+	}
+
+	/**
 	 * Updates the program from the specified request.
 	 * @param Request $request The holder of the information about the updated program.
 	 * @return Response The program, the status code, and the HTTP headers.
@@ -209,6 +253,21 @@ class ProgramsController extends AbstractFOSRestController{
 		$serialized = $this->serializer->serialize($this->service->getProgram($id), "json");
 
 		return new Response($serialized, 201, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Deletes the website from the specified ID.
+	 * @param $id // The ID of the website.
+	 * @return Response The message of the deleted website, the status code, and the HTTP headers.
+	 */
+	#[Route('/websites/{id}', methods: ['DELETE'])]
+	public function deleteWebsiteAction($id): Response{
+		$website = $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
+
+		$this->em->remove($website);
+		$this->em->flush();
+
+		return new Response("Website has been deleted.", 204, array("Content-Type" => "application/json"));
 	}
 
 	/**

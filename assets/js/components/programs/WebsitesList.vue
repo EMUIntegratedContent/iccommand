@@ -6,6 +6,16 @@
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>
+    <div>
+      <p>
+        This is a list of all emich.edu websites that are affiliated with current and previous catalog programs.
+        If you see a <span class="badge badge-info">UN</span> label in the row it means that the program is not in the current year's catalog.
+      </p>
+      <p>
+        Clicking the <i class="fa fa-eye"></i> icon will take you to the program page if the program is in the current year's catalog. From there, you can update the URL for this program.
+        For unaffiliated programs, you will be taken to the website's edit page where you can update the program name or delete the website record.
+      </p>
+    </div>
     <div id="accordion">
       <div class="card">
         <div class="card-header" id="headingWebsites">
@@ -167,7 +177,7 @@ export default {
         if(evt.prog_id) {
           window.location.href = '/programs/' + evt.prog_id
         } else {
-          window.location.href = '/programs/websites' + evt.id
+          window.location.href = '/programs/websites/' + evt.id
         }
       }
     },

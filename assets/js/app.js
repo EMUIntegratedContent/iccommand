@@ -84,6 +84,7 @@ app.component("programs-index", require("./components/programs/ProgramsIndex.vue
 app.component("programs-list", require("./components/programs/ProgramsList.vue").default);
 app.component("program-form", require("./components/programs/ProgramForm.vue").default);
 app.component("websites-list", require("./components/programs/WebsitesList.vue").default);
+app.component("website-form", require("./components/programs/WebsiteForm.vue").default);
 
 app.use(CKEditor)
 app.mount('#app')

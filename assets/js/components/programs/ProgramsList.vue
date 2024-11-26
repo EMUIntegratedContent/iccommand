@@ -6,6 +6,11 @@
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>
+    <div>
+      <p>
+        This is a list of all programs that are in the current year's course catalog, divided into undergraduate and graduate views. The list does NOT include previous year's programs.
+      </p>
+    </div>
     <div id="accordion">
       <div class="card">
         <div class="card-header" id="headingUgPrograms">
@@ -144,7 +149,7 @@
                   <td>
                     {{ grad.program }}
                   </td>
-                  <td>TODO</td>
+                  <td>{{ grad.url }}</td>
                   <td>
                     <a v-if="userCanEdit" :href="'/programs/' + grad.id"><i class="fa fa-eye"></i></a>
                   </td>

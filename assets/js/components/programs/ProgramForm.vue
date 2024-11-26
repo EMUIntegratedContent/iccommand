@@ -24,7 +24,7 @@
         <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="submitProgram"
                  :validation-schema="programSchema">
           <div class="form-group">
-            <label>Program name</label>
+            <label>Program name <span class="red">*</span></label>
             <Field
                 name="programName"
                 type="text"

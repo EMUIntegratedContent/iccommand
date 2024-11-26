@@ -64,15 +64,18 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 
 		$stmt = $this->em->prepare($websitesSql);
 		return $stmt->executeQuery(['searchTerm' => "%$searchTerm%"])->fetchAllAssociative();
-
-//		return $this->createQueryBuilder('w')
-//			->select('w.id, CONCAT(w.url, \' -> \', w.program) AS display')
-//			->where('w.program LIKE :searchTerm')
-//			->orWhere('w.url LIKE :searchTerm')
-//			->orderBy('w.url, w.program', 'ASC')
-//			->setMaxResults(30)
-//			->setParameter('searchTerm', '%'.$searchTerm.'%')
-//			->getQuery()
-//			->getResult();
 	}
+
+//	public function unaffilatedProgs(): array{
+//		$websitesSql = "
+//			SELECT p.*
+//			FROM programs.program_programs p
+//			LEFT JOIN programs.program_websites w ON p.program = w.program
+//			WHERE w.program IS NULL
+//			ORDER BY p.program ASC
+//		";
+//
+//		$stmt = $this->em->prepare($websitesSql);
+//		return $stmt->executeQuery()->fetchAllAssociative();
+//	}
 }
