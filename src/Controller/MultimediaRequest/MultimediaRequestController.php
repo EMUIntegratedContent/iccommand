@@ -3,6 +3,7 @@
 namespace App\Controller\MultimediaRequest;
 
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -42,8 +43,7 @@ class MultimediaRequestController extends AbstractController
 	}
 
 	#[Route('/multimediarequests/manage', name: 'multimediarequests_manage')]
-	#[IsGranted('ROLE_MULTIMEDIA_ADMIN')]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_ADMIN")'))]
 	public function manage()
 	{
 		return $this->render('multimedia_request/manage.html.twig', []);

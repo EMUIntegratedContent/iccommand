@@ -5,6 +5,7 @@ namespace App\Controller\Api\MultimediaRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,8 +35,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
 	 * Get all multimedia request assignees
 	 */
 	#[Rest\Get(path: "/")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getMultimediaassigneesAction(): Response
 	{
 		$assignees = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->findBy([], ['lastName' => 'asc']);
@@ -48,8 +48,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
 	 * Get all multimedia request assignees by type
 	 */
 	#[Rest\Get(path: "/type/{type}", defaults: ['type' => null])]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getMultimediaassigneesByTypeAction($type): Response
 	{
 		$filteredAssignees = [];
@@ -72,8 +71,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
 	 * Get all status options for a multimedia request assignee
 	 */
 	#[Rest\Get(path: "/statuses")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_ADMIN")'))]
 	public function getMultimediaassigneestatusesAction(): Response
 	{
 		$statuses = $this->doctrine->getRepository(MultimediaRequestAssigneeStatus::class)->findBy([], ['statusSlug' => 'asc']);
@@ -86,8 +84,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
 	 * Get a single request assignee
 	 */
 	#[Rest\Get(path: "/{id}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getMultimediaassigneeAction($id): Response
 	{
 		$assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->findOneBy(['id' => $id]);
@@ -103,8 +100,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
 	 * Save a multimedia request assignee to the database
 	 */
 	#[Rest\Post()]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_ADMIN")'))]
 	public function postMultimediaassigneeAction(Request $request): Response
 	{
 		$assignee = new MultimediaRequestAssignee();
@@ -140,8 +136,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
 	 * Update a multimedia request assignee to the database
 	 */
 	#[Rest\Put()]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_ADMIN")'))]
 	public function putMultimediaassigneeAction(Request $request): Response
 	{
 		$assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->find($request->request->get('id'));
@@ -177,8 +172,7 @@ class MultimediaRequestAssigneeController extends AbstractFOSRestController
 	 * Delete a multimedia request assignee from the database
 	 */
 	#[Rest\Delete(path: "{id}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_ADMIN")'))]
 	public function deleteMultimediaassigneeAction($id): Response
 	{
 		$assignee = $this->doctrine->getRepository(MultimediaRequestAssignee::class)->find($id);

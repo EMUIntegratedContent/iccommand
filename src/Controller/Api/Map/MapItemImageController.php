@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Serializer\Serializer;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,8 +37,7 @@ class MapItemImageController extends AbstractFOSRestController
 	 * Process new image uploads
 	 */
 	#[Rest\Post(path: "/uploads")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MAP_IMAGE_UPLOAD')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_UPLOAD")'))]
 	public function postMapitemimageUploadAction(Request $request): Response
 	{
 		$images = $request->files->get('uploadFiles');
@@ -62,8 +62,7 @@ class MapItemImageController extends AbstractFOSRestController
 	 * Reorder the images for a map item
 	 */
 	#[Rest\Put(path: "/reorder")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MAP_EDIT')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_EDIT")'))]
 	public function putMapitemimageReorderAction(Request $request): Response
 	{
 		$idArray = $request->get('imageIds');
@@ -87,8 +86,7 @@ class MapItemImageController extends AbstractFOSRestController
 	 * Rename a single image for a map item
 	 */
 	#[Rest\Put(path: "/rename")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MAP_EDIT')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_EDIT")'))]
 	public function putMapitemimageRenameAction(Request $request): Response
 	{
 		$imageArr = $request->get('image');
@@ -112,8 +110,7 @@ class MapItemImageController extends AbstractFOSRestController
 	 * Delete a single image for a map item
 	 */
 	#[Rest\Delete(path: "/{id}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MAP_DELETE')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_DELETE")'))]
 	public function deleteMapitemimageAction($id): Response
 	{
 		$image = $this->doctrine->getRepository(MapitemImage::class)->find($id); // find the matching image

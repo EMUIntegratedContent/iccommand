@@ -5,6 +5,7 @@
 namespace App\Controller\Api;
 
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,8 +23,7 @@ class EmailController extends AbstractFOSRestController
 	}
 
 	#[Route('/sendemail/multimediaassigneenotify', methods: ['POST'])]
-	#[IsGranted('ROLE_MULTIMEDIA_EMAIL')]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_EMAIL")'))]
 	public function postSendemailMultimediaassigneenotifyAction(Request $request): Response
 	{
 		$message = (new Email())
