@@ -28,7 +28,6 @@ security:
             logout:
                 path: /logout
 
-
     # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
 #    firewalls:
 #        dev:
