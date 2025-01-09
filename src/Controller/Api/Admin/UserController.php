@@ -3,6 +3,7 @@ namespace App\Controller\Api\Admin;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -58,8 +59,7 @@ class UserController extends AbstractFOSRestController {
 	 * Return all defined roles
 	 */
 	#[Rest\Get(path: "/roles")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MAP_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
 	public function getRolesAction() : Response
 	{
 		$roles = $this->getParameter('security.role_hierarchy.roles');
@@ -98,8 +98,7 @@ class UserController extends AbstractFOSRestController {
 	 * Return all users of an application
 	 */
 	#[Rest\Get(path: "/appusers/{rolePrefix}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MAP_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
 	public function getAppusersAction(string $rolePrefix) : Response
 	{
 		$mapAppUsers = $this->doctrine->getRepository(User::class)->findByLikeRole($rolePrefix);
@@ -112,8 +111,7 @@ class UserController extends AbstractFOSRestController {
 	 * Return all users that are NOT part of an application
 	 */
 	#[Rest\Get(path: "/appusers/not/{rolePrefix}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MAP_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
 	public function getAppusersNotAction(string $rolePrefix) : Response
 	{
 		$mapAppUsers = $this->doctrine->getRepository(User::class)->findByLikeRole($rolePrefix, true);

@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Service\MultimediaRequestService;
@@ -153,8 +154,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Get all multimedia requests (by optional type)
 	 */
 	#[Rest\Get(path: "/list/{type?}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getMultimediarequestsListAction(?string $type = null): Response{
 		$mmRequests = match ($type) {
 			'headshot' => $this->doctrine->getRepository(HeadshotRequest::class)->findBy([], ['created' => 'asc']),
@@ -172,8 +172,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Get a single request
 	 */
 	#[Rest\Get(path: "/request/{id}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getMultimediarequestAction($id): Response{
 		$mmRequest = $this->doctrine->getRepository(MultimediaRequest::class)->findOneBy(['id' => $id]);
 		if(!$mmRequest){
@@ -187,8 +186,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	/**
 	 * Get all photo request types
 	 */
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getPhotorequestTypesAction(): Response{
 		$types = $this->doctrine->getRepository(PhotoRequestType::class)->findBy([], ['slug' => 'asc']);
 
@@ -200,8 +198,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Get all publication request types
 	 */
 	#[Rest\Get(path: "/pubtypes")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getPublicationrequestTypesAction(): Response{
 		$types = $this->doctrine->getRepository(PublicationRequestType::class)->findBy([], ['slug' => 'asc']);
 
@@ -213,8 +210,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Get all status options for a multimedia request
 	 */
 	#[Rest\Get(path: "/statuses")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getMultimediarequestStatusesAction(): Response{
 		$statuses = $this->doctrine->getRepository(MultimediaRequestStatus::class)->findBy([], ['statusSlug' => 'asc']);
 
@@ -226,8 +222,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Get headshot time slots for a specific date
 	 */
 	#[Rest\Get(path: "/headshotdates/{year}/{month}/{day}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getMultimediarequestHeadshotdatesAction($year, $month, $day): Response{
 		$dateOfShoot = Carbon::parse("$year-$month-$day");
 		$timeSlots = $this->doctrine->getRepository(PhotoHeadshotDate::class)->findBy(['dateOfShoot' => $dateOfShoot], ['startTime' => 'asc']);
@@ -240,8 +235,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Get headshot time slots
 	 */
 	#[Rest\Get(path: "/headshotdates/slots/{withPast?}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_VIEW')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_VIEW")'))]
 	public function getMultimediarequestHeadshottimeslotsAction(bool $withPast = false): Response{
 		// Get all future headshot time slots (query in repository).
 		$timeSlots = $withPast ?
@@ -260,8 +254,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Add a headshot time slot to the database
 	 */
 	#[Rest\Post(path: "/headshotdates")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_ADMIN")'))]
 	public function postMultimediarequestHeadshotdateAction(Request $request): Response{
 		$headshotDate = new PhotoHeadshotDate();
 
@@ -288,8 +281,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Update a multimedia request to the database
 	 */
 	#[Rest\Put()]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_EDIT')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_EDIT")'))]
 	public function putMultimediarequestAction(Request $request): Response{
 		$mmRequest = $this->doctrine->getRepository(MultimediaRequest::class)->find($request->request->get('id'));
 
@@ -402,8 +394,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Update a headshot time slot to the database
 	 */
 	#[Rest\Put(path: "/headshotdates")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_ADMIN")'))]
 	public function putMultimediarequestHeadshotdateAction(Request $request): Response{
 		$headshotDate = $this->doctrine->getRepository(PhotoHeadshotDate::class)->find($request->request->get('id'));
 
@@ -430,8 +421,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Delete a multimedia request from the database
 	 */
 	#[Rest\Delete(path: "/request/{id}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_DELETE')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_DELETE")'))]
 	public function deleteMultimediarequestAction($id): Response{
 		$mmRequest = $this->doctrine->getRepository(MultimediaRequest::class)->find($id);
 
@@ -445,8 +435,7 @@ class MultimediaRequestController extends AbstractFOSRestController{
 	 * Delete a headshot time slot from the database
 	 */
 	#[Rest\Delete(path: "/headshotdates/{id}")]
-	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	#[IsGranted('ROLE_MULTIMEDIA_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_ADMIN")'))]
 	public function deleteMultimediarequestHeadshotdateAction($id): Response{
 		$timeSlot = $this->doctrine->getRepository(PhotoHeadshotDate::class)->find($id);
 
