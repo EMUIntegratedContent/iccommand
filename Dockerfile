@@ -15,10 +15,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN a2enmod rewrite
 
 # Copy the Apache virtual host configuration file to the container
-COPY docker_vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY ./docker_vhost.conf /etc/apache2/sites-available/000-default.conf
 
 # Copy the shell script into the container
-COPY docker_postscript.sh /usr/local/bin/docker_postscript.sh
+COPY ./docker_postscript.sh /usr/local/bin/docker_postscript.sh
 
 # Set executable permissions for the shell script
 RUN chmod +x /usr/local/bin/docker_postscript.sh

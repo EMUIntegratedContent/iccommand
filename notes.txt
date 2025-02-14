@@ -1,3 +1,6 @@
+Docker on Windows:
+- If you're using Docker on Windows, be sure the docker_postscript.sh file has 'LF' line endings (not 'CRLF') or it will not run properly.
+
 Doctrine inheritance mapping
 http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/inheritance-mapping.html#mapped-superclasses
 
