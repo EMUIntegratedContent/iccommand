@@ -23,7 +23,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 		$programSql = "
 			SELECT p.*, w.id AS website_id, w.url
 			FROM programs.program_programs p
-			LEFT JOIN programs.program_websites w ON p.program = w.program
+			LEFT JOIN programs.program_websites w ON p.full_name = w.program
 			WHERE p.id = :id
 		";
 
@@ -41,9 +41,9 @@ class ProgramsRepository extends ServiceEntityRepository{
 		$programSql = "
 			SELECT p.*, w.id AS website_id, w.url
 			FROM programs.program_programs p
-			JOIN programs.program_websites w ON p.program = w.program
+			LEFT JOIN programs.program_websites w ON p.full_name = w.program
 			WHERE p.catalog = :catalog
-			ORDER BY p.program ASC
+			ORDER BY p.full_name ASC
 			LIMIT $offset, $pageSize
 		";
 
@@ -70,8 +70,8 @@ class ProgramsRepository extends ServiceEntityRepository{
 		// Build the query for getting paginated records
 		return $this->createQueryBuilder('p')
 			->where('p.catalog = :catalog')
-			->andWhere('p.program LIKE :searchTerm')
-			->orderBy('p.program', 'ASC')
+			->andWhere('p.full_name LIKE :searchTerm')
+			->orderBy('p.full_name', 'ASC')
 			->setMaxResults(30)
 			->setParameter('catalog', $catalog)
 			->setParameter('searchTerm', '%'.$searchTerm.'%')

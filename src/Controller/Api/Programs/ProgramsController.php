@@ -94,20 +94,6 @@ class ProgramsController extends AbstractFOSRestController{
 		return new Response($serialized, 200, array("Content-Type" => "application/json"));
 	}
 
-//	/**
-//	 * Get all programs from the catalogs that aren't affiliated with a website
-//	 * @param Request $request
-//	 * @return Response
-//	 */
-//	#[Route('/websites/unaffiliated', methods: ['GET'])]
-//	public function getWebsitesUnaffiliatedAction(Request $request): Response{
-//		$unaffiliated = $this->service->getWebsitesUnaffiliated();
-//
-//		$serialized = $this->serializer->serialize($unaffiliated, "json");
-//
-//		return new Response($serialized, 200, array("Content-Type" => "application/json"));
-//	}
-
 	/**
 	 * Filter out program websites by name
 	 * @param Request $request
@@ -220,6 +206,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/', methods: ['POST'])]
 	public function postProgramAction(Request $request): Response{
 		$catalog = strtolower($request->request->get("catalog"));
+		$progFullName = $request->request->get("full_name");
 		$progName = $request->request->get("program");
 		$url = strtolower($request->request->get("url"));
 
@@ -227,7 +214,7 @@ class ProgramsController extends AbstractFOSRestController{
 		// Get the max id and increment by 1
 
 		$program->setProgram($progName);
-		$program->setFullName($progName);
+		$program->setFullName($progFullName);
 		$program->setCatalog($catalog);
 		$program->setClassType($request->request->get("class_type"));
 		$program->setDepartmentId($request->request->get("department_id"));
@@ -251,7 +238,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->flush(); // Commit everything to the database.
 
 		// Update the program website information
-		$this->service->updateProgWebsite('', $progName, $url);
+		$this->service->updateProgWebsite('', $progFullName, $url);
 
 		$serialized = $this->serializer->serialize($program, "json");
 
@@ -266,18 +253,18 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/websites/', methods: ['PUT'])]
 	public function putWebsiteAction(Request $request): Response{
 		$id = $request->request->get("id");
-		$progName = $request->request->get("program");
+		$progFullName = $request->request->get("full_name");
 		$url = strtolower($request->request->get("url"));
 
 		// Make sure there isn't already a website with the same program name.
-		$existing = $this->service->getWebsiteByProg($progName);
+		$existing = $this->service->getWebsiteByProg($progFullName);
 		if($existing && $existing->getId() != $id){
 			$url = $existing->getUrl();
 			return new Response("This program already has a website ($url).", 422, array("Content-Type" => "application/json"));
 		}
 
 		$website = $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
-		$website->setProgram($progName);
+		$website->setProgram($progFullName);
 		$website->setUrl($url);
 
 		$this->em->persist($website); // Persist the program.
@@ -296,16 +283,17 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/', methods: ['PUT'])]
 	public function putProgramAction(Request $request): Response{
 		$id = $request->request->get("id");
+		$progFullName = $request->request->get("full_name");
 		$progName = $request->request->get("program");
 		$catalog = strtolower($request->request->get("catalog"));
 		$url = strtolower($request->request->get("url"));
 
 		$program = $this->doctrine->getRepository(Programs::class)->find($id);
 		$progOrig = clone $program;
-		$origProgName = $progOrig->getProgram();
+		$origProgName = $progOrig->getFullName();
 		$program->setProgram($progName);
 		$program->setCatalog($catalog);
-		$program->setFullName($progName);
+		$program->setFullName($progFullName);
 		$program->setClassType($request->request->get("class_type"));
 		$program->setDepartmentId($request->request->get("department_id"));
 		$program->setDegreeId($request->request->get("degree_id"));
@@ -327,7 +315,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->flush(); // Commit everything to the database.
 
 		// Update the program website information
-		$this->service->updateProgWebsite($origProgName, $progName, $url);
+		$this->service->updateProgWebsite($origProgName, $progFullName, $url);
 
 		$serialized = $this->serializer->serialize($this->service->getProgram($id), "json");
 

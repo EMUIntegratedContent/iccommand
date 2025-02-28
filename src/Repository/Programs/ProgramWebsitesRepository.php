@@ -16,10 +16,11 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 
 	public function __construct(ManagerRegistry $registry){
 		parent::__construct($registry, ProgramWebsites::class);
-		$this->em = $this->getEntityManager('programs')->getConnection();
+		$this->em = $this->getEntityManager()->getConnection();
 	}
 
 	public function getWebsiteByProg($progName): ?ProgramWebsites{
+		// IMPORTANT: w.program refers to programs_programs.full_name (not programs_programs.program)!!
 		return $this->createQueryBuilder('w')
 			->where('w.program = :progName')
 			->setParameter('progName', $progName)
@@ -33,7 +34,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 		$websitesSql = "
 			SELECT w.*, p.id AS prog_id
 			FROM programs.program_websites w
-			LEFT JOIN programs.program_programs p ON p.program = w.program
+			LEFT JOIN programs.program_programs p ON p.full_name = w.program
 			ORDER BY w.url, w.program ASC
 			LIMIT $offset, $pageSize
 		";
@@ -56,7 +57,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 		$websitesSql = "
 			SELECT w.*, p.id AS prog_id, CONCAT(w.url,' -> ', w.program) AS display
 			FROM programs.program_websites w
-			LEFT JOIN programs.program_programs p ON p.program = w.program
+			LEFT JOIN programs.program_programs p ON p.full_name = w.program
 			WHERE w.program LIKE :searchTerm OR w.url LIKE :searchTerm
 			ORDER BY w.url, w.program ASC
 			LIMIT 30
@@ -65,17 +66,4 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 		$stmt = $this->em->prepare($websitesSql);
 		return $stmt->executeQuery(['searchTerm' => "%$searchTerm%"])->fetchAllAssociative();
 	}
-
-//	public function unaffilatedProgs(): array{
-//		$websitesSql = "
-//			SELECT p.*
-//			FROM programs.program_programs p
-//			LEFT JOIN programs.program_websites w ON p.program = w.program
-//			WHERE w.program IS NULL
-//			ORDER BY p.program ASC
-//		";
-//
-//		$stmt = $this->em->prepare($websitesSql);
-//		return $stmt->executeQuery()->fetchAllAssociative();
-//	}
 }

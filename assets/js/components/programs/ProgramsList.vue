@@ -65,7 +65,7 @@
                 <tbody>
                 <tr v-for="ugp in ugPrograms" :id="ugp.id" :key="`program-${ugp.id}`">
                   <td>
-                    {{ ugp.program }}
+                    {{ ugp.full_name }}
                   </td>
                   <td>{{ ugp.url }}</td>
                   <td>
@@ -147,7 +147,7 @@
                 <tbody>
                 <tr v-for="grad in gradPrograms" :id="grad.id" :key="`program-${grad.id}`">
                   <td>
-                    {{ grad.program }}
+                    {{ grad.full_name }}
                   </td>
                   <td>{{ grad.url }}</td>
                   <td>

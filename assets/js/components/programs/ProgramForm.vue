@@ -24,7 +24,23 @@
         <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="submitProgram"
                  :validation-schema="programSchema">
           <div class="form-group">
-            <label>Program name <span class="red" v-if="isEditMode">*</span></label>
+            <label>Full program name (shows on public catalog) <span class="red" v-if="isEditMode">*</span></label>
+            <Field
+                name="progFullName"
+                type="text"
+                class="form-control"
+                :class="{'is-invalid': errors.progFullName, 'form-control-plaintext': !userCanEdit || !isEditMode}"
+                :readonly="!userCanEdit || !isEditMode"
+                v-model="record.full_name"
+                @update:modelValue="formDirty = true"
+            >
+            </Field>
+            <div class="invalid-feedback">
+              {{ errors.progFullName }}
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Program name (short) <span class="red" v-if="isEditMode">*</span></label>
             <Field
                 name="progName"
                 type="text"
@@ -445,6 +461,7 @@ export default {
       progTypes: [],
       record: {
         id: 0,
+        full_name: null,
         program: null,
         catalog: null,
         department_id: null,
@@ -467,6 +484,7 @@ export default {
     },
     programSchema () {
       let yupObj = {
+        progFullName: Yup.string().required().label('Program full name '),
         progName: Yup.string().required().label('Program name '),
         progCatalog: Yup.string().required().label('Catalog '),
         progCollege: Yup.number().required().label('College '),
