@@ -16,7 +16,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 
 	public function __construct(ManagerRegistry $registry){
 		parent::__construct($registry, ProgramWebsites::class);
-		$this->em = $this->getEntityManager()->getConnection();
+		$this->em = $this->getEntityManager('programs')->getConnection();
 	}
 
 	public function getWebsiteByProg($progName): ?ProgramWebsites{
