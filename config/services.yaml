@@ -41,8 +41,3 @@ services:
         class: App\EventSubscriber\RateLimitSubscriber
         tags:
             - { name: kernel.request, connection: default }
-
-    App\Repository\Programs\ProgramsRepository:
-        arguments:
-            $registry: '@doctrine'
-            $entityManagerName: 'programs'
