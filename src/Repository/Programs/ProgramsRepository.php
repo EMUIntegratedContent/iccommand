@@ -13,7 +13,7 @@ use Doctrine\DBAL\Connection;
 class ProgramsRepository extends ServiceEntityRepository{
 
 	protected Connection $em;
-	public function __construct(ManagerRegistry $registry){
+	public function __construct(ManagerRegistry $registry, string $entityManagerName = 'programs'){
 		parent::__construct($registry, Programs::class);
 		$this->em = $registry->getManager('programs')->getConnection();
 	}
