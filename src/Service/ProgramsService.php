@@ -16,7 +16,6 @@ use Doctrine\Persistence\ObjectManager;
 class ProgramsService {
   private AuthorizationCheckerInterface $authorizationChecker;
   private ValidatorInterface $validator;
-  private ManagerRegistry $doctrine;
   private ObjectManager $em;
 
   /**
@@ -25,7 +24,6 @@ class ProgramsService {
   public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine) {
     $this->authorizationChecker = $authorizationChecker;
     $this->validator = $validator;
-    $this->doctrine = $doctrine;
     $this->em = $doctrine->getManager('programs');
   }
 
@@ -99,7 +97,7 @@ class ProgramsService {
 	#[ArrayShape(['programs' => "array", 'totalRows' => "integer"])]
 	public function getProgramsPagination($currentPage, $pageSize, $catalog)
 	{
-		$repository = $this->doctrine->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		return $repository->paginatedPrograms($currentPage, $pageSize, $catalog);
 	}
 
@@ -114,7 +112,7 @@ class ProgramsService {
 	public function getProgramsByName($searchTerm, $catalog)
 	{
 		// Get the Doctrine repository
-		$repository = $this->doctrine->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		return $repository->searchResults($searchTerm, $catalog);
 	}
 
@@ -129,7 +127,7 @@ class ProgramsService {
 	#[ArrayShape(['websites' => "array", 'totalRows' => "integer"])]
 	public function getWebsitesPagination($currentPage, $pageSize)
 	{
-		$repository = $this->doctrine->getRepository(ProgramWebsites::class);
+		$repository = $this->em->getRepository(ProgramWebsites::class);
 		return $repository->paginatedWebsites($currentPage, $pageSize);
 	}
 
@@ -142,7 +140,7 @@ class ProgramsService {
 	public function getColleges()
 	{
 		// Get the Doctrine repository
-		$repository = $this->doctrine->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getColleges();
 	}
 
@@ -155,7 +153,7 @@ class ProgramsService {
 	public function getDepartments()
 	{
 		// Get the Doctrine repository
-		$repository = $this->doctrine->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getDepartments();
 	}
 
@@ -168,7 +166,7 @@ class ProgramsService {
 	public function getProgTypes()
 	{
 		// Get the Doctrine repository
-		$repository = $this->doctrine->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getProgTypes();
 	}
 
@@ -179,7 +177,7 @@ class ProgramsService {
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
 	public function getDegrees() {
-		$repository = $this->doctrine->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getDegrees();
 	}
 
@@ -193,7 +191,7 @@ class ProgramsService {
 	public function searchWebsites($searchTerm)
 	{
 		// Get the Doctrine repository
-		$repository = $this->doctrine->getRepository(ProgramWebsites::class);
+		$repository = $this->em->getRepository(ProgramWebsites::class);
 		return $repository->searchResults($searchTerm);
 	}
 
@@ -207,7 +205,7 @@ class ProgramsService {
 	public function getWebsiteByProg($progName)
 	{
 		// Get the Doctrine repository
-		$repository = $this->doctrine->getRepository(ProgramWebsites::class);
+		$repository = $this->em->getRepository(ProgramWebsites::class);
 		return $repository->getWebsiteByProg($progName);
 	}
 
@@ -218,7 +216,7 @@ class ProgramsService {
 	 */
 	public function getProgram($id) {
 		// Get the Doctrine repository
-		$repository = $this->doctrine->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getProgram($id);
 	}
 
@@ -228,7 +226,7 @@ class ProgramsService {
 	 * @return ProgramWebsites
 	 */
 	public function getWebsite($id) {
-		return $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
+		return $this->em->getRepository(ProgramWebsites::class)->find($id);
 	}
 
 	/**
@@ -289,7 +287,7 @@ class ProgramsService {
 	 * @return int|null
 	 */
 	public function getCatalogIdFromName ($catalog) {
-		$repository = $this->doctrine->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		$catRows = $repository->getCatalogIds();
 		$catId = null;
 		foreach($catRows as $catRow){
