@@ -216,8 +216,7 @@ class ProgramsService {
 	 */
 	public function getProgram($id) {
 		// Get the Doctrine repository
-		$repository = $this->em->getRepository(Programs::class);
-		return $repository->getProgram($id);
+		return $this->em->getRepository(Programs::class)->find($id);
 	}
 
 	/**
