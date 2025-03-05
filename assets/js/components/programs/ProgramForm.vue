@@ -17,7 +17,7 @@
         Program Information
       </heading>
       <div class="btn-group" role="group" aria-label="form navigation buttons">
-        <button v-if="progExists && permissions[0].user" type="button" class="btn btn-info pull-right"
+        <button v-if="progExists && userCanEdit" type="button" class="btn btn-info pull-right"
                 @click="toggleEdit"><span v-html="lockIcon"></span></button>
       </div>
       <div class="pt-2" id="programTabContent">
@@ -359,7 +359,7 @@
             <p v-if="isSaveFailed" class="red">Error saving this program. {{ apiError.message }}</p>
             <button type="submit" class="btn btn-success"><i class="fa fa-save fa-2x"></i></button>
             <button
-                v-if="progExists && this.permissions[0].user"
+                v-if="progExists && this.permissions[0].delete"
                 type="button"
                 class="btn btn-danger ml-4"
                 data-toggle="modal"
@@ -504,14 +504,6 @@ export default {
     },
 
     /**
-     * Gets the string of "is-invalid".
-     * @return {string} "is-invalid".
-     */
-    isInvalid: function () {
-      return "is-invalid";
-    },
-
-    /**
      * Gets the appropriate lock icon based if the user is in edit mode.
      * @return {string} The lock icon being unlocked if the user is in edit
      * mode; the lock icon being locked otherwise.
@@ -525,8 +517,8 @@ export default {
      * @return {boolean} True if the user can edit; false otherwise.
      */
     userCanEdit: function () {
-      return ((this.progExists && this.permissions[0].user)
-          || (!this.progExists && this.permissions[0].user)) ? true : false;
+      return ((this.progExists && (this.permissions[0].edit))
+          || (!this.progExists && this.permissions[0].create)) ? true : false;
     },
     // for the multiselect since it can't bind directly to the record.college_id without the full object
     selectedCollege: ({

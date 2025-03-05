@@ -154,7 +154,7 @@ export default {
       return "<i class='fa fa-list'></i>";
     },
     userCanEdit: function () {
-      return this.permissions[0].user ? true : false;
+      return this.permissions[0].view ? true : false;
     }
   },
   methods: {

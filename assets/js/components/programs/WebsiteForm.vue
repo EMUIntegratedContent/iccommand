@@ -17,7 +17,7 @@
         Website Information
       </heading>
       <div class="btn-group" role="group" aria-label="form navigation buttons">
-        <button v-if="siteExists && permissions[0].user" type="button" class="btn btn-info pull-right"
+        <button v-if="siteExists && permissions[0].edit" type="button" class="btn btn-info pull-right"
                 @click="toggleEdit"><span v-html="lockIcon"></span></button>
       </div>
       <div class="pt-2" id="websiteTabContent">
@@ -70,7 +70,7 @@
             <p v-if="isSaveFailed" class="red">Error saving this website. {{ apiError.message }}</p>
             <button type="submit" class="btn btn-success"><i class="fa fa-save fa-2x"></i></button>
             <button
-                v-if="siteExists && this.permissions[0].user"
+                v-if="siteExists && this.permissions[0].delete"
                 type="button"
                 class="btn btn-danger ml-4"
                 data-toggle="modal"
@@ -216,8 +216,8 @@ export default {
      * @return {boolean} True if the user can edit; false otherwise.
      */
     userCanEdit: function () {
-      return ((this.siteExists && this.permissions[0].user)
-          || (!this.siteExists && this.permissions[0].user)) ? true : false;
+      return ((this.siteExists && this.permissions[0].create)
+          || (!this.siteExists && this.permissions[0].edit)) ? true : false;
     }
   },
 

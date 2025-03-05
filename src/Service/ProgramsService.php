@@ -29,16 +29,6 @@ class ProgramsService {
     $this->em = $em;
   }
 
-//  /**
-//   * Removes a redirect from the database.
-//   * @param Redirect $redirect The redirect to be removed.
-//   */
-//  public function deleteRedirect(Redirect $redirect): void
-//  {
-//    $this->em->remove($redirect);
-//    $this->em->flush();
-//  }
-
 	/**
 	 * Uses the Symfony container's validator to validate fields for a program.
 	 * @param Programs $program
@@ -57,19 +47,41 @@ class ProgramsService {
 	{
 		// Set all permissions to false as default.
 		$programsPermissions = array(
-			'user' => false,
-			'admin' => false
+			'admin' => false,
+			'create' => false,
+			'edit' => false,
+			'delete' => false,
+			'view' => false,
 		);
 
 		// The admins automatically have all the permissions.
 		if ($this->authorizationChecker->isGranted('ROLE_PROGRAMS_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
-			$programsPermissions['user'] = true;
 			$programsPermissions['admin'] = true;
+			$programsPermissions['create'] = true;
+			$programsPermissions['edit'] = true;
+			$programsPermissions['delete'] = true;
+			$programsPermissions['view'] = true;
 		}
 
-		// The non-admins have the "user" permission.
-		if ($this->authorizationChecker->isGranted('ROLE_PROGRAMS_USER')) {
-			$programsPermissions['user'] = true;
+		if ($this->authorizationChecker->isGranted('ROLE_PROGRAMS_DELETE')) {
+			$programsPermissions['create'] = true;
+			$programsPermissions['edit'] = true;
+			$programsPermissions['delete'] = true;
+			$programsPermissions['view'] = true;
+		}
+
+		if ($this->authorizationChecker->isGranted('ROLE_PROGRAMS_CREATE')) {
+			$programsPermissions['create'] = true;
+			$programsPermissions['view'] = true;
+		}
+
+		if ($this->authorizationChecker->isGranted('ROLE_PROGRAMS_EDIT')) {
+			$programsPermissions['edit'] = true;
+			$programsPermissions['view'] = true;
+		}
+
+		if ($this->authorizationChecker->isGranted('ROLE_PROGRAMS_VIEW')) {
+			$programsPermissions['view'] = true;
 		}
 
 		return $programsPermissions;

@@ -8,9 +8,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 if(!ini_get('display_errors')){
@@ -48,6 +50,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Route('/list', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getProgramsAction(Request $request): Response{
 		$page = $request->query->get('page') ?? 1;
 		$pageSize = $request->query->get('limit') ?? 25;
@@ -66,6 +69,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Route('/search', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function searchProgramsAction(Request $request): Response{
 		$searchTerm = $request->query->get('searchterm');
 		$catalog = $request->query->get('catalog') ?? 'undergraduate';
@@ -83,6 +87,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Route('/websites', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getWebsitesAction(Request $request): Response{
 		$page = $request->query->get('page') ?? 1;
 		$pageSize = $request->query->get('limit') ?? 25;
@@ -100,6 +105,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Route('/searchwebsites', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function searchWebsitesAction(Request $request): Response{
 		$searchTerm = $request->query->get('searchterm');
 
@@ -116,6 +122,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Route('/colleges', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function progCollegesAction(Request $request): Response{
 		$colleges = $this->service->getColleges();
 
@@ -130,6 +137,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Route('/departments', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function progDeptsAction(Request $request): Response{
 		$depts = $this->service->getDepartments();
 
@@ -144,6 +152,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Route('/types', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function progTypesAction(Request $request): Response{
 		$progTypes = $this->service->getProgTypes();
 
@@ -158,6 +167,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Route('/degrees', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function degreesAction(Request $request): Response{
 		$degrees = $this->service->getDegrees();
 
@@ -172,6 +182,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response The program, the status code, and the HTTP headers.
 	 */
 	#[Route('websites/{id}', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getWebsiteAction($id): Response{
 		$website = $this->service->getWebsite($id);
 		if(!$website){
@@ -188,6 +199,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response The program, the status code, and the HTTP headers.
 	 */
 	#[Route('/{id}', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getProgramAction($id): Response{
 		$program = $this->service->getProgram($id);
 		if(!$program){
@@ -204,6 +216,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response The program, the status code, and the HTTP headers.
 	 */
 	#[Route('/', methods: ['POST'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
 	public function postProgramAction(Request $request): Response{
 		$catalog = strtolower($request->request->get("catalog"));
 		$progFullName = $request->request->get("full_name");
@@ -251,6 +264,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response The website, the status code, and the HTTP headers.
 	 */
 	#[Route('/websites/', methods: ['PUT'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
 	public function putWebsiteAction(Request $request): Response{
 		$id = $request->request->get("id");
 		$progFullName = $request->request->get("full_name");
@@ -281,6 +295,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response The program, the status code, and the HTTP headers.
 	 */
 	#[Route('/', methods: ['PUT'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
 	public function putProgramAction(Request $request): Response{
 		$id = $request->request->get("id");
 		$progFullName = $request->request->get("full_name");
@@ -328,6 +343,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response The message of the deleted website, the status code, and the HTTP headers.
 	 */
 	#[Route('/websites/{id}', methods: ['DELETE'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteWebsiteAction($id): Response{
 		$website = $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
 
@@ -343,6 +359,7 @@ class ProgramsController extends AbstractFOSRestController{
 	 * @return Response The message of the deleted program, the status code, and the HTTP headers.
 	 */
 	#[Route('/{id}', methods: ['DELETE'])]
+	#[IsGranted(new Expression('is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteProgramAction($id): Response{
 		$program = $this->doctrine->getRepository(Programs::class)->find($id);
 
