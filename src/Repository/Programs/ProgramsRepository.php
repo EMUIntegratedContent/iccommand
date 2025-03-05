@@ -18,6 +18,10 @@ class ProgramsRepository extends ServiceEntityRepository{
 		$this->em = $doctrine->getManager('programs');
 	}
 
+	public function getProgramEntity($id): ?Programs{
+		return $this->em->find(Programs::class, $id);
+	}
+
 	public function getProgram($id) {
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine
 		$programSql = "
