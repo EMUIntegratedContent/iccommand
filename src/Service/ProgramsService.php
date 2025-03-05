@@ -221,7 +221,7 @@ class ProgramsService {
 	}
 
 	public function getProgramEntity($id) {
-		return $this->em->getRepository(Programs::class);
+		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getProgramEntity($id);
 	}
 
