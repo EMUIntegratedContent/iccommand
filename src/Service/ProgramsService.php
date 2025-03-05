@@ -220,6 +220,10 @@ class ProgramsService {
 		return $repository->getProgram($id);
 	}
 
+	public function getProgramEntity($id) {
+		return $this->em->getRepository(Programs::class)->find($id);
+	}
+
 	/**
 	 * Return a single program website
 	 * @param $id

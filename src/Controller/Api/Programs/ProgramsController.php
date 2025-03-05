@@ -302,7 +302,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$catalog = strtolower($request->request->get("catalog"));
 		$url = strtolower($request->request->get("url"));
 
-		$program = $this->service->getProgram($id);
+		$program = $this->service->getProgramEntity($id);
 		$progOrig = clone $program;
 		$origProgName = $progOrig->getFullName();
 		$program->setProgram($progName);
