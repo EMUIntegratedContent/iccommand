@@ -302,7 +302,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$catalog = strtolower($request->request->get("catalog"));
 		$url = strtolower($request->request->get("url"));
 
-		$program = $this->em->getRepository(Programs::class)->find($id);
+		$program = $this->service->getProgram($id);
 		$progOrig = clone $program;
 		$origProgName = $progOrig->getFullName();
 		$program->setProgram($progName);
@@ -344,7 +344,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/websites/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteWebsiteAction($id): Response{
-		$website = $this->em->getRepository(ProgramWebsites::class)->find($id);
+		$website = $this->service->getWebsite($id);
 
 		$this->em->remove($website);
 		$this->em->flush();
@@ -360,7 +360,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteProgramAction($id): Response{
-		$program = $this->em->getRepository(Programs::class)->find($id);
+		$program = $this->service->getProgram($id);
 
 		$this->em->remove($program);
 		$this->em->flush();
