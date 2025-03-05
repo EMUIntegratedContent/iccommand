@@ -267,18 +267,18 @@ class ProgramsController extends AbstractFOSRestController{
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
 	public function putWebsiteAction(Request $request): Response{
 		$id = $request->request->get("id");
-		$progFullName = $request->request->get("full_name");
+		$progName = $request->request->get("program");
 		$url = strtolower($request->request->get("url"));
 
 		// Make sure there isn't already a website with the same program name.
-		$existing = $this->service->getWebsiteByProg($progFullName);
+		$existing = $this->service->getWebsiteByProg($progName);
 		if($existing && $existing->getId() != $id){
 			$url = $existing->getUrl();
 			return new Response("This program already has a website ($url).", 422, array("Content-Type" => "application/json"));
 		}
 
 		$website = $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
-		$website->setProgram($progFullName);
+		$website->setProgram($progName);
 		$website->setUrl($url);
 
 		$this->em->persist($website); // Persist the program.

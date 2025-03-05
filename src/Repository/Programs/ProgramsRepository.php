@@ -5,17 +5,17 @@ namespace App\Repository\Programs;
 use App\Entity\Programs\Programs;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\DBAL\Connection;
+use Doctrine\Persistence\ObjectManager;
 
 /**
  * @extends ServiceEntityRepository<Programs>
  */
 class ProgramsRepository extends ServiceEntityRepository{
 
-	protected Connection $em;
-	public function __construct(ManagerRegistry $registry){
-		parent::__construct($registry, Programs::class);
-		$this->em = $registry->getManager('programs')->getConnection();
+	protected ObjectManager $em;
+	public function __construct(ManagerRegistry $doctrine){
+		parent::__construct($doctrine, Programs::class);
+		$this->em = $doctrine->getManager('programs');
 	}
 
 	public function getProgram($id) {
@@ -27,7 +27,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 			WHERE p.id = :id
 		";
 
-		$stmt = $this->em->prepare($programSql);
+		$stmt = $this->em->getConnection()->prepare($programSql);
 		return $stmt->executeQuery([
 			'id' => $id
 		])->fetchAssociative();
@@ -47,14 +47,15 @@ class ProgramsRepository extends ServiceEntityRepository{
 			LIMIT $offset, $pageSize
 		";
 
-		$stmt = $this->em->prepare($programSql);
+		$stmt = $this->em->getConnection()->prepare($programSql);
 		$programs = $stmt->executeQuery([
 			'catalog' => $catalog
 		])->fetchAllAssociative();
 
 		// Count the total number of rows
-		$totalProgs = $this->createQueryBuilder('p')
+		$totalProgs = $this->em->createQueryBuilder()
 			->select('COUNT(p.id)')
+			->from(Programs::class, 'p')
 			->where('p.catalog = :catalog')
 			->setParameter('catalog', $catalog)
 			->getQuery()
@@ -68,7 +69,9 @@ class ProgramsRepository extends ServiceEntityRepository{
 
 	public function searchResults($searchTerm, $catalog): array{
 		// Build the query for getting paginated records
-		return $this->createQueryBuilder('p')
+		return $this->em->createQueryBuilder()
+			->select('p')
+			->from(Programs::class, 'p')
 			->where('p.catalog = :catalog')
 			->andWhere('p.full_name LIKE :searchTerm')
 			->orderBy('p.full_name', 'ASC')
@@ -85,7 +88,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 			ORDER BY college ASC
 		";
 
-		$stmt = $this->em->prepare($clgSql);
+		$stmt = $this->em->getConnection()->prepare($clgSql);
 		return $stmt->executeQuery()->fetchAllAssociative();
 	}
 
@@ -96,7 +99,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 			ORDER BY department ASC
 		";
 
-		$stmt = $this->em->prepare($departmentsSql);
+		$stmt = $this->em->getConnection()->prepare($departmentsSql);
 		return $stmt->executeQuery()->fetchAllAssociative();
 	}
 
@@ -107,7 +110,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 			ORDER BY type ASC
 		";
 
-		$stmt = $this->em->prepare($typesSql);
+		$stmt = $this->em->getConnection()->prepare($typesSql);
 		return $stmt->executeQuery()->fetchAllAssociative();
 	}
 
@@ -118,7 +121,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 			ORDER BY degree ASC
 		";
 
-		$stmt = $this->em->prepare($degreesSql);
+		$stmt = $this->em->getConnection()->prepare($degreesSql);
 		return $stmt->executeQuery()->fetchAllAssociative();
 	}
 
@@ -133,7 +136,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 			ORDER BY catalog_id ASC
 		";
 
-		$stmt = $this->em->prepare($catalogSql);
+		$stmt = $this->em->getConnection()->prepare($catalogSql);
 		return $stmt->executeQuery()->fetchAllAssociative();
 	}
 }

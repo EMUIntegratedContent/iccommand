@@ -3,12 +3,12 @@ namespace App\Service;
 
 use App\Entity\Programs\Programs;
 use App\Entity\Programs\ProgramWebsites;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Doctrine\Persistence\ObjectManager;
 
 /**
  * The programs service is used primarily for CRUD actions on Catalog Programs
@@ -17,16 +17,16 @@ class ProgramsService {
   private AuthorizationCheckerInterface $authorizationChecker;
   private ValidatorInterface $validator;
   private ManagerRegistry $doctrine;
-  private EntityManagerInterface $em;
+  private ObjectManager $em;
 
   /**
    * The constructor of the service of the redirects.
    */
-  public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine, EntityManagerInterface $em) {
+  public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine) {
     $this->authorizationChecker = $authorizationChecker;
     $this->validator = $validator;
     $this->doctrine = $doctrine;
-    $this->em = $em;
+    $this->em = $doctrine->getManager('programs');
   }
 
 	/**
@@ -132,17 +132,6 @@ class ProgramsService {
 		$repository = $this->doctrine->getRepository(ProgramWebsites::class);
 		return $repository->paginatedWebsites($currentPage, $pageSize);
 	}
-
-//	/**
-//	 * Get programs that are unaffiliated with a website.
-//	 * @return array
-//	 * @throws \Doctrine\ORM\NoResultException
-//	 * @throws \Doctrine\ORM\NonUniqueResultException
-//	 */
-//	public function getWebsitesUnaffiliated() {
-//		$repository = $this->doctrine->getRepository(ProgramWebsites::class);
-//		return $repository->unaffiliatedProgs();
-//	}
 
 	/**
 	 * Get all colleges.
@@ -273,7 +262,7 @@ class ProgramsService {
 		}
 
 		$website = null;
-		if($origName !== ''){
+		if($origName != ''){
 			$website = $this->getWebsiteByProg($origName);
 		}
 

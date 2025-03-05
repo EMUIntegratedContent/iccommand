@@ -4,24 +4,25 @@ namespace App\Repository\Programs;
 
 use App\Entity\Programs\ProgramWebsites;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<ProgramWebsites>
  */
 class ProgramWebsitesRepository extends ServiceEntityRepository{
-	protected Connection $em;
+	protected ObjectManager $em;
 
-	public function __construct(ManagerRegistry $registry){
-		parent::__construct($registry, ProgramWebsites::class);
-		$this->em = $this->getEntityManager()->getConnection();
+	public function __construct(ManagerRegistry $doctrine){
+		parent::__construct($doctrine, ProgramWebsites::class);
+		$this->em = $doctrine->getManager('programs');
 	}
 
 	public function getWebsiteByProg($progName): ?ProgramWebsites{
 		// IMPORTANT: w.program refers to programs_programs.full_name (not programs_programs.program)!!
-		return $this->createQueryBuilder('w')
+		return $this->em->createQueryBuilder()
+			->from(ProgramWebsites::class, 'w')
+			->select('w')
 			->where('w.program = :progName')
 			->setParameter('progName', $progName)
 			->getQuery()
@@ -39,11 +40,12 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 			LIMIT $offset, $pageSize
 		";
 
-		$stmt = $this->em->prepare($websitesSql);
+		$stmt = $this->em->getConnection()->prepare($websitesSql);
 		$websites = $stmt->executeQuery()->fetchAllAssociative();
 
-		$numRows = $this->createQueryBuilder('w')
+		$numRows = $this->em->createQueryBuilder()
 			->select('COUNT(w.id)')
+			->from(ProgramWebsites::class, 'w')
 			->getQuery()
 			->getSingleScalarResult();
 
@@ -63,7 +65,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 			LIMIT 30
 		";
 
-		$stmt = $this->em->prepare($websitesSql);
+		$stmt = $this->em->getConnection()->prepare($websitesSql);
 		return $stmt->executeQuery(['searchTerm' => "%$searchTerm%"])->fetchAllAssociative();
 	}
 }

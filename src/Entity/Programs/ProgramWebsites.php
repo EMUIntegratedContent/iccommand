@@ -12,7 +12,7 @@ class ProgramWebsites{
 	#[ORM\Id]
 	#[ORM\GeneratedValue]
 	#[ORM\Column]
-	private ?int $id = null;
+	private int $id;
 
 	#[ORM\Column(length: 255, unique: true)]
 	#[Assert\Unique(message: 'This program already has a website.')]
