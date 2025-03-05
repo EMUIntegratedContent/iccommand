@@ -53,7 +53,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Get all map items
 	 */
 	#[Rest\Get(path: "mapitems")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapitemsAction(): Response{
 		$mapItems = $this->doctrine->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
 
@@ -65,7 +65,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Get a single map item
 	 */
 	#[Rest\Get(path: "mapitems/{id}")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapitemAction($id): Response{
 		$mapItem = $this->doctrine->getRepository(MapItem::class)->findOneBy(['id' => $id]);
 		if(!$mapItem){
@@ -81,7 +81,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Get buildings
 	 */
 	#[Rest\Get(path: "mapbuildings/")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapbuildingsAction(): Response{
 		$itemRepo = $this->doctrine->getRepository(MapBuilding::class);
 		$buildings = $itemRepo->findAllBuildingsWithFields(['b.id', 'b.name']); // don't need the whole MapBuilding object, so just grab ID and name from the repo method
@@ -94,7 +94,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Get building types
 	 */
 	#[Rest\Get(path: "mapbuildingtypes/")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapbuildingtypesAction(): Response{
 		$itemRepo = $this->doctrine->getRepository(MapBuildingType::class);
 		$buildingsTypes = $itemRepo->findAllBuildingTypesWithFields(['bt.id', 'bt.name']); // don't need the whole MapBuildingType object, so just grab ID and name from the repo method
@@ -107,7 +107,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Get emergency types
 	 */
 	#[Rest\Get(path: "mapemergencytypes/")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapemergencytypesAction(): Response{
 		$emergencyTypes = $this->doctrine->getRepository(MapEmergencyType::class)->findAll();
 
@@ -119,7 +119,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Get exhibit types
 	 */
 	#[Rest\Get(path: "mapexhibittypes/")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapexhibittypesAction(): Response{
 		$exhibitTypes = $this->doctrine->getRepository(MapExhibitType::class)->findAll();
 
@@ -131,7 +131,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Get parking types
 	 */
 	#[Rest\Get(path: "mapparkingtypes/")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapparkingtypesAction(): Response{
 		$parkingTypes = $this->doctrine->getRepository(MapParkingType::class)->findAll();
 
@@ -143,7 +143,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Get service types
 	 */
 	#[Rest\Get(path: "mapservicetypes/")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapservicetypesAction(): Response{
 		$serviceTypes = $this->doctrine->getRepository(MapServiceType::class)->findAll();
 
@@ -155,7 +155,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Save a map item to the database
 	 */
 	#[Rest\Post(path: "mapitems")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_CREATE")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_CREATE")'))]
 	public function postMapitemAction(Request $request): Response{
 		$itemType = $request->request->get('itemType');
 
@@ -377,7 +377,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * Update a map item to the database
 	 */
 	#[Rest\Put(path: "mapitem")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_EDIT")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_EDIT")'))]
 	public function putMapitemAction(Request $request): Response{
 		$itemType = $request->request->get('itemType');
 
@@ -654,7 +654,7 @@ class MapItemController extends AbstractFOSRestController{
 	 * @return Response
 	 */
 	#[Rest\Delete(path: "mapitems/{id}")]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_DELETE")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_DELETE")'))]
 	public function deleteMapitemAction($id): Response{
 		$mapItem = $this->doctrine->getRepository(MapItem::class)->find($id);
 
