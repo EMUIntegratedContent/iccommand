@@ -283,7 +283,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->persist($website); // Persist the program.
 		$this->em->flush(); // Commit everything to the database.
 
-		$serialized = $this->serializer->serialize($this->service->getWebsite($id), "json");
+		$serialized = $this->serializer->serialize($this->service->getWebsiteEntity($id), "json");
 
 		return new Response($serialized, 201, array("Content-Type" => "application/json"));
 	}

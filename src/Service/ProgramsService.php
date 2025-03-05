@@ -231,15 +231,6 @@ class ProgramsService {
 	}
 
 	/**
-	 * Return a single program website
-	 * @param $id
-	 * @return ProgramWebsites
-	 */
-	public function getWebsite($id) {
-		return $this->em->getRepository(ProgramWebsites::class)->find($id);
-	}
-
-	/**
 	 * Get a ProgramWebsites entity by ID (used to locate a program for editing because Symfony + Doctrine are too stupid to know which connection to use...)
 	 * @param $id
 	 * @return mixed
