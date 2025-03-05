@@ -6,6 +6,7 @@ use App\Service\ProgramsService;
 use App\Entity\Programs\Programs;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -29,18 +30,18 @@ class ProgramsController extends AbstractFOSRestController{
 	private ProgramsService $service;
 	private LoggerInterface $logger;
 	private ManagerRegistry $doctrine;
-	private EntityManagerInterface $em;
+	private ObjectManager $em;
 	private SerializerInterface $serializer;
 
 	/**
 	 * The constructor of the ProgramsController.
 	 * @param ProgramsService $service The service container of this controller.
 	 */
-	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer){
+	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer){
 		$this->service = $service;
 		$this->logger = $logger;
 		$this->doctrine = $doctrine;
-		$this->em = $em;
+		$this->em = $doctrine->getManager('programs');
 		$this->serializer = $serializer;
 	}
 
