@@ -183,7 +183,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('websites/{id}', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getWebsiteAction($id): Response{
-		$website = $this->service->getWebsite($id);
+		$website = $this->service->getWebsiteEntity($id);
 		if(!$website){
 			return new Response("The website you requested was not found.", 404, array("Content-Type" => "application/json"));
 		}
@@ -344,7 +344,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/websites/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteWebsiteAction($id): Response{
-		$website = $this->service->getWebsite($id);
+		$website = $this->service->getWebsiteEntity($id);
 
 		$this->em->remove($website);
 		$this->em->flush();
@@ -360,7 +360,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteProgramAction($id): Response{
-		$program = $this->service->getProgram($id);
+		$program = $this->service->getProgramEntity($id);
 
 		$this->em->remove($program);
 		$this->em->flush();

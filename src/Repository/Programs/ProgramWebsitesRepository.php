@@ -2,6 +2,7 @@
 
 namespace App\Repository\Programs;
 
+use App\Entity\Programs\Programs;
 use App\Entity\Programs\ProgramWebsites;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ObjectManager;
@@ -16,6 +17,10 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 	public function __construct(ManagerRegistry $doctrine){
 		parent::__construct($doctrine, ProgramWebsites::class);
 		$this->em = $doctrine->getManager('programs');
+	}
+
+	public function getWebsiteEntity($id): ?ProgramWebsites{
+		return $this->em->find(ProgramWebsites::class, $id);
 	}
 
 	public function getWebsiteByProg($progName): ?ProgramWebsites{

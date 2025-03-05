@@ -220,6 +220,11 @@ class ProgramsService {
 		return $repository->getProgram($id);
 	}
 
+	/**
+	 * Get a Program entity by ID (used to locate a program for editing because Symfony + Doctrine are too stupid to know which connection to use...)
+	 * @param $id
+	 * @return mixed
+	 */
 	public function getProgramEntity($id) {
 		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getProgramEntity($id);
@@ -232,6 +237,16 @@ class ProgramsService {
 	 */
 	public function getWebsite($id) {
 		return $this->em->getRepository(ProgramWebsites::class)->find($id);
+	}
+
+	/**
+	 * Get a ProgramWebsites entity by ID (used to locate a program for editing because Symfony + Doctrine are too stupid to know which connection to use...)
+	 * @param $id
+	 * @return mixed
+	 */
+	public function getWebsiteEntity($id) {
+		$repository = $this->em->getRepository(ProgramWebsites::class);
+		return $repository->getWebsiteEntity($id);
 	}
 
 	/**
