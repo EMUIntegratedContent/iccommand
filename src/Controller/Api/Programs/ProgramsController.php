@@ -29,7 +29,6 @@ error_reporting(E_ALL);
 class ProgramsController extends AbstractFOSRestController{
 	private ProgramsService $service;
 	private LoggerInterface $logger;
-	private ManagerRegistry $doctrine;
 	private ObjectManager $em;
 	private SerializerInterface $serializer;
 
@@ -40,7 +39,6 @@ class ProgramsController extends AbstractFOSRestController{
 	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer){
 		$this->service = $service;
 		$this->logger = $logger;
-		$this->doctrine = $doctrine;
 		$this->em = $doctrine->getManager('programs');
 		$this->serializer = $serializer;
 	}
@@ -278,7 +276,7 @@ class ProgramsController extends AbstractFOSRestController{
 			return new Response("This program already has a website ($url).", 422, array("Content-Type" => "application/json"));
 		}
 
-		$website = $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
+		$website = $this->em->getRepository(ProgramWebsites::class)->find($id);
 		$website->setProgram($progName);
 		$website->setUrl($url);
 
@@ -304,7 +302,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$catalog = strtolower($request->request->get("catalog"));
 		$url = strtolower($request->request->get("url"));
 
-		$program = $this->doctrine->getRepository(Programs::class)->find($id);
+		$program = $this->em->getRepository(Programs::class)->find($id);
 		$progOrig = clone $program;
 		$origProgName = $progOrig->getFullName();
 		$program->setProgram($progName);
@@ -346,7 +344,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/websites/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteWebsiteAction($id): Response{
-		$website = $this->doctrine->getRepository(ProgramWebsites::class)->find($id);
+		$website = $this->em->getRepository(ProgramWebsites::class)->find($id);
 
 		$this->em->remove($website);
 		$this->em->flush();
@@ -362,7 +360,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteProgramAction($id): Response{
-		$program = $this->doctrine->getRepository(Programs::class)->find($id);
+		$program = $this->em->getRepository(Programs::class)->find($id);
 
 		$this->em->remove($program);
 		$this->em->flush();
