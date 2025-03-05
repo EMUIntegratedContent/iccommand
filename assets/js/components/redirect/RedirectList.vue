@@ -64,7 +64,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="redirect in fetchedRedirectsOfBrokenLinks" :id="redirect.id" :key="`broken-${redirect.id}`">
+                <tr v-for="redirect in brokenLinks" :id="redirect.id" :key="`broken-${redirect.id}`">
                   <td>
                     <a
                         :href="'https://www.emich.edu' + redirect.fromLink"
@@ -96,7 +96,7 @@
                 :ext-curr-pg="brokenRedirectsCurrentPage"
                 :ext-items-per-pg="brokenRedirectsItemsPerPage"
                 :total-recs="totalBrokenRedirects"
-                :items="fetchedRedirectsOfBrokenLinks"
+                :items="brokenLinks"
                 @itemsPerPageChanged="handleBrokenItemsPerPageChanged"
                 @pageChanged="handleBrokenItemsPageChanged"></external-paginator>
           </div>
@@ -159,7 +159,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="redirect in fetchedRedirectsOfShortenedLinks" :id="redirect.id" :key="`shortened-${redirect.id}`">
+                <tr v-for="redirect in shortenedLinks" :id="redirect.id" :key="`shortened-${redirect.id}`">
                   <td>
                     <a
                         :href="'https://www.emich.edu' + redirect.fromLink"
@@ -188,7 +188,7 @@
             </div>
             <external-paginator
                 v-show="!loadingRedirectsOfShortenedLinks"
-                :items="fetchedRedirectsOfShortenedLinks"
+                :items="shortenedLinks"
                 :ext-curr-pg="shortenedRedirectsCurrentPage"
                 :ext-items-per-pg="shortenedRedirectsItemsPerPage"
                 :total-recs="totalShortenedRedirects"
@@ -207,8 +207,8 @@ import ExternalPaginator from "../utils/ExternalPaginator.vue";
 import VueMultiselect from 'vue-multiselect'
 export default {
   created () {
-    this.fetchBrokenRedirects();
-    this.fetchShortenedRedirects();
+    this.fetchRedirects('broken');
+    this.fetchRedirects('shortened');
   },
   components: { Heading, ExternalPaginator, VueMultiselect },
   props: {
@@ -243,14 +243,14 @@ export default {
        * mounted.
        * @type {Array.<Redirect>}
        */
-      fetchedRedirectsOfBrokenLinks: [],
+      brokenLinks: [],
 
       /**
        * The redirects of the shortened links that are fetched when this list is
        * mounted.
        * @type {Array.<Redirect>}
        */
-      fetchedRedirectsOfShortenedLinks: [],
+      shortenedLinks: [],
 
       /**
        * The invalid redirects that are fetched when this list is mounted.
@@ -363,7 +363,7 @@ export default {
      */
     handleBrokenItemsPerPageChanged: function (itemsPerPage) {
       this.brokenRedirectsItemsPerPage = itemsPerPage;
-      this.fetchBrokenRedirects();
+      this.fetchRedirects('broken');
     },
 
     /**
@@ -372,7 +372,7 @@ export default {
      */
     handleBrokenItemsPageChanged: function (currentPage) {
       this.brokenRedirectsCurrentPage = currentPage;
-      this.fetchBrokenRedirects();
+      this.fetchRedirects('broken');
     },
 
     /**
@@ -381,7 +381,7 @@ export default {
      */
     handleShortenedItemsPerPageChanged: function (itemsPerPage) {
       this.shortenedRedirectsItemsPerPage = itemsPerPage;
-      this.fetchShortenedRedirects();
+      this.fetchRedirects('shortened');
     },
 
     /**
@@ -390,22 +390,40 @@ export default {
      */
     handleShortenedItemsPageChanged: function (currentPage) {
       this.shortenedRedirectsCurrentPage = currentPage;
-      this.fetchShortenedRedirects();
+      this.fetchRedirects('shortened');
     },
 
     /**
-     * Gets the broken redirects.
+     * Gets the redirects.
      */
-    fetchBrokenRedirects: function () {
-      this.loadingRedirectsOfBrokenLinks = true;
-      this.fetchedRedirectsOfBrokenLinks = [];
+    fetchRedirects: function (type) {
       let self = this; // "this" loses scope within Axios.
 
+      let currentPage, itemsPerPage
+      if(type === 'broken') {
+        this.loadingRedirectsOfBrokenLinks = true;
+        this.brokenLinks = [];
+        currentPage = self.brokenRedirectsCurrentPage
+        itemsPerPage = self.brokenRedirectsItemsPerPage
+      } else if (type === 'shortened') {
+        this.loadingRedirectsOfShortenedLinks = true;
+        this.shortenedLinks = [];
+        currentPage = self.shortenedRedirectsCurrentPage
+        itemsPerPage = self.shortenedRedirectsItemsPerPage
+      } else {
+        return
+      }
+
       /* Ajax (Axios) Submission */
-      axios.get(`/api/redirects/broken?page=${this.brokenRedirectsCurrentPage}&limit=${this.brokenRedirectsItemsPerPage}`)
+      axios.get(`/api/redirects/list?page=${currentPage}&limit=${itemsPerPage}&type=${type}`)
       .then(function (response) { // Success.
-        self.totalBrokenRedirects = response.data.totalRows;
-        self.fetchedRedirectsOfBrokenLinks = response.data.redirects;
+        if(type === 'broken') {
+          self.totalBrokenRedirects = response.data.totalRows;
+          self.brokenLinks = response.data.redirects;
+        } else {
+          self.totalShortenedRedirects = response.data.totalRows;
+          self.shortenedLinks = response.data.redirects;
+        }
       })
       .catch(function (error) { // Failure.
         self.apiError.status = error.response.status;
@@ -425,42 +443,11 @@ export default {
             break;
         }
       });
-      self.loadingRedirectsOfBrokenLinks = false;
-    },
-
-    /**
-     * Gets the shortened redirects.
-     */
-    fetchShortenedRedirects: function () {
-      this.loadingRedirectsOfShortenedLinks = true;
-      this.fetchedRedirectsOfShortenedLinks = [];
-      let self = this; // "this" loses scope within Axios.
-
-      /* Ajax (Axios) Submission */
-      axios.get(`/api/redirects/shortened?page=${this.shortenedRedirectsCurrentPage}&limit=${this.shortenedRedirectsItemsPerPage}`)
-      .then(function (response) { // Success.
-        self.totalShortenedRedirects = response.data.totalRows;
-        self.fetchedRedirectsOfShortenedLinks = response.data.redirects;
-      })
-      .catch(function (error) { // Failure.
-        self.apiError.status = error.response.status;
-
-        switch (error.response.status) {
-          case 403:
-            self.apiError.message = "You do not have sufficient privileges to retrieve redirects.";
-            break;
-          case 404:
-            self.apiError.message = "Redirects were not found.";
-            break;
-          case 500:
-            self.apiError.message = "An internal error occurred.";
-            break;
-          default:
-            self.apiError.message = "An error occurred.";
-            break;
-        }
-      });
-      self.loadingRedirectsOfShortenedLinks = false;
+      if(type === 'broken') {
+        self.loadingRedirectsOfBrokenLinks = false;
+      } else {
+        self.loadingRedirectsOfShortenedLinks = false;
+      }
     },
 
     /**

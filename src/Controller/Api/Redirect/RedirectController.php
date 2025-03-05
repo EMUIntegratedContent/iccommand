@@ -114,32 +114,16 @@ class RedirectController extends AbstractFOSRestController
      * Gets paginated broken redirects.
      * @return Response Broken redirects, the status code, and the HTTP headers.
      */
-    #[Route('/broken', methods: ['GET'])]
-    public function getBrokenRedirectsAction(Request $request): Response
+    #[Route('/list', methods: ['GET'])]
+    public function getRedirectsAction(Request $request): Response
     {
         $page = $request->query->get('page') ?? 1;
         $pageSize = $request->query->get('limit') ?? 10;
+        $itemType = $request->query->get('type') ?? 'broken';
 
-        $redirects = $this->service->getBrokenRedirectsPagination($page, $pageSize);
+        $redirects = $this->service->getRedirectsPagination($page, $pageSize, $itemType);
 
-        $serialized = $this->serializer->serialize($redirects, "json", ['groups' => 'redir']);
-
-        return new Response($serialized, 200, array("Content-Type" => "application/json"));
-    }
-
-    /**
-     * Gets paginated shortened redirects.
-     * @return Response Shortened redirects, the status code, and the HTTP headers.
-     */
-    #[Route('/shortened', methods: ['GET'])]
-    public function getShortenedRedirectsAction(Request $request): Response
-    {
-        $page = $request->query->get('page') ?? 1;
-        $pageSize = $request->query->get('limit') ?? 10;
-
-        $redirects = $this->service->getShortenedRedirectsPagination($page, $pageSize);
-
-        $serialized = $this->serializer->serialize($redirects, "json", ['groups' => 'redir']);
+        $serialized = $this->serializer->serialize($redirects, "json");
 
         return new Response($serialized, 200, array("Content-Type" => "application/json"));
     }

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit program website{% endblock %}
+
+{% block modulenav %}
+  {% include 'programs/nav_programs.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <website-form :site-exists="true" start-mode="edit" website-id="{{ id }}" :permissions="[{{ permissions }}]"></website-form>
+</div>
+{% endblock %}

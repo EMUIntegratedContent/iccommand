@@ -78,6 +78,14 @@ app.component("redirect-index", require("./components/redirect/RedirectIndex.vue
 app.component("new-redirect-item", require("./components/redirect/NewRedirectItem.vue").default);
 app.component("redirect-item-form", require("./components/redirect/RedirectItemForm.vue").default);
 app.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
+
+/* Catalog Programs */
+app.component("programs-index", require("./components/programs/ProgramsIndex.vue").default);
+app.component("programs-list", require("./components/programs/ProgramsList.vue").default);
+app.component("program-form", require("./components/programs/ProgramForm.vue").default);
+app.component("websites-list", require("./components/programs/WebsitesList.vue").default);
+app.component("website-form", require("./components/programs/WebsiteForm.vue").default);
+
 app.use(CKEditor)
 app.mount('#app')
 

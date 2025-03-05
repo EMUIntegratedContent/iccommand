@@ -22,11 +22,47 @@ class RedirectRepository extends ServiceEntityRepository {
     parent::__construct($registry, Redirect::class);
   }
 
-	public function searchResultsRedirects($searchTerm, $type): array {
-		if($type === 'broken') {
-			$type = 'redirect of broken link';
-		} else if ($type === 'shortened') {
-			$type = 'redirect of shortened link';
+	public function paginatedRedirects(int $currentPage, int $pageSize, string $itemType): array
+	{
+		if($itemType === 'broken') {
+			$itemType = 'redirect of broken link';
+		} else if ($itemType === 'shortened') {
+			$itemType = 'redirect of shortened link';
+		} else {
+			return [];
+		}
+		// Calculate the offset
+		$offset = ($currentPage - 1) * $pageSize;
+
+		// Build the query for getting paginated records
+		$redirects = $this->createQueryBuilder('r')
+			->where('r.itemType = :itemType')
+			->orderBy('r.fromLink', 'ASC')
+			->setFirstResult($offset)
+			->setMaxResults($pageSize)
+			->setParameter('itemType', $itemType)
+			->getQuery()
+			->getResult();
+
+		// Count the total number of rows
+		$totalRedirs = $this->createQueryBuilder('r')
+			->select('COUNT(r.id)')
+			->where('r.itemType = :itemType')
+			->setParameter('itemType', $itemType)
+			->getQuery()
+			->getSingleScalarResult();
+
+		return [
+			'redirects' => $redirects,
+			'totalRows' => $totalRedirs
+		];
+	}
+
+	public function searchResultsRedirects($searchTerm, $itemType): array {
+		if($itemType === 'broken') {
+			$itemType = 'redirect of broken link';
+		} else if ($itemType === 'shortened') {
+			$itemType = 'redirect of shortened link';
 		} else {
 			return [];
 		}
@@ -41,7 +77,7 @@ class RedirectRepository extends ServiceEntityRepository {
 			->setMaxResults(30)
 			->setParameter('searchTerm', '%' . $searchTerm . '%')
 			->setParameter('searchTerm', '%' . $searchTerm . '%')
-			->setParameter('type', $type)
+			->setParameter('type', $itemType)
 			->getQuery()
 			->getResult();
 	}

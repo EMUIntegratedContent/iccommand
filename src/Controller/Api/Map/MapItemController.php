@@ -26,6 +26,7 @@ use App\Entity\Map\MapService;
 use App\Entity\Map\MapServiceType;
 use App\Service\MapItemService;
 use App\Entity\Map\MapDispenser;
+use Symfony\Component\ExpressionLanguage\Expression;
 
 class MapItemController extends AbstractFOSRestController{
 	private MapItemService $service;

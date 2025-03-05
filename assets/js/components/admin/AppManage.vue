@@ -1,10 +1,8 @@
 <template>
   <div>
     <heading>
-      <!--      <span slot="icon" v-html="headingIcon"></span>-->
       <span slot="title">{{ appName }} Users</span>
     </heading>
-    <!--<p><button type="button" class="btn btn-sm btn-info" @click="openAddUserModal">Add User</button></p>-->
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>
@@ -325,15 +323,6 @@ export default {
         }
       })
       return isCardSaved
-    },
-    isUserAdmin: function (user) {
-      let isAdmin = false
-      user.roles.forEach(function (role) {
-        if (role == 'ROLE_MAP_ADMIN' || role.startsWith('ROLE_GLOBAL_ADMIN')) {
-          isAdmin = true
-        }
-      })
-      return isAdmin
     },
     // Add a user that was not previously given permissions for this app to the list of sanctioned users
     newUserSelected: function (user) {
