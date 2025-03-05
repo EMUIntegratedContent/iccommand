@@ -276,7 +276,7 @@ class ProgramsController extends AbstractFOSRestController{
 			return new Response("This program already has a website ($url).", 422, array("Content-Type" => "application/json"));
 		}
 
-		$website = $this->em->getRepository(ProgramWebsites::class)->find($id);
+		$website = $this->service->getWebsiteEntity($id);
 		$website->setProgram($progName);
 		$website->setUrl($url);
 
