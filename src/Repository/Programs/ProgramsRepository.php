@@ -71,6 +71,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 		];
 	}
 
+
 	public function searchResults($searchTerm, $catalog): array{
 		// Build the query for getting paginated records
 		return $this->em->createQueryBuilder()
