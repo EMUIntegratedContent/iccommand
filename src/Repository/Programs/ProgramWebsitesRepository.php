@@ -62,7 +62,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 
 	public function searchResults($searchTerm): array{
 		$websitesSql = "
-			SELECT w.*, p.id AS prog_id, CONCAT(w.url,' -> ', w.program) AS display
+			SELECT DISTINCT w.id, w.url, p.id AS prog_id, CONCAT(w.url,' -> ', p.full_name) AS display
 			FROM programs.program_websites w
 			LEFT JOIN programs.program_programs p ON p.full_name = w.program
 				OR p.program = w.program
