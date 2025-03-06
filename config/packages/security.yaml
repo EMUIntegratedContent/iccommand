@@ -53,6 +53,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/programs, roles: [ROLE_PROGRAMS_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
