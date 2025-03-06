@@ -11,38 +11,38 @@ security:
                 property: email
 
     # CONFIG FOR WORKING where EMU LDAP is available
-#    firewalls:
-#        dev:
-#            pattern: ^/(_(profiler|wdt)|css|images|js)/
-#            security: false
-#        main:
-#            lazy: true
-#            provider: users
-#
-#            form_login_ldap:
-#                login_path: app_login
-#                check_path: app_login
-#                service: Symfony\Component\Ldap\Ldap
-#                # SYMFONY 7: bug #53529 [Ldap] Use {user_identifier} over deprecated {username} in factories (tcitworld)
-#                dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
-#            logout:
-#                path: /logout
-
-    # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
-            user_checker: App\Security\UserChecker
+            security: false
         main:
-            pattern: ^/
-            user_checker: App\Security\UserChecker
             lazy: true
-            form_login:
-                provider: users
+            provider: users
+
+            form_login_ldap:
                 login_path: app_login
                 check_path: app_login
+                service: Symfony\Component\Ldap\Ldap
+                # SYMFONY 7: bug #53529 [Ldap] Use {user_identifier} over deprecated {username} in factories (tcitworld)
+                dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
             logout:
                 path: /logout
+
+    # CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
+#    firewalls:
+#        dev:
+#            pattern: ^/(_(profiler|wdt)|css|images|js)/
+#            user_checker: App\Security\UserChecker
+#        main:
+#            pattern: ^/
+#            user_checker: App\Security\UserChecker
+#            lazy: true
+#            form_login:
+#                provider: users
+#                login_path: app_login
+#                check_path: app_login
+#            logout:
+#                path: /logout
 
     password_hashers:
         # Use native password hasher, which auto-selects and migrates the best
