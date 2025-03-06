@@ -24,7 +24,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 	}
 
 	public function getWebsiteByProg($progName): ?ProgramWebsites{
-		// IMPORTANT: w.program refers to programs_programs.full_name (not programs_programs.program)!!
+		// IMPORTANT: w.program refers to programs_programs.programs (not programs_programs.full_name)!!
 		return $this->em->createQueryBuilder()
 			->from(ProgramWebsites::class, 'w')
 			->select('w')
@@ -40,7 +40,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 		$websitesSql = "
 			SELECT w.*, p.id AS prog_id
 			FROM programs.program_websites w
-			LEFT JOIN programs.program_programs p ON p.full_name = w.program
+			LEFT JOIN programs.program_programs p ON p.program = w.program
 			ORDER BY w.url, w.program ASC
 			LIMIT $offset, $pageSize
 		";
@@ -65,6 +65,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 			SELECT w.*, p.id AS prog_id, CONCAT(w.url,' -> ', w.program) AS display
 			FROM programs.program_websites w
 			LEFT JOIN programs.program_programs p ON p.full_name = w.program
+				OR p.program = w.program
 			WHERE w.program LIKE :searchTerm OR w.url LIKE :searchTerm
 			ORDER BY w.url, w.program ASC
 			LIMIT 30

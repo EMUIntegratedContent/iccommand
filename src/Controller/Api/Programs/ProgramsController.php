@@ -250,7 +250,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->flush(); // Commit everything to the database.
 
 		// Update the program website information
-		$this->service->updateProgWebsite('', $progFullName, $url);
+		$this->service->updateProgWebsite('', $progName, $url);
 
 		$serialized = $this->serializer->serialize($program, "json");
 
@@ -304,7 +304,7 @@ class ProgramsController extends AbstractFOSRestController{
 
 		$program = $this->service->getProgramEntity($id);
 		$progOrig = clone $program;
-		$origProgName = $progOrig->getFullName();
+		$origProgName = $progOrig->getProgram();
 		$program->setProgram($progName);
 		$program->setCatalog($catalog);
 		$program->setFullName($progFullName);
@@ -329,7 +329,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->flush(); // Commit everything to the database.
 
 		// Update the program website information
-		$this->service->updateProgWebsite($origProgName, $progFullName, $url);
+		$this->service->updateProgWebsite($origProgName, $progName, $url);
 
 		$serialized = $this->serializer->serialize($this->service->getProgram($id), "json");
 

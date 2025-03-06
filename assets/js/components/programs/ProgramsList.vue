@@ -57,7 +57,7 @@
               <table class="table table-hover table-sm">
                 <thead>
                 <tr>
-                  <th scope="col">Program</th>
+                  <th scope="col">Program Full Name</th>
                   <th scope="col">Website</th>
                   <th scope="col">Actions</th>
                 </tr>
@@ -69,7 +69,7 @@
                   </td>
                   <td>{{ ugp.url }}</td>
                   <td>
-                    <a v-if="userCanEdit" :href="'/programs/' + ugp.id"><i class="fa fa-eye"></i></a>
+                    <a v-if="userCanEdit" :href="'/programs/' + ugp.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                   </td>
                 </tr>
                 </tbody>
@@ -139,7 +139,7 @@
               <table class="table table-hover table-sm">
                 <thead>
                 <tr>
-                  <th scope="col">Program</th>
+                  <th scope="col">Program Full Name</th>
                   <th scope="col">Website</th>
                   <th scope="col">Actions</th>
                 </tr>
@@ -151,7 +151,7 @@
                   </td>
                   <td>{{ grad.url }}</td>
                   <td>
-                    <a v-if="userCanEdit" :href="'/programs/' + grad.id"><i class="fa fa-eye"></i></a>
+                    <a v-if="userCanEdit" :href="'/programs/' + grad.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                   </td>
                 </tr>
                 </tbody>

@@ -47,6 +47,14 @@ if (!String.prototype.includes) {
 import { createApp } from "vue"
 import CKEditor from '@ckeditor/ckeditor5-vue';
 
+/* import the fontawesome core */
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+/* import font awesome icon component */
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faPenToSquare)
 /* ********************************* Vue App ******************************** */
 const app = createApp({
 
@@ -86,6 +94,7 @@ app.component("program-form", require("./components/programs/ProgramForm.vue").d
 app.component("websites-list", require("./components/programs/WebsitesList.vue").default);
 app.component("website-form", require("./components/programs/WebsiteForm.vue").default);
 
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(CKEditor)
 app.mount('#app')
 

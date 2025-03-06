@@ -24,7 +24,7 @@
         <VeeForm class="form" v-slot="{ submitForm, errors, meta }" @submit="submitProgram"
                  :validation-schema="programSchema">
           <div class="form-group">
-            <label>Full program name (shows on public catalog) <span class="red" v-if="isEditMode">*</span></label>
+            <label>Full program name ("Program" column on Degrees & Programs public page) <span class="red" v-if="isEditMode">*</span></label>
             <Field
                 name="progFullName"
                 type="text"
@@ -40,7 +40,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Program name (short) <span class="red" v-if="isEditMode">*</span></label>
+            <label>Program name (connects program to website URL) <span class="red" v-if="isEditMode">*</span></label>
             <Field
                 name="progName"
                 type="text"
