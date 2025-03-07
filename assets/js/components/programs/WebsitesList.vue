@@ -12,7 +12,7 @@
         If you see a <span class="badge badge-info">UN</span> label in the row it means that the program is not in the current year's catalog.
       </p>
       <p>
-        Clicking the <i class="fa fa-eye"></i> icon will take you to the program page if the program is in the current year's catalog. From there, you can update the URL for this program.
+        Clicking the <font-awesome-icon icon="fa-solid fa-pen-to-square" /> icon will take you to the program page if the program is in the current year's catalog. From there, you can update the URL for this program.
         For unaffiliated programs, you will be taken to the website's edit page where you can update the program name or delete the website record.
       </p>
     </div>
@@ -77,9 +77,9 @@
                   </td>
                   <td>
                     <template v-if="userCanEdit">
-                      <a v-if="site.prog_id" :href="'/programs/' + site.prog_id"><i class="fa fa-eye"></i></a>
+                      <a v-if="site.prog_id" :href="'/programs/' + site.prog_id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                       <a v-else :href="'/programs/websites/' + site.id">
-                        <i class="fa fa-eye mr-2"></i>
+                        <font-awesome-icon icon="fa-solid fa-pen-to-square" class="mr-2" />
                         <span class="badge badge-info" title="This link is not affiliated with a current catalog program">UN</span>
                       </a>
                     </template>

@@ -82,7 +82,7 @@
                   <td>{{ redirect.createdBy }}</td>
                   <td>{{ redirect.contentChanged }}</td>
                   <td>
-                    <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                    <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                   </td>
                 </tr>
                 </tbody>
@@ -177,7 +177,7 @@
                   <td>{{ redirect.createdBy }}</td>
                   <td>{{ redirect.contentChanged }}</td>
                   <td>
-                    <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><i class="fa fa-eye"></i></a>
+                    <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                   </td>
                 </tr>
                 </tbody>

@@ -101,8 +101,7 @@
                             'unassigned'
                       }}
                     </td>
-                    <td><a :href="'/multimediarequests/' + item.id" v-if="userCanEdit"><i
-                        class="fa fa-eye"></i></a></td>
+                    <td><a :href="'/multimediarequests/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a></td>
                   </tr>
                 </template>
                 </tbody>
@@ -207,8 +206,7 @@
                             'unassigned'
                       }}
                     </td>
-                    <td><a :href="'/multimediarequests/' + item.id" v-if="userCanEdit"><i
-                        class="fa fa-eye"></i></a></td>
+                    <td><a :href="'/multimediarequests/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a></td>
                   </tr>
                 </template>
                 </tbody>
@@ -312,8 +310,7 @@
                             'unassigned'
                       }}
                     </td>
-                    <td><a :href="'/multimediarequests/' + item.id" v-if="userCanEdit"><i
-                        class="fa fa-eye"></i></a></td>
+                    <td><a :href="'/multimediarequests/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a></td>
                   </tr>
                 </template>
                 </tbody>
@@ -421,8 +418,7 @@
                             'unassigned'
                       }}
                     </td>
-                    <td><a :href="'/multimediarequests/' + item.id" v-if="userCanEdit"><i
-                        class="fa fa-eye"></i></a></td>
+                    <td><a :href="'/multimediarequests/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a></td>
                   </tr>
                 </template>
                 </tbody>

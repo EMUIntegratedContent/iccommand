@@ -29,7 +29,7 @@
               <span v-if="isUserAdmin(user)"><i class="fa fa-star"></i></span>
             </td>
             <td><i :class="user.enabled ? 'fa fa-check-circle' : 'fa fa-times-circle'"></i></td>
-            <td><a :href="'/admin/users/' + user.username"><i class="fa fa-eye"></i></a></td>
+            <td><a :href="'/admin/users/' + user.username"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a></td>
           </tr>
         </tbody>
       </table>
