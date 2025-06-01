@@ -47,9 +47,6 @@ class Programs
     #[ORM\Column]
     private ?int $class_type = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $multi_department_ids = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -183,18 +180,6 @@ class Programs
     public function setClassType(int $class_type): static
     {
         $this->class_type = $class_type;
-
-        return $this;
-    }
-
-    public function getMultiDepartmentIds(): ?string
-    {
-        return $this->multi_department_ids;
-    }
-
-    public function setMultiDepartmentIds(?string $multi_department_ids): static
-    {
-        $this->multi_department_ids = $multi_department_ids;
 
         return $this;
     }
