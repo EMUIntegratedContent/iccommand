@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="typeof username != 'undefined'">
-      <div class="row">
+      <div class="row" >
         <div class="col-xs-12">
           <h2>My Applications</h2>
         </div>
