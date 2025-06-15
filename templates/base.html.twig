@@ -43,6 +43,11 @@
                 <a class="nav-link" href="/applinks">Ext. App Links</a>
             </li>
             {% endif %}
+             {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/crimelog">DPS Crime Log</a>
+                </li>
+            {% endif %}
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if is_granted('ROLE_GLOBAL_ADMIN') %}
@@ -75,7 +80,7 @@
     {% block body %}{% endblock %}
 </main>
 {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
+      {{ encore_entry_script_tags('app') }}
     {{ encore_entry_script_tags('app') }}
     <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}"></script>
 {% endblock %}

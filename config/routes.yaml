@@ -45,3 +45,7 @@ userImages:
 programs:
     resource: App\Controller\Api\Programs\ProgramsController
     prefix: /api/programs/
+
+crimelog:
+    resource: App\Controller\Api\CrimeLog\CrimeLogController
+    prefix: /api/crimelog/

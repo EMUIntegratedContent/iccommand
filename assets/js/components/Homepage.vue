@@ -84,6 +84,13 @@ export default {
           buttonLink: "/applinks",
           display: true // No permissions required for this module; it's just a list of links
         },
+        crimelog: { // Added June 2025
+          title: "DPS Crime Log",
+          description: "DPS Crime Log CSV upload to database.",
+          buttonText: "DPS Crime Log Upload",
+          buttonLink: "/crimelog",
+          display: true 
+        },        
       }
     }
   },
@@ -113,6 +120,9 @@ export default {
       }
       if (role.includes('ROLE_PROGRAMS_') || role.includes('ROLE_GLOBAL_ADMIN')) {
         this.userModules.programs.display = true
+      }
+       if (role.includes('ROLE_CRIMELOG_') || role.includes('ROLE_GLOBAL_ADMIN')) {
+        this.userModules.crimelog.display = true
       }
     },
   },
