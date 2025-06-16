@@ -4,16 +4,6 @@
       <span slot="title">DPS Upload Crimelog</span>
     </heading>
     <div class="row hover-cards">
-      <div class="col-sm-6 ">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Redirecting a Broken Link</h5>
-            <p class="card-text">Point a broken link to a working URL.</p>
-            <button type="button" class="btn btn-primary" @click="setItem('redirect of broken link')">Create</button>
-          </div>
-        </div>
-      </div>
-
     <div class="col-sm-6 mt-2">
       <div class="card">
         <div class="card-body">
