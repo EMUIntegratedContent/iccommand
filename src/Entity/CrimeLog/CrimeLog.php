@@ -1,0 +1,423 @@
+<?php
+
+namespace App\Entity\CrimeLog;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+//use Gedmo\Mapping\Annotation as Gedmo;
+//use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+//use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
+
+/**
+ * A redirect is used to send someone from one link to another link.
+ */
+/*#[ORM\Entity(repositoryClass: "App\Repository\CrimeLog\CrimeLogRepository")]
+#[UniqueEntity(fields: ["fromLink"], message: "The link has already been redirected to another link.")]*/
+
+class CrimeLog
+{
+	/* *************************** Member Variables *************************** */
+
+	/**
+	 * The incident number.
+	 */
+	#[ORM\Column(type: "string", length: 20)]
+	#[SerializedName("incidentNumber")]
+	#[Groups("crimelog")]
+	private $incidentNumber;
+
+	/**
+	 * The type of this crime.
+	 */
+	#[ORM\Column(type: "string", length: 10)]
+	#[SerializedName("crime")]
+	#[Groups("crimelog")]
+	private $crime;
+
+	/**
+	 * The description of the crime.
+	 */
+	#[ORM\Column(type: "string", length: 255)]
+	#[SerializedName("crimeDescription")]
+	#[Groups("crimelog")]
+	private $crimeDescription;
+
+	/**
+	 * The attention to for crime.
+	 */
+	#[ORM\Column(type: "string", length: 4)]
+	#[SerializedName("attn")]
+	#[Groups("crimelog")]
+	private $attn;
+
+	/**
+	 * If the crime is arson.
+	 */
+	#[ORM\Column(type: "string", length: 5)]
+	#[SerializedName("arson")]
+	#[Groups("crimelog")]
+	private $arson;
+
+	/**
+	 * The report date of the crime.
+	 */
+	#[ORM\Column(type: "date")]
+	#[SerializedName("reportDate")]
+	#[Groups("crimelog")]
+	private $reportDate;
+
+	/**
+	 * The report time of the crime.
+	 */
+	#[ORM\Column(type: "string", length: 12)]
+	#[SerializedName("reportTime")]
+	#[Groups("crimelog")]
+	private $reportTime;
+
+	/**
+	 * The occur date of the crime.
+	 */
+	#[ORM\Column(type: "string", length: 20)]
+	#[SerializedName("occurFrom")]
+	#[Groups("crimelog")]
+	private $occurFrom;
+
+	/**
+	 * The occur end date of the crime.
+	 */
+	#[ORM\Column(type: "string", length: 20)]
+	#[SerializedName("occurTo")]
+	#[Groups("crimelog")]
+	private $occurTo;
+
+	/**
+	 * The status of the crime.
+	 */
+	#[ORM\Column(type: "string", length: 10)]
+	#[SerializedName("status")]
+	#[Groups("crimelog")]
+	private $status;
+
+	/**
+	 * If crime is closed.
+	 */
+	#[ORM\Column(type: "string", length: 20)]
+	#[SerializedName("closed")]
+	#[Groups("crimelog")]
+	private $closed;
+
+	/**
+	 * When last approved.
+	 */
+	#[ORM\Column(type: "string", length: 20)]
+	#[SerializedName("lastApproval")]
+	#[Groups("crimelog")]
+	private $lastApproval;
+
+	/**
+	 * The location of the crime.
+	 */
+	#[ORM\Column(type: "string", length: 80)]
+	#[SerializedName("location")]
+	#[Groups("crimelog")]
+	private $location;
+
+	/**
+	 * The subject of the crime.
+	 */
+	#[ORM\Column(type: "string", length: 255)]
+	#[SerializedName("subject")]
+	#[Groups("crimelog")]
+	private $subject;
+
+	/**
+	 * The constructor of a redirect.
+	 */
+	public function __construct()
+	{
+		// Constructor logic
+	}
+
+	/* ************************** Getters and Setters ************************* */
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getIncidentNumber(): ?string
+	{
+		return $this->incidentNumber;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getCrime(): ?string
+	{
+		return $this->crime;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getCrimeDescription(): ?string
+	{
+		return $this->crimeDescription;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getAttn(): ?string
+	{
+		return $this->attn;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getArson(): ?string
+	{
+		return $this->arson;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getReportDate(): ?string
+	{
+		return $this->reportDate;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getReportTime(): ?string
+	{
+		return $this->reportTime;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getOccurFrom(): ?string
+	{
+		return $this->occurFrom;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getOccurTo(): ?string
+	{
+		return $this->occurTo;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getStatus(): ?string
+	{
+		return $this->status;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getClosed(): ?string
+	{
+		return $this->closed;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getLastApproval(): ?string
+	{
+		return $this->lastApproval;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getLocation(): ?string
+	{
+		return $this->location;
+	}
+
+	/**
+	 * Obtains the item type of this redirect.
+	 * @return string|null The item type of this redirect.
+	 */
+	public function getSubject(): ?string
+	{
+		return $this->subject;
+	}
+
+	/**
+	 * Changes the incident number of this crime.
+	 * @param string $incidentNumber.
+	 * @return CrimeLog This crime.
+	 */
+	public function setIncidentNumber(string $incidentNumber): self
+	{
+		$this->incidentNumber = $incidentNumber;
+		return $this;
+	}
+
+	/**
+	 * Changes the crime designation of this crime.
+	 * @param string $crime.
+	 * @return CrimeLog This crime.
+	 */
+	public function setCrime(string $crime): self
+	{
+		$this->crime = $crime;
+		return $this;
+	}
+
+	/**
+	 * Changes the crime description of this crime.
+	 * @param string $rcrimeDescription.
+	 * @return CrimeLog This crime.
+	 */
+	public function setCrimeDescription(string $crimeDescription): self
+	{
+		$this->crimeDescription = $crimeDescription;
+		return $this;
+	}
+
+	/**
+	 * Changes the attention of this crime.
+	 * @param string $attn.
+	 * @return CrimeLog This crime.
+	 */
+	public function setAttn(string $attn): self
+	{
+		$this->attn = $attn;
+		return $this;
+	}
+
+	/**
+	 * Changes the arson of this crime.
+	 * @param string $arson.
+	 * @return CrimeLog This crime.
+	 */
+	public function setArson(string $arson): self
+	{
+		$this->arson = $arson;
+		return $this;
+	}
+
+	/**
+	 * Changes the report date of this crime.
+	 * @param string $reportDate.
+	 * @return CrimeLog This crime.
+	 */
+	public function setReportDate(string $reportDate): self
+	{
+		$this->reportDate = $reportDate;
+		return $this;
+	}
+
+	/**
+	 * Changes the report time of this crime.
+	 * @param string $reportTime.
+	 * @return CrimeLog This crime.
+	 */
+	public function setReportTime(string $reportTime): self
+	{
+		$this->reportTime = $reportTime;
+		return $this;
+	}
+
+	/**
+	 * Changes the occur from of this crime.
+	 * @param string $occurFrom.
+	 * @return CrimeLog This crime.
+	 */
+	public function setOccurFrom(string $occurFrom): self
+	{
+		$this->occurFrom = $occurFrom;
+		return $this;
+	}
+
+	/**
+	 * Changes the occur to of this crime.
+	 * @param string $occurTo.
+	 * @return CrimeLog This crime.
+	 */
+	public function setOccurTo(string $occurTo): self
+	{
+		$this->occurTo = $occurTo;
+		return $this;
+	}
+
+	/**
+	 * Changes the status of this crime.
+	 * @param string $status.
+	 * @return CrimeLog This crime.
+	 */
+	public function setStatus(string $status): self
+	{
+		$this->status = $status;
+		return $this;
+	}
+
+	/**
+	 * Changes the closed designation of this crime.
+	 * @param string $closed.
+	 * @return CrimeLog This crime.
+	 */
+	public function setClosed(string $closed): self
+	{
+		$this->closed = $closed;
+		return $this;
+	}
+
+	/**
+	 * Changes the last approval of this crime.
+	 * @param string $lastApproval.
+	 * @return CrimeLog This crime.
+	 */
+	public function setLastApproval(string $lastApproval): self
+	{
+		$this->lastApproval = $lastApproval;
+		return $this;
+	}
+
+	/**
+	 * Changes the location of this crime.
+	 * @param string $location.
+	 * @return CrimeLog This crime.
+	 */
+	public function setLocation(string $location): self
+	{
+		$this->location = $location;
+		return $this;
+	}
+
+	/**
+	 * Changes the subject of this crime.
+	 * @param string $subject.
+	 * @return CrimeLog This crime.
+	 */
+	public function setSubject(string $subject): self
+	{
+		$this->subject = $subject;
+		return $this;
+	}
+}
