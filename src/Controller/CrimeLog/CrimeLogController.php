@@ -2,7 +2,7 @@
 
 namespace App\Controller\CrimeLog;
 
-use App\Entity\Redirect\Redirect; //change to crimelog gmc
+use App\Entity\CrimeLog\CrimeLog;
 use App\Service\CrimeLogService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
