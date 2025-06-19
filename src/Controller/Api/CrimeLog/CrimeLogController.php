@@ -87,13 +87,13 @@ class CrimeLogController extends AbstractFOSRestController
 					case 422:
 					default:
 						++$rejected;
-						$rejectedArr[] = $crimelog['from_link'];
+						$rejectedArr[] = $crimelog['incident_number'];
 						break;
 				}
 			}
 		}
 
-		return new Response(sprintf('%d added.<br>%d rejected or skipped (from_link):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
+		return new Response(sprintf('%d added.<br>%d rejected or skipped (incident_number):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
 	}
 
 	private function _addCrimeLog($data): Response
@@ -144,7 +144,7 @@ class CrimeLogController extends AbstractFOSRestController
 		$this->em->persist($crimelog); // Persist the crimelog.
 		$this->em->flush(); // Commit everything to the database.
 
-		$serialized = $this->serializer->serialize($crimelog, "json", ['groups' => 'redir']);
+		$serialized = $this->serializer->serialize($crimelog, "json", ['groups' => 'crime']);
 
 		return new Response($serialized, 201, array("Content-Type" => "application/json"));
 	}

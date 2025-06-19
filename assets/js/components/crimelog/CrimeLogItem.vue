@@ -168,7 +168,7 @@ export default {
             headers: {
                 'Content-Type': 'multipart/form-data'
             },
-            url: 'api/crimelog/upload',///api/redirects/upload //gmc
+            url: 'api/crimelog/upload',
             data: formData
         })
         // success

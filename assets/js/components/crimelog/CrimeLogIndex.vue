@@ -8,7 +8,7 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Bulk Upload</h5>
-          <p><a href="/bulk_crimelog_template.csv" target="_blank" class="text-info">Download Sample Template [CSV]</a><br>Please download the sample download template to see the allowable column fields for the CSV file.
+          <p><a href="/dailylog_template.csv" target="_blank" class="text-info">Download Sample Template [CSV]</a><br>Please download the sample download template to see the allowable column fields for the CSV file.
           </p>
           <button type="button" class="btn btn-primary" @click="openUploadModal">Choose File</button>
         </div>
