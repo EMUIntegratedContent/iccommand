@@ -79,8 +79,8 @@ class CrimeLogController extends AbstractFOSRestController
 
 		if (count($csv) > 0) {
 			foreach ($csv as $crimelog) {
-				$newRedirect = $this->_addCrimeLog($crimelog);
-				switch ($newRedirect->getStatusCode()) {
+				$newCrimeLog = $this->_addCrimeLog($crimelog);
+				switch ($newCrimeLog->getStatusCode()) {
 					case 201:
 						++$added;
 						break;

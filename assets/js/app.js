@@ -95,7 +95,8 @@ app.component("websites-list", require("./components/programs/WebsitesList.vue")
 app.component("website-form", require("./components/programs/WebsiteForm.vue").default);
 
 /* CrimeLog */
-app.component("crimelog-index", require("./components/crimelog/CrimeLogIndex.vue").default);
+app.component("crime-log-index", require("./components/crimelog/CrimeLogIndex.vue").default);
+app.component("crime-log-item", require("./components/crimelog/CrimeLogItem.vue").default);
 
 
 app.component('font-awesome-icon', FontAwesomeIcon)
