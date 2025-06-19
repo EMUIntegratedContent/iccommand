@@ -28,7 +28,7 @@ class CrimeLogController extends AbstractFOSRestController
 	private SerializerInterface $serializer;
 
 	/**
-	 * The constructor of the RedirectController.
+	 * The constructor of the CrimeLogController.
 	 * @param CrimeLogService $service The service container of this controller.
 	 */
 	public function __construct(CrimeLogService $service, LoggerInterface $logger, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer)

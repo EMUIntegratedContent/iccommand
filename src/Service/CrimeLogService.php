@@ -33,7 +33,7 @@ class CrimeLogService
 
   /**
    * Removes a crimelog from the database.
-   * @param CrimeLog $crimelog The redirect to be removed.
+   * @param CrimeLog $crimelog The crimelog to be removed.
    */
   public function deleteCrimeLog(CrimeLog $crimelog): void
   {

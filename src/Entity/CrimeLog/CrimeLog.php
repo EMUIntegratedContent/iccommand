@@ -132,7 +132,7 @@ class CrimeLog
 	private $subject;
 
 	/**
-	 * The constructor of a redirect.
+	 * The constructor of a crimelog.
 	 */
 	public function __construct()
 	{
@@ -142,8 +142,8 @@ class CrimeLog
 	/* ************************** Getters and Setters ************************* */
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getIncidentNumber(): ?string
 	{
@@ -151,8 +151,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getCrime(): ?string
 	{
@@ -160,8 +160,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getCrimeDescription(): ?string
 	{
@@ -169,8 +169,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getAttn(): ?string
 	{
@@ -178,8 +178,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getArson(): ?string
 	{
@@ -187,8 +187,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getReportDate(): ?string
 	{
@@ -196,8 +196,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getReportTime(): ?string
 	{
@@ -205,8 +205,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getOccurFrom(): ?string
 	{
@@ -214,8 +214,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getOccurTo(): ?string
 	{
@@ -223,8 +223,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getStatus(): ?string
 	{
@@ -232,8 +232,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getClosed(): ?string
 	{
@@ -241,8 +241,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getLastApproval(): ?string
 	{
@@ -250,8 +250,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getLocation(): ?string
 	{
@@ -259,8 +259,8 @@ class CrimeLog
 	}
 
 	/**
-	 * Obtains the item type of this redirect.
-	 * @return string|null The item type of this redirect.
+	 * Obtains the item type of this crimelog.
+	 * @return string|null The item type of this crimelog.
 	 */
 	public function getSubject(): ?string
 	{
@@ -268,9 +268,9 @@ class CrimeLog
 	}
 
 	/**
-	 * Changes the incident number of this crime.
+	 * Changes the incident number of this crimelog.
 	 * @param string $incidentNumber.
-	 * @return CrimeLog This crime.
+	 * @return CrimeLog This crimelog.
 	 */
 	public function setIncidentNumber(string $incidentNumber): self
 	{
@@ -279,9 +279,9 @@ class CrimeLog
 	}
 
 	/**
-	 * Changes the crime designation of this crime.
+	 * Changes the crime designation of this crimelog.
 	 * @param string $crime.
-	 * @return CrimeLog This crime.
+	 * @return CrimeLog This crimelog.
 	 */
 	public function setCrime(string $crime): self
 	{
