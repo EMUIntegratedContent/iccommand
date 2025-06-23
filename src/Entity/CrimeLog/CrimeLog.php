@@ -2,28 +2,31 @@
 
 namespace App\Entity\CrimeLog;
 
+use App\Repository\CrimeLog\CrimeLogRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\SerializedName;
-//use Gedmo\Mapping\Annotation as Gedmo;
-//use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-//use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * A redirect is used to send someone from one link to another link.
+ * A crimelog entry link.
  */
-/*#[ORM\Entity(repositoryClass: "App\Repository\CrimeLog\CrimeLogRepository")]
-#[UniqueEntity(fields: ["fromLink"], message: "The link has already been redirected to another link.")]*/
+
+#[ORM\Entity(repositoryClass: CrimeLogRepository::class)]
+#[ORM\Table(name: 'dailylog', schema: 'dps')]
 
 class CrimeLog
 {
 	/* *************************** Member Variables *************************** */
 
+	#[ORM\Id]
+	#[ORM\GeneratedValue]
+	#[ORM\Column]
+	private ?int $id = null;
 	/**
 	 * The incident number.
 	 */
 	#[ORM\Column(type: "string", length: 20)]
-	#[SerializedName("incidentNumber")]
+	#[SerializedName("crnnumber")]
 	#[Groups("crimelog")]
 	private $incidentNumber;
 
@@ -39,7 +42,7 @@ class CrimeLog
 	 * The description of the crime.
 	 */
 	#[ORM\Column(type: "string", length: 255)]
-	#[SerializedName("crimeDescription")]
+	#[SerializedName("crimedesc")]
 	#[Groups("crimelog")]
 	private $crimeDescription;
 
@@ -47,9 +50,9 @@ class CrimeLog
 	 * The attention to for crime.
 	 */
 	#[ORM\Column(type: "string", length: 4)]
-	#[SerializedName("attn")]
+	#[SerializedName("att")]
 	#[Groups("crimelog")]
-	private $attn;
+	private $att;
 
 	/**
 	 * If the crime is arson.
@@ -62,8 +65,8 @@ class CrimeLog
 	/**
 	 * The report date of the crime.
 	 */
-	#[ORM\Column(type: "date")]
-	#[SerializedName("reportDate")]
+	#[ORM\Column(type: "string", length: 12)]
+	#[SerializedName("reptdate")]
 	#[Groups("crimelog")]
 	private $reportDate;
 
@@ -71,7 +74,7 @@ class CrimeLog
 	 * The report time of the crime.
 	 */
 	#[ORM\Column(type: "string", length: 12)]
-	#[SerializedName("reportTime")]
+	#[SerializedName("repttime")]
 	#[Groups("crimelog")]
 	private $reportTime;
 
@@ -79,7 +82,7 @@ class CrimeLog
 	 * The occur date of the crime.
 	 */
 	#[ORM\Column(type: "string", length: 20)]
-	#[SerializedName("occurFrom")]
+	#[SerializedName("occurdate1")]
 	#[Groups("crimelog")]
 	private $occurFrom;
 
@@ -87,7 +90,7 @@ class CrimeLog
 	 * The occur end date of the crime.
 	 */
 	#[ORM\Column(type: "string", length: 20)]
-	#[SerializedName("occurTo")]
+	#[SerializedName("occurdate2")]
 	#[Groups("crimelog")]
 	private $occurTo;
 
@@ -111,7 +114,7 @@ class CrimeLog
 	 * When last approved.
 	 */
 	#[ORM\Column(type: "string", length: 20)]
-	#[SerializedName("lastApproval")]
+	#[SerializedName("lastupdate")]
 	#[Groups("crimelog")]
 	private $lastApproval;
 
@@ -140,6 +143,12 @@ class CrimeLog
 	}
 
 	/* ************************** Getters and Setters ************************* */
+
+
+	public function getId(): ?int
+	{
+		return $this->id;
+	}
 
 	/**
 	 * Obtains the item type of this crimelog.
@@ -174,7 +183,7 @@ class CrimeLog
 	 */
 	public function getAttn(): ?string
 	{
-		return $this->attn;
+		return $this->att;
 	}
 
 	/**
@@ -305,9 +314,9 @@ class CrimeLog
 	 * @param string $attn.
 	 * @return CrimeLog This crime.
 	 */
-	public function setAttn(string $attn): self
+	public function setAttn(string $att): self
 	{
-		$this->attn = $attn;
+		$this->att = $att;
 		return $this;
 	}
 

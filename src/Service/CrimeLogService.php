@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use phpDocumentor\Reflection\PseudoTypes\ArrayShape;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Doctrine\Persistence\ObjectManager;
 
 /**
  * The crimelog service service is used primary for deleting crimelogs, getting crimelog
@@ -18,7 +19,7 @@ class CrimeLogService
   private AuthorizationCheckerInterface $authorizationChecker;
   private ValidatorInterface $validator;
   private ManagerRegistry $doctrine;
-  private EntityManagerInterface $em;
+  private ObjectManager $em;
 
   /**
    * The constructor of the service of the crimelogs.

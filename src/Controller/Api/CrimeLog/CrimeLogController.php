@@ -15,9 +15,14 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 
+if (!ini_get('display_errors')) {
+	ini_set('display_errors', '1');
+}
+error_reporting(E_ALL);
+
 /**
- * @param Request $request
- * @return Response
+ * API CrimeLog Controller
+ * This controller manages the crimelog with the actions of adding.
  */
 class CrimeLogController extends AbstractFOSRestController
 {
@@ -87,47 +92,47 @@ class CrimeLogController extends AbstractFOSRestController
 					case 422:
 					default:
 						++$rejected;
-						$rejectedArr[] = $crimelog['incident_number'];
+						$rejectedArr[] = $crimelog['crnnumber'];
 						break;
 				}
 			}
 		}
 
-		return new Response(sprintf('%d added.<br>%d rejected or skipped (incident_number):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
+		return new Response(sprintf('%d added.<br>%d rejected or skipped (crnnumber):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
 	}
 
 	private function _addCrimeLog($data): Response
 	{
-		$incidentNumber = $data['incident_number'];
+		$crnnumber = $data['crnnumber'];
 		$crime = $data['crime'];
-		$crimeDescription = $data['crime_description'];
-		$attn = $data['attn'];
+		$crimedesc = $data['crimedesc'];
+		$att = $data['att'];
 		$arson = $data['arson'];
-		$reportDate = $data['report_date'];
-		$reportTime = $data['report_time'];
-		$occurFrom = $data['occur_from'];
-		$occurTo = $data['occur_to'];
+		$reptdate = $data['reptdate']; //date_parse("2025-06-20");
+		$repttime = $data['repttime'];
+		$occurdate1 = $data['occurdate1'];
+		$occurdate2 = $data['occurdate2'];
 		$status = $data['status'];
 		$closed = $data['closed'];
-		$lastApproval = $data['last_approval'];
+		$lastupdate = $data['lastupdate'];
 		$location = $data['location'];
 		$subject = $data['subject'];
 
 		$crimelog = new CrimeLog();
 
 		// Set the fields for all crimelogs.
-		$crimelog->setIncidentNumber($incidentNumber);
+		$crimelog->setIncidentNumber($crnnumber);
 		$crimelog->setCrime($crime);
-		$crimelog->setCrimeDescription($crimeDescription);
-		$crimelog->setAttn($attn);
+		$crimelog->setCrimeDescription($crimedesc);
+		$crimelog->setAttn($att);
 		$crimelog->setArson($arson);
-		$crimelog->setReportDate($reportDate);
-		$crimelog->setReportTime($reportTime);
-		$crimelog->setOccurFrom($occurFrom);
-		$crimelog->setOccurTo($occurTo);
+		$crimelog->setReportDate($reptdate);
+		$crimelog->setReportTime($repttime);
+		$crimelog->setOccurFrom($occurdate1);
+		$crimelog->setOccurTo($occurdate2);
 		$crimelog->setStatus($status);
 		$crimelog->setClosed($closed);
-		$crimelog->setLastApproval($lastApproval);
+		$crimelog->setLastApproval($lastupdate);
 		$crimelog->setLocation($location);
 		$crimelog->setSubject($subject);
 
