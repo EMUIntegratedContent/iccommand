@@ -28,7 +28,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("crnnumber")]
 	#[Groups("crimelog")]
-	private $incidentNumber;
+	private $crnnumber;
 
 	/**
 	 * The type of this crime.
@@ -44,7 +44,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 255)]
 	#[SerializedName("crimedesc")]
 	#[Groups("crimelog")]
-	private $crimeDescription;
+	private $crimedesc;
 
 	/**
 	 * The attention to for crime.
@@ -68,7 +68,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 12)]
 	#[SerializedName("reptdate")]
 	#[Groups("crimelog")]
-	private $reportDate;
+	private $reptdate;
 
 	/**
 	 * The report time of the crime.
@@ -76,7 +76,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 12)]
 	#[SerializedName("repttime")]
 	#[Groups("crimelog")]
-	private $reportTime;
+	private $repttime;
 
 	/**
 	 * The occur date of the crime.
@@ -84,7 +84,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("occurdate1")]
 	#[Groups("crimelog")]
-	private $occurFrom;
+	private $occurdate1;
 
 	/**
 	 * The occur end date of the crime.
@@ -92,7 +92,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("occurdate2")]
 	#[Groups("crimelog")]
-	private $occurTo;
+	private $occurdate2;
 
 	/**
 	 * The status of the crime.
@@ -116,7 +116,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("lastupdate")]
 	#[Groups("crimelog")]
-	private $lastApproval;
+	private $lastupdate;
 
 	/**
 	 * The location of the crime.
@@ -156,7 +156,7 @@ class CrimeLog
 	 */
 	public function getIncidentNumber(): ?string
 	{
-		return $this->incidentNumber;
+		return $this->crnnumber;
 	}
 
 	/**
@@ -174,14 +174,14 @@ class CrimeLog
 	 */
 	public function getCrimeDescription(): ?string
 	{
-		return $this->crimeDescription;
+		return $this->crimedesc;
 	}
 
 	/**
 	 * Obtains the item type of this crimelog.
 	 * @return string|null The item type of this crimelog.
 	 */
-	public function getAttn(): ?string
+	public function getAtt(): ?string
 	{
 		return $this->att;
 	}
@@ -201,7 +201,7 @@ class CrimeLog
 	 */
 	public function getReportDate(): ?string
 	{
-		return $this->reportDate;
+		return $this->reptdate;
 	}
 
 	/**
@@ -210,7 +210,7 @@ class CrimeLog
 	 */
 	public function getReportTime(): ?string
 	{
-		return $this->reportTime;
+		return $this->repttime;
 	}
 
 	/**
@@ -219,7 +219,7 @@ class CrimeLog
 	 */
 	public function getOccurFrom(): ?string
 	{
-		return $this->occurFrom;
+		return $this->occurdate1;
 	}
 
 	/**
@@ -228,7 +228,7 @@ class CrimeLog
 	 */
 	public function getOccurTo(): ?string
 	{
-		return $this->occurTo;
+		return $this->occurdate2;
 	}
 
 	/**
@@ -255,7 +255,7 @@ class CrimeLog
 	 */
 	public function getLastApproval(): ?string
 	{
-		return $this->lastApproval;
+		return $this->lastupdate;
 	}
 
 	/**
@@ -283,7 +283,7 @@ class CrimeLog
 	 */
 	public function setIncidentNumber(string $incidentNumber): self
 	{
-		$this->incidentNumber = $incidentNumber;
+		$this->crnnumber = $incidentNumber;
 		return $this;
 	}
 
@@ -300,21 +300,21 @@ class CrimeLog
 
 	/**
 	 * Changes the crime description of this crime.
-	 * @param string $rcrimeDescription.
+	 * @param string $crimeDescription.
 	 * @return CrimeLog This crime.
 	 */
 	public function setCrimeDescription(string $crimeDescription): self
 	{
-		$this->crimeDescription = $crimeDescription;
+		$this->crimedesc = $crimeDescription;
 		return $this;
 	}
 
 	/**
 	 * Changes the attention of this crime.
-	 * @param string $attn.
+	 * @param string $att.
 	 * @return CrimeLog This crime.
 	 */
-	public function setAttn(string $att): self
+	public function setAtt(string $att): self
 	{
 		$this->att = $att;
 		return $this;
@@ -338,7 +338,7 @@ class CrimeLog
 	 */
 	public function setReportDate(string $reportDate): self
 	{
-		$this->reportDate = $reportDate;
+		$this->reptdate = $reportDate;
 		return $this;
 	}
 
@@ -349,29 +349,29 @@ class CrimeLog
 	 */
 	public function setReportTime(string $reportTime): self
 	{
-		$this->reportTime = $reportTime;
+		$this->repttime = $reportTime;
 		return $this;
 	}
 
 	/**
 	 * Changes the occur from of this crime.
-	 * @param string $occurFrom.
+	 * @param string|null $occurFrom .
 	 * @return CrimeLog This crime.
 	 */
-	public function setOccurFrom(string $occurFrom): self
+	public function setOccurFrom(string|null $occurFrom): self
 	{
-		$this->occurFrom = $occurFrom;
+		$this->occurdate1 = $occurFrom;
 		return $this;
 	}
 
 	/**
 	 * Changes the occur to of this crime.
-	 * @param string $occurTo.
+	 * @param string|null $occurTo .
 	 * @return CrimeLog This crime.
 	 */
-	public function setOccurTo(string $occurTo): self
+	public function setOccurTo(string|null $occurTo): self
 	{
-		$this->occurTo = $occurTo;
+		$this->occurdate2 = $occurTo;
 		return $this;
 	}
 
@@ -404,7 +404,7 @@ class CrimeLog
 	 */
 	public function setLastApproval(string $lastApproval): self
 	{
-		$this->lastApproval = $lastApproval;
+		$this->lastupdate = $lastApproval;
 		return $this;
 	}
 

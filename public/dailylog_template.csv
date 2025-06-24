@@ -1,2 +1,2 @@
-incident_number,crime,crime_description,attn,arson,report_date,report_time,occur_from,occur_to,status,closed,last_approval,location,subject
+crnnumber,crime,crimedesc,att,arson,reptdate,repttime,occurdate1,occurdate2,status,closed,lastupdate,location,subject
 250001950,C3316,Lost Property,N,,4/2/2025,10:03,4/2/2025 10:03,,Closed,4/2/2025,4/2/2025 14:33,PIERCE HALL,Lost University Key

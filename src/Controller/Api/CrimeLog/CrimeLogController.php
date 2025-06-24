@@ -108,7 +108,7 @@ class CrimeLogController extends AbstractFOSRestController
 		$crimedesc = $data['crimedesc'];
 		$att = $data['att'];
 		$arson = $data['arson'];
-		$reptdate = $data['reptdate']; //date_parse("2025-06-20");
+		$reptdate = date('Y-m-d', strtotime($data['reptdate']));
 		$repttime = $data['repttime'];
 		$occurdate1 = $data['occurdate1'];
 		$occurdate2 = $data['occurdate2'];
@@ -124,7 +124,7 @@ class CrimeLogController extends AbstractFOSRestController
 		$crimelog->setIncidentNumber($crnnumber);
 		$crimelog->setCrime($crime);
 		$crimelog->setCrimeDescription($crimedesc);
-		$crimelog->setAttn($att);
+		$crimelog->setAtt($att);
 		$crimelog->setArson($arson);
 		$crimelog->setReportDate($reptdate);
 		$crimelog->setReportTime($repttime);
