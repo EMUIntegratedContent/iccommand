@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Crime Log Application Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'crimelog/nav_crimelog.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-1">Crime Log App Management</h1>
+  <app-manage role-prefix="ROLE_CRIMELOG_" app-slug="crimelog" app-name="Crime Log App" current-user="{{ app.user.username }}"></app-manage>
+</div>
+{% endblock %}

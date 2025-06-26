@@ -7,7 +7,6 @@ use App\Service\CrimeLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
@@ -45,20 +44,6 @@ class CrimeLogController extends AbstractFOSRestController
 		$this->serializer = $serializer;
 	}
 
-	#[Route('/logs', methods: ['GET'])]
-	public function getCrimeLog(Request $request): Response
-	{
-		/*$page = $request->query->get('page') ?? 1;
-		$pageSize = $request->query->get('limit') ?? 10;
-		$itemType = $request->query->get('type') ?? 'broken';
-
-		$redirects = $this->service->getRedirectsPagination($page, $pageSize, $itemType);*/
-
-		$serialized = $this->serializer->serialize($request, "json");
-
-		return new Response($serialized, 200, array("Content-Type" => "application/json"));
-	}
-
 	/**
 	 * Updates the crimelog from the specified request.
 	 * @param Request $request The holder of the information about the updated crimelog.
@@ -72,7 +57,7 @@ class CrimeLogController extends AbstractFOSRestController
 		$csvFile = array_map('str_getcsv', $file);
 		$headers = array_shift($csvFile);
 
-		$csv    = array();
+		$csv = array();
 		foreach ($csvFile as $row) {
 			$csv[] = array_combine($headers, $row);
 		}
@@ -85,38 +70,37 @@ class CrimeLogController extends AbstractFOSRestController
 		if (count($csv) > 0) {
 			foreach ($csv as $crimelog) {
 				$newCrimeLog = $this->_addCrimeLog($crimelog);
-				switch ($newCrimeLog->getStatusCode()) {
-					case 201:
-						++$added;
-						break;
-					case 422:
-					default:
-						++$rejected;
-						$rejectedArr[] = $crimelog['crnnumber'];
-						break;
+				if($newCrimeLog['success'] === false) {
+					$rejected++;
+					$rejectedArr[] = $crimelog['Incident Number'];
+				} else {
+					$added++;
 				}
 			}
 		}
 
-		return new Response(sprintf('%d added.<br>%d rejected or skipped (crnnumber):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
+		if ($rejected === 0) {
+			return new Response(sprintf('%d added.<br>0 rejected or skipped.', $added), 201, array("Content-Type" => "application/json"));
+		}
+		return new Response(sprintf('%d added.<br>%d rejected or skipped (Incident Number):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
 	}
 
-	private function _addCrimeLog($data): Response
+	private function _addCrimeLog($data): array
 	{
-		$crnnumber = $data['crnnumber'];
-		$crime = $data['crime'];
-		$crimedesc = $data['crimedesc'];
-		$att = $data['att'];
-		$arson = $data['arson'];
-		$reptdate = date('Y-m-d', strtotime($data['reptdate']));
-		$repttime = $data['repttime'];
-		$occurdate1 = $data['occurdate1'];
-		$occurdate2 = $data['occurdate2'];
-		$status = $data['status'];
-		$closed = $data['closed'];
-		$lastupdate = $data['lastupdate'];
-		$location = $data['location'];
-		$subject = $data['subject'];
+		$crnnumber = $data['Incident Number'];
+		$crime = $data['Crime'];
+		$crimedesc = $data['Crime Description'];
+		$att = $data['Att'];
+		$arson = $data['Arson'];
+		$reptdate = $data['Report Date'] ? date('Y-m-d', strtotime($data['Report Date'])) : null;
+		$repttime = $data['Report Time'];
+		$occurdate1 = $data['Occur From'];
+		$occurdate2 = $data['Occur To'];
+		$status = $data['Status'];
+		$closed = $data['Closed'];
+		$lastupdate = $data['Last Approval'];
+		$location = $data['Location'];
+		$subject = $data['Subject'];
 
 		$crimelog = new CrimeLog();
 
@@ -136,21 +120,26 @@ class CrimeLogController extends AbstractFOSRestController
 		$crimelog->setLocation($location);
 		$crimelog->setSubject($subject);
 
-		//$errors = $this->service->validate($crimelog); // Validate the crimelog. GMC
-		$errors = []; //gmc
+		$errors = $this->service->validate($crimelog);
 
 		if (count($errors) > 0) {
-			// Do the following if there is more than one error.
-			$serialized = $this->serializer->serialize($errors, "json", ['groups' => 'redir']);
-
-			return new Response($serialized, 422, array("Content-Type" => "application/json"));
+			$serialized = $this->serializer->serialize($errors, "json", ['groups' => 'crimelog']);
+			return [
+				'success' => false,
+				'code' => 422,
+				'data' => $serialized
+			];
 		}
 
 		$this->em->persist($crimelog); // Persist the crimelog.
 		$this->em->flush(); // Commit everything to the database.
 
-		$serialized = $this->serializer->serialize($crimelog, "json", ['groups' => 'crime']);
+		$serialized = $this->serializer->serialize($crimelog, "json", ['groups' => 'crimelog']);
 
-		return new Response($serialized, 201, array("Content-Type" => "application/json"));
+		return [
+			'success' => true,
+			'code' => 201,
+			'data' => $serialized
+		];
 	}
 }

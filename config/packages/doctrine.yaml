@@ -27,6 +27,16 @@ doctrine:
                 port: '%env(resolve:DATABASE_PORT_PROGRAMS)%'
                 user: '%env(resolve:DATABASE_USER_PROGRAMS)%'
                 password: '%env(resolve:DATABASE_PASSWORD_PROGRAMS)%'
+            # DPS (godzilla/dps)
+            dps:
+                # configure these for your database server
+                driver: 'pdo_mysql'
+                charset: utf8mb4
+                dbname: '%env(resolve:DATABASE_NAME_DPS)%'
+                host: '%env(resolve:DATABASE_HOST_DPS)%'
+                port: '%env(resolve:DATABASE_PORT_DPS)%'
+                user: '%env(resolve:DATABASE_USER_DPS)%'
+                password: '%env(resolve:DATABASE_PASSWORD_DPS)%'
         default_connection: default
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
@@ -51,3 +61,13 @@ doctrine:
                         dir: '%kernel.project_dir%/src/Entity/Programs'
                         prefix: 'App\Entity\Programs'
                         alias: Programs
+            # DPS (godzilla/dps)
+            dps:
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                connection: dps
+                mappings:
+                    Dps:
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Entity/CrimeLog'
+                        prefix: 'App\Entity\CrimeLog'
+                        alias: dps

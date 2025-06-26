@@ -67,11 +67,11 @@ class RedirectService {
     return $redirectPermissions;
   }
 
-    /**
-     * Uses the Symfony container's validator to validate fields for a redirect.
-     * @param Redirect A redirect that makes one link go to another link.
-     * @return ConstraintViolationList A list of errors.
-     */
+	/**
+	 * Uses the Symfony container's validator to validate fields for a redirect.
+	 * @param Redirect A redirect that makes one link go to another link.
+	 * @return ConstraintViolationList A list of errors.
+	 */
   public function validate($redirect): ConstraintViolationList {
     return $this->validator->validate($redirect);
   }

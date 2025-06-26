@@ -10,7 +10,7 @@
       <div>
         <button id="btnSetComponent" @click="setComponent(component)">{{ component }}</button>
       </div>
-    </div>   
+    </div>
   </div>
 
   <!-- Upload Modal -->
@@ -175,12 +175,7 @@ export default {
             .then(function (response) {
                 console.log(response);
                 self.currentStatus = STATUS_SUCCESS;
-                const theResponse = response.data;
-                if (theResponse.indexOf('0 rejected')) {
-                  self.processMessage = '1 added.<br>0 rejected or skipped';
-                } else {
-                  self.processMessage = theResponse;
-                }
+                self.processMessage = response.data;
             })
             // fail
             .catch(function (error) {

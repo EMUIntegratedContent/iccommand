@@ -39,4 +39,13 @@ class CrimeLogController extends AbstractController
 			'controller_name' => 'Master'
 		]);
 	}
+
+	/**
+	 * The management page of the crime log app.
+	 */
+	#[Route('/crimelog/manage', name: 'crimelog_manage')]
+	public function manage(): Response
+	{
+		return $this->render('crimelog/manage.html.twig', []);
+	}
 }

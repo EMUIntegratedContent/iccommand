@@ -6,12 +6,13 @@ use App\Entity\CrimeLog\CrimeLog;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use phpDocumentor\Reflection\PseudoTypes\ArrayShape;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * The crimelog service service is used primary for deleting crimelogs, getting crimelog
+ * The crimelog service is used primary for deleting crimelogs, getting crimelog
  * permissions of users, and validating.
  */
 class CrimeLogService
@@ -46,7 +47,7 @@ class CrimeLogService
    * Fetches the permissions of the user for managing crimelogs.
    * @return array The user's permissions for managing crimelogs.
    */
-  #[ArrayShape(['user' => "bool", 'admin' => "bool"])]
+	#[ArrayShape(['user' => "bool", 'admin' => "bool"])]
   public function getUserCrimeLogPermissions(): array
   {
     // Set all permissions to false as default.
@@ -56,16 +57,25 @@ class CrimeLogService
     );
 
     // The admins automatically have all the permissions.
-    if ($this->authorizationChecker->isGranted('ROLE_REDIRECT_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
+    if ($this->authorizationChecker->isGranted('ROLE_CRIMELOG_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
       $crimelogPermissions['user'] = true;
       $crimelogPermissions['admin'] = true;
     }
 
     // The non-admins have the "user" permission.
-    if ($this->authorizationChecker->isGranted('ROLE_REDIRECT_USER')) {
+    if ($this->authorizationChecker->isGranted('ROLE_CRIMELOG_USER')) {
       $crimelogPermissions['user'] = true;
     }
 
     return $crimelogPermissions;
   }
+
+	/**
+	 * Uses the Symfony container's validator to validate fields for a redirect.
+	 * @param CrimeLog A redirect that makes one link go to another link.
+	 * @return ConstraintViolationList A list of errors.
+	 */
+	public function validate($log): ConstraintViolationList {
+		return $this->validator->validate($log);
+	}
 }
