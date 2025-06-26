@@ -8,7 +8,11 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Bulk Upload</h5>
-          <p><a href="dailylog_template.csv" target="_blank" class="text-info">Download Sample Template [CSV]</a><br>Please download the sample download template to see the allowable column fields for the CSV file.
+          <p>To upload the Daily Crime Log CSV file, click on the blue "Choose File" button below.
+            A dialog box will appear. Please follow the prompts to complete the upload process.
+          </p>
+          <p>
+            If you experience any issues, please submit a <a href="https://service.emich.edu/TDClient/30/Portal/Requests/ServiceDet?ID=26" target="_blank">Web Support Ticket</a>.
           </p>
           <button type="button" class="btn btn-primary" @click="openUploadModal">Choose File</button>
         </div>
@@ -39,7 +43,7 @@ export default {
     }
   },
 
- data: function() { 
+ data: function() {
   return {
      permissions: this.permissions
     };
