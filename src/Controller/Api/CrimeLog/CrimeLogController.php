@@ -4,8 +4,8 @@ namespace App\Controller\Api\CrimeLog;
 
 use App\Entity\CrimeLog\CrimeLog;
 use App\Service\CrimeLogService;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,20 +27,18 @@ class CrimeLogController extends AbstractFOSRestController
 {
 	private CrimeLogService $service;
 	private LoggerInterface $logger;
-	private ManagerRegistry $doctrine;
-	private EntityManagerInterface $em;
+	private ObjectManager $em;
 	private SerializerInterface $serializer;
 
 	/**
 	 * The constructor of the CrimeLogController.
 	 * @param CrimeLogService $service The service container of this controller.
 	 */
-	public function __construct(CrimeLogService $service, LoggerInterface $logger, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer)
+	public function __construct(CrimeLogService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer)
 	{
 		$this->service = $service;
 		$this->logger = $logger;
-		$this->doctrine = $doctrine;
-		$this->em = $em;
+		$this->em = $doctrine->getManager('dps');
 		$this->serializer = $serializer;
 	}
 
