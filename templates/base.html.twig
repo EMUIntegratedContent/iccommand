@@ -43,7 +43,7 @@
                 <a class="nav-link" href="/applinks">Ext. App Links</a>
             </li>
             {% endif %}
-             {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
+             {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CRIMELOG_USER') %}
                 <li class="nav-item">
                     <a class="nav-link" href="/crimelog">DPS Crime Log</a>
                 </li>
