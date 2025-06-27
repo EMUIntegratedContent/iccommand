@@ -11,7 +11,7 @@
           <div v-if="module.display" class="card col-sm-6 col-md-4" :key="'mod-'+i">
             <div class="card-body">
               <h5 class="card-title">{{ module.title }}</h5>
-              <p class="card-text">{{ module.description }}</p>
+              <p class="card-text"><span v-html="module.description"></span></p>
               <a :href="module.buttonLink" class="btn btn-primary">{{ module.buttonText }}</a>
             </div>
           </div>
@@ -86,11 +86,11 @@ export default {
         },
         crimelog: { // Added June 2025
           title: "DPS Crime Log",
-          description: "DPS Crime Log CSV upload to database.",
+          description: "This application allows DPS staff to upload the Daily Crime Log CSV file for display on the <a href=\"https://www.emich.edu/police/crime-alerts-stats/daily-crime-log.php\" target=\"_blank\">EMU Police website</a>.",
           buttonText: "DPS Crime Log Upload",
           buttonLink: "/crimelog",
-          display: true 
-        },        
+          display: true
+        },
       }
     }
   },

@@ -1,13 +1,13 @@
 <template>
   <div>
     <heading>
-      <span slot="title">DPS Upload Crimelog</span>
+      <span slot="title">DPS Upload Crime Log</span>
     </heading>
     <div class="row hover-cards">
     <div class="col-sm-6 mt-2">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Bulk Upload</h5>
+          <h5 class="card-title">CSV Upload</h5>
           <p>To upload the Daily Crime Log CSV file, click on the blue "Choose File" button below.
             A dialog box will appear. Please follow the prompts to complete the upload process.
           </p>
