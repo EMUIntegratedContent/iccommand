@@ -12,7 +12,7 @@
             A dialog box will appear. Please follow the prompts to complete the upload process.
           </p>
           <p>
-            If you experience any issues, please submit a <a href="https://service.emich.edu/TDClient/30/Portal/Requests/ServiceDet?ID=26" target="_blank">Web Support Ticket</a>.
+            If you experience any issues, please <a href="https://service.emich.edu/TDClient/30/Portal/Requests/ServiceDet?ID=26" target="_blank">submit a Web Support Ticket</a>.
           </p>
           <button type="button" class="btn btn-primary" @click="openUploadModal">Choose File</button>
         </div>
