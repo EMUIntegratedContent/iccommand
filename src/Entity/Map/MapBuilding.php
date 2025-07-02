@@ -73,6 +73,13 @@ class MapBuilding extends MapItem
 	#[Groups("bldgs")]
 	private $buildingType;
 
+
+	/**
+	 * One building has (zero to) many directory departments.
+	 */
+	#[ORM\OneToMany(mappedBy: "mapBuilding", targetEntity: "App\Entity\Directory\Department", cascade: ["persist"])]
+	private $directoryDepartments;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -82,6 +89,7 @@ class MapBuilding extends MapItem
 		$this->exhibits = new ArrayCollection();
 		$this->services = new ArrayCollection();
 		$this->dispensers = new ArrayCollection();
+		$this->directoryDepartments = new ArrayCollection();
 	}
 
 	#[SerializedName("itemType")]
@@ -179,5 +187,15 @@ class MapBuilding extends MapItem
 	public function setBuildingType(?MapBuildingType $buildingType)
 	{
 		$this->buildingType = $buildingType;
+	}
+
+	public function getDirectoryDepartments()
+	{
+		return $this->directoryDepartments;
+	}
+
+	public function addDirectoryDepartment($directoryDepartment)
+	{
+		$this->directoryDepartments[] = $directoryDepartment;
 	}
 }
