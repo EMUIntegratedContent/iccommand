@@ -27,8 +27,8 @@ class RedirectController extends AbstractController {
 
   /**
    * The index page of the redirects.
-   * @Route("/redirects", name="redirect_index")
    */
+	#[Route('/redirects', name: 'redirect_index')]
   public function index(): Response
   {
     $permissions = json_encode($this->service->getUserRedirectPermissions());
@@ -40,8 +40,8 @@ class RedirectController extends AbstractController {
 
   /**
    * The create page of the redirects.
-   * @Route("/redirects/create", name="redirects_create")
    */
+	#[Route('/redirects/create', name: 'redirects_create')]
   public function add(): Response
   {
     $permissions = json_encode($this->service->getUserRedirectPermissions());
@@ -50,8 +50,8 @@ class RedirectController extends AbstractController {
 
   /**
    * The edit page of the redirects.
-   * @Route("/redirects/{id}/edit", name="redirects_edit")
    */
+	#[Route('/redirects/{id}/edit', name: 'redirects_edit')]
   public function edit($id): Response
   {
     $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
@@ -72,8 +72,8 @@ class RedirectController extends AbstractController {
 
   /**
    * The management page of the redirects.
-   * @Route("/redirects/manage", name="redirects_manage")
    */
+	#[Route('/redirects/manage', name: 'redirects_manage')]
   public function manage(): Response
   {
     return $this->render('redirect/manage.html.twig', []);
@@ -81,8 +81,8 @@ class RedirectController extends AbstractController {
 
   /**
    * The list page of the redirects.
-   * @Route("/redirects/list", name="redirects_list")
    */
+	#[Route('/redirects/list', name: 'redirects_list')]
   public function list(): Response
   {
     $permissions = json_encode($this->service->getUserRedirectPermissions());
@@ -91,8 +91,8 @@ class RedirectController extends AbstractController {
 
   /**
    * The show page of the redirects.
-   * @Route("/redirects/{id}", name="redirects_show")
    */
+	#[Route('/redirects/{id}', name: 'redirects_show')]
   public function show($id): Response
   {
     $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);

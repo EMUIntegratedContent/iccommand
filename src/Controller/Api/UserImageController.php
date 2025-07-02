@@ -1,21 +1,18 @@
 <?php
 namespace App\Controller\Api;
 
-use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\UserImage;
 use App\Entity\User;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Routing\Annotation\Route;
 
 class UserImageController extends AbstractFOSRestController{
     private EntityManagerInterface $em;
@@ -30,9 +27,9 @@ class UserImageController extends AbstractFOSRestController{
 
   /**
    * Process new image uploads
-   * @Rest\Post(path="/uploads")
-   * @Security("is_granted('ROLE_USER')")
    */
+	#[Route('/uploads', name: 'user_image_upload')]
+	#[IsGranted('ROLE_USER')]
   public function postUserimageUploadAction(Request $request) : Response
   {
     $image = $request->files->get('uploadProfileImage');
@@ -53,9 +50,8 @@ class UserImageController extends AbstractFOSRestController{
 
   /**
    * Delete a user's profile image
-   *
-   * @Security("is_granted('ROLE_USER')")
-   */
+	 */
+	#[IsGranted('ROLE_USER')]
   public function deleteUserimageAction($id) : Response
   {
     $image = $this->doctrine->getRepository(UserImage::class)->findOneBy(['id' => $id]); // find the matching image

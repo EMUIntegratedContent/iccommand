@@ -53,7 +53,7 @@
                     <td>{{ assignee.firstName }}</td>
                     <td>{{ assignee.email }}</td>
                     <td>{{ assignee.status ? assignee.status.status : '' }}</td>
-                    <td><a :href="'/multimediarequests/assignees/' + assignee.id"><i class="fa fa-eye"></i></a></td>
+                    <td><a :href="'/multimediarequests/assignees/' + assignee.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a></td>
                 </tr>
                 </tbody>
             </table>

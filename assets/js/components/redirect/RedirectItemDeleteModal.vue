@@ -10,7 +10,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to delete this redirect? Type the wrong <strong>"delete"</strong> to confirm.</p>
+          <p>Are you sure you want to delete this redirect? Type the word <strong>"delete"</strong> to confirm.</p>
           <div class="form-group">
             <label for="form-group" class="sr-only" aria-hidden="true">Type "confirm" to delete.</label>
             <input type="text" v-model="deleteConfirm" class="form-control" id="deleteConfirm"/>

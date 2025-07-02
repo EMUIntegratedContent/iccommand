@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Catalog Programs Manager{% endblock %}
+
+{% block modulenav %}
+  {% include 'programs/nav_programs.html.twig' %}
+{% endblock %}
+
+{% block body %}
+  <div id="app">
+    <programs-index :permissions="[{{ permissions }}]"></programs-index>
+  </div>
+{% endblock %}

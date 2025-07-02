@@ -188,3 +188,9 @@ h3.module-nav-heading{
   text-decoration: underline;
   cursor: pointer;
 }
+
+// This is for links that are not buttons
+a:not(.btn):not(.nav-link):not(.page-link):not(.navbar-brand) {
+  color: #008a00;
+  text-decoration: underline;
+}

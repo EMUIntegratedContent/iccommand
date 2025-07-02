@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>{% block title %}Welcome!{% endblock %} – ICCommand</title>
     {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
 </head>
@@ -30,6 +31,21 @@
             {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') %}
                 <li class="nav-item">
                     <a class="nav-link" href="/redirects">Redirects</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/programs">Catalog Programs</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_USER') %}
+            <li class="nav-item">
+                <a class="nav-link" href="/applinks">Ext. App Links</a>
+            </li>
+            {% endif %}
+             {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CRIMELOG_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/crimelog">DPS Crime Log</a>
                 </li>
             {% endif %}
         </ul>
@@ -64,6 +80,7 @@
     {% block body %}{% endblock %}
 </main>
 {% block javascripts %}
+      {{ encore_entry_script_tags('app') }}
     {{ encore_entry_script_tags('app') }}
     <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}"></script>
 {% endblock %}

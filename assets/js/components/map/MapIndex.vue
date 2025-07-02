@@ -48,7 +48,7 @@
                                     <td>{{ item.services.length }}</td>
                                     <td>{{ item.images.length }}</td>
                                     <td>{{ item.admissionsTour ? "pos:" + item.admissionsTour : '-' }}</td>
-                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><i class="fa fa-eye"></i></a>
+                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -88,7 +88,7 @@
                                 <tr v-for="item in paginatedBusses">
                                     <th scope="row">{{ item.name }}</th>
                                     <td>{{ item.description }}</td>
-                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><i class="fa fa-eye"></i></a>
+                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -135,7 +135,7 @@
                                         <span v-if="item.building"><a :href="'/map/item/' + item.building.id">{{ item.building.name }}</a></span>
                                         <span v-else>None</span>
                                     </td>
-                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><i class="fa fa-eye"></i></a>
+                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -182,7 +182,7 @@
                                         <span v-if="item.building"><a :href="'/map/item/' + item.building.id">{{ item.building.name }}</a></span>
                                         <span v-else>None</span>
                                     </td>
-                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><i class="fa fa-eye"></i></a>
+                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -229,7 +229,7 @@
                                         <span v-for="type in item.parkingTypes"
                                               class="badge badge-dark">{{ type.name }}</span>
                                     </td>
-                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><i class="fa fa-eye"></i></a>
+                                    <td><a :href="'/map/items/' + item.id" v-if="userCanEdit"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
                                     </td>
                                 </tr>
                                 </tbody>

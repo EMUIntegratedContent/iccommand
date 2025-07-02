@@ -47,6 +47,14 @@ if (!String.prototype.includes) {
 import { createApp } from "vue"
 import CKEditor from '@ckeditor/ckeditor5-vue';
 
+/* import the fontawesome core */
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+/* import font awesome icon component */
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faPenToSquare)
 /* ********************************* Vue App ******************************** */
 const app = createApp({
 
@@ -78,6 +86,19 @@ app.component("redirect-index", require("./components/redirect/RedirectIndex.vue
 app.component("new-redirect-item", require("./components/redirect/NewRedirectItem.vue").default);
 app.component("redirect-item-form", require("./components/redirect/RedirectItemForm.vue").default);
 app.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
+
+/* Catalog Programs */
+app.component("programs-index", require("./components/programs/ProgramsIndex.vue").default);
+app.component("programs-list", require("./components/programs/ProgramsList.vue").default);
+app.component("program-form", require("./components/programs/ProgramForm.vue").default);
+app.component("websites-list", require("./components/programs/WebsitesList.vue").default);
+app.component("website-form", require("./components/programs/WebsiteForm.vue").default);
+
+/* CrimeLog */
+app.component("crimelog-index", require("./components/crimelog/CrimeLogIndex.vue").default);
+
+
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(CKEditor)
 app.mount('#app')
 

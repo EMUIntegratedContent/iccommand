@@ -15,10 +15,8 @@ class PhotoHeadshotDateController extends AbstractController
     {
         $this->service = $service;
     }
-
-    /**
-     * @Route("/multimediarequests/headshots/scheduler", name="multimediarequests_headshots_home")
-     */
+		
+		#[Route('/multimediarequests/headshots/scheduler', name: 'multimediarequests_headshots_home')]
     public function index()
     {
         $permissions = json_encode($this->service->getUserMultimediaRequestPermissions());

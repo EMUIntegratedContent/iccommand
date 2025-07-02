@@ -9,80 +9,53 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="user")
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- */
+
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: "user")]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private ?int $id = null;
+	#[ORM\Id]
+	#[ORM\Column(type: "integer")]
+	#[ORM\GeneratedValue(strategy: "AUTO")]
+	private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="json")
-     */
-    private array $roles = [];
+	#[ORM\Column(type: "json")]
+	private array $roles = [];
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
-    private ?string $username;
+	#[ORM\Column(type: "string", length: 50)]
+	private ?string $username;
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    private string $password;
+	#[ORM\Column(type: "string")]
+	private string $password;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private bool $enabled;
+	#[ORM\Column(type: "boolean")]
+	private bool $enabled;
 
-    /**
-     * @ORM\Column(name="firstname", type="string", length=255, nullable=true)
-     * @Serializer\SerializedName("firstName")
-     */
-    private $firstName;
+	#[ORM\Column(name: "firstname", type: "string", length: 255, nullable: true)]
+	#[Serializer\SerializedName("firstName")]
+	private $firstName;
 
-    /**
-     * @ORM\Column(name="lastname", type="string", length=255, nullable=true)
-     * @Serializer\SerializedName("lastName")
-     */
-    private $lastName;
+	#[ORM\Column(name: "lastname", type: "string", length: 255, nullable: true)]
+	#[Serializer\SerializedName("lastName")]
+	private $lastName;
 
-    /**
-     * @ORM\Column(name="email", type="string", length=50, nullable=false)
-     */
-    private $email;
+	#[ORM\Column(name: "email", type: "string", length: 50, nullable: false)]
+	private $email;
 
-    /**
-     * @ORM\Column(name="jobtitle", type="string", length=255, nullable=true)
-     * @Serializer\SerializedName("jobTitle")
-     */
-    private $jobTitle;
+	#[ORM\Column(name: "jobtitle", type: "string", length: 255, nullable: true)]
+	#[Serializer\SerializedName("jobTitle")]
+	private $jobTitle;
 
-    /**
-     * @ORM\Column(name="department", type="string", length=255, nullable=true)
-     */
-    private $department;
+	#[ORM\Column(name: "department", type: "string", length: 255, nullable: true)]
+	private $department;
 
-    /**
-     * @ORM\Column(name="phone", type="string", length=16, nullable=true)
-     */
-    private $phone;
+	#[ORM\Column(name: "phone", type: "string", length: 16, nullable: true)]
+	private $phone;
 
-    /**
-     * One User can have One UserImage.
-     * @ORM\OneToOne(targetEntity="App\Entity\UserImage")
-     * @ORM\JoinColumn(name="image_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
-     */
-    protected $image;
+	#[ORM\OneToOne(targetEntity: "App\Entity\UserImage")]
+	#[ORM\JoinColumn(name: "image_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+	protected $image;
 
     public function getId(): ?int
     {
@@ -249,8 +222,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function eraseCredentials()
-    {
+    public function eraseCredentials(): void{
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }

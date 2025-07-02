@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Catalog Program Websites{% endblock %}
+
+{% block modulenav %}
+  {% include 'programs/nav_programs.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <websites-list :permissions="[{{ permissions }}]"></websites-list>
+</div>
+{% endblock %}

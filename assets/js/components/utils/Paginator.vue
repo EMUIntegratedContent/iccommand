@@ -62,7 +62,7 @@
             items: {
                 type: Array,
                 required: true
-            },
+            }
         },
         data: function () {
             return {

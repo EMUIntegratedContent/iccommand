@@ -21,7 +21,7 @@ class UserChecker implements UserCheckerInterface
 
         if (!$user->getEnabled()) {
             // the message passed to this exception is meant to be displayed to the user
-            throw new CustomUserMessageAccountStatusException('Your user account has been disabled!!!!.');
+            throw new CustomUserMessageAccountStatusException('Your user account has been disabled.');
         }
     }
 

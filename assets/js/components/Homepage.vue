@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="typeof username != 'undefined'">
-      <div class="row">
+      <div class="row" >
         <div class="col-xs-12">
           <h2>My Applications</h2>
         </div>
@@ -11,8 +11,7 @@
           <div v-if="module.display" class="card col-sm-6 col-md-4" :key="'mod-'+i">
             <div class="card-body">
               <h5 class="card-title">{{ module.title }}</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-                content.</p>
+              <p class="card-text"><span v-html="module.description"></span></p>
               <a :href="module.buttonLink" class="btn btn-primary">{{ module.buttonText }}</a>
             </div>
           </div>
@@ -25,8 +24,6 @@
     </template>
   </div>
 </template>
-<style>
-</style>
 <script>
 export default {
   created() {
@@ -73,6 +70,27 @@ export default {
           buttonLink: "/redirects",
           display: false
         },
+        programs: {
+          title: "Catalog Programs Manager",
+          description: "The catalog programs manager allows for the editing of program names, websites, etc., from the Acalog course catalog.",
+          buttonText: "Manage Programs",
+          buttonLink: "/programs",
+          display: false
+        },
+        links: { // Added Sept. 2024
+          title: "External Application Links",
+          description: "A list of links to admin panels and front-ends for various external applications.",
+          buttonText: "See Apps",
+          buttonLink: "/applinks",
+          display: true // No permissions required for this module; it's just a list of links
+        },
+        crimelog: { // Added June 2025
+          title: "DPS Crime Log",
+          description: "This application allows DPS staff to upload the Daily Crime Log CSV file for display on the <a href=\"https://www.emich.edu/police/crime-alerts-stats/daily-crime-log.php\" target=\"_blank\">EMU Police website</a>.",
+          buttonText: "DPS Crime Log Upload",
+          buttonLink: "/crimelog",
+          display: true
+        },
       }
     }
   },
@@ -91,14 +109,20 @@ export default {
   methods: {
     // Based on permissions passed to this component, enable module display for appropriate system applications
     registerUserModule: function (role) {
-      if (role.includes('ROLE_MAP_') || role.includes('ROLE_GLOBAL_ADMIN_')) {
+      if (role.includes('ROLE_MAP_') || role.includes('ROLE_GLOBAL_ADMIN')) {
         this.userModules.map.display = true
       }
-      if (role.includes('ROLE_MULTIMEDIA_') || role.includes('ROLE_GLOBAL_ADMIN_')) {
+      if (role.includes('ROLE_MULTIMEDIA_') || role.includes('ROLE_GLOBAL_ADMIN')) {
         this.userModules.multimedia.display = true
       }
-      if (role.includes('ROLE_REDIRECT_') || role.includes('ROLE_GLOBAL_ADMIN_')) {
+      if (role.includes('ROLE_REDIRECT_') || role.includes('ROLE_GLOBAL_ADMIN')) {
         this.userModules.redirect.display = true
+      }
+      if (role.includes('ROLE_PROGRAMS_') || role.includes('ROLE_GLOBAL_ADMIN')) {
+        this.userModules.programs.display = true
+      }
+       if (role.includes('ROLE_CRIMELOG_') || role.includes('ROLE_GLOBAL_ADMIN')) {
+        this.userModules.crimelog.display = true
       }
     },
   },

@@ -67,12 +67,43 @@ class RedirectService {
     return $redirectPermissions;
   }
 
-    /**
-     * Uses the Symfony container's validator to validate fields for a redirect.
-     * @param Redirect A redirect that makes one link go to another link.
-     * @return ConstraintViolationList A list of errors.
-     */
+	/**
+	 * Uses the Symfony container's validator to validate fields for a redirect.
+	 * @param Redirect A redirect that makes one link go to another link.
+	 * @return ConstraintViolationList A list of errors.
+	 */
   public function validate($redirect): ConstraintViolationList {
     return $this->validator->validate($redirect);
   }
+
+	/**
+	 * Gets the broken redirects with pagination.
+	 * @param $currentPage
+	 * @param $pageSize
+	 * @param $itemType
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getRedirectsPagination($currentPage, $pageSize, $itemType)
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Redirect::class);
+		return $repository->paginatedRedirects($currentPage, $pageSize, $itemType);
+	}
+
+	/**
+	 * Get programs that are like the passed progStr for the given catalog.
+	 * @param $searchTerm
+	 * @param string $type
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getRedirectsByName($searchTerm, string $type = 'broken')
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Redirect::class);
+		return $repository->searchResultsRedirects($searchTerm, $type);
+	}
 }

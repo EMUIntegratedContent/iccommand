@@ -1,0 +1,4 @@
+security_logout:
+    path: /logout
+    controller: Symfony\Bundle\SecurityBundle\Controller\LogoutController
+

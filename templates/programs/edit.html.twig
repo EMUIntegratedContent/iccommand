@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit catalog program{% endblock %}
+
+{% block modulenav %}
+  {% include 'programs/nav_programs.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <program-form :prog-exists="true" start-mode="edit" prog-id="{{ id }}" :permissions="[{{ permissions }}]"></program-form>
+</div>
+{% endblock %}
