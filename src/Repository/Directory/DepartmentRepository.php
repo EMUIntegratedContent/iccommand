@@ -38,4 +38,59 @@ class DepartmentRepository extends ServiceEntityRepository
       $this->getEntityManager()->flush();
     }
   }
+
+  /**
+   * Gets the departments with pagination.
+   * @param $currentPage
+   * @param $pageSize
+   * @param $searchTerm
+   * @return array
+   */
+  public function paginatedDepartments($currentPage, $pageSize, $searchTerm = '')
+  {
+    $qb = $this->createQueryBuilder('d');
+
+    if (!empty($searchTerm)) {
+      $qb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm')
+        ->setParameter('searchTerm', '%' . $searchTerm . '%');
+    }
+
+    $qb->orderBy('d.department', 'ASC');
+
+    $query = $qb->getQuery();
+    $query->setFirstResult(($currentPage - 1) * $pageSize);
+    $query->setMaxResults($pageSize);
+
+    $departments = $query->getResult();
+
+    // Get total count
+    $countQb = $this->createQueryBuilder('d');
+    if (!empty($searchTerm)) {
+      $countQb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm')
+        ->setParameter('searchTerm', '%' . $searchTerm . '%');
+    }
+    $countQb->select('COUNT(d.id)');
+    $totalRows = $countQb->getQuery()->getSingleScalarResult();
+
+    return [
+      'departments' => $departments,
+      'totalRows' => $totalRows
+    ];
+  }
+
+  /**
+   * Get departments that match the search term.
+   * @param $searchTerm
+   * @return array
+   */
+  public function searchResultsDepartments($searchTerm)
+  {
+    $qb = $this->createQueryBuilder('d');
+    $qb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm')
+      ->setParameter('searchTerm', '%' . $searchTerm . '%')
+      ->orderBy('d.department', 'ASC')
+      ->setMaxResults(10);
+
+    return $qb->getQuery()->getResult();
+  }
 }

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Department Directory Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'directory/nav_directory.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-1">Department Directory App Management</h1>
+  <app-manage role-prefix="ROLE_DEPARTMENTS_" app-slug="directory" app-name="Department Directory App" current-user="{{ app.user.username }}"></app-manage>
+</div>
+{% endblock %}

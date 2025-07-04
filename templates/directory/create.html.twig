@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create a department.{% endblock %}
+
+{% block modulenav %}
+  {% include 'directory/nav_directory.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<h1 class="display-1">Create Department</h1>
+<div id="app">
+    <department-form :item-exists="false" :new-form="true" start-mode="edit" :permissions="[{{ permissions }}]"></department-form>
+</div>
+{% endblock %} 

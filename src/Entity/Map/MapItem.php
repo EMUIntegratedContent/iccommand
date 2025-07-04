@@ -23,12 +23,12 @@ abstract class MapItem
 	#[ORM\Id]
 	#[ORM\GeneratedValue]
 	#[ORM\Column(type: "integer")]
-	#[Groups("bldgs")]
+	#[Groups("bldgs", "department")]
 	private $id;
 
 	#[ORM\Column(type: "string")]
 	#[Assert\NotBlank(message: "You must provide a name for this item.")]
-	#[Groups("bldgs")]
+	#[Groups("bldgs", "department")]
 	private $name;
 
 	#[Gedmo\Slug(fields: ["name"])]

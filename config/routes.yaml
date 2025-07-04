@@ -49,3 +49,7 @@ programs:
 crimelog:
     resource: App\Controller\Api\CrimeLog\CrimeLogController
     prefix: /api/crimelog/
+
+directory:
+    resource: App\Controller\Api\Directory\DirectoryController
+    prefix: /api/directory/

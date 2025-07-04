@@ -87,6 +87,12 @@ app.component("new-redirect-item", require("./components/redirect/NewRedirectIte
 app.component("redirect-item-form", require("./components/redirect/RedirectItemForm.vue").default);
 app.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
 
+/* Directory Application */
+app.component("department-index", require("./components/directory/DepartmentIndex.vue").default);
+app.component("department-form", require("./components/directory/DepartmentForm.vue").default);
+app.component("department-list", require("./components/directory/DepartmentList.vue").default);
+app.component("department-delete-modal", require("./components/directory/DepartmentDeleteModal.vue").default);
+
 /* Catalog Programs */
 app.component("programs-index", require("./components/programs/ProgramsIndex.vue").default);
 app.component("programs-list", require("./components/programs/ProgramsList.vue").default);

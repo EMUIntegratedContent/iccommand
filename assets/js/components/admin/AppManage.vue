@@ -265,7 +265,7 @@ export default {
                 self.apiError.message = "You do not have sufficient privileges to retrieve users."
                 break
               case 404:
-                self.apiError.message = "Map users were not found."
+                self.apiError.message = "Users were not found."
                 break
               case 500:
                 self.apiError.message = "An internal error occurred."
