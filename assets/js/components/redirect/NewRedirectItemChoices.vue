@@ -26,7 +26,7 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Bulk Upload</h5>
-          <p><a href="/bulk_redirect_template.csv" target="_blank" class="text-info">Download Sample Template [CSV]</a><br>Note that the options for the "item_type" column are:
+          <p><a href="/bulk_redirect_template.csv" target="_blank">Download Sample Template [CSV]</a><br>Note that the options for the "item_type" column are:
             <ul>
               <li>redirect of broken link <small> (best for site migration)</small></li>
               <li>redirect of shortened link</li>

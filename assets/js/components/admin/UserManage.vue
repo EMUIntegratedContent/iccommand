@@ -126,7 +126,7 @@
               </div>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
-              <div class="card card-accent card-accent-blue">
+              <div class="card card-accent card-accent-green">
                 <div class="card-header">Campus Map</div>
                 <div class="card-body">
                   <template v-for="role in rolesMap" :key="'user-map-'+role">
@@ -140,7 +140,7 @@
               </div>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
-              <div class="card card-accent card-accent-blue">
+              <div class="card card-accent card-accent-green">
                 <div class="card-header">Redirect</div>
                 <div class="card-body">
                   <template v-for="role in rolesRedirect" :key="'user-redirect-'+role">
@@ -154,7 +154,7 @@
               </div>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
-              <div class="card card-accent card-accent-blue">
+              <div class="card card-accent card-accent-green">
                 <div class="card-header">Multimedia Request</div>
                 <div class="card-body">
                   <template v-for="role in rolesMultimedia" :key="'user-multi-'+role">

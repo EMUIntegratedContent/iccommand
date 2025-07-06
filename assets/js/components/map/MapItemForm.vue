@@ -8,7 +8,7 @@
       {{ apiError.message }}
     </div>
 
-    <div v-if="isDeleted === true" class="alert alert-info fade show" role="alert">
+    <div v-if="isDeleted === true" class="alert alert-secondary fade show" role="alert">
       {{ capitalize(record.itemType) }} "{{ record.name }}" item has been deleted. You will now be redirected to
       the map items list page.
     </div>
@@ -1156,7 +1156,7 @@
                 </form>
               </template>
               <template v-else>
-                <div class="alert alert-info" role="alert">
+                <div class="alert alert-secondary" role="alert">
                   <p v-if="!itemExists">You will be able to upload images once you create the {{
                       record.itemType }}</p>
                   <p v-if="!userCanEdit">You do not have sufficient privileges to upload images</p>

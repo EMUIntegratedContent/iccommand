@@ -4,7 +4,7 @@
     <div v-if="isDataLoaded === false">
       <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
     </div>
-    <div v-if="isDeleted === true" class="alert alert-info fade show" role="alert">
+    <div v-if="isDeleted === true" class="alert alert-secondary fade show" role="alert">
       This request assginee has been deleted. You will now be redirected to the asssignees list page.
     </div>
     <!-- MAIN AREA -->
