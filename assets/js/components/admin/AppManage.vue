@@ -8,7 +8,7 @@
     </div>
     <div v-if="!loadingUsers" class="row">
       <div v-for="(user, index) in paginatedUsers" class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
-        <div class="card card-accent card-accent-blue"
+        <div class="card card-accent card-accent-green"
              :class="{'card-accent-green' : isCardSaved(index), 'card-accent-yellow' : isCardDeleted(index), 'card-accent-red' : isCardError(index)}">
           <div class="card-header"
                :class="{'alert-success' : isCardSaved(index), 'alert-warning' : isCardDeleted(index), 'alert-danger' : isCardError(index)}">

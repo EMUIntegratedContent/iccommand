@@ -8,10 +8,10 @@
 @import '~bootstrap/scss/bootstrap';
 // Font Awesome (CP 2/28/18)
 @import "~font-awesome/scss/font-awesome.scss";
-@import url('https://fonts.googleapis.com/css?family=Lato');
 
 body {
-  font-family: 'Lato', sans-serif;
+  font-family: "Poppins", "Roboto", "Open Sans", Helvetica, Arial, sans-serif;
+  color: $body-emu;
 }
 .app-hero{
   position: relative;
@@ -30,8 +30,13 @@ body {
 .spacer-bottom{
   margin-bottom: 20px;
 }
-#iccommand-mainnav-container li.active {
-    border-bottom: solid 2px $info-emu;
+#iccommand-mainnav-container {
+  li.active {
+    border-bottom: solid 2px $neon;
+  }
+  li:hover {
+    border-bottom: solid 2px $primary-light;
+  }
 }
 .iccommand-thumb-container{
   padding: 0 !important;
@@ -40,10 +45,10 @@ body {
   }
 }
 .btn-success{
-  background-color: $success-emu !important;
+  background-color: $primary-light !important;
   border-color: transparent !important;
   &:hover{
-    background-color: lighten($success-emu, 10%) !important;
+    background-color: lighten($primary-light, 10%) !important;
   }
 }
 .btn-danger{
@@ -54,10 +59,12 @@ body {
   }
 }
 .btn-info{
-  background-color: $info-emu !important;
+  background-color: $neon !important;
   border-color: transparent !important;
+  color: $body-emu;
   &:hover{
-    background-color: lighten($info-emu, 10%) !important;
+    background-color: lighten($neon, 5%) !important;
+    color: $body-emu;
   }
 }
 .nav-tabs{
@@ -66,8 +73,8 @@ body {
 .card-accent{
   border-top: 5px solid;
 }
-.card-accent-blue{
-  border-top-color: $success-emu;
+.card-accent-green{
+  border-top-color: $primary-light;
   background: linear-gradient(
     -45deg,
     rgba(255, 255, 255, .2) 25%,
@@ -143,14 +150,17 @@ h3.module-nav-heading{
 }
 .module-nav-pills{
   padding-bottom: 10px;
-  border-bottom: 2px solid #2e456d;
+  border-bottom: 2px solid #333333;
   margin-bottom: 5px;
 }
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link{
   background-color: $primary !important;
 }
 .nav-link{
-  color: #2e456d;
+  color: $dark-bkg-emu;
+  &:hover{
+    color: $neon !important;
+  }
 }
 .mapitem-add-aux{
   text-align: center;
@@ -161,7 +171,7 @@ h3.module-nav-heading{
   }
 }
 .heading-primary{
-    color: $success-emu;
+    color: $primary;
 }
 .hand{
   cursor: pointer;
@@ -184,13 +194,21 @@ h3.module-nav-heading{
   top: 40px;
 }
 .col-sortable{
-  color: $info-emu;
+  color: $primary-light;
   text-decoration: underline;
   cursor: pointer;
 }
 
 // This is for links that are not buttons
 a:not(.btn):not(.nav-link):not(.page-link):not(.navbar-brand) {
-  color: #008a00;
+  color: $primary;
   text-decoration: underline;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255,255,255,1) !important;
+}
+
+.bg-dark {
+  background-color: #333333 !important;
 }

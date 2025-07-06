@@ -7,7 +7,7 @@
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
     </div>
-    <div v-if="isDeleted === true" class="alert alert-info fade show" role="alert">
+    <div v-if="isDeleted === true" class="alert alert-secondary fade show" role="alert">
       This website has been deleted. You will now be redirected to the websites list page.
     </div>
 
