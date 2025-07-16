@@ -22,13 +22,13 @@ mapitemImages:
     resource: App\Controller\Api\Map\MapItemImageController
     prefix: /api/mapitemimages/
 
-multimediaRequestAssignees:
-    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
-    prefix: /api/multimediaassignees/
-
-multimediaRequests:
-    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController
-    prefix: /api/multimediarequests/
+#multimediaRequestAssignees:
+#    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
+#    prefix: /api/multimediaassignees/
+#
+#multimediaRequests:
+#    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestController
+#    prefix: /api/multimediarequests/
 
 redirects:
     resource: App\Controller\Api\Redirect\RedirectController

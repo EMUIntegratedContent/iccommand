@@ -1,17 +1,19 @@
-{% extends 'base.html.twig' %}
+{# NO LONGER IN USE AS OF 2025 (hadn't been since 2018) - kept for reference #}
 
-{% block title %}Multimedia Request Application Management{% endblock %}
+{#{% extends 'base.html.twig' %}#}
 
-{% block modulenav %}
-  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
-{% endblock %}
+{#{% block title %}Multimedia Request Application Management{% endblock %}#}
 
-{% block body %}
-<div id="app">
-  <h1 class="display-4">Multimedia request app management</h1>
-  {{ encore_entry_script_tags('app') }}
-  <app-manage role-prefix="ROLE_MULTIMEDIA_" app-slug="multimediarequest" app-name="Multimedia Requests App" current-user="{{ app.user.username }}"></app-manage>
-</div>
+{#{% block modulenav %}#}
+{#  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}#}
+{#{% endblock %}#}
+
+{#{% block body %}#}
+{#<div id="app">#}
+{#  <h1 class="display-4">Multimedia request app management</h1>#}
+{#  {{ encore_entry_script_tags('app') }}#}
+{#  <app-manage role-prefix="ROLE_MULTIMEDIA_" app-slug="multimediarequest" app-name="Multimedia Requests App" current-user="{{ app.user.username }}"></app-manage>#}
+{#</div>#}
 
 
-{% endblock %}
+{#{% endblock %}#}

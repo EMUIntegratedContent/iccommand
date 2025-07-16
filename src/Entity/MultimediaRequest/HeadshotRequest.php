@@ -1,36 +1,36 @@
 <?php
-
+// NO LONGER IN USE AS OF 2025 (hadn't been since 2018) - kept for reference
 namespace App\Entity\MultimediaRequest;
 
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\SerializedName;
-use Symfony\Component\Serializer\Annotation\Groups;
+//use Doctrine\ORM\Mapping as ORM;
+//use Symfony\Component\Serializer\Annotation\SerializedName;
+//use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: "App\Repository\MultimediaRequest\HeadshotRequestRepository")]
+//#[ORM\Entity(repositoryClass: "App\Repository\MultimediaRequest\HeadshotRequestRepository")]
 class HeadshotRequest extends MultimediaRequest
 {
-	const REQUEST_TYPE = 'headshot';
-
-	#[ORM\ManyToOne(targetEntity: "PhotoHeadshotDate", inversedBy: "headshotRequests")]
-	#[SerializedName("timeSlot")]
-	#[Groups("multi")]
-	private $timeSlot;
-
-	#[SerializedName("requestType")]
-	#[Groups("multi")]
-	public function getRequestType(): string
-	{
-		return self::REQUEST_TYPE;
-	}
-
-	public function getTimeSlot(): ?PhotoHeadshotDate
-	{
-		return $this->timeSlot;
-	}
-
-	public function setTimeSlot(?PhotoHeadshotDate $headshotDate): self
-	{
-		$this->timeSlot = $headshotDate;
-		return $this;
-	}
+//	const REQUEST_TYPE = 'headshot';
+//
+//	#[ORM\ManyToOne(targetEntity: "PhotoHeadshotDate", inversedBy: "headshotRequests")]
+//	#[SerializedName("timeSlot")]
+//	#[Groups("multi")]
+//	private $timeSlot;
+//
+//	#[SerializedName("requestType")]
+//	#[Groups("multi")]
+//	public function getRequestType(): string
+//	{
+//		return self::REQUEST_TYPE;
+//	}
+//
+//	public function getTimeSlot(): ?PhotoHeadshotDate
+//	{
+//		return $this->timeSlot;
+//	}
+//
+//	public function setTimeSlot(?PhotoHeadshotDate $headshotDate): self
+//	{
+//		$this->timeSlot = $headshotDate;
+//		return $this;
+//	}
 }

@@ -1,14 +1,16 @@
-{% extends 'base.html.twig' %}
+{# NO LONGER IN USE AS OF 2025 (hadn't been since 2018) - kept for reference #}
 
-{% block title %}Edit request assignee.{% endblock %}
+{#{% extends 'base.html.twig' %}#}
 
-{% block modulenav %}
-  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}
-{% endblock %}
+{#{% block title %}Edit request assignee.{% endblock %}#}
 
-{% block body %}
-<div id="app">
-  {{ encore_entry_script_tags('app') }}
-  <multimedia-assignee-form :item-exists="true" start-mode="edit" item-id="{{ id }}" :permissions="[{{ permissions }}]"></multimedia-assignee-form>
-</div>
-{% endblock %}
+{#{% block modulenav %}#}
+{#  {% include 'multimedia_request/nav_multimedia_request.html.twig' %}#}
+{#{% endblock %}#}
+
+{#{% block body %}#}
+{#<div id="app">#}
+{#  {{ encore_entry_script_tags('app') }}#}
+{#  <multimedia-assignee-form :item-exists="true" start-mode="edit" item-id="{{ id }}" :permissions="[{{ permissions }}]"></multimedia-assignee-form>#}
+{#</div>#}
+{#{% endblock %}#}

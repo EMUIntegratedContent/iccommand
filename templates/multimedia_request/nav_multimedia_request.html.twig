@@ -1,20 +1,22 @@
-<h3 class="module-nav-heading">Division of Communications – Multimedia Requests</h3>
-<ul class="nav nav-pills module-nav-pills" role="navigation">
-    <li class="nav-item">
-        <a class="nav-link active" href="/multimediarequests"><i class="fa fa-home"></i></a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/multimediarequests/requests">Request list</a>
-    </li>
-    {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN') %}
-        <li class="nav-item">
-            <a class="nav-link" href="/multimediarequests/headshots/scheduler">Headshot scheduler</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/multimediarequests/assignees">Assignees</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/multimediarequests/manage">Manage app</a>
-        </li>
-    {% endif %}
-</ul>
+{# NO LONGER IN USE AS OF 2025 (hadn't been since 2018) - kept for reference #}
+
+{#<h3 class="module-nav-heading">Division of Communications – Multimedia Requests</h3>#}
+{#<ul class="nav nav-pills module-nav-pills" role="navigation">#}
+{#    <li class="nav-item">#}
+{#        <a class="nav-link active" href="/multimediarequests"><i class="fa fa-home"></i></a>#}
+{#    </li>#}
+{#    <li class="nav-item">#}
+{#        <a class="nav-link" href="/multimediarequests/requests">Request list</a>#}
+{#    </li>#}
+{#    {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_ADMIN') %}#}
+{#        <li class="nav-item">#}
+{#            <a class="nav-link" href="/multimediarequests/headshots/scheduler">Headshot scheduler</a>#}
+{#        </li>#}
+{#        <li class="nav-item">#}
+{#            <a class="nav-link" href="/multimediarequests/assignees">Assignees</a>#}
+{#        </li>#}
+{#        <li class="nav-item">#}
+{#            <a class="nav-link" href="/multimediarequests/manage">Manage app</a>#}
+{#        </li>#}
+{#    {% endif %}#}
+{#</ul>#}

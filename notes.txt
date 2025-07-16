@@ -1,3 +1,7 @@
+## UPDATES 2025
+- MULTIMEDIA REQUESTS APP NO LONGER IN USE!
+- Replacing with a new app called "Photography Requests" (which replaces the CMA2 app...https://www.emich.edu/admin/cma/photo_requests/index.php)
+
 Docker on Windows:
 - If you're using Docker on Windows, be sure the docker_postscript.sh file has 'LF' line endings (not 'CRLF') or it will not run properly.
 
