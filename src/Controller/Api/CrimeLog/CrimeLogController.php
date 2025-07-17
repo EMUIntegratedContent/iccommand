@@ -68,7 +68,7 @@ class CrimeLogController extends AbstractFOSRestController
 		if (count($csv) > 0) {
 			foreach ($csv as $crimelog) {
 				$newCrimeLog = $this->_addCrimeLog($crimelog);
-				if($newCrimeLog['success'] === false) {
+				if ($newCrimeLog['success'] === false) {
 					$rejected++;
 					$rejectedArr[] = $crimelog['Incident Number'];
 				} else {
@@ -86,6 +86,13 @@ class CrimeLogController extends AbstractFOSRestController
 	private function _addCrimeLog($data): array
 	{
 		$crnnumber = $data['Incident Number'];
+
+		// Log the start of processing
+		$this->logger->info('Processing crime log entry', [
+			'incident_number' => $crnnumber,
+			'data_keys' => array_keys($data)
+		]);
+
 		$crime = $data['Crime'];
 		$crimedesc = $data['Crime Description'];
 		$att = $data['Att'];
@@ -121,6 +128,16 @@ class CrimeLogController extends AbstractFOSRestController
 		$errors = $this->service->validate($crimelog);
 
 		if (count($errors) > 0) {
+			$errorMessages = [];
+			foreach ($errors as $error) {
+				$errorMessages[] = $error->getPropertyPath() . ': ' . $error->getMessage();
+			}
+
+			$this->logger->warning('Crime log validation failed', [
+				'incident_number' => $crnnumber,
+				'errors' => $errorMessages
+			]);
+
 			$serialized = $this->serializer->serialize($errors, "json", ['groups' => 'crimelog']);
 			return [
 				'success' => false,
@@ -129,8 +146,29 @@ class CrimeLogController extends AbstractFOSRestController
 			];
 		}
 
-		$this->em->persist($crimelog); // Persist the crimelog.
-		$this->em->flush(); // Commit everything to the database.
+		try {
+			$this->em->persist($crimelog); // Persist the crimelog.
+			$this->em->flush(); // Commit everything to the database.
+
+			$this->logger->info('Crime log successfully added', [
+				'incident_number' => $crnnumber,
+				'crime_type' => $crime,
+				'location' => $location,
+				'id' => $crimelog->getId()
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Failed to persist crime log', [
+				'incident_number' => $crnnumber,
+				'error' => $e->getMessage(),
+				'trace' => $e->getTraceAsString()
+			]);
+
+			return [
+				'success' => false,
+				'code' => 500,
+				'data' => 'Database error occurred'
+			];
+		}
 
 		$serialized = $this->serializer->serialize($crimelog, "json", ['groups' => 'crimelog']);
 

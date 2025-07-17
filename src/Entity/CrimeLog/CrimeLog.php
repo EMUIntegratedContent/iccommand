@@ -6,6 +6,7 @@ use App\Repository\CrimeLog\CrimeLogRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A crimelog entry link.
@@ -28,6 +29,8 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("crnnumber")]
 	#[Groups("crimelog")]
+	#[Assert\NotBlank(message: "Incident number is required")]
+	#[Assert\Length(max: 20, maxMessage: "Incident number cannot be longer than {{ limit }} characters")]
 	private $crnnumber;
 
 	/**
@@ -36,6 +39,8 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 10)]
 	#[SerializedName("crime")]
 	#[Groups("crimelog")]
+	#[Assert\NotBlank(message: "Crime type is required")]
+	#[Assert\Length(max: 10, maxMessage: "Crime type cannot be longer than {{ limit }} characters")]
 	private $crime;
 
 	/**
@@ -44,6 +49,8 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 255)]
 	#[SerializedName("crimedesc")]
 	#[Groups("crimelog")]
+	#[Assert\NotBlank(message: "Crime description is required")]
+	#[Assert\Length(max: 255, maxMessage: "Crime description cannot be longer than {{ limit }} characters")]
 	private $crimedesc;
 
 	/**
@@ -52,6 +59,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 4)]
 	#[SerializedName("att")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 4, maxMessage: "Att cannot be longer than {{ limit }} characters")]
 	private $att;
 
 	/**
@@ -60,6 +68,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 5)]
 	#[SerializedName("arson")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 5, maxMessage: "Arson field cannot be longer than {{ limit }} characters")]
 	private $arson;
 
 	/**
@@ -68,6 +77,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 12)]
 	#[SerializedName("reptdate")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 12, maxMessage: "Report date cannot be longer than {{ limit }} characters")]
 	private $reptdate;
 
 	/**
@@ -76,6 +86,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 12)]
 	#[SerializedName("repttime")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 12, maxMessage: "Report time cannot be longer than {{ limit }} characters")]
 	private $repttime;
 
 	/**
@@ -84,6 +95,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("occurdate1")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 20, maxMessage: "Occur from date cannot be longer than {{ limit }} characters")]
 	private $occurdate1;
 
 	/**
@@ -92,6 +104,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("occurdate2")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 20, maxMessage: "Occur to date cannot be longer than {{ limit }} characters")]
 	private $occurdate2;
 
 	/**
@@ -100,6 +113,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 10)]
 	#[SerializedName("status")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 10, maxMessage: "Status cannot be longer than {{ limit }} characters")]
 	private $status;
 
 	/**
@@ -108,6 +122,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("closed")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 20, maxMessage: "Closed field cannot be longer than {{ limit }} characters")]
 	private $closed;
 
 	/**
@@ -116,6 +131,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 20)]
 	#[SerializedName("lastupdate")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 20, maxMessage: "Last approval cannot be longer than {{ limit }} characters")]
 	private $lastupdate;
 
 	/**
@@ -124,6 +140,8 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 80)]
 	#[SerializedName("location")]
 	#[Groups("crimelog")]
+	#[Assert\NotBlank(message: "Location is required")]
+	#[Assert\Length(max: 80, maxMessage: "Location cannot be longer than {{ limit }} characters")]
 	private $location;
 
 	/**
@@ -132,6 +150,7 @@ class CrimeLog
 	#[ORM\Column(type: "string", length: 255)]
 	#[SerializedName("subject")]
 	#[Groups("crimelog")]
+	#[Assert\Length(max: 255, maxMessage: "Subject cannot be longer than {{ limit }} characters")]
 	private $subject;
 
 	/**
