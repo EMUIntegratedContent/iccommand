@@ -78,4 +78,12 @@ class CrimeLogService
 	public function validate($log): ConstraintViolationList {
 		return $this->validator->validate($log);
 	}
+
+  /**
+   * Truncates the crimelog table. Should be done before every bulk upload
+   */
+  public function truncateCrimeLogTable(): void
+  {
+    $this->em->createQuery('DELETE FROM App\Entity\CrimeLog\CrimeLog')->execute();
+  }
 }

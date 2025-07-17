@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 
 if (!ini_get('display_errors')) {
@@ -71,6 +70,9 @@ class CrimeLogController extends AbstractFOSRestController
 		$rejectedArr = [];
 
 		if (count($csv) > 0) {
+			// Truncate the crimelog table before adding new entries.
+			$this->service->truncateCrimeLogTable();
+
 			foreach ($csv as $crimelog) {
 				$newCrimeLog = $this->_addCrimeLog($crimelog);
 				if ($newCrimeLog['success'] === false) {
@@ -80,6 +82,7 @@ class CrimeLogController extends AbstractFOSRestController
 					$added++;
 				}
 			}
+			$this->em->flush(); // Commit everything to the database.
 		}
 
 		if ($rejected === 0) {
@@ -156,13 +159,12 @@ class CrimeLogController extends AbstractFOSRestController
 
 		try {
 			$this->em->persist($crimelog); // Persist the crimelog.
-			$this->em->flush(); // Commit everything to the database.
+			// $this->em->flush(); // Moved outside of this method to the bulk action because it was causing memory issues.
 
 			$this->logger->info('Crime log successfully added', [
 				'incident_number' => $crnnumber,
 				'crime_type' => $crime,
-				'location' => $location,
-				'id' => $crimelog->getId()
+				'location' => $location
 			]);
 		} catch (\Exception $e) {
 			$this->logger->error('Failed to persist crime log', [
