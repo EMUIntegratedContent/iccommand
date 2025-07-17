@@ -131,6 +131,9 @@ class CrimeLogController extends AbstractFOSRestController
 		$crimelog->setSubject($subject);
 
 		$errors = $this->service->validate($crimelog);
+		$this->logger->info('Crime log validation', [
+			'errors' => $errors
+		]);
 
 		if (count($errors) > 0) {
 			$errorMessages = [];
