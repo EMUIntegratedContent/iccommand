@@ -34,16 +34,6 @@ class CrimeLogService
   }
 
   /**
-   * Removes a crimelog from the database.
-   * @param CrimeLog $crimelog The crimelog to be removed.
-   */
-  public function deleteCrimeLog(CrimeLog $crimelog): void
-  {
-    $this->em->remove($crimelog);
-    $this->em->flush();
-  }
-
-  /**
    * Fetches the permissions of the user for managing crimelogs.
    * @return array The user's permissions for managing crimelogs.
    */
@@ -84,6 +74,7 @@ class CrimeLogService
    */
   public function truncateCrimeLogTable(): void
   {
-    $this->em->createQuery('DELETE FROM App\Entity\CrimeLog\CrimeLog')->execute();
+		$repository = $this->em->getRepository(CrimeLog::class);
+		$repository->truncate();
   }
 }
