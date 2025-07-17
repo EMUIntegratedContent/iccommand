@@ -37,7 +37,7 @@ class CrimeLogController extends AbstractFOSRestController
 	 */
 	public function __construct(
 		CrimeLogService $service,
-		#[Autowire('monolog.logger.crime_log')] LoggerInterface $logger,
+		LoggerInterface $logger,
 		ManagerRegistry $doctrine,
 		SerializerInterface $serializer
 	) {
