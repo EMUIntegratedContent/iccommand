@@ -1,17 +1,24 @@
 monolog:
-    handlers:
-        main:
-            type: fingers_crossed
-            action_level: info
-            handler: nested
-            excluded_404s:
-                # regex: exclude all 404 errors from the logs
-                - ^/
-        nested:
-            type: stream
-            path: "%kernel.logs_dir%/%kernel.environment%.log"
-            level: debug
-        console:
-            type:   console
-            process_psr_3_messages: false
-            channels: ["!event", "!doctrine"]
+  channels: ["crime_log"]
+  handlers:
+    main:
+      type: fingers_crossed
+      action_level: info
+      handler: nested
+      excluded_404s:
+        # regex: exclude all 404 errors from the logs
+        - ^/
+    nested:
+      type: stream
+      path: "%kernel.logs_dir%/%kernel.environment%.log"
+      level: debug
+    # Dedicated handler for crime log operations
+    crime_log:
+      type: stream
+      path: "%kernel.logs_dir%/crime_log.log"
+      level: info
+      channels: ["crime_log"]
+    console:
+      type: console
+      process_psr_3_messages: false
+      channels: ["!event", "!doctrine"]

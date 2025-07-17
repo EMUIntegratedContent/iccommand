@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 
 if (!ini_get('display_errors')) {
@@ -34,8 +35,12 @@ class CrimeLogController extends AbstractFOSRestController
 	 * The constructor of the CrimeLogController.
 	 * @param CrimeLogService $service The service container of this controller.
 	 */
-	public function __construct(CrimeLogService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer)
-	{
+	public function __construct(
+		CrimeLogService $service,
+		#[Autowire('monolog.logger.crime_log')] LoggerInterface $logger,
+		ManagerRegistry $doctrine,
+		SerializerInterface $serializer
+	) {
 		$this->service = $service;
 		$this->logger = $logger;
 		$this->em = $doctrine->getManager('dps');
