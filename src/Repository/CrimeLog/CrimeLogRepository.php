@@ -19,4 +19,10 @@ class CrimeLogRepository extends ServiceEntityRepository
         parent::__construct($doctrine, CrimeLog::class);
         $this->em = $doctrine->getManager('dps');
     }
+
+		public function truncate(): void
+		{
+			// Truncate the dailylog table.
+			$this->em->getConnection()->executeStatement('TRUNCATE TABLE dailylog');
+		}
 }

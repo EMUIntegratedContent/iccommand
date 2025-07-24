@@ -34,8 +34,12 @@ class CrimeLogController extends AbstractFOSRestController
 	 * The constructor of the CrimeLogController.
 	 * @param CrimeLogService $service The service container of this controller.
 	 */
-	public function __construct(CrimeLogService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer)
-	{
+	public function __construct(
+		CrimeLogService $service,
+		LoggerInterface $logger,
+		ManagerRegistry $doctrine,
+		SerializerInterface $serializer
+	) {
 		$this->service = $service;
 		$this->logger = $logger;
 		$this->em = $doctrine->getManager('dps');
@@ -66,15 +70,19 @@ class CrimeLogController extends AbstractFOSRestController
 		$rejectedArr = [];
 
 		if (count($csv) > 0) {
+			// Truncate the crimelog table before adding new entries.
+			$this->service->truncateCrimeLogTable();
+
 			foreach ($csv as $crimelog) {
 				$newCrimeLog = $this->_addCrimeLog($crimelog);
-				if($newCrimeLog['success'] === false) {
+				if ($newCrimeLog['success'] === false) {
 					$rejected++;
 					$rejectedArr[] = $crimelog['Incident Number'];
 				} else {
 					$added++;
 				}
 			}
+			$this->em->flush(); // Commit everything to the database.
 		}
 
 		if ($rejected === 0) {
@@ -86,6 +94,13 @@ class CrimeLogController extends AbstractFOSRestController
 	private function _addCrimeLog($data): array
 	{
 		$crnnumber = $data['Incident Number'];
+
+		// Log the start of processing
+		$this->logger->info('Processing crime log entry', [
+			'incident_number' => $crnnumber,
+			'data_keys' => array_keys($data)
+		]);
+
 		$crime = $data['Crime'];
 		$crimedesc = $data['Crime Description'];
 		$att = $data['Att'];
@@ -119,8 +134,21 @@ class CrimeLogController extends AbstractFOSRestController
 		$crimelog->setSubject($subject);
 
 		$errors = $this->service->validate($crimelog);
+		$this->logger->info('Crime log validation', [
+			'errors' => $errors
+		]);
 
 		if (count($errors) > 0) {
+			$errorMessages = [];
+			foreach ($errors as $error) {
+				$errorMessages[] = $error->getPropertyPath() . ': ' . $error->getMessage();
+			}
+
+			$this->logger->warning('Crime log validation failed', [
+				'incident_number' => $crnnumber,
+				'errors' => $errorMessages
+			]);
+
 			$serialized = $this->serializer->serialize($errors, "json", ['groups' => 'crimelog']);
 			return [
 				'success' => false,
@@ -129,8 +157,28 @@ class CrimeLogController extends AbstractFOSRestController
 			];
 		}
 
-		$this->em->persist($crimelog); // Persist the crimelog.
-		$this->em->flush(); // Commit everything to the database.
+		try {
+			$this->em->persist($crimelog); // Persist the crimelog.
+			// $this->em->flush(); // Moved outside of this method to the bulk action because it was causing memory issues.
+
+			$this->logger->info('Crime log successfully added', [
+				'incident_number' => $crnnumber,
+				'crime_type' => $crime,
+				'location' => $location
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Failed to persist crime log', [
+				'incident_number' => $crnnumber,
+				'error' => $e->getMessage(),
+				'trace' => $e->getTraceAsString()
+			]);
+
+			return [
+				'success' => false,
+				'code' => 500,
+				'data' => 'Database error occurred'
+			];
+		}
 
 		$serialized = $this->serializer->serialize($crimelog, "json", ['groups' => 'crimelog']);
 

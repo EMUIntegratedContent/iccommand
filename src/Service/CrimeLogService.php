@@ -34,16 +34,6 @@ class CrimeLogService
   }
 
   /**
-   * Removes a crimelog from the database.
-   * @param CrimeLog $crimelog The crimelog to be removed.
-   */
-  public function deleteCrimeLog(CrimeLog $crimelog): void
-  {
-    $this->em->remove($crimelog);
-    $this->em->flush();
-  }
-
-  /**
    * Fetches the permissions of the user for managing crimelogs.
    * @return array The user's permissions for managing crimelogs.
    */
@@ -78,4 +68,13 @@ class CrimeLogService
 	public function validate($log): ConstraintViolationList {
 		return $this->validator->validate($log);
 	}
+
+  /**
+   * Truncates the crimelog table. Should be done before every bulk upload
+   */
+  public function truncateCrimeLogTable(): void
+  {
+		$repository = $this->em->getRepository(CrimeLog::class);
+		$repository->truncate();
+  }
 }
