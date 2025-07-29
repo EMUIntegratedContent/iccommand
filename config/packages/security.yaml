@@ -53,6 +53,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/photorequests, roles: [ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/crimelog, roles: [ROLE_CRIMELOG_USER, ROLE_GLOBAL_ADMIN] }
         - { path: ^/programs, roles: [ROLE_PROGRAMS_VIEW, ROLE_GLOBAL_ADMIN] }
         - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
@@ -103,3 +104,10 @@ security:
         ROLE_DEPARTMENTS_EDIT: ROLE_DEPARTMENTS_CREATE
         ROLE_DEPARTMENTS_DELETE: ROLE_DEPARTMENTS_EDIT
         ROLE_DEPARTMENTS_ADMIN: ROLE_DEPARTMENTS_DELETE
+        # Photo Request
+        ROLE_PHOTO_VIEW: ROLE_USER
+        ROLE_PHOTO_PHOTOG: ROLE_PHOTO_VIEW
+        ROLE_PHOTO_CREATE: ROLE_PHOTO_VIEW
+        ROLE_PHOTO_EDIT: ROLE_PHOTO_CREATE
+        ROLE_PHOTO_DELETE: ROLE_PHOTO_EDIT
+        ROLE_PHOTO_ADMIN: ROLE_PHOTO_DELETE

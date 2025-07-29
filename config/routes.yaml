@@ -3,24 +3,24 @@
 ####
 
 admin_users:
-    resource: App\Controller\Api\Admin\UserController
-    prefix: /api/admin/
+  resource: App\Controller\Api\Admin\UserController
+  prefix: /api/admin/
 
 calendar:
-    resource: App\Controller\Api\CalendarController
-    prefix: /api/calendar/
+  resource: App\Controller\Api\CalendarController
+  prefix: /api/calendar/
 
 emails_api:
-    resource: App\Controller\Api\EmailController
-    prefix: /api/
+  resource: App\Controller\Api\EmailController
+  prefix: /api/
 
 map_items:
-    resource: App\Controller\Api\Map\MapItemController
-    prefix: /api/
+  resource: App\Controller\Api\Map\MapItemController
+  prefix: /api/
 
 mapitemImages:
-    resource: App\Controller\Api\Map\MapItemImageController
-    prefix: /api/mapitemimages/
+  resource: App\Controller\Api\Map\MapItemImageController
+  prefix: /api/mapitemimages/
 
 #multimediaRequestAssignees:
 #    resource: App\Controller\Api\MultimediaRequest\MultimediaRequestAssigneeController
@@ -31,25 +31,29 @@ mapitemImages:
 #    prefix: /api/multimediarequests/
 
 redirects:
-    resource: App\Controller\Api\Redirect\RedirectController
-    prefix: /api/redirects/
+  resource: App\Controller\Api\Redirect\RedirectController
+  prefix: /api/redirects/
 
 uncaughts:
-    resource: App\Controller\Api\Redirect\UncaughtController
-    prefix: /api/uncaughts/
+  resource: App\Controller\Api\Redirect\UncaughtController
+  prefix: /api/uncaughts/
 
 userImages:
-    resource: App\Controller\Api\UserImageController
-    prefix: /api/userimages/
+  resource: App\Controller\Api\UserImageController
+  prefix: /api/userimages/
 
 programs:
-    resource: App\Controller\Api\Programs\ProgramsController
-    prefix: /api/programs/
+  resource: App\Controller\Api\Programs\ProgramsController
+  prefix: /api/programs/
 
 crimelog:
-    resource: App\Controller\Api\CrimeLog\CrimeLogController
-    prefix: /api/crimelog/
+  resource: App\Controller\Api\CrimeLog\CrimeLogController
+  prefix: /api/crimelog/
 
 directory:
-    resource: App\Controller\Api\Directory\DirectoryController
-    prefix: /api/directory/
+  resource: App\Controller\Api\Directory\DirectoryController
+  prefix: /api/directory/
+
+photorequests:
+  resource: App\Controller\Api\PhotoRequest\PhotoRequestController
+  prefix: /api/photorequests/

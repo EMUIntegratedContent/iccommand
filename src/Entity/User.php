@@ -4,7 +4,8 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -15,47 +16,51 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-	#[ORM\Id]
-	#[ORM\Column(type: "integer")]
-	#[ORM\GeneratedValue(strategy: "AUTO")]
-	private ?int $id = null;
+    #[ORM\Id]
+    #[ORM\Column(type: "integer")]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
+    #[Groups(['photos'])]
+    private ?int $id = null;
 
-	#[ORM\Column(type: "json")]
-	private array $roles = [];
+    #[ORM\Column(type: "json")]
+    private array $roles = [];
 
-	#[ORM\Column(type: "string", length: 50)]
-	private ?string $username;
+    #[ORM\Column(type: "string", length: 50)]
+    #[Groups(['photos'])]
+    private ?string $username;
 
-	#[ORM\Column(type: "string")]
-	private string $password;
+    #[ORM\Column(type: "string")]
+    private string $password;
 
-	#[ORM\Column(type: "boolean")]
-	private bool $enabled;
+    #[ORM\Column(type: "boolean")]
+    private bool $enabled;
 
-	#[ORM\Column(name: "firstname", type: "string", length: 255, nullable: true)]
-	#[Serializer\SerializedName("firstName")]
-	private $firstName;
+    #[ORM\Column(name: "firstname", type: "string", length: 255, nullable: true)]
+    #[Serializer\SerializedName("firstName")]
+    #[Groups(['photos'])]
+    private $firstName;
 
-	#[ORM\Column(name: "lastname", type: "string", length: 255, nullable: true)]
-	#[Serializer\SerializedName("lastName")]
-	private $lastName;
+    #[ORM\Column(name: "lastname", type: "string", length: 255, nullable: true)]
+    #[Serializer\SerializedName("lastName")]
+    #[Groups(['photos'])]
+    private $lastName;
 
-	#[ORM\Column(name: "email", type: "string", length: 50, nullable: false)]
-	private $email;
+    #[ORM\Column(name: "email", type: "string", length: 50, nullable: false)]
+    private $email;
 
-	#[ORM\Column(name: "jobtitle", type: "string", length: 255, nullable: true)]
-	#[Serializer\SerializedName("jobTitle")]
-	private $jobTitle;
+    #[ORM\Column(name: "jobtitle", type: "string", length: 255, nullable: true)]
+    #[Serializer\SerializedName("jobTitle")]
+    private $jobTitle;
 
-	#[ORM\Column(name: "department", type: "string", length: 255, nullable: true)]
-	private $department;
+    #[ORM\Column(name: "department", type: "string", length: 255, nullable: true)]
+    private $department;
 
-	#[ORM\Column(name: "phone", type: "string", length: 16, nullable: true)]
-	private $phone;
+    #[ORM\Column(name: "phone", type: "string", length: 16, nullable: true)]
+    private $phone;
 
-	#[ORM\OneToOne(targetEntity: "App\Entity\UserImage")]
-	#[ORM\JoinColumn(name: "image_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
-	protected $image;
+    #[ORM\OneToOne(targetEntity: "App\Entity\UserImage")]
+    #[ORM\JoinColumn(name: "image_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    protected $image;
 
     public function getId(): ?int
     {
@@ -164,6 +169,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->lastName;
     }
 
+    /**
+     * Get the formatted name in the format: Last Name, First Name (username)
+     */
+    #[Groups(['photos'])]
+    public function getFormattedName(): string
+    {
+        $parts = [];
+
+        if ($this->lastName) {
+            $parts[] = $this->lastName;
+        }
+
+        if ($this->firstName) {
+            $parts[] = $this->firstName;
+        }
+
+        $name = implode(', ', $parts);
+
+        // if ($this->username) {
+        //     $name .= ' (' . $this->username . ')';
+        // }
+
+        return $name ?: '---';
+    }
+
     public function setJobTitle(?string $jobTitle): self
     {
         $this->jobTitle = $jobTitle;
@@ -222,7 +252,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function eraseCredentials(): void{
+    public function eraseCredentials(): void
+    {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }

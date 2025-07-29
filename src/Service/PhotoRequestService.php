@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Entity\PhotoRequest\PhotoRequest;
@@ -12,28 +13,31 @@ use Doctrine\Persistence\ObjectManager;
 /**
  * The photo service is used primarily for CRUD actions on Photo Requests
  */
-class PhotoRequestService {
-  private AuthorizationCheckerInterface $authorizationChecker;
-  private ValidatorInterface $validator;
-  private ObjectManager $em;
-
-  /**
-   * The constructor of the service of the redirects.
-   */
-  public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine) {
-    $this->authorizationChecker = $authorizationChecker;
-    $this->validator = $validator;
-    $this->em = $doctrine->getManager();
-  }
+class PhotoRequestService
+{
+	private AuthorizationCheckerInterface $authorizationChecker;
+	private ValidatorInterface $validator;
+	private ObjectManager $em;
 
 	/**
-	 * Uses the Symfony container's validator to validate fields for a program.
-	 * @param PhotoRequest $program
+	 * The constructor of the service of the photo requests.
+	 */
+	public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine)
+	{
+		$this->authorizationChecker = $authorizationChecker;
+		$this->validator = $validator;
+		$this->em = $doctrine->getManager();
+	}
+
+	/**
+	 * Uses the Symfony container's validator to validate fields for a photo request.
+	 * @param PhotoRequest $photoRequest
 	 * @return ConstraintViolationList A list of errors.
 	 */
-  public function validate($photoReq): ConstraintViolationList {
-    return $this->validator->validate($photoReq);
-  }
+	public function validate($photoRequest): ConstraintViolationList
+	{
+		return $this->validator->validate($photoRequest);
+	}
 
 	/**
 	 * Fetches the permissions of the user for managing photo requests.
@@ -94,14 +98,52 @@ class PhotoRequestService {
 	 * Gets the photo requests with pagination.
 	 * @param $currentPage
 	 * @param $pageSize
+	 * @param $status
 	 * @return array
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
-	#[ArrayShape(['programs' => "array", 'totalRows' => "integer"])]
-	public function getPhotoRequestsPagination($currentPage, $pageSize)
+	#[ArrayShape(['photoRequests' => "array", 'totalRows' => "integer"])]
+	public function getPhotoRequestsPagination($currentPage, $pageSize, $status = null)
 	{
 		$repository = $this->em->getRepository(PhotoRequest::class);
-		return $repository->paginatedRequests($currentPage, $pageSize);
+		return $repository->paginatedPhotoRequests($currentPage, $pageSize, $status);
+	}
+
+	/**
+	 * Get photo requests that match the search term.
+	 * @param $searchTerm
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getPhotoRequestsByName($searchTerm)
+	{
+		// Get the Doctrine repository
+		$repository = $this->em->getRepository(PhotoRequest::class);
+		return $repository->searchResults($searchTerm);
+	}
+
+	/**
+	 * Return a single photo request
+	 * @param $id
+	 * @return PhotoRequest
+	 */
+	public function getPhotoRequest($id)
+	{
+		// Get the Doctrine repository
+		$repository = $this->em->getRepository(PhotoRequest::class);
+		return $repository->getPhotoRequest($id);
+	}
+
+	/**
+	 * Get a PhotoRequest entity by ID
+	 * @param $id
+	 * @return mixed
+	 */
+	public function getPhotoRequestEntity($id)
+	{
+		$repository = $this->em->getRepository(PhotoRequest::class);
+		return $repository->getPhotoRequestEntity($id);
 	}
 }

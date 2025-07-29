@@ -1,23 +1,24 @@
 <?php
+
 namespace App\Controller\PhotoRequest;
 
 use App\Service\PhotoRequestService;
-use App\Service\ProgramsService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * The internal controller for photo requests.
+ * The controller for photo requests.
  */
-class PhotoRequestController extends AbstractController {
+class PhotoRequestController extends AbstractController
+{
   private PhotoRequestService $service;
   private ManagerRegistry $doctrine;
 
   /**
-   * The constructor of the controller for the programs.
-   * @param PhotoRequestService $service The service of the programs.
+   * The constructor of the controller for photo requests.
+   * @param PhotoRequestService $service The service of the photo requests.
    */
   public function __construct(PhotoRequestService $service, ManagerRegistry $doctrine)
   {
@@ -26,110 +27,71 @@ class PhotoRequestController extends AbstractController {
   }
 
   /**
-   * The index page of the catalog programs.
+   * The index page of the photo requests.
    */
-	#[Route('/photo', name: 'photo_index')]
+  #[Route('/photorequests', name: 'photorequests_index')]
   public function index(): Response
   {
-    $permissions = json_encode($this->service->getProgramsPermissions());
-    return $this->render('programs/index.html.twig', [
+    $permissions = json_encode($this->service->getPhotoRequestPermissions());
+    return $this->render('photorequests/index.html.twig', [
       'permissions' => $permissions,
-      'controller_name' => 'Master'
+      'controller_name' => 'PhotoRequest'
     ]);
   }
 
   /**
-   * The list page of the programs.
+   * The list page of the photo requests.
    */
-	#[Route('/programs/list', name: 'programs_list')]
+  #[Route('/photorequests/list', name: 'photorequests_list')]
   public function list(): Response
   {
-    $permissions = json_encode($this->service->getProgramsPermissions());
-    return $this->render('programs/list.html.twig', ['permissions' => $permissions]);
+    $permissions = json_encode($this->service->getPhotoRequestPermissions());
+    return $this->render('photorequests/list.html.twig', ['permissions' => $permissions]);
   }
 
   /**
-   * The create page of the program.
+   * The create page of the photo request.
    */
-	#[Route('/programs/create', name: 'programs_create')]
+  #[Route('/photorequests/create', name: 'photorequests_create')]
   public function add(): Response
   {
-    $permissions = json_encode($this->service->getProgramsPermissions());
-    return $this->render('programs/create.html.twig', ['permissions' => $permissions]);
+    $permissions = json_encode($this->service->getPhotoRequestPermissions());
+    return $this->render('photorequests/create.html.twig', ['permissions' => $permissions]);
   }
 
-	/**
-	 * The management page of the programs.
-	 */
-	#[Route('/programs/manage', name: 'programs_manage')]
-	public function manage(): Response
-	{
-		return $this->render('programs/manage.html.twig', []);
-	}
-
-	/**
-	 * The programs websites list (needs to be managed separately because of lack of FK constraints year-to-year).
-	 */
-	#[Route('/programs/websites', name: 'websites')]
-	public function websites(): Response
-	{
-		$permissions = json_encode($this->service->getProgramsPermissions());
-		return $this->render('programs/websites.html.twig', ['permissions' => $permissions]);
-	}
-
-	/**
-	 * The view page of the website.
-	 */
-	#[Route('/programs/websites/{id}', name: 'website_show')]
-	public function websitesShow($id): Response
-	{
-		$permissions = json_encode($this->service->getProgramsPermissions());
-
-		return $this->render('programs/website_show.html.twig', [
-			'id' => $id,
-			'permissions' => $permissions
-		]);
-	}
-
-	/**
-	 * The edit page of the website.
-	 */
-	#[Route('/programs/websites/{id}/edit', name: 'website_edit')]
-	public function websitesEdit($id): Response
-	{
-		$permissions = json_encode($this->service->getProgramsPermissions());
-
-		return $this->render('programs/website_edit.html.twig', [
-			'id' => $id,
-			'permissions' => $permissions
-		]);
-	}
-
-
+  /**
+   * The management page of the photo requests.
+   */
+  #[Route('/photorequests/manage', name: 'photorequests_manage')]
+  public function manage(): Response
+  {
+    $permissions = json_encode($this->service->getPhotoRequestPermissions());
+    return $this->render('photorequests/manage.html.twig', ['permissions' => $permissions]);
+  }
 
   /**
-   * The edit page of the programs.
+   * The edit page of the photo request.
    */
-	#[Route('/programs/{id}/edit', name: 'programs_edit')]
+  #[Route('/photorequests/{id}/edit', name: 'photorequests_edit')]
   public function edit($id): Response
   {
-    $permissions = json_encode($this->service->getProgramsPermissions());
+    $permissions = json_encode($this->service->getPhotoRequestPermissions());
 
-    return $this->render('programs/edit.html.twig', [
+    return $this->render('photorequests/edit.html.twig', [
       'id' => $id,
       'permissions' => $permissions
     ]);
   }
 
   /**
-   * The show page of the program.
+   * The show page of the photo request.
    */
-	#[Route('/programs/{id}', name: 'programs_show')]
+  #[Route('/photorequests/{id}', name: 'photorequests_show')]
   public function show($id): Response
   {
-    $permissions = json_encode($this->service->getProgramsPermissions());
+    $permissions = json_encode($this->service->getPhotoRequestPermissions());
 
-    return $this->render('programs/show.html.twig', [
+    return $this->render('photorequests/show.html.twig', [
       'id' => $id,
       'permissions' => $permissions
     ]);

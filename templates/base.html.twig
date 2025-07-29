@@ -38,6 +38,11 @@
                     <a class="nav-link" href="/programs">Catalog Programs</a>
                 </li>
             {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PHOTO_VIEW') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/photorequests">Photo Requests</a>
+                </li>
+            {% endif %}
             {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_DEPARTMENTS_USER') %}
                 <li class="nav-item">
                     <a class="nav-link" href="/directory">Dept. Directory</a>

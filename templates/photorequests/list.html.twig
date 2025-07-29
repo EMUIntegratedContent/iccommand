@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Photo Requests{% endblock %}
+
+{% block modulenav %}
+  {% include 'photorequests/nav_photorequests.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <photorequests-list :permissions="[{{ permissions }}]"></photorequests-list>
+</div>
+{% endblock %}

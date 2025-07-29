@@ -14,97 +14,125 @@ class PhotoRequest
   #[ORM\Id]
   #[ORM\GeneratedValue]
   #[ORM\Column(type: 'integer')]
+  #[Groups(['photos'])]
   private ?int $id = null;
 
-  #[ORM\Column(type: 'string', length: 255, enumType: 'string')]
+  #[ORM\Column(type: 'string', length: 255)]
   #[Assert\Choice(choices: ['archive', 'photoshoot'])]
   #[Assert\NotBlank]
+  #[Groups(['photos'])]
   private string $shootType = 'photoshoot';
 
   #[ORM\Column(type: 'string', length: 255)]
   #[Assert\NotBlank]
+  #[Groups(['photos'])]
   private string $firstName;
 
   #[ORM\Column(type: 'string', length: 255)]
   #[Assert\NotBlank]
+  #[Groups(['photos'])]
   private string $lastName;
 
   #[ORM\Column(type: 'string', length: 255)]
   #[Assert\NotBlank]
   #[Assert\Email]
+  #[Groups(['photos'])]
   private string $email;
 
-  #[ORM\Column(type: 'string', length: 12)]
+  #[ORM\Column(type: 'string', length: 20)]
   #[Assert\NotBlank]
+  #[Groups(['photos'])]
   private string $phone;
 
   #[ORM\Column(type: 'string', length: 255)]
   #[Assert\NotBlank]
+  #[Groups(['photos'])]
   private string $department;
 
   #[ORM\Column(type: 'string', length: 255, nullable: true)]
+  #[Groups(['photos'])]
   private ?string $shootName = null;
 
   #[ORM\Column(type: 'string', length: 255, nullable: true)]
+  #[Groups(['photos'])]
   private ?string $photoType = null;
 
   #[ORM\Column(type: 'date', nullable: true)]
+  #[Groups(['photos'])]
   private ?\DateTimeInterface $shootDate = null;
 
   #[ORM\Column(type: 'time', nullable: true)]
+  #[Groups(['photos'])]
   private ?\DateTimeInterface $startTime = null;
 
   #[ORM\Column(type: 'time', nullable: true)]
+  #[Groups(['photos'])]
   private ?\DateTimeInterface $endTime = null;
 
   #[ORM\Column(type: 'string', length: 255, nullable: true)]
+  #[Groups(['photos'])]
   private ?string $location = null;
 
   #[ORM\Column(type: 'text', nullable: true)]
+  #[Groups(['photos'])]
   private ?string $description = null;
 
   #[ORM\Column(type: 'text', nullable: true)]
+  #[Groups(['photos'])]
   private ?string $photoExplaination = null;
 
   #[ORM\Column(type: 'text', nullable: true)]
+  #[Groups(['photos'])]
   private ?string $intendedUse = null;
 
   #[ORM\Column(type: 'text', nullable: true)]
+  #[Groups(['photos'])]
   private ?string $forUse = null;
 
   #[ORM\Column(type: 'string', length: 255, nullable: true)]
+  #[Groups(['photos'])]
   private ?string $url = null;
 
   #[ORM\Column(type: 'string', length: 255, nullable: true)]
+  #[Groups(['photos'])]
   private ?string $designer = null;
 
   #[ORM\Column(type: 'string', length: 255, nullable: true)]
+  #[Groups(['photos'])]
   private ?string $category = null;
 
   #[ORM\Column(type: 'integer')]
+  #[Groups(['photos'])]
   private int $assigned = 0;
 
   #[ORM\ManyToOne(targetEntity: User::class)]
   #[ORM\JoinColumn(name: 'assigned_to', referencedColumnName: 'id', nullable: true)]
+  #[Groups(['photos'])]
   private ?User $assignedTo = null;
 
   #[ORM\Column(type: 'integer', nullable: true)]
+  #[Groups(['photos'])]
   private ?int $declined = 0;
 
   #[ORM\Column(type: 'integer')]
+  #[Groups(['photos'])]
   private int $completed = 0;
 
   #[ORM\Column(type: 'datetime')]
+  #[Groups(['photos'])]
   private \DateTimeInterface $submitted;
 
   #[ORM\Column(type: 'text', nullable: true)]
+  #[Groups(['photos'])]
   private ?string $longStatus = null;
 
-  #[ORM\Column(type: 'string', length: 255, enumType: 'string', nullable: true)]
+  #[ORM\Column(type: 'string', length: 255, nullable: true)]
   #[Assert\Choice(choices: ['WC', 'IP', 'DG'])]
+  #[Groups(['photos'])]
   private ?string $status = null;
 
   #[ORM\Column(type: 'text', nullable: true)]
+  #[Groups(['photos'])]
   private ?string $eventDesc = null;
 
   public function __construct()
@@ -348,6 +376,18 @@ class PhotoRequest
     return $this;
   }
 
+  /**
+   * Get the formatted name of the assigned user
+   */
+  #[Groups(['photos'])]
+  public function getAssignedToName(): ?string
+  {
+    if ($this->assignedTo) {
+      return $this->assignedTo->getFormattedName();
+    }
+    return null;
+  }
+
   public function getDeclined(): ?int
   {
     return $this->declined;
@@ -399,7 +439,16 @@ class PhotoRequest
 
   public function setStatus(?string $status): self
   {
-    $this->status = $status;
+    // Valid status values
+    $validStatuses = ['WC', 'IP', 'DG'];
+
+    // If status is not null and not in valid statuses, set to null
+    if ($status !== null && !in_array($status, $validStatuses)) {
+      $this->status = null;
+    } else {
+      $this->status = $status;
+    }
+
     return $this;
   }
 

@@ -103,6 +103,12 @@ app.component("website-form", require("./components/programs/WebsiteForm.vue").d
 /* CrimeLog */
 app.component("crimelog-index", require("./components/crimelog/CrimeLogIndex.vue").default);
 
+/* Photo Requests */
+// app.component("photorequests-index", require("./components/photorequest/PhotoRequestIndex.vue").default);
+app.component("photorequests-list", require("./components/photorequest/PhotoRequestList.vue").default);
+app.component("photorequests-show", require("./components/photorequest/PhotoRequestShow.vue").default);
+app.component("photorequests-form", require("./components/photorequest/PhotoRequestForm.vue").default);
+
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(CKEditor)

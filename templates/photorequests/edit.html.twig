@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit photo request{% endblock %}
+
+{% block modulenav %}
+  {% include 'photorequests/nav_photorequests.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <photorequests-form :permissions="[{{ permissions }}]" request-id="{{ id }}"></photorequests-show>
+</div>
+{% endblock %}

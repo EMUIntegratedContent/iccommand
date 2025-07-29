@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Photo Requests Permissions Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'photorequests/nav_photorequests.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-4">Programs App Management</h1>
+  <app-manage role-prefix="ROLE_PHOTO_" app-slug="redirect" app-name="Photo Requests App" current-user="{{ app.user.username }}"></app-manage>
+</div>
+{% endblock %}

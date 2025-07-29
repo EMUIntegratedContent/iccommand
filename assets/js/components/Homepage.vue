@@ -98,6 +98,15 @@ export default {
 					buttonLink: "/directory",
 					display: false
 				},
+				photorequests: {
+					// Added July 2025
+					title: "Photo Requests",
+					description:
+						"The photo requests application handles photography and headshot requests that are submitted on the EMU website.",
+					buttonText: "See Requests",
+					buttonLink: "/photorequests",
+					display: false
+				},
 				links: {
 					// Added Sept. 2024
 					title: "External Application Links",
@@ -115,7 +124,8 @@ export default {
 					buttonText: "DPS Crime Log Upload",
 					buttonLink: "/crimelog",
 					display: true
-				}
+				},
+			
 			}
 		}
 	},
@@ -172,6 +182,12 @@ export default {
 				role.includes("ROLE_GLOBAL_ADMIN")
 			) {
 				this.userModules.directory.display = true
+			}
+			if (
+				role.includes("ROLE_PHOTO_") ||
+				role.includes("ROLE_GLOBAL_ADMIN")
+			) {
+				this.userModules.photorequests.display = true
 			}
 		}
 	},
