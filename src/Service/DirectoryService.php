@@ -107,4 +107,22 @@ class DirectoryService
     $repository = $this->doctrine->getRepository(Department::class);
     return $repository->searchResultsDepartments($searchTerm);
   }
+
+  /**
+   * Normalizes search terms by splitting by @@, trimming, filtering empty values, deduplicating, and joining back
+   * Terms are converted to lowercase.
+   * @param string|null $searchTerms
+   * @return string|null
+   */
+  public function normalizeSearchTerms(?string $searchTerms): ?string
+  {
+    if (!$searchTerms) {
+      return null;
+    }
+
+    // Normalize search terms: split by @@, trim, filter empty, deduplicate, join
+    $terms = array_filter(array_map('trim', explode('@@', strtolower($searchTerms))));
+    $terms = array_unique($terms);
+    return implode('@@', $terms);
+  }
 }

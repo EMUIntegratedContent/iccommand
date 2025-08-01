@@ -41,6 +41,8 @@ class DirectoryController extends AbstractFOSRestController
     $this->serializer = $serializer;
   }
 
+
+
   /**
    * Deletes the department from the specified ID.
    * @param $id The ID of the department.
@@ -132,14 +134,7 @@ class DirectoryController extends AbstractFOSRestController
 
     // Set the fields for the department
     $department->setDepartment($request->request->get("department"));
-    $searchTerms = $request->request->get("searchTerms");
-    if ($searchTerms) {
-      // Normalize search terms: split by @@, trim, filter empty, deduplicate, join
-      $terms = array_filter(array_map('trim', explode('@@', $searchTerms)));
-      $terms = array_unique($terms);
-      $searchTerms = implode('@@', $terms);
-    }
-    $department->setSearchTerms($searchTerms);
+    $department->setSearchTerms($this->service->normalizeSearchTerms($request->request->get("searchTerms")));
     $department->setMapBuildingName($request->request->get("mapBuildingName"));
     $department->setAddress1($request->request->get("address1"));
     $department->setAddress2($request->request->get("address2"));
@@ -196,14 +191,7 @@ class DirectoryController extends AbstractFOSRestController
 
     // Set the fields for the department
     $department->setDepartment($request->request->get("department"));
-    $searchTerms = $request->request->get("searchTerms");
-    if ($searchTerms) {
-      // Normalize search terms: split by @@, trim, filter empty, deduplicate, join
-      $terms = array_filter(array_map('trim', explode('@@', $searchTerms)));
-      $terms = array_unique($terms);
-      $searchTerms = implode('@@', $terms);
-    }
-    $department->setSearchTerms($searchTerms);
+    $department->setSearchTerms($this->service->normalizeSearchTerms($request->request->get("searchTerms")));
     $department->setMapBuildingName($request->request->get("mapBuildingName"));
     $department->setAddress1($request->request->get("address1"));
     $department->setAddress2($request->request->get("address2"));

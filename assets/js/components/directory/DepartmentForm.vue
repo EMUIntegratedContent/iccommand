@@ -949,10 +949,10 @@ export default {
 		},
 
 		/**
-		 * Adds a new search term to the array
+		 * Adds a new search term to the array (lowercase)
 		 */
 		addSearchTerm() {
-			const term = this.newSearchTerm.trim()
+			const term = this.newSearchTerm.trim().toLowerCase()
 			if (term && !this.searchTermsArray.includes(term)) {
 				this.searchTermsArray = [...this.searchTermsArray, term]
 				this.formDirty = true
