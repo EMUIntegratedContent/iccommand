@@ -40,16 +40,6 @@ class PhotoRequestController extends AbstractController
   }
 
   /**
-   * The list page of the photo requests.
-   */
-  #[Route('/photorequests/list', name: 'photorequests_list')]
-  public function list(): Response
-  {
-    $permissions = json_encode($this->service->getPhotoRequestPermissions());
-    return $this->render('photorequests/list.html.twig', ['permissions' => $permissions]);
-  }
-
-  /**
    * The create page of the photo request.
    */
   #[Route('/photorequests/create', name: 'photorequests_create')]
