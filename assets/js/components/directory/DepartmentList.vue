@@ -1,7 +1,6 @@
 <template>
 	<div>
 		<heading>
-			<span slot="icon" v-html="headingIcon"></span>
 			<span>Department Directory</span>
 		</heading>
 

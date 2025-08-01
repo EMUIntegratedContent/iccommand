@@ -71,16 +71,6 @@ class DirectoryController extends AbstractController
   }
 
   /**
-   * The list page of the directory.
-   */
-  #[Route('/directory/list', name: 'directory_list')]
-  public function list(): Response
-  {
-    $permissions = json_encode($this->service->getUserDepartmentPermissions());
-    return $this->render('directory/list.html.twig', ['permissions' => $permissions]);
-  }
-
-  /**
    * The management page of the department directory app.
    */
   #[Route('/directory/manage', name: 'directory_manage')]

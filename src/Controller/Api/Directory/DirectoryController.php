@@ -76,7 +76,7 @@ class DirectoryController extends AbstractFOSRestController
 
     $departments = $this->service->getDepartmentsPagination($page, $pageSize, $searchTerm);
 
-    $serialized = $this->serializer->serialize($departments, "json");
+    $serialized = $this->serializer->serialize($departments, "json", ['groups' => 'department']);
 
     return new Response($serialized, 200, array("Content-Type" => "application/json"));
   }
@@ -94,7 +94,7 @@ class DirectoryController extends AbstractFOSRestController
 
     $departments = $this->service->getDepartmentsByName($searchTerm);
 
-    $serialized = $this->serializer->serialize($departments, "json");
+    $serialized = $this->serializer->serialize($departments, "json", ['groups' => 'department']);
 
     return new Response($serialized, 200, array("Content-Type" => "application/json"));
   }
@@ -132,7 +132,14 @@ class DirectoryController extends AbstractFOSRestController
 
     // Set the fields for the department
     $department->setDepartment($request->request->get("department"));
-    $department->setSearchTerms($request->request->get("searchTerms"));
+    $searchTerms = $request->request->get("searchTerms");
+    if ($searchTerms) {
+      // Normalize search terms: split by @@, trim, filter empty, deduplicate, join
+      $terms = array_filter(array_map('trim', explode('@@', $searchTerms)));
+      $terms = array_unique($terms);
+      $searchTerms = implode('@@', $terms);
+    }
+    $department->setSearchTerms($searchTerms);
     $department->setMapBuildingName($request->request->get("mapBuildingName"));
     $department->setAddress1($request->request->get("address1"));
     $department->setAddress2($request->request->get("address2"));
@@ -189,7 +196,14 @@ class DirectoryController extends AbstractFOSRestController
 
     // Set the fields for the department
     $department->setDepartment($request->request->get("department"));
-    $department->setSearchTerms($request->request->get("searchTerms"));
+    $searchTerms = $request->request->get("searchTerms");
+    if ($searchTerms) {
+      // Normalize search terms: split by @@, trim, filter empty, deduplicate, join
+      $terms = array_filter(array_map('trim', explode('@@', $searchTerms)));
+      $terms = array_unique($terms);
+      $searchTerms = implode('@@', $terms);
+    }
+    $department->setSearchTerms($searchTerms);
     $department->setMapBuildingName($request->request->get("mapBuildingName"));
     $department->setAddress1($request->request->get("address1"));
     $department->setAddress2($request->request->get("address2"));

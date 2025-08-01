@@ -68,43 +68,68 @@
 						</div>
 						<div class="form-group">
 							<label>Search Terms</label>
-							<textarea
-								name="searchTerms"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.searchTerms,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.searchTerms"
-								rows="3"
-								placeholder="Enter search terms to help users find this department"
-								@update:modelValue="formDirty = true"
+							<div
+								v-if="!userCanEdit || !isEditMode"
+								class="search-terms-display"
 							>
-							</textarea>
-							<div class="invalid-feedback">
-								{{ errors.searchTerms }}
+								<span v-if="searchTermsArray.length === 0" class="text-muted"
+									>No search terms</span
+								>
+								<span
+									v-for="(term, index) in searchTermsArray"
+									:key="index"
+									class="badge badge-secondary mr-1 mb-1"
+								>
+									{{ term }}
+								</span>
+							</div>
+							<div v-else class="search-terms-input">
+								<div class="search-terms-badges mb-2">
+									<span
+										v-for="(term, index) in searchTermsArray"
+										:key="index"
+										class="badge badge-primary mr-1 mb-1"
+									>
+										{{ term }}
+										<button
+											type="button"
+											class="close ml-1"
+											@click="removeSearchTerm(index)"
+											aria-label="Remove search term"
+										>
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</span>
+								</div>
+								<div class="input-group">
+									<input
+										type="text"
+										class="form-control"
+										:class="{ 'is-invalid': errors.searchTerms }"
+										v-model="newSearchTerm"
+										@keydown.enter.prevent="addSearchTerm"
+										placeholder="Type a search term and press Enter to add"
+									/>
+									<div class="input-group-append">
+										<button
+											type="button"
+											class="btn btn-outline-secondary"
+											@click="addSearchTerm"
+											:disabled="!newSearchTerm.trim()"
+										>
+											Add
+										</button>
+									</div>
+								</div>
+								<div class="invalid-feedback">
+									{{ errors.searchTerms }}
+								</div>
+								<small class="form-text text-muted">
+									Press Enter to add a search term. Click the × to remove terms.
+								</small>
 							</div>
 						</div>
-						<div class="form-group">
-							<label>Building Name</label>
-							<Field
-								name="mapBuildingName"
-								type="text"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.mapBuildingName,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.mapBuildingName"
-								@update:modelValue="formDirty = true"
-							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.mapBuildingName }}
-							</div>
-						</div>
+
 						<div class="form-group">
 							<template v-if="isEditMode">
 								<Field
@@ -486,7 +511,33 @@
 	</div>
 </template>
 
-<style></style>
+<style scoped>
+.search-terms-badges .badge {
+	font-size: 0.875rem;
+	padding: 0.375rem 0.75rem;
+}
+
+.search-terms-badges .badge .close {
+	font-size: 1rem;
+	line-height: 1;
+	color: inherit;
+	opacity: 0.7;
+	background: none;
+	border: none;
+	padding: 0;
+	margin-left: 0.25rem;
+}
+
+.search-terms-badges .badge .close:hover {
+	opacity: 1;
+}
+
+.search-terms-display .badge {
+	font-size: 0.875rem;
+	padding: 0.375rem 0.75rem;
+	background-color: #6c757d;
+}
+</style>
 
 <script>
 import Heading from "../utils/Heading.vue"
@@ -614,7 +665,6 @@ export default {
 				id: "",
 				department: "",
 				searchTerms: "",
-				mapBuildingName: "",
 				mapBuilding: null,
 				address1: "",
 				address2: "",
@@ -653,7 +703,13 @@ export default {
 			 * Is used to track if the form has been modified.
 			 * @type {boolean}
 			 */
-			formDirty: false
+			formDirty: false,
+
+			/**
+			 * Temporary input for new search terms
+			 * @type {string}
+			 */
+			newSearchTerm: ""
 		}
 	},
 
@@ -688,10 +744,6 @@ export default {
 				searchTerms: Yup.string().max(
 					1000,
 					"Search terms must be 1000 characters or less."
-				),
-				mapBuildingName: Yup.string().max(
-					255,
-					"Building name must be 255 characters or less."
 				),
 				// mapBuilding: Yup.number().required().label("Associated Building"),
 				address1: Yup.string().max(
@@ -732,6 +784,22 @@ export default {
 			},
 			set(newValue) {
 				this.record.mapBuilding = newValue ? newValue.id : null
+			}
+		},
+
+		/**
+		 * Converts the searchTerms string to an array for display using @@ separator
+		 */
+		searchTermsArray: {
+			get() {
+				if (!this.record.searchTerms) return []
+				return this.record.searchTerms
+					.split("@@")
+					.map((term) => term.trim())
+					.filter((term) => term.length > 0)
+			},
+			set(value) {
+				this.record.searchTerms = value.join("@@")
 			}
 		}
 	},
@@ -801,6 +869,13 @@ export default {
 					// Success.
 					self.record = response.data
 					self.isDataLoaded = true
+					// Initialize search terms array from the fetched record
+					if (self.record.searchTerms) {
+						self.searchTermsArray = self.record.searchTerms
+							.split("@@")
+							.map((term) => term.trim())
+							.filter((term) => term.length > 0)
+					}
 				})
 				.catch(function (error) {
 					// Failure.
@@ -871,6 +946,28 @@ export default {
 			this.isEditMode === true
 				? (this.isEditMode = false)
 				: (this.isEditMode = true)
+		},
+
+		/**
+		 * Adds a new search term to the array
+		 */
+		addSearchTerm() {
+			const term = this.newSearchTerm.trim()
+			if (term && !this.searchTermsArray.includes(term)) {
+				this.searchTermsArray = [...this.searchTermsArray, term]
+				this.formDirty = true
+			}
+			this.newSearchTerm = ""
+		},
+
+		/**
+		 * Removes a search term from the array
+		 */
+		removeSearchTerm(index) {
+			const newArray = [...this.searchTermsArray]
+			newArray.splice(index, 1)
+			this.searchTermsArray = newArray
+			this.formDirty = true
 		}
 	}
 }

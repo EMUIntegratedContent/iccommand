@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Department Directory Application{% endblock %}
+{% block title %}Department List{% endblock %}
 
 {% block modulenav %}
   {% include 'directory/nav_directory.html.twig' %}
@@ -8,6 +8,6 @@
 
 {% block body %}
 <div id="app">
-    <department-index :permissions="[{{ permissions }}]"></department-index>
+    <department-list :permissions="[{{ permissions }}]"></department-list>
 </div>
 {% endblock %} 

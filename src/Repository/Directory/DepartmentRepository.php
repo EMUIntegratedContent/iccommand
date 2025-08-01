@@ -51,8 +51,9 @@ class DepartmentRepository extends ServiceEntityRepository
     $qb = $this->createQueryBuilder('d');
 
     if (!empty($searchTerm)) {
-      $qb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm')
-        ->setParameter('searchTerm', '%' . $searchTerm . '%');
+      $qb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm OR d.searchTerms LIKE :searchTermSeparator')
+        ->setParameter('searchTerm', '%' . $searchTerm . '%')
+        ->setParameter('searchTermSeparator', '%' . $searchTerm . '@@%');
     }
 
     $qb->orderBy('d.department', 'ASC');
@@ -66,8 +67,9 @@ class DepartmentRepository extends ServiceEntityRepository
     // Get total count
     $countQb = $this->createQueryBuilder('d');
     if (!empty($searchTerm)) {
-      $countQb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm')
-        ->setParameter('searchTerm', '%' . $searchTerm . '%');
+      $countQb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm OR d.searchTerms LIKE :searchTermSeparator')
+        ->setParameter('searchTerm', '%' . $searchTerm . '%')
+        ->setParameter('searchTermSeparator', '%' . $searchTerm . '@@%');
     }
     $countQb->select('COUNT(d.id)');
     $totalRows = $countQb->getQuery()->getSingleScalarResult();
@@ -86,8 +88,9 @@ class DepartmentRepository extends ServiceEntityRepository
   public function searchResultsDepartments($searchTerm)
   {
     $qb = $this->createQueryBuilder('d');
-    $qb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm')
+    $qb->where('d.department LIKE :searchTerm OR d.searchTerms LIKE :searchTerm OR d.searchTerms LIKE :searchTermSeparator')
       ->setParameter('searchTerm', '%' . $searchTerm . '%')
+      ->setParameter('searchTermSeparator', '%' . $searchTerm . '@@%')
       ->orderBy('d.department', 'ASC')
       ->setMaxResults(10);
 
