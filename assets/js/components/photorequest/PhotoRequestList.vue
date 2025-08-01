@@ -12,29 +12,32 @@
 		</div>
 		<div>
 			<p>
-				This is a list of all photo requests submitted via the <a href="https://www.emich.edu/communications/support-center/photo.php" target="_blank">EMU Divcomm Website</a>.
+				This is a list of all photo requests submitted via the
+				<a
+					href="https://www.emich.edu/communications/support-center/photo.php"
+					target="_blank"
+					>EMU Divcomm Website</a
+				>.
 			</p>
 		</div>
 		<div class="row">
-			<div class="col-md-8">
+			<div class="col-md-6">
 				<label for="searchInput" class="sr-only">Search photo requests</label>
 				<VueMultiselect
 					:options="searchResults"
 					:multiple="false"
 					:clear-on-select="true"
-					placeholder="Search photo requests by requester name (type at least 3 characters)"
+					placeholder="Search requests by requester (type at least 3 characters)"
 					label="displayName"
 					track-by="id"
 					id="searchInput"
-					class="form-control"
-					style="padding: 0"
 					name="searchInput"
 					@input="handleSearchInput"
 					@select="handleRequestSelected"
 				>
 				</VueMultiselect>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<label for="statusFilter" class="sr-only">Filter by status</label>
 				<select
 					v-model="statusFilter"
@@ -51,8 +54,35 @@
 					<option value="IP">In Progress</option>
 				</select>
 			</div>
+			<div class="col-md-3">
+				<label for="categoryFilter" class="sr-only">Filter by category</label>
+				<select
+					v-model="categoryFilter"
+					class="form-control"
+					id="categoryFilter"
+					@change="handleCategoryFilterChange"
+				>
+					<option value="">All Categories</option>
+					<option
+						v-for="category in categories"
+						:key="category.category"
+						:value="category.category"
+					>
+						{{ category.category }} ({{ category.count }})
+					</option>
+					<option
+						v-if="
+							categoryFilter &&
+							!categories.find((c) => c.category === categoryFilter)
+						"
+						:value="categoryFilter"
+					>
+						{{ categoryFilter }} (0)
+					</option>
+				</select>
+			</div>
 		</div>
-		<div v-if="!loadingPhotoRequests" class="table-responsive">
+		<div v-if="!loadingPhotoRequests" class="table-responsive mt-2">
 			<table class="table table-hover table-sm">
 				<thead>
 					<tr>
@@ -137,6 +167,7 @@ import VueMultiselect from "vue-multiselect"
 export default {
 	created() {
 		this.fetchPhotoRequests()
+		this.fetchCategories()
 	},
 	components: {
 		Heading,
@@ -167,7 +198,9 @@ export default {
 
 			// Search results
 			searchResults: [],
-			statusFilter: ""
+			statusFilter: "",
+			categoryFilter: "",
+			categories: []
 		}
 	},
 
@@ -252,6 +285,10 @@ export default {
 				params.status = this.statusFilter
 			}
 
+			if (this.categoryFilter) {
+				params.category = this.categoryFilter
+			}
+
 			/* Ajax (Axios) Submission */
 			axios
 				.get("/api/photorequests/list", { params })
@@ -287,6 +324,12 @@ export default {
 		handleStatusFilterChange: function () {
 			this.currentPage = 1
 			this.fetchPhotoRequests()
+			this.fetchCategories()
+		},
+		handleCategoryFilterChange: function () {
+			this.currentPage = 1
+			this.fetchPhotoRequests()
+			this.fetchCategories()
 		},
 		searchPhotoRequests: function () {
 			let self = this // "this" loses scope within Axios.
@@ -328,6 +371,38 @@ export default {
 						}
 					})
 			}
+		},
+		fetchCategories: function () {
+			let self = this // "this" loses scope within Axios.
+
+			const params = {}
+			if (this.statusFilter) {
+				params.status = this.statusFilter
+			}
+
+			axios
+				.get("/api/photorequests/categories", { params })
+				.then(function (response) {
+					self.categories = response.data
+				})
+				.catch(function (error) {
+					self.apiError.status = error.response.status
+					switch (error.response.status) {
+						case 403:
+							self.apiError.message =
+								"You do not have sufficient privileges to retrieve categories."
+							break
+						case 404:
+							self.apiError.message = "Categories were not found."
+							break
+						case 500:
+							self.apiError.message = "An internal error occurred."
+							break
+						default:
+							self.apiError.message = "An error occurred."
+							break
+					}
+				})
 		}
 	}
 }

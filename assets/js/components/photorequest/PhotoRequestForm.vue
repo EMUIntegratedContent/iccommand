@@ -433,10 +433,15 @@
 									@update:modelValue="formDirty = true"
 								>
 									<option value="">Select User</option>
-									<option v-for="user in users" :key="user.id" :value="user.id">
+									<option
+										v-for="user in users"
+										:key="user.id"
+										:value="user.id"
+										:disabled="!user.hasPhotogRole"
+									>
 										{{ user.lastName }}, {{ user.firstName }} ({{
 											user.username
-										}})
+										}}){{ !user.hasPhotogRole ? " - No photog role" : "" }}
 									</option>
 								</Field>
 							</div>
@@ -653,18 +658,28 @@ export default {
 
 	created() {
 		this.currentStatus = 0
-		this.fetchUsers()
 		if (this.requestId) {
 			this.isEdit = true
-			this.fetchPhotoRequest()
+			this.fetchPhotoRequest().then(() => {
+				this.fetchUsers()
+			})
+		} else {
+			this.fetchUsers()
 		}
 	},
 
 	methods: {
 		fetchUsers: function () {
 			let self = this
+			const params = {}
+
+			// If we're editing and have an assigned user, pass their ID
+			if (this.isEdit && this.formData.assignedTo) {
+				params.currentAssignedUserId = this.formData.assignedTo
+			}
+
 			axios
-				.get("/api/photorequests/users")
+				.get("/api/photorequests/users", { params })
 				.then(function (response) {
 					self.users = response.data
 				})
@@ -676,7 +691,7 @@ export default {
 		fetchPhotoRequest: function () {
 			let self = this
 
-			axios
+			return axios
 				.get(`/api/photorequests/${this.requestId}`)
 				.then(function (response) {
 					const request = response.data

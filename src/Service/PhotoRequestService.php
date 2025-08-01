@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\PhotoRequest\PhotoRequest;
 use Doctrine\Persistence\ManagerRegistry;
-use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -43,7 +42,6 @@ class PhotoRequestService
 	 * Fetches the permissions of the user for managing photo requests.
 	 * @return array The user's permissions for managing photo requests.
 	 */
-	#[ArrayShape(['user' => "bool", 'admin' => "bool"])]
 	public function getPhotoRequestPermissions(): array
 	{
 		// Set all permissions to false as default.
@@ -99,15 +97,26 @@ class PhotoRequestService
 	 * @param $currentPage
 	 * @param $pageSize
 	 * @param $status
+	 * @param $category
 	 * @return array
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
-	#[ArrayShape(['photoRequests' => "array", 'totalRows' => "integer"])]
-	public function getPhotoRequestsPagination($currentPage, $pageSize, $status = null)
+	public function getPhotoRequestsPagination($currentPage, $pageSize, $status = null, $category = null)
 	{
 		$repository = $this->em->getRepository(PhotoRequest::class);
-		return $repository->paginatedPhotoRequests($currentPage, $pageSize, $status);
+		return $repository->paginatedPhotoRequests($currentPage, $pageSize, $status, $category);
+	}
+
+	/**
+	 * Get categories with counts
+	 * @param $status
+	 * @return array
+	 */
+	public function getCategoriesWithCounts($status = null): array
+	{
+		$repository = $this->em->getRepository(PhotoRequest::class);
+		return $repository->getCategoriesWithCounts($status);
 	}
 
 	/**

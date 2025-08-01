@@ -24,7 +24,7 @@ class PhotoRequestRepository extends ServiceEntityRepository
 		$this->em = $doctrine->getManager();
 	}
 
-	public function paginatedPhotoRequests($currentPage, $pageSize, $status = null): array
+	public function paginatedPhotoRequests($currentPage, $pageSize, $status = null, $category = null): array
 	{
 		// Calculate the offset
 		$offset = ($currentPage - 1) * $pageSize;
@@ -40,14 +40,25 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			if ($status === 'declined') {
 				$qb->andWhere('p.declined = 1');
 			} elseif ($status === 'complete') {
-				$qb->andWhere('p.completed = 1');
+				$qb->andWhere('p.completed = 1 AND p.declined = 0');
 			} elseif ($status === 'pending') {
-				$qb->andWhere('p.status IS NULL OR p.status = \'\'');
-				$qb->andWhere('p.completed = 0');
+				$qb->andWhere('(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0');
+			} elseif ($status === 'WC') {
+				$qb->andWhere('(p.status = \'WC\') AND p.completed = 0 AND p.declined = 0');
+			} elseif ($status === 'IP') {
+				$qb->andWhere('(p.status = \'IP\') AND p.completed = 0 AND p.declined = 0');
+			} elseif ($status === 'DG') {
+				$qb->andWhere('(p.status = \'DG\') AND p.completed = 0 AND p.declined = 0');
 			} else {
-				$qb->andWhere('p.status = :status AND p.completed = 0');
+				$qb->andWhere('p.status = :status AND p.completed = 0 AND p.declined = 0');
 				$qb->setParameter('status', $status);
 			}
+		}
+
+		// Add category filter
+		if ($category) {
+			$qb->andWhere('p.category = :category');
+			$qb->setParameter('category', $category);
 		}
 
 		// Get paginated photo requests
@@ -67,13 +78,25 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			if ($status === 'declined') {
 				$countQb->andWhere('p.declined = 1');
 			} elseif ($status === 'complete') {
-				$countQb->andWhere('p.completed = 1');
+				$countQb->andWhere('p.completed = 1 AND p.declined = 0');
 			} elseif ($status === 'pending') {
-				$countQb->andWhere('p.completed = 0');
+				$countQb->andWhere('(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0');
+			} elseif ($status === 'WC') {
+				$countQb->andWhere('(p.status = \'WC\') AND p.completed = 0 AND p.declined = 0');
+			} elseif ($status === 'IP') {
+				$countQb->andWhere('(p.status = \'IP\') AND p.completed = 0 AND p.declined = 0');
+			} elseif ($status === 'DG') {
+				$countQb->andWhere('(p.status = \'DG\') AND p.completed = 0 AND p.declined = 0');
 			} else {
-				$countQb->andWhere('p.status = :status AND p.completed = 0');
+				$countQb->andWhere('p.status = :status AND p.completed = 0 AND p.declined = 0');
 				$countQb->setParameter('status', $status);
 			}
+		}
+
+		// Add same category filter to count query
+		if ($category) {
+			$countQb->andWhere('p.category = :category');
+			$countQb->setParameter('category', $category);
 		}
 
 		$totalRequests = $countQb->getQuery()->getSingleScalarResult();
@@ -82,6 +105,45 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			'photoRequests' => $photoRequests,
 			'totalRows' => $totalRequests
 		];
+	}
+
+	public function getCategoriesWithCounts($status = null): array
+	{
+		// Build query builder for categories with counts
+		$qb = $this->em->createQueryBuilder()
+			->select('p.category', 'COUNT(p.id) as count')
+			->from(PhotoRequest::class, 'p')
+			->where('p.category IS NOT NULL')
+			->andWhere('p.category != \'\'')
+			->groupBy('p.category')
+			->orderBy('p.category', 'ASC');
+
+		// Add status filter if provided
+		if ($status) {
+			if ($status === 'declined') {
+				$qb->andWhere('p.declined = 1');
+			} elseif ($status === 'complete') {
+				$qb->andWhere('p.completed = 1');
+			} elseif ($status === 'pending') {
+				$qb->andWhere('(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0');
+			} else {
+				$qb->andWhere('p.status = :status AND p.completed = 0 AND p.declined = 0');
+				$qb->setParameter('status', $status);
+			}
+		}
+
+		$results = $qb->getQuery()->getResult();
+
+		// Format the results
+		$categories = [];
+		foreach ($results as $result) {
+			$categories[] = [
+				'category' => $result['category'],
+				'count' => $result['count']
+			];
+		}
+
+		return $categories;
 	}
 
 	public function searchResults($searchTerm): array

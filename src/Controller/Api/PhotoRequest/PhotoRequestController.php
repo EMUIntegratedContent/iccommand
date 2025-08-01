@@ -58,8 +58,9 @@ class PhotoRequestController extends AbstractFOSRestController
     $page = $request->query->get('page') ?? 1;
     $pageSize = $request->query->get('limit') ?? 25;
     $status = $request->query->get('status');
+    $category = $request->query->get('category');
 
-    $photoRequests = $this->service->getPhotoRequestsPagination($page, $pageSize, $status);
+    $photoRequests = $this->service->getPhotoRequestsPagination($page, $pageSize, $status, $category);
 
     $serialized = $this->serializer->serialize($photoRequests, "json", ['groups' => ['photos']]);
 
@@ -85,23 +86,66 @@ class PhotoRequestController extends AbstractFOSRestController
   }
 
   /**
+   * Get categories with counts
+   * @param Request $request
+   * @return Response
+   */
+  #[Route('/categories', methods: ['GET'])]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_VIEW")'))]
+  public function getCategoriesAction(Request $request): Response
+  {
+    $status = $request->query->get('status');
+    $categories = $this->service->getCategoriesWithCounts($status);
+
+    $serialized = $this->serializer->serialize($categories, "json");
+    return new Response($serialized, 200, array("Content-Type" => "application/json"));
+  }
+
+  /**
    * Get all users for assignment dropdown
+   * @param Request $request
    * @return Response
    */
   #[Route('/users', methods: ['GET'])]
   #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_VIEW")'))]
-  public function getUsersAction(): Response
+  public function getUsersAction(Request $request): Response
   {
+    $currentAssignedUserId = $request->query->get('currentAssignedUserId');
+
+    // Get users with PHOTO_PHOTOG role
     $users = $this->em->getRepository(User::class)->findBy([], ['lastName' => 'ASC', 'username' => 'ASC']);
     $userData = [];
+    $currentAssignedUser = null;
 
     foreach ($users as $user) {
-      $userData[] = [
-        'id' => $user->getId(),
-        'firstName' => $user->getFirstName(),
-        'lastName' => $user->getLastName(),
-        'username' => $user->getUsername()
-      ];
+      $hasPhotogRole = in_array('ROLE_PHOTO_PHOTOG', $user->getRoles());
+
+      // Include user if they have PHOTO_PHOTOG role
+      if ($hasPhotogRole) {
+        $userData[] = [
+          'id' => $user->getId(),
+          'firstName' => $user->getFirstName(),
+          'lastName' => $user->getLastName(),
+          'username' => $user->getUsername(),
+          'hasPhotogRole' => true
+        ];
+      }
+
+      // If this is the currently assigned user, store them separately
+      if ($currentAssignedUserId && $user->getId() == $currentAssignedUserId) {
+        $currentAssignedUser = [
+          'id' => $user->getId(),
+          'firstName' => $user->getFirstName(),
+          'lastName' => $user->getLastName(),
+          'username' => $user->getUsername(),
+          'hasPhotogRole' => $hasPhotogRole
+        ];
+      }
+    }
+
+    // If there's a currently assigned user who doesn't have PHOTO_PHOTOG role, add them to the list
+    if ($currentAssignedUser && !$currentAssignedUser['hasPhotogRole']) {
+      $userData[] = $currentAssignedUser;
     }
 
     $serialized = $this->serializer->serialize($userData, "json");
