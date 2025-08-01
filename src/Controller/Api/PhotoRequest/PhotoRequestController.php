@@ -143,7 +143,7 @@ class PhotoRequestController extends AbstractFOSRestController
       }
     }
 
-    // If there's a currently assigned user who doesn't have PHOTO_PHOTOG role, add them to the list
+    // If there's a currently assigned user who doesn't have PHOTO_PHOTOG role, add them to the list. This user is not available for future assignment.
     if ($currentAssignedUser && !$currentAssignedUser['hasPhotogRole']) {
       $userData[] = $currentAssignedUser;
     }
