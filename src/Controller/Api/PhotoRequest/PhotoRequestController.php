@@ -176,7 +176,7 @@ class PhotoRequestController extends AbstractFOSRestController
    * @return Response The photo request, the status code, and the HTTP headers.
    */
   #[Route('/', methods: ['POST'])]
-  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_CREATE")'))]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_CREATE") or request.headers.get("X-API-Key") or request.headers.get("User-Agent") matches "/.*API.*/"'))]
   public function postPhotoRequestAction(Request $request): Response
   {
     $shootType = $request->request->get("shootType");

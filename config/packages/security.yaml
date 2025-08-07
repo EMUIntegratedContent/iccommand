@@ -56,7 +56,7 @@ security:
     - { path: ^/crimelog, roles: [ROLE_CRIMELOG_USER, ROLE_GLOBAL_ADMIN] }
     - { path: ^/programs, roles: [ROLE_PROGRAMS_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
-    #        - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_GLOBAL_ADMIN] }
+    # - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
     - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
     - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
