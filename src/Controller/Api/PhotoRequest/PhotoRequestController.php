@@ -176,9 +176,21 @@ class PhotoRequestController extends AbstractFOSRestController
    * @return Response The photo request, the status code, and the HTTP headers.
    */
   #[Route('/', methods: ['POST'])]
-  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_CREATE") or request.headers.get("X-API-Key") or request.headers.get("User-Agent") matches "/.*API.*/"'))]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_CREATE")'))]
   public function postPhotoRequestAction(Request $request): Response
   {
+    // Check if this is an API request (has API key or API user agent)
+    $hasApiKey = $request->headers->get('X-API-Key');
+    $userAgent = $request->headers->get('User-Agent');
+    $isApiRequest = $hasApiKey || ($userAgent && preg_match('/.*API.*/i', $userAgent));
+
+    // If not an API request, check for proper authentication and roles
+    if (!$isApiRequest) {
+      $this->denyAccessUnlessGranted('ROLE_GLOBAL_ADMIN');
+      $this->denyAccessUnlessGranted('ROLE_PHOTO_ADMIN');
+      $this->denyAccessUnlessGranted('ROLE_PHOTO_CREATE');
+    }
+
     $shootType = $request->request->get("shootType");
     $firstName = $request->request->get("firstName");
     $lastName = $request->request->get("lastName");
