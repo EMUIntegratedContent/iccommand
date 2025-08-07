@@ -10,39 +10,39 @@ security:
         class: 'App\Entity\User'
         property: email
 
-  # CONFIG FOR WORKING where EMU LDAP is available
-  # firewalls:
-  #     dev:
-  #         pattern: ^/(_(profiler|wdt)|css|images|js)/
-  #         security: false
-  #     main:
-  #         lazy: true
-  #         provider: users
+    # CONFIG FOR WORKING where EMU LDAP is available
+    firewalls:
+      dev:
+        pattern: ^/(_(profiler|wdt)|css|images|js)/
+        security: false
+      main:
+        lazy: true
+        provider: users
 
-  #         form_login_ldap:
-  #             login_path: app_login
-  #             check_path: app_login
-  #             service: Symfony\Component\Ldap\Ldap
-  #             # SYMFONY 7: bug #53529 [Ldap] Use {user_identifier} over deprecated {username} in factories (tcitworld)
-  #             dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
-  #         logout:
-  #             path: /logout
+        form_login_ldap:
+          login_path: app_login
+          check_path: app_login
+          service: Symfony\Component\Ldap\Ldap
+          # SYMFONY 7: bug #53529 [Ldap] Use {user_identifier} over deprecated {username} in factories (tcitworld)
+          dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
+        logout:
+          path: /logout
 
   #CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
-  firewalls:
-    dev:
-      pattern: ^/(_(profiler|wdt)|css|images|js)/
-      user_checker: App\Security\UserChecker
-    main:
-      pattern: ^/
-      user_checker: App\Security\UserChecker
-      lazy: true
-      form_login:
-        provider: users
-        login_path: app_login
-        check_path: app_login
-      logout:
-        path: /logout
+  #  firewalls:
+  #    dev:
+  #      pattern: ^/(_(profiler|wdt)|css|images|js)/
+  #      user_checker: App\Security\UserChecker
+  #    main:
+  #      pattern: ^/
+  #      user_checker: App\Security\UserChecker
+  #      lazy: true
+  #      form_login:
+  #        provider: users
+  #        login_path: app_login
+  #        check_path: app_login
+  #      logout:
+  #        path: /logout
 
   password_hashers:
     # Use native password hasher, which auto-selects and migrates the best
@@ -52,12 +52,12 @@ security:
   # Easy way to control access for large sections of your site
   # Note: Only the *first* access control that matches will be used
   access_control:
-    - { path: ^/photorequests, roles: [ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN] }
-    - { path: ^/crimelog, roles: [ROLE_CRIMELOG_USER, ROLE_GLOBAL_ADMIN] }
-    - { path: ^/programs, roles: [ROLE_PROGRAMS_VIEW, ROLE_GLOBAL_ADMIN] }
-    - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
+    - { path: ^/photorequests, roles: [ ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN ] }
+    - { path: ^/crimelog, roles: [ ROLE_CRIMELOG_USER, ROLE_GLOBAL_ADMIN ] }
+    - { path: ^/programs, roles: [ ROLE_PROGRAMS_VIEW, ROLE_GLOBAL_ADMIN ] }
+    - { path: ^/map, roles: [ ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN ] }
     #        - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_GLOBAL_ADMIN] }
-    - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
+    - { path: ^/redirects, roles: [ ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN ] }
     - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
     - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
     - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }
@@ -76,8 +76,8 @@ security:
     ROLE_MAP_CREATE: ROLE_MAP_VIEW
     ROLE_MAP_EDIT: ROLE_MAP_CREATE
     ROLE_MAP_DELETE: ROLE_MAP_EDIT
-    ROLE_MAP_IMAGE_UPLOAD: [ROLE_MAP_VIEW, ROLE_MAP_EDIT]
-    ROLE_MAP_ADMIN: [ROLE_MAP_DELETE, ROLE_MAP_IMAGE_UPLOAD]
+    ROLE_MAP_IMAGE_UPLOAD: [ ROLE_MAP_VIEW, ROLE_MAP_EDIT ]
+    ROLE_MAP_ADMIN: [ ROLE_MAP_DELETE, ROLE_MAP_IMAGE_UPLOAD ]
     # Redirect Application
     ROLE_REDIRECT_USER: ROLE_USER
     ROLE_REDIRECT_ADMIN: ROLE_REDIRECT_USER
