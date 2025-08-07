@@ -217,6 +217,7 @@ class PhotoRequestController extends AbstractFOSRestController
     $photoRequest->setUrl($request->request->get("url") ?? '');
     $photoRequest->setDesigner($request->request->get("designer") ?? '');
     $photoRequest->setCategory($request->request->get("category") ?? '');
+		$photoRequest->setEventDesc($request->request->get("eventDesc") ?? '');
 
     $errors = $this->service->validate($photoRequest); // Validate the photo request.
 
