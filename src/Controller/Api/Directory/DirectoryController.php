@@ -84,14 +84,25 @@ class DirectoryController extends AbstractFOSRestController
   }
 
   /**
-   * Search departments by name or search terms
+   * Search departments by name or search terms. Also used for the public website search (emich.edu/search + /search/php/department-api-iccommand.php).
    * @param Request $request
    * @return Response
    */
   #[Route('/search', methods: ['GET'])]
-  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function searchDepartmentsAction(Request $request): Response
   {
+    // Check if this is an API request (has API key or API user agent)
+    $hasApiKey = $request->headers->get('X-API-Key');
+    $userAgent = $request->headers->get('User-Agent');
+    $isApiRequest = $hasApiKey || ($userAgent && preg_match('/.*API.*/i', $userAgent));
+
+    // If not an API request, check for proper authentication and roles
+    if (!$isApiRequest) {
+      $this->denyAccessUnlessGranted('ROLE_GLOBAL_ADMIN');
+      $this->denyAccessUnlessGranted('ROLE_DEPARTMENTS_ADMIN');
+      $this->denyAccessUnlessGranted('ROLE_DEPARTMENTS_VIEW');
+    }
+
     $searchTerm = $request->query->get('searchterm');
 
     $departments = $this->service->getDepartmentsByName($searchTerm);
