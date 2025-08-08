@@ -185,9 +185,11 @@ class PhotoRequestController extends AbstractFOSRestController
 
     // If not an API request, check for proper authentication and roles
     if (!$isApiRequest) {
-      $this->denyAccessUnlessGranted('ROLE_GLOBAL_ADMIN');
-      $this->denyAccessUnlessGranted('ROLE_PHOTO_ADMIN');
-      $this->denyAccessUnlessGranted('ROLE_PHOTO_CREATE');
+      if (!($this->isGranted('ROLE_GLOBAL_ADMIN') ||
+        $this->isGranted('ROLE_PHOTO_ADMIN') ||
+        $this->isGranted('ROLE_PHOTO_CREATE'))) {
+        throw $this->createAccessDeniedException('Access denied.');
+      }
     }
 
     $shootType = $request->request->get("shootType");

@@ -98,9 +98,11 @@ class DirectoryController extends AbstractFOSRestController
 
     // If not an API request, check for proper authentication and roles
     if (!$isApiRequest) {
-      $this->denyAccessUnlessGranted('ROLE_GLOBAL_ADMIN');
-      $this->denyAccessUnlessGranted('ROLE_DEPARTMENTS_ADMIN');
-      $this->denyAccessUnlessGranted('ROLE_DEPARTMENTS_VIEW');
+      if (!($this->isGranted('ROLE_GLOBAL_ADMIN') || 
+          $this->isGranted('ROLE_DEPARTMENTS_ADMIN') || 
+          $this->isGranted('ROLE_DEPARTMENTS_VIEW'))) {
+        throw $this->createAccessDeniedException('Access denied.');
+      }
     }
 
     $searchTerm = $request->query->get('searchterm');
