@@ -21,7 +21,7 @@ services:
     volumes:
       - iccommanddb:/var/lib/mysql
     ports:
-      - "3307:3306"
+      - "3306:3306"
 
   mailhog:
     image: mailhog/mailhog:v1.0.0
