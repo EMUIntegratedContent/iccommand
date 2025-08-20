@@ -26,10 +26,6 @@ class Department
   #[Groups("department")]
   private ?string $searchTerms = null;
 
-  #[ORM\Column(length: 255, nullable: true)]
-  #[Groups("department")]
-  private ?string $mapBuildingName = null;
-
   /**
    * Many departments can belong to one building.
    */
@@ -123,22 +119,10 @@ class Department
     return $this;
   }
 
-  public function getMapBuildingName(): ?string
-  {
-    return $this->mapBuildingName;
-  }
-
   #[Groups("department")] // Means this is available in the API response
   public function getBuildingName(): ?string
   {
     return $this->mapBuilding ? $this->mapBuilding->getName() : null;
-  }
-
-  public function setMapBuildingName(?string $mapBuildingName): static
-  {
-    $this->mapBuildingName = $mapBuildingName;
-
-    return $this;
   }
 
   public function getMapBuilding(): ?int

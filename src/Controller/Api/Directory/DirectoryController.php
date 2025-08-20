@@ -98,8 +98,8 @@ class DirectoryController extends AbstractFOSRestController
 
     // If not an API request, check for proper authentication and roles
     if (!$isApiRequest) {
-      if (!($this->isGranted('ROLE_GLOBAL_ADMIN') || 
-          $this->isGranted('ROLE_DEPARTMENTS_ADMIN') || 
+      if (!($this->isGranted('ROLE_GLOBAL_ADMIN') ||
+          $this->isGranted('ROLE_DEPARTMENTS_ADMIN') ||
           $this->isGranted('ROLE_DEPARTMENTS_VIEW'))) {
         throw $this->createAccessDeniedException('Access denied.');
       }
@@ -148,7 +148,6 @@ class DirectoryController extends AbstractFOSRestController
     // Set the fields for the department
     $department->setDepartment($request->request->get("department"));
     $department->setSearchTerms($this->service->normalizeSearchTerms($request->request->get("searchTerms")));
-    $department->setMapBuildingName($request->request->get("mapBuildingName"));
     $department->setAddress1($request->request->get("address1"));
     $department->setAddress2($request->request->get("address2"));
     $department->setCity($request->request->get("city"));
@@ -205,7 +204,6 @@ class DirectoryController extends AbstractFOSRestController
     // Set the fields for the department
     $department->setDepartment($request->request->get("department"));
     $department->setSearchTerms($this->service->normalizeSearchTerms($request->request->get("searchTerms")));
-    $department->setMapBuildingName($request->request->get("mapBuildingName"));
     $department->setAddress1($request->request->get("address1"));
     $department->setAddress2($request->request->get("address2"));
     $department->setCity($request->request->get("city"));
