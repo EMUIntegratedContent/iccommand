@@ -88,7 +88,6 @@ app.component("redirect-item-form", require("./components/redirect/RedirectItemF
 app.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
 
 /* Directory Application */
-app.component("department-index", require("./components/directory/DepartmentIndex.vue").default);
 app.component("department-form", require("./components/directory/DepartmentForm.vue").default);
 app.component("department-list", require("./components/directory/DepartmentList.vue").default);
 app.component("department-delete-modal", require("./components/directory/DepartmentDeleteModal.vue").default);
@@ -104,7 +103,6 @@ app.component("website-form", require("./components/programs/WebsiteForm.vue").d
 app.component("crimelog-index", require("./components/crimelog/CrimeLogIndex.vue").default);
 
 /* Photo Requests */
-// app.component("photorequests-index", require("./components/photorequest/PhotoRequestIndex.vue").default);
 app.component("photorequests-list", require("./components/photorequest/PhotoRequestList.vue").default);
 app.component("photorequests-show", require("./components/photorequest/PhotoRequestShow.vue").default);
 app.component("photorequests-form", require("./components/photorequest/PhotoRequestForm.vue").default);

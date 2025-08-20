@@ -901,8 +901,8 @@ export default {
 			this.isDeleted = true
 			setTimeout(function () {
 				// This record doesn't exist anymore, so send the user back to the department list page
-				window.location.replace("/directory/list")
-			}, 3000)
+				window.location.replace("/directory")
+			}, 2000)
 		},
 
 		/**
