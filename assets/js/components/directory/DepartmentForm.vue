@@ -741,37 +741,50 @@ export default {
 				department: Yup.string()
 					.required("Department name is required.")
 					.max(150, "Department name must be 150 characters or less."),
-				searchTerms: Yup.string().max(
-					1000,
-					"Search terms must be 1000 characters or less."
-				).nullable(true),
+				searchTerms: Yup.string()
+					.max(1000, "Search terms must be 1000 characters or less.")
+					.nullable(true),
 				// mapBuilding: Yup.number().required().label("Associated Building"),
-				address1: Yup.string().max(
-					255,
-					"Address must be 255 characters or less."
-				).nullable(true),
-				address2: Yup.string().max(
-					255,
-					"Address must be 255 characters or less."
-				).nullable(true),
-				city: Yup.string().max(100, "City must be 100 characters or less.").nullable(true),
-				state: Yup.string().max(2, "State must be 2 characters or less.").nullable(true),
-				zip: Yup.string().max(10, "ZIP code must be 10 characters or less.").nullable(true),
-				phone: Yup.string().max(20, "Phone must be 20 characters or less.").nullable(true),
-				phoneAlt: Yup.string().max(20, "Phone must be 20 characters or less.").nullable(true),
-				fax: Yup.string().max(20, "Fax must be 20 characters or less.").nullable(true),
+				address1: Yup.string()
+					.max(255, "Address must be 255 characters or less.")
+					.nullable(true),
+				address2: Yup.string()
+					.max(255, "Address must be 255 characters or less.")
+					.nullable(true),
+				city: Yup.string()
+					.max(100, "City must be 100 characters or less.")
+					.nullable(true),
+				state: Yup.string()
+					.max(2, "State must be 2 characters or less.")
+					.nullable(true),
+				zip: Yup.string()
+					.max(10, "ZIP code must be 10 characters or less.")
+					.nullable(true),
+				phone: Yup.string()
+					.max(20, "Phone must be 20 characters or less.")
+					.nullable(true),
+				phoneAlt: Yup.string()
+					.max(20, "Phone must be 20 characters or less.")
+					.nullable(true),
+				fax: Yup.string()
+					.max(20, "Fax must be 20 characters or less.")
+					.nullable(true),
 				email: Yup.string()
 					.email("Please enter a valid email address.")
-					.max(100, "Email must be 100 characters or less.").nullable(true),
+					.max(100, "Email must be 100 characters or less.")
+					.nullable(true),
 				website: Yup.string()
 					.url("Please enter a valid URL.")
-					.max(255, "Website must be 255 characters or less.").nullable(true),
+					.max(255, "Website must be 255 characters or less.")
+					.nullable(true),
 				facultyList: Yup.string()
 					.url("Please enter a valid URL.")
-					.max(255, "Faculty list URL must be 255 characters or less.").nullable(true),
+					.max(255, "Faculty list URL must be 255 characters or less.")
+					.nullable(true),
 				staffList: Yup.string()
 					.url("Please enter a valid URL.")
-					.max(255, "Staff list URL must be 255 characters or less.").nullable(true)
+					.max(255, "Staff list URL must be 255 characters or less.")
+					.nullable(true)
 			})
 		},
 		// for the multiselect since it can't bind directly to the record.mapBuilding without the full object
