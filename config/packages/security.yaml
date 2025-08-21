@@ -52,6 +52,7 @@ security:
   # Easy way to control access for large sections of your site
   # Note: Only the *first* access control that matches will be used
   access_control:
+    - { path: ^/directory, roles: [ROLE_DEPARTMENTS_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/photorequests, roles: [ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/crimelog, roles: [ROLE_CRIMELOG_USER, ROLE_GLOBAL_ADMIN] }
     - { path: ^/programs, roles: [ROLE_PROGRAMS_VIEW, ROLE_GLOBAL_ADMIN] }
@@ -81,13 +82,6 @@ security:
     # Redirect Application
     ROLE_REDIRECT_USER: ROLE_USER
     ROLE_REDIRECT_ADMIN: ROLE_REDIRECT_USER
-    #        # Multimedia Request Application
-    #        ROLE_MULTIMEDIA_VIEW:  ROLE_USER
-    #        ROLE_MULTIMEDIA_CREATE: ROLE_MULTIMEDIA_VIEW
-    #        ROLE_MULTIMEDIA_EDIT: ROLE_MULTIMEDIA_CREATE
-    #        ROLE_MULTIMEDIA_DELETE: ROLE_MULTIMEDIA_EDIT
-    #        ROLE_MULTIMEDIA_EMAIL: ROLE_MULTIMEDIA_EDIT
-    #        ROLE_MULTIMEDIA_ADMIN: [ROLE_MULTIMEDIA_DELETE, ROLE_MULTIMEDIA_EMAIL]
     # Catalog Programs
     ROLE_PROGRAMS_VIEW: ROLE_USER
     ROLE_PROGRAMS_CREATE: ROLE_PROGRAMS_VIEW
