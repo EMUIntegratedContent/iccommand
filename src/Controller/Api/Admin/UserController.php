@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller\Api\Admin;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,14 +15,16 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\User;
 use App\Service\UserService;
 
-class UserController extends AbstractFOSRestController {
+class UserController extends AbstractFOSRestController
+{
 
 	private UserService $service;
 	private SerializerInterface $serializer;
 	private ManagerRegistry $doctrine;
 	private EntityManagerInterface $em;
 
-	public function __construct(UserService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em){
+	public function __construct(UserService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em)
+	{
 		$this->service = $service;
 		$this->serializer = $serializer;
 		$this->doctrine = $doctrine;
@@ -33,10 +36,10 @@ class UserController extends AbstractFOSRestController {
 	 */
 	#[Rest\Get(path: "/users")]
 	#[IsGranted('ROLE_GLOBAL_ADMIN')]
-	public function getUsersAction() : Response
+	public function getUsersAction(): Response
 	{
 		$userRepo = $this->em->getRepository(User::class);
-		$users = $userRepo->findAll();
+		$users = $userRepo->findBy([], ['enabled' => 'DESC', 'username' => 'ASC']);
 		$view = $this->view($users, 200);
 
 		return $this->handleView($view);
@@ -47,7 +50,7 @@ class UserController extends AbstractFOSRestController {
 	 */
 	#[Rest\Get(path: "/users/{username}")]
 	#[IsGranted('ROLE_USER')]
-	public function getUserAction($username) : Response
+	public function getUserAction($username): Response
 	{
 		$user = $this->doctrine->getRepository(User::class)->findOneByUsername($username);
 
@@ -60,7 +63,7 @@ class UserController extends AbstractFOSRestController {
 	 */
 	#[Rest\Get(path: "/roles")]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
-	public function getRolesAction() : Response
+	public function getRolesAction(): Response
 	{
 		$roles = $this->getParameter('security.role_hierarchy.roles');
 
@@ -73,7 +76,7 @@ class UserController extends AbstractFOSRestController {
 	 */
 	#[Rest\Put(path: "/users/{username}")]
 	#[IsGranted('ROLE_USER')]
-	public function putUserAction(Request $request, string $username) : Response
+	public function putUserAction(Request $request, string $username): Response
 	{
 		$user = $this->doctrine->getRepository(User::class)->findOneByUsername($username);
 
@@ -99,7 +102,7 @@ class UserController extends AbstractFOSRestController {
 	 */
 	#[Rest\Get(path: "/appusers/{rolePrefix}")]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
-	public function getAppusersAction(string $rolePrefix) : Response
+	public function getAppusersAction(string $rolePrefix): Response
 	{
 		$mapAppUsers = $this->doctrine->getRepository(User::class)->findByLikeRole($rolePrefix);
 
@@ -112,7 +115,7 @@ class UserController extends AbstractFOSRestController {
 	 */
 	#[Rest\Get(path: "/appusers/not/{rolePrefix}")]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
-	public function getAppusersNotAction(string $rolePrefix) : Response
+	public function getAppusersNotAction(string $rolePrefix): Response
 	{
 		$mapAppUsers = $this->doctrine->getRepository(User::class)->findByLikeRole($rolePrefix, true);
 

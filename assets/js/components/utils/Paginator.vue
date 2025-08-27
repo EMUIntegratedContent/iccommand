@@ -54,14 +54,18 @@
 <script>
     export default {
         created() {
-        },
-        mounted() {
+            this.itemsPerPage = this.itemsPerPg
         },
         components: {},
         props: {
             items: {
                 type: Array,
                 required: true
+            },
+            itemsPerPg: {
+                type: Number,
+                required: false,
+                default: 10
             }
         },
         data: function () {
