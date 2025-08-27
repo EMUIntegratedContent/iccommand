@@ -65,14 +65,6 @@ export default {
 					buttonLink: "/map/items",
 					display: false
 				},
-				// multimedia: {
-				// 	title: "Multimedia Requests",
-				// 	description:
-				// 		"The photo requests application is a scheduler for photographer/videographer/graphic designer inquiries on campus.",
-				// 	buttonText: "See Requests",
-				// 	buttonLink: "/multimediarequests",
-				// 	display: false
-				// },
 				redirect: {
 					title: "Redirect Application",
 					description:
@@ -125,7 +117,7 @@ export default {
 					buttonLink: "/crimelog",
 					display: true
 				},
-			
+
 			}
 		}
 	},
@@ -147,12 +139,6 @@ export default {
 			if (role.includes("ROLE_MAP_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.map.display = true
 			}
-			// if (
-			// 	role.includes("ROLE_MULTIMEDIA_") ||
-			// 	role.includes("ROLE_GLOBAL_ADMIN")
-			// ) {
-			// 	this.userModules.multimedia.display = true
-			// }
 			if (
 				role.includes("ROLE_REDIRECT_") ||
 				role.includes("ROLE_GLOBAL_ADMIN")

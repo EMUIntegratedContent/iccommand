@@ -62,7 +62,7 @@ class PhotoRequestRepository extends ServiceEntityRepository
 		}
 
 		// Get paginated photo requests
-		$photoRequests = $qb->orderBy('p.submitted', 'DESC')
+		$photoRequests = $qb->orderBy('p.shootDate', 'DESC')->addOrderBy('p.submitted', 'DESC')
 			->setFirstResult($offset)
 			->setMaxResults($pageSize)
 			->getQuery()

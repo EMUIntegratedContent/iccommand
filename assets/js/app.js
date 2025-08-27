@@ -73,14 +73,6 @@ app.component("map-index", require("./components/map/MapIndex.vue").default);
 app.component("map-item-form", require("./components/map/MapItemForm.vue").default);
 app.component("new-map-item", require("./components/map/NewMapItem.vue").default);
 
-/* Multimedia Requests */
-app.component("multimedia-assignee-form", require("./components/multimediarequest/AssigneeForm.vue").default);
-app.component("multimedia-assignee-index", require("./components/multimediarequest/AssigneeIndex.vue").default);
-app.component("multimedia-headshot-calendar", require("./components/multimediarequest/HeadshotCalendar.vue").default);
-app.component("multimedia-request-form", require("./components/multimediarequest/MultimediaRequestForm.vue").default);
-app.component("multimedia-request-index", require("./components/multimediarequest/MultimediaRequestIndex.vue").default);
-app.component("multimediarequest-delete-modal", require("./components/multimediarequest/MultimediaRequestDeleteModal.vue").default);
-
 /* Redirects Application */
 app.component("redirect-index", require("./components/redirect/RedirectIndex.vue").default);
 app.component("new-redirect-item", require("./components/redirect/NewRedirectItem.vue").default);

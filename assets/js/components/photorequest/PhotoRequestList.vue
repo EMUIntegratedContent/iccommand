@@ -22,12 +22,12 @@
 		</div>
 		<div class="row">
 			<div class="col-md-6">
-				<label for="searchInput" class="sr-only">Search photo requests</label>
+				<label for="searchInput">Search by requester</label>
 				<VueMultiselect
 					:options="searchResults"
 					:multiple="false"
 					:clear-on-select="true"
-					placeholder="Search requests by requester (type at least 3 characters)"
+					placeholder="Search by requester (type at least 3 characters)"
 					label="displayName"
 					track-by="id"
 					id="searchInput"
@@ -38,7 +38,7 @@
 				</VueMultiselect>
 			</div>
 			<div class="col-md-3">
-				<label for="statusFilter" class="sr-only">Filter by status</label>
+				<label for="statusFilter">Filter by status</label>
 				<select
 					v-model="statusFilter"
 					class="form-control"
@@ -55,7 +55,7 @@
 				</select>
 			</div>
 			<div class="col-md-3">
-				<label for="categoryFilter" class="sr-only">Filter by category</label>
+				<label for="categoryFilter">Filter by category</label>
 				<select
 					v-model="categoryFilter"
 					class="form-control"
@@ -91,8 +91,7 @@
 						<th scope="col">Department</th>
 						<th scope="col">Status</th>
 						<th scope="col">Assigned To</th>
-						<th scope="col">Submitted</th>
-						<th scope="col">Proposed Date</th>
+            <th scope="col">Proposed Date</th>
 						<th scope="col">Actions</th>
 					</tr>
 				</thead>
@@ -130,8 +129,7 @@
 							</span>
 							<span v-else class="badge badge-light">---</span>
 						</td>
-						<td>{{ formatDate(request.submitted) }}</td>
-						<td>{{ formatDate(request.shootDate) }}</td>
+						<td>{{ request.shootDate ? formatDate(request.shootDate) : 'N/A'}}</td>
 						<td>
 							<a v-if="userCanEdit" :href="'/photorequests/' + request.id"
 								><font-awesome-icon icon="fa-solid fa-pen-to-square"
@@ -198,7 +196,7 @@ export default {
 
 			// Search results
 			searchResults: [],
-			statusFilter: "",
+			statusFilter: "pending",
 			categoryFilter: "",
 			categories: []
 		}
@@ -230,10 +228,10 @@ export default {
 
 		formatSearchDisplay: function (request) {
 			const name = request.firstName + " " + request.lastName
-			const date = request.shootDate
-				? new Date(request.shootDate).toLocaleDateString()
-				: "No date"
-			return name + " - " + date
+      const date = request.shootDate
+          ? new Date(request.shootDate).toLocaleDateString()
+          : new Date(request.submitted).toLocaleDateString()
+			return name + " (" + date + " - " + request.shootType + ")"
 		},
 		handleRequestSelected: function (evt) {
 			if (this.userCanEdit) {
@@ -343,14 +341,11 @@ export default {
 						// Format the search results to include a display name
 						self.searchResults = response.data.map((item) => ({
 							...item,
-							displayName: `${item.firstName} ${item.lastName} - ${
-								item.shootDate
-									? new Date(item.shootDate).toLocaleDateString()
-									: "No date"
-							}`
+							displayName: self.formatSearchDisplay(item)
 						}))
 					})
 					.catch(function (error) {
+            console.error(error)
 						// Failure.
 						self.apiError.status = error.response.status
 

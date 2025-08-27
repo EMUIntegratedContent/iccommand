@@ -2,8 +2,6 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\MultimediaRequest\PhotoHeadshotDate;
-use App\Service\MultimediaRequestService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -16,13 +14,11 @@ use Carbon\Carbon;
 class CalendarController extends AbstractFOSRestController
 {
 	private SerializerInterface $serializer;
-	private MultimediaRequestService $service;
 	private ManagerRegistry $doctrine;
 	private EntityManagerInterface $em;
 
-	public function __construct(MultimediaRequestService $service, SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em)
+	public function __construct(SerializerInterface $serializer, ManagerRegistry $doctrine, EntityManagerInterface $em)
 	{
-		$this->service = $service;
 		$this->serializer = $serializer;
 		$this->doctrine = $doctrine;
 		$this->em = $em;

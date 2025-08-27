@@ -21,28 +21,4 @@ class EmailController extends AbstractFOSRestController
 	{
 		$this->mailer = $mailer;
 	}
-
-	#[Route('/sendemail/multimediaassigneenotify', methods: ['POST'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MULTIMEDIA_EMAIL")'))]
-	public function postSendemailMultimediaassigneenotifyAction(Request $request): Response
-	{
-		$message = (new Email())
-			->subject('Hello there!')
-			->from('admin@iccommand.emich.edu')
-			->to($request->request->get('recipient'))
-			->html(
-				$this->renderView(
-					'multimedia_request/assignees/email.html.twig',
-					[
-						'customBody' => $request->request->get('customBody'),
-						'record' => $request->request->get('record'),
-					]
-				),
-				'text/html'
-			);
-
-		$this->mailer->send($message);
-
-		return new Response('Message was sent.', 200, array('Content-Type' => 'text/html'));
-	}
 }

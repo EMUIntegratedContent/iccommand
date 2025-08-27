@@ -153,20 +153,6 @@
                 </div>
               </div>
             </div>
-            <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
-              <div class="card card-accent card-accent-green">
-                <div class="card-header">Multimedia Request</div>
-                <div class="card-body">
-                  <template v-for="role in rolesMultimedia" :key="'user-multi-'+role">
-                    <input type="checkbox"
-                           v-model="user.roles"
-                           :disabled="!isEditMode"
-                           :value="role"
-                    > {{ role }} <br>
-                  </template>
-                </div>
-              </div>
-            </div>
           </div>
           <!-- VALIDATION AND SUCCESS/ERROR MESSAGES -->
 <!--          <div v-if="$validator.errors.count() > 0" class="alert alert-danger fade show" role="alert">-->
@@ -232,7 +218,6 @@ export default {
       roles: [],
       rolesAdmin: [],
       rolesMap: [],
-      rolesMultimedia: [],
       rolesRedirect: [],
       success: false,
       user: {
@@ -293,9 +278,6 @@ export default {
               }
               if (key.startsWith('ROLE_MAP_')) {
                 self.rolesMap.push(key)
-              }
-              if (key.startsWith('ROLE_MULTIMEDIA_')) {
-                self.rolesMultimedia.push(key)
               }
               if (key.startsWith('ROLE_REDIRECT_')) {
                 self.rolesRedirect.push(key)

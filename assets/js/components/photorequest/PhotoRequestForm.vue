@@ -380,7 +380,7 @@
 									id="status"
 									@update:modelValue="formDirty = true"
 								>
-									<option value="">Select Status</option>
+									<option value="">---</option>
 									<option value="WC">Waiting on Client</option>
 									<option value="IP">In Progress</option>
 									<option value="DG">Approval Required</option>
@@ -430,7 +430,7 @@
 									class="form-control"
 									v-model="formData.assignedTo"
 									id="assignedTo"
-									@update:modelValue="formDirty = true"
+									@update:modelValue="handleAssignedTo"
 								>
 									<option value="">Select User</option>
 									<option
@@ -808,45 +808,20 @@ export default {
 				})
 		},
 
-		resetForm: function () {
-			this.formData = {
-				shootType: "photoshoot",
-				firstName: "",
-				lastName: "",
-				email: "",
-				phone: "",
-				department: "",
-				shootName: "",
-				photoType: "",
-				shootDate: "",
-				startTime: "",
-				endTime: "",
-				location: "",
-				description: "",
-				photoExplaination: "",
-				intendedUse: "",
-				forUse: "",
-				url: "",
-				designer: "",
-				category: "",
-				assignedTo: null,
-				declined: 0,
-				completed: 0,
-				longStatus: "",
-				status: "",
-				eventDesc: ""
-			}
-			this.intendedUseOptions = []
-			this.photoTypeOptions = []
-			this.formDirty = false
-		},
-
 		/**
 		 * Sets the variable @isEditMode to the appropriate boolean value.
 		 */
 		toggleEdit: function () {
 			window.location.href = "/photorequests/" + this.requestId
-		}
+		},
+
+    handleAssignedTo: function() {
+      this.formDirty = true;
+      // If the assignedTo has been filled, set the intermediate status to In Progress
+      if (this.formData.assignedTo && this.formData.status === "") {
+        this.formData.status = "IP";
+      }
+    }
 	}
 }
 </script>
