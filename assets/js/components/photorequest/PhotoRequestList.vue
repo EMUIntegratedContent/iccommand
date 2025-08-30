@@ -91,7 +91,7 @@
 						<th scope="col">Department</th>
 						<th scope="col">Status</th>
 						<th scope="col">Assigned To</th>
-            <th scope="col">Proposed Date</th>
+						<th scope="col">Proposed Date</th>
 						<th scope="col">Actions</th>
 					</tr>
 				</thead>
@@ -103,10 +103,12 @@
 					>
 						<td>{{ request.firstName }} {{ request.lastName }}</td>
 						<td>
-							{{
+							<!-- {{
 								request.shootType.charAt(0).toUpperCase() +
 								request.shootType.slice(1)
-							}}
+							}} -->
+							<span v-if="request.shootType === 'archive'">Archive</span>
+							<span v-else>{{ request.photoType }}</span>
 						</td>
 						<td>{{ request.department }}</td>
 						<td>
@@ -129,7 +131,9 @@
 							</span>
 							<span v-else class="badge badge-light">---</span>
 						</td>
-						<td>{{ request.shootDate ? formatDate(request.shootDate) : 'N/A'}}</td>
+						<td>
+							{{ request.shootDate ? formatDate(request.shootDate) : "N/A" }}
+						</td>
 						<td>
 							<a v-if="userCanEdit" :href="'/photorequests/' + request.id"
 								><font-awesome-icon icon="fa-solid fa-pen-to-square"
@@ -228,9 +232,9 @@ export default {
 
 		formatSearchDisplay: function (request) {
 			const name = request.firstName + " " + request.lastName
-      const date = request.shootDate
-          ? new Date(request.shootDate).toLocaleDateString()
-          : new Date(request.submitted).toLocaleDateString()
+			const date = request.shootDate
+				? new Date(request.shootDate).toLocaleDateString()
+				: new Date(request.submitted).toLocaleDateString()
 			return name + " (" + date + " - " + request.shootType + ")"
 		},
 		handleRequestSelected: function (evt) {
@@ -345,7 +349,7 @@ export default {
 						}))
 					})
 					.catch(function (error) {
-            console.error(error)
+						console.error(error)
 						// Failure.
 						self.apiError.status = error.response.status
 
