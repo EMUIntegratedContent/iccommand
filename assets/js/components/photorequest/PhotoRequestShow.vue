@@ -174,11 +174,6 @@
 							<div>{{ formatDateTime(photoRequest.submitted) }}</div>
 						</div>
 
-						<div v-if="photoRequest.longStatus" class="mb-3">
-							<strong>Admin Note:</strong>
-							<p class="mb-0">{{ photoRequest.longStatus }}</p>
-						</div>
-
 						<div v-if="photoRequest.eventDesc" class="mb-3">
 							<strong>Event Description:</strong>
 							<p class="mb-0">{{ photoRequest.eventDesc }}</p>
@@ -197,6 +192,11 @@
 
 						<div class="mb-3">
 							<strong>Category:</strong> {{ photoRequest.category || "---" }}
+						</div>
+
+						<div class="admin-note-container">
+							<strong>Admin Note:</strong>
+							<p class="mb-0">{{ photoRequest.longStatus || "---" }}</p>
 						</div>
 					</div>
 				</div>
@@ -349,3 +349,13 @@ export default {
 	}
 }
 </script>
+
+<style lang="scss" scoped>
+@import "../../../css/_variables.scss";
+.admin-note-container {
+	margin-top: 1rem;
+	background-color: $primary-light;
+	color: white;
+	padding: 1rem;
+}
+</style>

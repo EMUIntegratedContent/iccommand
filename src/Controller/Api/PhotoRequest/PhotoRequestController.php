@@ -57,10 +57,22 @@ class PhotoRequestController extends AbstractFOSRestController
   {
     $page = $request->query->get('page') ?? 1;
     $pageSize = $request->query->get('limit') ?? 25;
-    $status = $request->query->get('status');
+
+    // Get all query parameters
+    $queryParams = $request->query->all();
+
+    // Handle both single status (backward compatibility) and multiple statuses
+    $statuses = null;
+    if (isset($queryParams['statuses']) && is_array($queryParams['statuses'])) {
+      $statuses = $queryParams['statuses'];
+    } elseif (isset($queryParams['status'])) {
+      // Backward compatibility: convert single status to array
+      $statuses = [$queryParams['status']];
+    }
+
     $category = $request->query->get('category');
 
-    $photoRequests = $this->service->getPhotoRequestsPagination($page, $pageSize, $status, $category);
+    $photoRequests = $this->service->getPhotoRequestsPagination($page, $pageSize, $statuses, $category);
 
     $serialized = $this->serializer->serialize($photoRequests, "json", ['groups' => ['photos']]);
 
@@ -94,8 +106,19 @@ class PhotoRequestController extends AbstractFOSRestController
   #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_VIEW")'))]
   public function getCategoriesAction(Request $request): Response
   {
-    $status = $request->query->get('status');
-    $categories = $this->service->getCategoriesWithCounts($status);
+    // Get all query parameters
+    $queryParams = $request->query->all();
+
+    // Handle both single status (backward compatibility) and multiple statuses
+    $statuses = null;
+    if (isset($queryParams['statuses']) && is_array($queryParams['statuses'])) {
+      $statuses = $queryParams['statuses'];
+    } elseif (isset($queryParams['status'])) {
+      // Backward compatibility: convert single status to array
+      $statuses = [$queryParams['status']];
+    }
+
+    $categories = $this->service->getCategoriesWithCounts($statuses);
 
     $serialized = $this->serializer->serialize($categories, "json");
     return new Response($serialized, 200, array("Content-Type" => "application/json"));
@@ -219,7 +242,7 @@ class PhotoRequestController extends AbstractFOSRestController
     $photoRequest->setUrl($request->request->get("url") ?? '');
     $photoRequest->setDesigner($request->request->get("designer") ?? '');
     $photoRequest->setCategory($request->request->get("category") ?? '');
-		$photoRequest->setEventDesc($request->request->get("eventDesc") ?? '');
+    $photoRequest->setEventDesc($request->request->get("eventDesc") ?? '');
 
     $errors = $this->service->validate($photoRequest); // Validate the photo request.
 

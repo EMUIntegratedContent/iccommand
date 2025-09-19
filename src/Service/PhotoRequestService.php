@@ -96,27 +96,27 @@ class PhotoRequestService
 	 * Gets the photo requests with pagination.
 	 * @param $currentPage
 	 * @param $pageSize
-	 * @param $status
+	 * @param $statuses
 	 * @param $category
 	 * @return array
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
-	public function getPhotoRequestsPagination($currentPage, $pageSize, $status = null, $category = null)
+	public function getPhotoRequestsPagination($currentPage, $pageSize, $statuses = null, $category = null)
 	{
 		$repository = $this->em->getRepository(PhotoRequest::class);
-		return $repository->paginatedPhotoRequests($currentPage, $pageSize, $status, $category);
+		return $repository->paginatedPhotoRequests($currentPage, $pageSize, $statuses, $category);
 	}
 
 	/**
 	 * Get categories with counts
-	 * @param $status
+	 * @param $statuses
 	 * @return array
 	 */
-	public function getCategoriesWithCounts($status = null): array
+	public function getCategoriesWithCounts($statuses = null): array
 	{
 		$repository = $this->em->getRepository(PhotoRequest::class);
-		return $repository->getCategoriesWithCounts($status);
+		return $repository->getCategoriesWithCounts($statuses);
 	}
 
 	/**
