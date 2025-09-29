@@ -24,7 +24,7 @@ class PhotoRequestRepository extends ServiceEntityRepository
 		$this->em = $doctrine->getManager();
 	}
 
-	public function paginatedPhotoRequests($currentPage, $pageSize, $status = null, $category = null): array
+	public function paginatedPhotoRequests($currentPage, $pageSize, $statuses = null, $category = null): array
 	{
 		// Calculate the offset
 		$offset = ($currentPage - 1) * $pageSize;
@@ -35,23 +35,31 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			->from(PhotoRequest::class, 'p')
 			->leftJoin('p.assignedTo', 'u');
 
-		// Add status filter
-		if ($status) {
-			if ($status === 'declined') {
-				$qb->andWhere('p.declined = 1');
-			} elseif ($status === 'complete') {
-				$qb->andWhere('p.completed = 1 AND p.declined = 0');
-			} elseif ($status === 'pending') {
-				$qb->andWhere('(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0');
-			} elseif ($status === 'WC') {
-				$qb->andWhere('(p.status = \'WC\') AND p.completed = 0 AND p.declined = 0');
-			} elseif ($status === 'IP') {
-				$qb->andWhere('(p.status = \'IP\') AND p.completed = 0 AND p.declined = 0');
-			} elseif ($status === 'DG') {
-				$qb->andWhere('(p.status = \'DG\') AND p.completed = 0 AND p.declined = 0');
-			} else {
-				$qb->andWhere('p.status = :status AND p.completed = 0 AND p.declined = 0');
-				$qb->setParameter('status', $status);
+		// Add status filter for multiple statuses
+		if ($statuses && is_array($statuses) && count($statuses) > 0) {
+			$statusConditions = [];
+
+			foreach ($statuses as $status) {
+				if ($status === 'declined') {
+					$statusConditions[] = 'p.declined = 1';
+				} elseif ($status === 'complete') {
+					$statusConditions[] = 'p.completed = 1 AND p.declined = 0';
+				} elseif ($status === 'pending') {
+					$statusConditions[] = '(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0';
+				} elseif ($status === 'WC') {
+					$statusConditions[] = '(p.status = \'WC\') AND p.completed = 0 AND p.declined = 0';
+				} elseif ($status === 'IP') {
+					$statusConditions[] = '(p.status = \'IP\') AND p.completed = 0 AND p.declined = 0';
+				} elseif ($status === 'DG') {
+					$statusConditions[] = '(p.status = \'DG\') AND p.completed = 0 AND p.declined = 0';
+				} else {
+					$statusConditions[] = 'p.status = :status_' . $status . ' AND p.completed = 0 AND p.declined = 0';
+					$qb->setParameter('status_' . $status, $status);
+				}
+			}
+
+			if (!empty($statusConditions)) {
+				$qb->andWhere('(' . implode(' OR ', $statusConditions) . ')');
 			}
 		}
 
@@ -74,22 +82,30 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			->from(PhotoRequest::class, 'p');
 
 		// Add same status filter to count query
-		if ($status) {
-			if ($status === 'declined') {
-				$countQb->andWhere('p.declined = 1');
-			} elseif ($status === 'complete') {
-				$countQb->andWhere('p.completed = 1 AND p.declined = 0');
-			} elseif ($status === 'pending') {
-				$countQb->andWhere('(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0');
-			} elseif ($status === 'WC') {
-				$countQb->andWhere('(p.status = \'WC\') AND p.completed = 0 AND p.declined = 0');
-			} elseif ($status === 'IP') {
-				$countQb->andWhere('(p.status = \'IP\') AND p.completed = 0 AND p.declined = 0');
-			} elseif ($status === 'DG') {
-				$countQb->andWhere('(p.status = \'DG\') AND p.completed = 0 AND p.declined = 0');
-			} else {
-				$countQb->andWhere('p.status = :status AND p.completed = 0 AND p.declined = 0');
-				$countQb->setParameter('status', $status);
+		if ($statuses && is_array($statuses) && count($statuses) > 0) {
+			$statusConditions = [];
+
+			foreach ($statuses as $status) {
+				if ($status === 'declined') {
+					$statusConditions[] = 'p.declined = 1';
+				} elseif ($status === 'complete') {
+					$statusConditions[] = 'p.completed = 1 AND p.declined = 0';
+				} elseif ($status === 'pending') {
+					$statusConditions[] = '(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0';
+				} elseif ($status === 'WC') {
+					$statusConditions[] = '(p.status = \'WC\') AND p.completed = 0 AND p.declined = 0';
+				} elseif ($status === 'IP') {
+					$statusConditions[] = '(p.status = \'IP\') AND p.completed = 0 AND p.declined = 0';
+				} elseif ($status === 'DG') {
+					$statusConditions[] = '(p.status = \'DG\') AND p.completed = 0 AND p.declined = 0';
+				} else {
+					$statusConditions[] = 'p.status = :count_status_' . $status . ' AND p.completed = 0 AND p.declined = 0';
+					$countQb->setParameter('count_status_' . $status, $status);
+				}
+			}
+
+			if (!empty($statusConditions)) {
+				$countQb->andWhere('(' . implode(' OR ', $statusConditions) . ')');
 			}
 		}
 
@@ -107,7 +123,7 @@ class PhotoRequestRepository extends ServiceEntityRepository
 		];
 	}
 
-	public function getCategoriesWithCounts($status = null): array
+	public function getCategoriesWithCounts($statuses = null): array
 	{
 		// Build query builder for categories with counts
 		$qb = $this->em->createQueryBuilder()
@@ -119,16 +135,24 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			->orderBy('p.category', 'ASC');
 
 		// Add status filter if provided
-		if ($status) {
-			if ($status === 'declined') {
-				$qb->andWhere('p.declined = 1');
-			} elseif ($status === 'complete') {
-				$qb->andWhere('p.completed = 1');
-			} elseif ($status === 'pending') {
-				$qb->andWhere('(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0');
-			} else {
-				$qb->andWhere('p.status = :status AND p.completed = 0 AND p.declined = 0');
-				$qb->setParameter('status', $status);
+		if ($statuses && is_array($statuses) && count($statuses) > 0) {
+			$statusConditions = [];
+
+			foreach ($statuses as $status) {
+				if ($status === 'declined') {
+					$statusConditions[] = 'p.declined = 1';
+				} elseif ($status === 'complete') {
+					$statusConditions[] = 'p.completed = 1';
+				} elseif ($status === 'pending') {
+					$statusConditions[] = '(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0';
+				} else {
+					$statusConditions[] = 'p.status = :cat_status_' . $status . ' AND p.completed = 0 AND p.declined = 0';
+					$qb->setParameter('cat_status_' . $status, $status);
+				}
+			}
+
+			if (!empty($statusConditions)) {
+				$qb->andWhere('(' . implode(' OR ', $statusConditions) . ')');
 			}
 		}
 

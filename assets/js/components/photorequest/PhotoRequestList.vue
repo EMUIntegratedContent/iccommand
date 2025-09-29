@@ -39,20 +39,20 @@
 			</div>
 			<div class="col-md-3">
 				<label for="statusFilter">Filter by status</label>
-				<select
+				<VueMultiselect
 					v-model="statusFilter"
-					class="form-control"
+					:options="statusOptions"
+					:multiple="true"
+					:clear-on-select="false"
+					placeholder="Select statuses"
+					label="label"
+					track-by="value"
 					id="statusFilter"
-					@change="handleStatusFilterChange"
+					name="statusFilter"
+					@select="handleStatusFilterChange"
+					@remove="handleStatusFilterChange"
 				>
-					<option value="">All Statuses</option>
-					<option value="declined">Declined</option>
-					<option value="complete">Complete</option>
-					<option value="pending">Pending</option>
-					<option value="WC">Waiting on Client</option>
-					<option value="DG">Approval Required</option>
-					<option value="IP">In Progress</option>
-				</select>
+				</VueMultiselect>
 			</div>
 			<div class="col-md-3">
 				<label for="categoryFilter">Filter by category</label>
@@ -200,9 +200,20 @@ export default {
 
 			// Search results
 			searchResults: [],
-			statusFilter: "pending",
+			statusFilter: [
+				{ value: "pending", label: "Pending" },
+				{ value: "WC", label: "Waiting on Client" }
+			], // Change from string to array
 			categoryFilter: "",
-			categories: []
+			categories: [],
+			statusOptions: [
+				{ value: "declined", label: "Declined" },
+				{ value: "complete", label: "Complete" },
+				{ value: "pending", label: "Pending" },
+				{ value: "WC", label: "Waiting on Client" },
+				{ value: "DG", label: "Approval Required" },
+				{ value: "IP", label: "In Progress" }
+			]
 		}
 	},
 
@@ -283,8 +294,9 @@ export default {
 				limit: self.itemsPerPage
 			}
 
-			if (this.statusFilter) {
-				params.status = this.statusFilter
+			// Send multiple statuses as array
+			if (this.statusFilter && this.statusFilter.length > 0) {
+				params.statuses = this.statusFilter.map((s) => s.value)
 			}
 
 			if (this.categoryFilter) {
@@ -375,8 +387,8 @@ export default {
 			let self = this // "this" loses scope within Axios.
 
 			const params = {}
-			if (this.statusFilter) {
-				params.status = this.statusFilter
+			if (this.statusFilter && this.statusFilter.length > 0) {
+				params.statuses = this.statusFilter.map((s) => s.value)
 			}
 
 			axios
