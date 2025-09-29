@@ -54,10 +54,10 @@ security:
   access_control:
     - { path: ^/directory, roles: [ROLE_DEPARTMENTS_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/photorequests, roles: [ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN] }
+    - { path: ^/emergency, roles: [ROLE_EMERGENCY_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/crimelog, roles: [ROLE_CRIMELOG_USER, ROLE_GLOBAL_ADMIN] }
     - { path: ^/programs, roles: [ROLE_PROGRAMS_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
-    # - { path: ^/multimediarequests, roles: [ROLE_MULTIMEDIA_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
     - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
     - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
@@ -104,3 +104,8 @@ security:
     ROLE_PHOTO_EDIT: ROLE_PHOTO_CREATE
     ROLE_PHOTO_DELETE: ROLE_PHOTO_EDIT
     ROLE_PHOTO_ADMIN: ROLE_PHOTO_DELETE
+    # Emergency
+    ROLE_EMERGENCY_VIEW: ROLE_USER
+    ROLE_EMERGENCY_EDIT: ROLE_EMERGENCY_CREATE
+    ROLE_EMERGENCY_DELETE: ROLE_EMERGENCY_EDIT
+    ROLE_EMERGENCY_ADMIN: ROLE_EMERGENCY_DELETE

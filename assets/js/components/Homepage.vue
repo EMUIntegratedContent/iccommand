@@ -90,6 +90,15 @@ export default {
 					buttonLink: "/directory",
 					display: false
 				},
+				emergency: {
+					// Added Sept. 2025
+					title: "Emergency Banner and Notices",
+					description:
+						"The emergency banner application manages the emergency banner and page for EMU websites.",
+					buttonText: "Manage Banner",
+					buttonLink: "/emergency",
+					display: false
+				},
 				photorequests: {
 					// Added July 2025
 					title: "Photo Requests",
@@ -174,6 +183,12 @@ export default {
 				role.includes("ROLE_GLOBAL_ADMIN")
 			) {
 				this.userModules.photorequests.display = true
+			}
+			if (
+				role.includes("ROLE_EMERGENCY_") ||
+				role.includes("ROLE_GLOBAL_ADMIN")
+			) {
+				this.userModules.emergency.display = true
 			}
 		}
 	},

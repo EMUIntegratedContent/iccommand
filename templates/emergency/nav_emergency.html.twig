@@ -1,0 +1,17 @@
+<h3 class="module-nav-heading">Emergency Banner Application</h3>
+<ul class="nav nav-pills module-nav-pills" role="navigation">
+  <li class="nav-item">
+    <a class="nav-link active" href="/"><i class="fa fa-home"></i></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/emergency">Banner</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/emergency/notices">Notices</a>
+  </li>
+  {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_EMERGENCY_ADMIN') %}
+  <li class="nav-item">
+    <a class="nav-link" href="/emergency/manage">Manage app</a>
+  </li>
+  {% endif %}
+</ul>
