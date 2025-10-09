@@ -4,7 +4,8 @@ namespace App\Entity\Emergency;
 
 use App\Repository\Emergency\EmergencyNoticeRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\Mapping\Annotation as Gedmo;  
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: EmergencyNoticeRepository::class)]
 #[ORM\Table(name: "emergency_notice")]
@@ -16,6 +17,7 @@ class EmergencyNotice
     private ?int $id = null;
 
     #[ORM\Column(name: "notice", type: "text")]
+    #[Groups(['banner'])]
     private string $notice;
 
     #[Gedmo\Timestampable(on: "create")]

@@ -61,39 +61,24 @@ class EmergencyService
 		// Set all permissions to false as default.
 		$emPermissions = array(
 			'admin' => false,
-			'edit' => false,
-			'delete' => false,
-			'view' => false,
+			'edit' => false
 		);
 
 		// The admins automatically have all the permissions.
 		if ($this->authorizationChecker->isGranted('ROLE_EMERGENCY_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
 			$emPermissions['admin'] = true;
 			$emPermissions['edit'] = true;
-			$emPermissions['delete'] = true;
-			$emPermissions['view'] = true;
-		}
-
-		if ($this->authorizationChecker->isGranted('ROLE_EMERGENCY_DELETE')) {
-			$emPermissions['edit'] = true;
-			$emPermissions['delete'] = true;
-			$emPermissions['view'] = true;
 		}
 
 		if ($this->authorizationChecker->isGranted('ROLE_EMERGENCY_EDIT')) {
 			$emPermissions['edit'] = true;
-			$emPermissions['view'] = true;
-		}
-
-		if ($this->authorizationChecker->isGranted('ROLE_EMERGENCY_VIEW')) {
-			$emPermissions['view'] = true;
 		}
 
 		return $emPermissions;
 	}
 
 	/**
-	 * Gets the emergency notices for the forced emergency page.
+	 * Gets the emergency notices for the forced emergency page. Possibly not needed.
 	 * @return array
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException

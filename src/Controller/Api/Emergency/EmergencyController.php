@@ -47,7 +47,7 @@ class EmergencyController extends AbstractFOSRestController
    * @return Response Departments, the status code, and the HTTP headers.
    */
   #[Route('/banner', methods: ['GET'])]
-  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_EMERGENCY_VIEW")'))]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_EMERGENCY_EDIT")'))]
   public function getBannerAction(Request $request): Response
   {
     $banner = $this->service->getBanner();

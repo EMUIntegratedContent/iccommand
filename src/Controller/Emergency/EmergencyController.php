@@ -38,4 +38,13 @@ class EmergencyController extends AbstractController
       'controller_name' => 'Emergency'
     ]);
   }
+
+  /**
+   * The management page of the emergency banner app.
+   */
+  #[Route('/emergency/manage', name: 'emergency_manage')]
+  public function manage(): Response
+  {
+    return $this->render('emergency/manage.html.twig', []);
+  }
 }

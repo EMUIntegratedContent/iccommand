@@ -224,7 +224,7 @@
 					</div>
 
 					<!-- Emergency Notices Management -->
-					<div class="mt-4">
+					<!-- <div class="mt-4">
 						<h6 class="text-danger mb-3">
 							<i class="fa fa-list"></i> Emergency Notices
 						</h6>
@@ -232,6 +232,16 @@
 							Add emergency notices that will be displayed on the forced
 							emergency page.
 						</p>
+
+						<div
+							v-if="formData.notices.length === 0"
+							class="alert alert-info"
+							role="alert"
+						>
+							<i class="fa fa-info-circle"></i>&nbsp;
+							<strong>No emergency notices configured.</strong> Add notices
+							below that will be displayed on the forced emergency page.
+						</div>
 
 						<div
 							v-for="(notice, index) in formData.notices"
@@ -260,7 +270,6 @@
 											type="button"
 											class="btn btn-outline-danger btn-sm"
 											@click="removeNotice(index)"
-											:disabled="formData.notices.length <= 1"
 										>
 											<i class="fa fa-trash"></i> Remove
 										</button>
@@ -276,7 +285,7 @@
 						>
 							<i class="fa fa-plus"></i> Add Notice
 						</button>
-					</div>
+					</div> -->
 				</div>
 			</div>
 
@@ -623,10 +632,8 @@ export default {
 		},
 
 		removeNotice: function (index) {
-			if (this.formData.notices.length > 1) {
-				this.formData.notices.splice(index, 1)
-				this.formDirty = true
-			}
+			this.formData.notices.splice(index, 1)
+			this.formDirty = true
 		}
 	}
 }
