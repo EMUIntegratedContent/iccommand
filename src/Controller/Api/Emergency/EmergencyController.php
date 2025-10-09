@@ -56,4 +56,29 @@ class EmergencyController extends AbstractFOSRestController
 
     return new Response($serialized, 200, array("Content-Type" => "application/json"));
   }
+
+  /**
+   * Updates the emergency banner.
+   * @return Response The status code and the HTTP headers.
+   */
+  #[Route('/banner', methods: ['PUT'])]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_EMERGENCY_EDIT")'))]
+  public function updateBannerAction(Request $request): Response
+  {
+    try {
+      $data = json_decode($request->getContent(), true);
+
+      $result = $this->service->updateBanner($data);
+
+      if ($result['success']) {
+        $serialized = $this->serializer->serialize($result['banner'], "json", ['groups' => 'banner']);
+        return new Response($serialized, 200, array("Content-Type" => "application/json"));
+      } else {
+        return new Response(json_encode(['message' => $result['message']]), 400, array("Content-Type" => "application/json"));
+      }
+    } catch (\Exception $e) {
+      $this->logger->error('Emergency banner update failed: ' . $e->getMessage());
+      return new Response(json_encode(['message' => 'An error occurred while updating the emergency banner.']), 500, array("Content-Type" => "application/json"));
+    }
+  }
 }

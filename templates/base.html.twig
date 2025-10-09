@@ -58,6 +58,11 @@
                     <a class="nav-link" href="/crimelog">DPS Crime Log</a>
                 </li>
             {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_EMERGENCY_USER') %}
+                <li class="nav-item emergency-banner-nav-item">
+                    <a class="nav-link" href="/emergency">Emergency Banner</a>
+                </li>
+            {% endif %}
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if is_granted('ROLE_GLOBAL_ADMIN') %}

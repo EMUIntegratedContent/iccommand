@@ -2,11 +2,11 @@
 
 namespace App\Entity\Emergency;
 
-use App\Entity\User;
+use App\Repository\Emergency\EmergencyNoticeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: EmergencyNoticeRepository::class)]
 #[ORM\Table(name: "emergency_notice")]
 class EmergencyNotice
 {
@@ -22,17 +22,18 @@ class EmergencyNotice
     #[ORM\Column(name: "created", type: "datetime")]
     private \DateTime $created;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: "created_by", referencedColumnName: "id")]
-    private User $createdBy;
+    #[ORM\Column(name: "created_by", type: "integer")]
+    private int $createdBy;
 
     #[Gedmo\Timestampable(on: "update")]
     #[ORM\Column(name: "updated", type: "datetime")]
     private \DateTime $updated;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: "updated_by", referencedColumnName: "id")]
-    private User $updatedBy;
+    #[ORM\Column(name: "updated_by", type: "integer")]
+    private int $updatedBy;
+
+    private ?string $createdByUsername = null;
+    private ?string $updatedByUsername = null;
 
     public function getId(): ?int
     {
@@ -55,14 +56,25 @@ class EmergencyNotice
         return $this->created;
     }
 
-    public function getCreatedBy(): User
+    public function getCreatedBy(): int
     {
         return $this->createdBy;
     }
 
-    public function setCreatedBy(User $createdBy): self
+    public function setCreatedBy(int $createdBy): self
     {
         $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    public function getCreatedByUsername(): ?string
+    {
+        return $this->createdByUsername;
+    }
+
+    public function setCreatedByUsername(?string $username): self
+    {
+        $this->createdByUsername = $username;
         return $this;
     }
 
@@ -71,14 +83,25 @@ class EmergencyNotice
         return $this->updated;
     }
 
-    public function getUpdatedBy(): User
+    public function getUpdatedBy(): int
     {
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(User $updatedBy): self
+    public function setUpdatedBy(int $updatedBy): self
     {
         $this->updatedBy = $updatedBy;
+        return $this;
+    }
+
+    public function getUpdatedByUsername(): ?string
+    {
+        return $this->updatedByUsername;
+    }
+
+    public function setUpdatedByUsername(?string $username): self
+    {
+        $this->updatedByUsername = $username;
         return $this;
     }
 }
