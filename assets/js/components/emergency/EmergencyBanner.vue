@@ -130,43 +130,6 @@
 							This message will be displayed in the emergency banner
 						</small>
 					</div>
-
-					<!-- Banner Preview -->
-					<div
-						v-if="
-							formData.displayBanner &&
-							formData.severity &&
-							formData.bannerMessage
-						"
-						class="mt-4"
-					>
-						<h6 class="text-dark mb-3">
-							<i class="fa fa-eye"></i> Banner Preview
-						</h6>
-						<div
-							class="alert alert-dismissible fade show"
-							:class="{
-								'alert-success': formData.severity === 'notice',
-								'alert-warning': formData.severity === 'warning',
-								'alert-danger': formData.severity === 'danger'
-							}"
-							role="alert"
-						>
-							<strong
-								>{{ formData.severity.toUpperCase()
-								}}{{
-									formData.bannerTitle ? ": " + formData.bannerTitle : ""
-								}}:</strong
-							>
-							{{ formData.bannerMessage }}
-							<button
-								type="button"
-								class="btn-close"
-								data-bs-dismiss="alert"
-								aria-label="Close"
-							></button>
-						</div>
-					</div>
 				</div>
 			</div>
 

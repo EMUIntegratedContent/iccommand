@@ -39,10 +39,10 @@ class EmergencyBanner
 
     #[Gedmo\Timestampable(on: "update")]
     #[ORM\Column(name: "updated", type: "datetime")]
+		#[Groups("banner")]
     private \DateTime $updated;
 
     #[ORM\Column(name: "updated_by", type: "integer")]
-    #[Groups("banner")]
     private int $updatedBy;
 
     // Return the username, not the user ID.
