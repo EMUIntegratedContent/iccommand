@@ -83,7 +83,7 @@ class CrimeLogController extends AbstractFOSRestController
 					$added++;
 				}
 				// Only certain codes are considered fire logs. They will be filtered in the method.
-				$this->_addFireLog($crimelog);
+				// $this->_addFireLog($crimelog);
 			}
 			$this->em->flush(); // Commit everything to the database.
 		}
