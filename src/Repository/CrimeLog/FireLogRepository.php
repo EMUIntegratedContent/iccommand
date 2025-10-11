@@ -30,6 +30,9 @@ class FireLogRepository extends ServiceEntityRepository
     public function findByIncidentNumber(string $incidentNumber): ?array
     {
         // Return only one result.
-        return $this->em->getConnection()->executeQuery('SELECT * FROM firelog WHERE crnnumber = :incidentNumber', ['incidentNumber' => $incidentNumber])->fetchOneOrNullResult();
+        $result = $this->em->getConnection()->executeQuery('SELECT * FROM firelog WHERE crnnumber = :incidentNumber', ['incidentNumber' => $incidentNumber])->fetchAssociative();
+
+        return $result ?: null;
     }
+        
 }
