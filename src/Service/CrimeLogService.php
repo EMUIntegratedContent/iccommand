@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\CrimeLog\CrimeLog;
+use App\Entity\CrimeLog\FireLog;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use phpDocumentor\Reflection\PseudoTypes\ArrayShape;
@@ -61,11 +62,20 @@ class CrimeLogService
   }
 
 	/**
-	 * Uses the Symfony container's validator to validate fields for a redirect.
-	 * @param CrimeLog A redirect that makes one link go to another link.
+	 * Uses the Symfony container's validator to validate fields for a FireLog.
+	 * @param CrimeLog $log
 	 * @return ConstraintViolationList A list of errors.
 	 */
-	public function validate($log): ConstraintViolationList {
+	public function validate(CrimeLog $log): ConstraintViolationList {
+		return $this->validator->validate($log);
+	}
+
+	/**
+	 * Uses the Symfony container's validator to validate fields for a FireLog.
+	 * @param FireLog $log
+	 * @return ConstraintViolationList A list of errors.
+	 */
+	public function validateFireLog(FireLog $log): ConstraintViolationList {
 		return $this->validator->validate($log);
 	}
 
