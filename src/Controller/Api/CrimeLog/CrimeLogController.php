@@ -236,7 +236,7 @@ class CrimeLogController extends AbstractFOSRestController
 
 		// Manually delete the fire log if it exists. This is necessary because the entity is not being deleted properly when using $this->em->remove($fireLog); No idea why.
 		if ($fireLog) {
-			$this->em->getRepository(FireLog::class)->deleteById($fireLog->getId());
+			$this->service->deleteFireLogById($fireLog->getId());
 		}
 
 		// (Re)reate the fire log.

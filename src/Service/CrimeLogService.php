@@ -87,4 +87,10 @@ class CrimeLogService
 		$repository = $this->em->getRepository(CrimeLog::class);
 		$repository->truncate();
   }
+
+  public function deleteFireLogById(int $id): void
+  {
+		$repository = $this->em->getRepository(FireLog::class);
+		$repository->deleteById($id);
+  }
 }
