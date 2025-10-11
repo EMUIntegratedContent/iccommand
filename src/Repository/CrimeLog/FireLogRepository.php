@@ -20,16 +20,16 @@ class FireLogRepository extends ServiceEntityRepository
         $this->em = $doctrine->getManager('dps');
     }
 
-	public function deleteById(int $id): void
-	{
-		// Delete the fire log by id.
-		$sql = "DELETE FROM firelog WHERE id = :id";
-		$this->em->getConnection()->executeQuery($sql, ['id' => $id]);
-	}
+    public function deleteById(int $id): void
+    {
+        // Delete the fire log by id.
+        $sql = "DELETE FROM firelog WHERE id = :id";
+        $this->em->getConnection()->executeQuery($sql, ['id' => $id]);
+    }
 
-    public function findByIncidentNumber(string $incidentNumber): ?FireLog
+    public function findByIncidentNumber(string $incidentNumber): ?array
     {
         // Return only one result.
-        return $this->em->getConnection()->executeQuery('SELECT * FROM firelog WHERE crnnumber = :incidentNumber', ['incidentNumber' => $incidentNumber])->fetchOne();
+        return $this->em->getConnection()->executeQuery('SELECT * FROM firelog WHERE crnnumber = :incidentNumber', ['incidentNumber' => $incidentNumber])->fetchOneOrNullResult();
     }
 }
