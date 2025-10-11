@@ -17,9 +17,10 @@ class FireLogRepository extends ServiceEntityRepository
         $this->em = $doctrine->getManager('dps');
     }
 
-		public function truncate(): void
-		{
-			// Truncate the dailylog table.
-			$this->em->getConnection()->executeStatement('TRUNCATE TABLE firelog');
-		}
+	public function deleteById(int $id): void
+	{
+		// Delete the fire log by id.
+		$sql = "DELETE FROM firelog WHERE id = :id";
+		$this->em->getConnection()->executeQuery($sql, ['id' => $id]);
+	}
 }
