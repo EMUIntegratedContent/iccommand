@@ -229,14 +229,14 @@ class CrimeLogController extends AbstractFOSRestController
 		$fireLog = $this->service->findFireLogByIncidentNumber($crnnumber);
 		// Log the fire log lookup result.
 		$this->logger->info('Fire log lookup result', [
-			'incident_number' => $fireLog ? $fireLog->getIncidentNumber() : null,
+			'incident_number' => $fireLog ? $fireLog['crnnumber'] : null,
 			'found' => $fireLog !== null,
-			'id' => $fireLog ? $fireLog->getId() : null
+			'id' => $fireLog ? $fireLog['id'] : null
 		]);
 
 		// Manually delete the fire log if it exists. This is necessary because the entity is not being deleted properly when using $this->em->remove($fireLog); No idea why.
 		if ($fireLog) {
-			$this->service->deleteFireLogById($fireLog->getId());
+			$this->service->deleteFireLogById($fireLog['id']);
 		}
 
 		// (Re)reate the fire log.
