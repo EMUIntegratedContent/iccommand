@@ -7,6 +7,9 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @extends ServiceEntityRepository<FireLogRespository>
+ */
 class FireLogRepository extends ServiceEntityRepository
 {
 
@@ -26,6 +29,7 @@ class FireLogRepository extends ServiceEntityRepository
 
     public function findByIncidentNumber(string $incidentNumber): ?FireLog
     {
-        return $this->em->getRepository(FireLog::class)->findOneBy(['crnnumber' => $incidentNumber]);
+        // Return only one result.
+        return $this->em->getConnection()->executeQuery('SELECT * FROM firelog WHERE crnnumber = :incidentNumber', ['incidentNumber' => $incidentNumber])->fetchOne();
     }
 }
