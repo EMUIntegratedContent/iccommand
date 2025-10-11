@@ -23,4 +23,9 @@ class FireLogRepository extends ServiceEntityRepository
 		$sql = "DELETE FROM firelog WHERE id = :id";
 		$this->em->getConnection()->executeQuery($sql, ['id' => $id]);
 	}
+
+    public function findByIncidentNumber(string $incidentNumber): ?FireLog
+    {
+        return $this->em->getRepository(FireLog::class)->findOneBy(['crnnumber' => $incidentNumber]);
+    }
 }

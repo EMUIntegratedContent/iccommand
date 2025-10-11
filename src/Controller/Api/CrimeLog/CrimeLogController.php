@@ -226,7 +226,7 @@ class CrimeLogController extends AbstractFOSRestController
 		$subject = $data['Subject'];
 
 		// Find an existing fire log by incident number to avoid duplicates.
-		$fireLog = $this->em->getRepository(FireLog::class)->findOneBy(['crnnumber' => $crnnumber]);
+		$fireLog = $this->service->findFireLogByIncidentNumber($crnnumber);
 		// Log the fire log lookup result.
 		$this->logger->info('Fire log lookup result', [
 			'incident_number' => $fireLog ? $fireLog->getIncidentNumber() : null,

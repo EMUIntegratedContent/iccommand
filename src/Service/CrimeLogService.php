@@ -93,4 +93,10 @@ class CrimeLogService
 		$repository = $this->em->getRepository(FireLog::class);
 		$repository->deleteById($id);
   }
+
+  public function findFireLogByIncidentNumber(string $incidentNumber): ?FireLog
+  {
+		$repository = $this->em->getRepository(FireLog::class);
+		return $repository->findByIncidentNumber($incidentNumber);
+  }
 }
