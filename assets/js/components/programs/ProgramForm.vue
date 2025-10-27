@@ -324,7 +324,7 @@
 					</div>
 					<div>
 						<template v-if="isEditMode">
-							<Field name="progMode" type="hidden" v-model="record.class_type">
+							<Field name="progMode" type="hidden" v-model="record.delivery_ids">
 								<!-- for validation purposes only -->
 							</Field>
 							<label for="selectmode" class="mt-2"
@@ -332,8 +332,9 @@
 							>
 							<VueMultiselect
 								v-model="selectedMode"
+								track-by="id"
 								:options="modes"
-								:multiple="false"
+								:multiple="true"
 								:clear-on-select="true"
 								placeholder="Select mode"
 								label="mode"
@@ -352,19 +353,14 @@
 						<template v-else>
 							<div class="form-group">
 								<label>Mode</label>
-								<Field
-									v-if="selectedMode"
-									v-model="selectedMode.mode"
-									name="mode"
+								<input
+									v-if="selectedMode && selectedMode.length"
 									type="text"
+									:value="modeDisplay"
 									class="form-control"
-									:class="{
-										'is-invalid': errors.class_type,
-										'form-control-plaintext': !userCanEdit || !isEditMode
-									}"
-									:readonly="true"
-								>
-								</Field>
+									:class="{ 'is-invalid': errors.delivery_ids, 'form-control-plaintext': !userCanEdit || !isEditMode }"
+									readonly
+								/>
 							</div>
 						</template>
 					</div>
@@ -537,9 +533,9 @@ export default {
 			isDeleted: false,
 			isEditMode: false, // This is true if the forms are editable.
 			modes: [
-				{ id: 0, mode: "In-Person/Hybrid" },
-				{ id: 1, mode: "Online" },
-				{ id: 2, mode: "Hyflex" }
+				{ id: 1, mode: "In-Person/Hybrid" },
+				{ id: 2, mode: "Online" },
+				{ id: 3, mode: "Hyflex" }
 			],
 			progTypes: [],
 			record: {
@@ -548,7 +544,8 @@ export default {
 				program: null,
 				catalog: null,
 				department_id: null,
-				class_type: null,
+				// store as array of ids for multiple modes
+				delivery_ids: [],
 				type_id: null,
 				degree_id: null
 			},
@@ -574,7 +571,7 @@ export default {
 				progDept: Yup.number().required().label("Department "),
 				progType: Yup.number().required().label("Program Type "),
 				progDegree: Yup.number().required().label("Degree Classification "),
-				progMode: Yup.number().required().label("Mode ")
+				progMode: Yup.array().of(Yup.number()).min(1).required().label("Mode ")
 			}
 			return Yup.object(yupObj)
 		},
@@ -631,15 +628,47 @@ export default {
 				this.record.department_id = newValue ? newValue.id : null
 			}
 		},
-		// for the multiselect since it can't bind directly to the record.class_type without the full object
+		// for the multiselect since it can't bind directly to the record.delivery_ids without the full object
 		selectedMode: {
 			get() {
-				return (
-					this.modes.find((mode) => mode.id === this.record.class_type) || null
-				)
+				if (!this.record.delivery_ids || !Array.isArray(this.record.delivery_ids)) return []
+				return this.modes.filter((mode) => this.record.delivery_ids.includes(mode.id))
 			},
-			set(newValue) {
-				this.record.class_type = newValue ? newValue.id : null
+			set(newValues) {
+				// newValues is an array of mode objects (or null). Store as array of ids.
+				if (!newValues) {
+					this.record.delivery_ids = []
+					return
+				}
+				this.record.delivery_ids = newValues.map((m) => m.id)
+			}
+		},
+		modeDisplay: {
+			get() {
+				return this.selectedMode && this.selectedMode.length
+					? this.selectedMode.map((m) => m.mode).join(', ')
+					: ''
+			},
+			set(value) {
+				// v-model requires a setter. Non-edit mode is readonly, but some
+				// form components still attempt to write the value. Provide a
+				// tolerant setter that maps a comma-separated string back to
+				// delivery_ids where possible, or clears the array if empty.
+				if (!value || (typeof value === 'string' && value.trim() === '')) {
+					this.record.delivery_ids = []
+					return
+				}
+				if (typeof value === 'string') {
+					const names = value
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean)
+					// map names back to ids when possible
+					const ids = this.modes
+						.filter((m) => names.includes(m.mode))
+						.map((m) => m.id)
+					this.record.delivery_ids = ids
+				}
 			}
 		},
 		// for the multiselect since it can't bind directly to the record.type_id without the full object
@@ -695,7 +724,10 @@ export default {
 				.get("/api/programs/" + progId)
 				.then(function (response) {
 					// Success.
-					self.record = response.data
+					// Normalize delivery_ids to array of ids for multi-select support
+					let structuredResponse = response.data
+					structuredResponse.delivery_ids = self.formatDeliveryIds(response.data.delivery_ids)
+					self.record = structuredResponse
 					self.isDataLoaded = true
 				})
 				.catch(function (error) {
@@ -775,6 +807,13 @@ export default {
 				})
 		},
 
+		formatDeliveryIds: function (deliveryIds) {
+			if (!deliveryIds) return []
+			return deliveryIds
+				.split(',')
+				.map((delivery_id) => Number(delivery_id.trim()))
+		},
+
 		/**
 		 * Gets called from the @programDeleted event emission from the delete Modal.
 		 */
@@ -818,7 +857,9 @@ export default {
 			})
 				.then(function (response) {
 					// Success.
-					self.record = response.data // This sets the program's ID.
+					let structuredResponse = response.data;
+					structuredResponse.delivery_ids = self.formatDeliveryIds(response.data.delivery_ids)
+					self.record = structuredResponse // This sets the program's ID.
 					self.afterSubmitSucceeds()
 				})
 				.catch(function (error) {

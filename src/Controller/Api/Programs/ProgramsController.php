@@ -2,8 +2,8 @@
 namespace App\Controller\Api\Programs;
 
 use App\Entity\Programs\ProgramWebsites;
-use App\Service\ProgramsService;
 use App\Entity\Programs\Programs;
+use App\Service\ProgramsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -228,11 +228,18 @@ class ProgramsController extends AbstractFOSRestController{
 		$program->setProgram($progName);
 		$program->setFullName($progFullName);
 		$program->setCatalog($catalog);
-		$program->setClassType($request->request->get("class_type"));
 		$program->setDepartmentId($request->request->get("department_id"));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
-		$program->setClassType($request->request->get("class_type"));
+		// handle delivery ids (may be array, CSV string, or single value)
+		$deliveryIds = $request->request->all("delivery_ids");
+		if (is_string($deliveryIds)) {
+			$deliveryIds = trim($deliveryIds) === '' ? [] : explode(',', $deliveryIds);
+		}
+		if (!is_array($deliveryIds)) {
+			$deliveryIds = $deliveryIds ? [$deliveryIds] : [];
+		}
+		$deliveryIds = array_map('intval', $deliveryIds);
 		$program->setCollegeId($request->request->get("college_id"));
 		$program->setSlug($this->service->makeProgramSlug($progName));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
@@ -249,6 +256,12 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->persist($program); // Persist the program.
 		$this->em->flush(); // Commit everything to the database.
 
+		// Update delivery modes using service method
+		try {
+			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
+		} catch (\Exception $e) {
+			throw $e;
+		}
 		// Update the program website information
 		$this->service->updateProgWebsite('', $progName, $url);
 
@@ -308,11 +321,9 @@ class ProgramsController extends AbstractFOSRestController{
 		$program->setProgram($progName);
 		$program->setCatalog($catalog);
 		$program->setFullName($progFullName);
-		$program->setClassType($request->request->get("class_type"));
 		$program->setDepartmentId($request->request->get("department_id"));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
-		$program->setClassType($request->request->get("class_type"));
 		$program->setCollegeId($request->request->get("college_id"));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
 
@@ -327,6 +338,16 @@ class ProgramsController extends AbstractFOSRestController{
 
 		$this->em->persist($program); // Persist the program.
 		$this->em->flush(); // Commit everything to the database.
+
+		// handle delivery ids (may be array, CSV string, or single value)
+		$deliveryIds = $request->request->all("delivery_ids");
+
+		// Update delivery modes using service method
+		try {
+			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
+		} catch (\Exception $e) {
+			throw $e;
+		}
 
 		// Update the program website information
 		$this->service->updateProgWebsite($origProgName, $progName, $url);

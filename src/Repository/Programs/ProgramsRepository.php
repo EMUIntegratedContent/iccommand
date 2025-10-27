@@ -25,10 +25,13 @@ class ProgramsRepository extends ServiceEntityRepository{
 	public function getProgram($id) {
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine
 		$programSql = "
-			SELECT p.*, w.id AS website_id, w.url
+			SELECT p.*, w.id AS website_id, w.url,
+				GROUP_CONCAT(DISTINCT pd.delivery_id) AS delivery_ids
 			FROM programs.program_programs p
 			LEFT JOIN programs.program_websites w ON p.program = w.program
+			LEFT JOIN programs.program_delivery pd ON p.id = pd.program_id
 			WHERE p.id = :id
+			GROUP BY p.id
 		";
 
 		$stmt = $this->em->getConnection()->prepare($programSql);
@@ -144,5 +147,42 @@ class ProgramsRepository extends ServiceEntityRepository{
 
 		$stmt = $this->em->getConnection()->prepare($catalogSql);
 		return $stmt->executeQuery()->fetchAllAssociative();
+	}
+
+	/**
+	 * Updates the delivery modes for a program using a transaction.
+	 * Deletes existing modes and inserts new ones.
+	 * 
+	 * @param int $programId The ID of the program
+	 * @param array<int> $deliveryIds Array of delivery mode IDs
+	 * @throws \Exception If database operation fails
+	 */
+	public function updateProgramDeliveryModes(int $programId, array $deliveryIds): void {
+		try {
+			$conn = $this->em->getConnection();
+			$conn->beginTransaction();
+
+			// Delete existing delivery modes
+			$delSql = 'DELETE FROM programs.program_delivery WHERE program_id = :program_id';
+			$stmt = $conn->prepare($delSql);
+			$stmt->executeStatement(['program_id' => $programId]);
+
+			// Insert new delivery modes
+			$insSql = 'INSERT INTO programs.program_delivery (program_id, delivery_id) VALUES (:program_id, :delivery_id)';
+			$ins = $conn->prepare($insSql);
+			foreach ($deliveryIds as $deliveryId) {
+				$ins->executeStatement([
+					'program_id' => $programId,
+					'delivery_id' => $deliveryId
+				]);
+			}
+
+			$conn->commit();
+		} catch (\Exception $e) {
+			if ($conn->isTransactionActive()) {
+				$conn->rollBack();
+			}
+			throw $e;
+		}
 	}
 }

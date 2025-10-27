@@ -44,8 +44,6 @@ class Programs
     #[ORM\Column(nullable: true)]
     private ?int $ref_id = null;
 
-    #[ORM\Column]
-    private ?int $class_type = null;
 
     public function getId(): ?int
     {
@@ -168,18 +166,6 @@ class Programs
     public function setRefId(?int $ref_id): static
     {
         $this->ref_id = $ref_id;
-
-        return $this;
-    }
-
-    public function getClassType(): ?int
-    {
-        return $this->class_type;
-    }
-
-    public function setClassType(int $class_type): static
-    {
-        $this->class_type = $class_type;
 
         return $this;
     }

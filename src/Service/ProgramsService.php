@@ -321,4 +321,27 @@ class ProgramsService {
 		$slug = trim($slug, '-');
 		return $slug;
 	}
+
+	/**
+	 * Normalize and update delivery modes for a program by delegating to the repository.
+	 * Accepts an array or comma-separated string and ensures an array of ints is passed
+	 * to the repository.
+	 *
+	 * @param int $programId
+	 * @param mixed $deliveryIds
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function updateProgramDeliveryModes(int $programId, $deliveryIds): void {
+		if (is_string($deliveryIds)) {
+			$deliveryIds = trim($deliveryIds) === '' ? [] : explode(',', $deliveryIds);
+		}
+		if (!is_array($deliveryIds)) {
+			$deliveryIds = $deliveryIds ? [$deliveryIds] : [];
+		}
+		$deliveryIds = array_map('intval', $deliveryIds);
+
+		$repository = $this->em->getRepository(Programs::class);
+		$repository->updateProgramDeliveryModes($programId, $deliveryIds);
+	}
 }
