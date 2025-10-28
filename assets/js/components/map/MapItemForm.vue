@@ -1236,7 +1236,7 @@ import VueMultiselect from 'vue-multiselect'
 import NotFound from '../utils/NotFound.vue'
 import Draggable from 'vuedraggable'
 import GoogleMap from './GoogleMap.vue'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import { Field, Form as VeeForm, ErrorMessage } from 'vee-validate'
 import * as Yup from 'yup'
 

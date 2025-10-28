@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Emergency Banner Application Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'emergency/nav_emergency.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-4">Emergency Banner Application Management</h1>
+  <app-manage role-prefix="ROLE_EMERGENCY_" app-slug="emergency" app-name="Emergency Banner" current-user="{{ app.user.username }}"></app-manage>
+</div>
+{% endblock %}

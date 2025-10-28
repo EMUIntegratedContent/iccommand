@@ -3,7 +3,7 @@
 		<template v-if="typeof username != 'undefined'">
 			<div class="row">
 				<div class="col-xs-12">
-					<h2>My Applications</h2>
+					<h2>Available Applications</h2>
 				</div>
 			</div>
 			<div class="row">
@@ -12,6 +12,7 @@
 						v-if="module.display"
 						class="card col-sm-6 col-md-4"
 						:key="'mod-' + i"
+            :class="i === 'emergency' ? 'emergency-card' : ''"
 					>
 						<div class="card-body">
 							<h5 class="card-title">{{ module.title }}</h5>
@@ -117,7 +118,15 @@ export default {
 					buttonLink: "/crimelog",
 					display: true
 				},
-
+        emergency: {
+          // Added Sept. 2025
+          title: "Emergency Banner and Notices",
+          description:
+              "The emergency banner application manages the emergency banner and page for EMU websites.",
+          buttonText: "Manage Banner",
+          buttonLink: "/emergency",
+          display: false
+        },
 			}
 		}
 	},
@@ -175,9 +184,22 @@ export default {
 			) {
 				this.userModules.photorequests.display = true
 			}
+			if (
+				role.includes("ROLE_EMERGENCY_") ||
+				role.includes("ROLE_GLOBAL_ADMIN")
+			) {
+				this.userModules.emergency.display = true
+			}
 		}
 	},
 	filters: {},
 	watch: {}
 }
 </script>
+<style lang="scss">
+@import "../../../assets/css/variables";
+.emergency-card {
+  background: $danger-emu !important;
+  color: white !important;
+}
+</style>
