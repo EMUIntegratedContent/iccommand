@@ -20,6 +20,66 @@
 			{{ successMessage }}
 		</div>
 
+		<div id="accordion">
+			<div class="card">
+				<div class="card-header" id="headingOne">
+					<h5 class="mb-0">
+						<button
+							class="btn btn-link"
+							data-toggle="collapse"
+							data-target="#collapseOne"
+							aria-expanded="true"
+							aria-controls="collapseOne"
+						>
+							Instructions for Manually Enabling the Emergency Banner (click to
+							expand)
+						</button>
+					</h5>
+				</div>
+
+				<div
+					id="collapseOne"
+					class="collapse"
+					aria-labelledby="headingOne"
+					data-parent="#accordion"
+				>
+					<div class="card-body">
+						<p>
+							The emergency banner should update every 60 seconds via a cron job
+							on the emich server. In the event that the emergency banner is not
+							updating, please follow these instructions to manually enable the
+							banner:
+						</p>
+						<ol>
+							<li>SSH into the emich server.</li>
+							<li>
+								Edit the json file:
+								<pre>nano /data/main/htdocs/admin/emergency/emergency.json</pre>
+							</li>
+							<li>
+								To enable the banner, set the <code>displayBanner</code> to
+								<code>true</code>.
+							</li>
+							<li>
+								To set the severity level, set the <code>severity</code> to
+								<code>warning</code> or <code>danger</code>.
+							</li>
+							<li>
+								To set the banner title and message, set the
+								<code>bannerTitle</code> and <code>bannerMessage</code> to the
+								title and message you want to display.
+							</li>
+							<li>
+								To force the emergency page, set the
+								<code>forceEmergencyPage</code> to <code>true</code>.
+							</li>
+							<li>Save the file and exit.</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<VeeForm
 			class="form"
 			v-slot="{ submitForm, errors, meta }"
