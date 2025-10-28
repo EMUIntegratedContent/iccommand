@@ -76,7 +76,6 @@
 							@update:modelValue="formDirty = true"
 						>
 							<option value="">Select Severity</option>
-							<option value="notice">Notice (Green)</option>
 							<option value="warning">Warning (Yellow)</option>
 							<option value="danger">Danger (Red)</option>
 						</Field>
