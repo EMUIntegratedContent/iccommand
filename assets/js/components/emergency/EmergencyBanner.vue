@@ -114,18 +114,21 @@
 						>
 						<Field
 							name="bannerMessage"
-							as="textarea"
-							class="form-control"
-							:class="{ 'is-invalid': errors.bannerMessage }"
+							v-slot="{ field, errors }"
 							v-model="formData.bannerMessage"
-							id="bannerMessage"
-							rows="3"
-							placeholder="Enter the emergency message to display..."
-							@update:modelValue="formDirty = true"
-						/>
-						<div class="invalid-feedback">
-							{{ errors.bannerMessage }}
-						</div>
+						>
+							<div :class="{ 'is-invalid-ckeditor': errors.length > 0 }">
+								<ckeditor
+									v-model="formData.bannerMessage"
+									:editor="editor"
+									:config="ckConfig"
+									name="bannerMessage"
+								/>
+							</div>
+							<div v-if="errors.length > 0" class="invalid-feedback-ckeditor">
+								{{ errors[0] }}
+							</div>
+						</Field>
 						<small class="form-text text-muted">
 							This message will be displayed in the emergency banner
 						</small>
@@ -376,6 +379,7 @@
 import Heading from "../utils/Heading.vue"
 import { ErrorMessage, Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 
 export default {
 	components: {
@@ -407,6 +411,20 @@ export default {
 				bannerTitle: "",
 				bannerMessage: "",
 				notices: [{ id: null, notice: "" }]
+			},
+			editor: ClassicEditor,
+			ckConfig: {
+				toolbar: [
+					"Bold",
+					"Italic",
+					"Undo",
+					"Redo",
+					"NumberedList",
+					"BulletedList",
+					"Link"
+				],
+				height: 250,
+				extraPlugins: []
 			}
 		}
 	},
@@ -596,6 +614,15 @@ export default {
 
 		removeNotice: function (index) {
 			this.formData.notices.splice(index, 1)
+			this.formDirty = true
+		},
+
+		handleCkeditorChange: function (value, fieldHandleChange) {
+			// Update formData for submission
+			this.formData.bannerMessage = value
+			// Update vee-validate field for validation
+			fieldHandleChange(value)
+			// Mark form as dirty
 			this.formDirty = true
 		}
 	}
