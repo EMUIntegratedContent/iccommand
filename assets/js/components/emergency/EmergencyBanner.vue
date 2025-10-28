@@ -162,9 +162,6 @@
 						<div class="invalid-feedback">
 							{{ errors.bannerTitle }}
 						</div>
-						<small class="form-text text-muted">
-							This is usually left blank.
-						</small>
 					</div>
 
 					<div class="form-group">
