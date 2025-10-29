@@ -533,9 +533,9 @@ export default {
 			isDeleted: false,
 			isEditMode: false, // This is true if the forms are editable.
 			modes: [
-				{ id: 1, mode: "In-Person/Hybrid" },
-				{ id: 2, mode: "Online" },
-				{ id: 3, mode: "Hyflex" }
+				{ id: 0, mode: "In-Person/Hybrid" },
+				{ id: 1, mode: "Online" },
+				{ id: 2, mode: "Hyflex" }
 			],
 			progTypes: [],
 			record: {
