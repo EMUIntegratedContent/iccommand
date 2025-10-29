@@ -10,7 +10,7 @@ nelmio_cors:
         '^/api/':
 #            allow_origin: ['%env(resolve:CORS_ALLOW_ORIGIN)%']
             allow_origin:
-                dev: '^https?://webstage.emich.edu*$'
+                dev: '^https?://(webstage.)?(todaytest.)?emich.edu*$'
                 prod: '^https?://(www.)?(webstage.)?(wwwtmp.)?(wwwcache.)?emich.edu$'
             allow_headers: ['X-Custom-Auth']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE']

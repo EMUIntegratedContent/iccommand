@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\CrimeLog\CrimeLog;
+use App\Entity\CrimeLog\FireLog;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use phpDocumentor\Reflection\PseudoTypes\ArrayShape;
@@ -37,7 +38,7 @@ class CrimeLogService
    * Fetches the permissions of the user for managing crimelogs.
    * @return array The user's permissions for managing crimelogs.
    */
-	#[ArrayShape(['user' => "bool", 'admin' => "bool"])]
+  #[ArrayShape(['user' => "bool", 'admin' => "bool"])]
   public function getUserCrimeLogPermissions(): array
   {
     // Set all permissions to false as default.
@@ -60,21 +61,44 @@ class CrimeLogService
     return $crimelogPermissions;
   }
 
-	/**
-	 * Uses the Symfony container's validator to validate fields for a redirect.
-	 * @param CrimeLog A redirect that makes one link go to another link.
-	 * @return ConstraintViolationList A list of errors.
-	 */
-	public function validate($log): ConstraintViolationList {
-		return $this->validator->validate($log);
-	}
+  /**
+   * Uses the Symfony container's validator to validate fields for a FireLog.
+   * @param CrimeLog $log
+   * @return ConstraintViolationList A list of errors.
+   */
+  public function validate(CrimeLog $log): ConstraintViolationList
+  {
+    return $this->validator->validate($log);
+  }
+
+  /**
+   * Uses the Symfony container's validator to validate fields for a FireLog.
+   * @param FireLog $log
+   * @return ConstraintViolationList A list of errors.
+   */
+  public function validateFireLog(FireLog $log): ConstraintViolationList
+  {
+    return $this->validator->validate($log);
+  }
 
   /**
    * Truncates the crimelog table. Should be done before every bulk upload
    */
   public function truncateCrimeLogTable(): void
   {
-		$repository = $this->em->getRepository(CrimeLog::class);
-		$repository->truncate();
+    $repository = $this->em->getRepository(CrimeLog::class);
+    $repository->truncate();
+  }
+
+  public function deleteFireLogById(int $id): void
+  {
+    $repository = $this->em->getRepository(FireLog::class);
+    $repository->deleteById($id);
+  }
+
+  public function findFireLogByIncidentNumber(string $incidentNumber): ?array
+  {
+    $repository = $this->em->getRepository(FireLog::class);
+    return $repository->findByIncidentNumber($incidentNumber);
   }
 }

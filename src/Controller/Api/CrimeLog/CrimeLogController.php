@@ -3,6 +3,7 @@
 namespace App\Controller\Api\CrimeLog;
 
 use App\Entity\CrimeLog\CrimeLog;
+use App\Entity\CrimeLog\FireLog;
 use App\Service\CrimeLogService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -81,6 +82,8 @@ class CrimeLogController extends AbstractFOSRestController
 				} else {
 					$added++;
 				}
+				// Only certain codes are considered fire logs. They will be filtered in the method.
+				$this->_addFireLog($crimelog);
 			}
 			$this->em->flush(); // Commit everything to the database.
 		}
@@ -96,10 +99,10 @@ class CrimeLogController extends AbstractFOSRestController
 		$crnnumber = $data['Incident Number'];
 
 		// Log the start of processing
-		$this->logger->info('Processing crime log entry', [
-			'incident_number' => $crnnumber,
-			'data_keys' => array_keys($data)
-		]);
+		// $this->logger->info('Processing crime log entry', [
+		// 	'incident_number' => $crnnumber,
+		// 	'data_keys' => array_keys($data)
+		// ]);
 
 		$crime = $data['Crime'];
 		$crimedesc = $data['Crime Description'];
@@ -134,9 +137,9 @@ class CrimeLogController extends AbstractFOSRestController
 		$crimelog->setSubject($subject);
 
 		$errors = $this->service->validate($crimelog);
-		$this->logger->info('Crime log validation', [
-			'errors' => $errors
-		]);
+		// $this->logger->info('Crime log validation', [
+		// 	'errors' => $errors
+		// ]);
 
 		if (count($errors) > 0) {
 			$errorMessages = [];
@@ -144,10 +147,10 @@ class CrimeLogController extends AbstractFOSRestController
 				$errorMessages[] = $error->getPropertyPath() . ': ' . $error->getMessage();
 			}
 
-			$this->logger->warning('Crime log validation failed', [
-				'incident_number' => $crnnumber,
-				'errors' => $errorMessages
-			]);
+			// $this->logger->warning('Crime log validation failed', [
+			// 	'incident_number' => $crnnumber,
+			// 	'errors' => $errorMessages
+			// ]);
 
 			$serialized = $this->serializer->serialize($errors, "json", ['groups' => 'crimelog']);
 			return [
@@ -161,13 +164,134 @@ class CrimeLogController extends AbstractFOSRestController
 			$this->em->persist($crimelog); // Persist the crimelog.
 			// $this->em->flush(); // Moved outside of this method to the bulk action because it was causing memory issues.
 
-			$this->logger->info('Crime log successfully added', [
+			// $this->logger->info('Crime log successfully added', [
+			// 	'incident_number' => $crnnumber,
+			// 	'crime_type' => $crime,
+			// 	'location' => $location
+			// ]);
+		} catch (\Exception $e) {
+			// $this->logger->error('Failed to persist crime log', [
+			// 	'incident_number' => $crnnumber,
+			// 	'error' => $e->getMessage(),
+			// 	'trace' => $e->getTraceAsString()
+			// ]);
+
+			return [
+				'success' => false,
+				'code' => 500,
+				'data' => 'Database error occurred'
+			];
+		}
+
+		$serialized = $this->serializer->serialize($crimelog, "json", ['groups' => 'crimelog']);
+
+		return [
+			'success' => true,
+			'code' => 201,
+			'data' => $serialized
+		];
+	}
+
+	// Only certain crime codes are considered fire logs.
+	private function _addFireLog($data): array
+	{
+		$fireCodes = ['L5170', '2005', '2009', '2072', '2073', '2099'];
+		$crime = $data['Crime'];
+		if (!in_array($crime, $fireCodes)) {
+			// Not a fire log, skip processing.
+			return [
+				'success' => false,
+				'code' => 204,
+				'data' => 'Not eligible for fire log.'
+			];
+		}
+		$crnnumber = $data['Incident Number'];
+
+		// Log the start of processing
+		// $this->logger->info('Processing fire log entry', [
+		// 	'incident_number' => $crnnumber,
+		// 	'data_keys' => array_keys($data)
+		// ]);
+
+		$crimedesc = $data['Crime Description'];
+		$att = $data['Att'];
+		$reptdate = $data['Report Date'] ? date('Y-m-d', strtotime($data['Report Date'])) : null;
+		$repttime = $data['Report Time'];
+		$occurdate1 = $data['Occur From'];
+		$occurdate2 = $data['Occur To'];
+		$status = $data['Status'];
+		$closed = $data['Closed'];
+		$lastupdate = $data['Last Approval'];
+		$location = $data['Location'];
+		$subject = $data['Subject'];
+
+		// Find an existing fire log by incident number to avoid duplicates.
+		$fireLog = $this->service->findFireLogByIncidentNumber($crnnumber);
+		// Log the fire log lookup result.
+		$this->logger->info('Fire log lookup result', [
+			'incident_number' => $fireLog ? $fireLog['crnnumber'] : null,
+			'found' => $fireLog !== null,
+			'id' => $fireLog ? $fireLog['id'] : null
+		]);
+
+		// Manually delete the fire log if it exists. This is necessary because the entity is not being deleted properly when using $this->em->remove($fireLog); No idea why.
+		if ($fireLog) {
+			$this->service->deleteFireLogById($fireLog['id']);
+		}
+
+		// (Re)reate the fire log.
+		$fireLog = new FireLog();
+		$fireLog->setIncidentNumber($crnnumber);
+
+		// Set the fields for all crimelogs.
+		$fireLog->setCrime($crime);
+		$fireLog->setCrimeDescription($crimedesc);
+		$fireLog->setAtt($att);
+		$fireLog->setReportDate($reptdate);
+		$fireLog->setReportTime($repttime);
+		$fireLog->setOccurFrom($occurdate1);
+		$fireLog->setOccurTo($occurdate2);
+		$fireLog->setStatus($status);
+		$fireLog->setClosed($closed);
+		$fireLog->setLastApproval($lastupdate);
+		$fireLog->setLocation($location);
+		$fireLog->setSubject($subject);
+
+		$errors = $this->service->validateFireLog($fireLog);
+		$this->logger->info('Fire log validation', [
+			'errors' => $errors
+		]);
+
+		if (count($errors) > 0) {
+			$errorMessages = [];
+			foreach ($errors as $error) {
+				$errorMessages[] = $error->getPropertyPath() . ': ' . $error->getMessage();
+			}
+
+			$this->logger->warning('Fire log validation failed', [
+				'incident_number' => $crnnumber,
+				'errors' => $errorMessages
+			]);
+
+			$serialized = $this->serializer->serialize($errors, "json", ['groups' => 'crimelog']);
+			return [
+				'success' => false,
+				'code' => 422,
+				'data' => $serialized
+			];
+		}
+
+		try {
+			$this->em->persist($fireLog); // Persist the firelog.
+			// $this->em->flush(); // Moved outside of this method to the bulk action because it was causing memory issues.
+
+			$this->logger->info('Fire log successfully added', [
 				'incident_number' => $crnnumber,
 				'crime_type' => $crime,
 				'location' => $location
 			]);
 		} catch (\Exception $e) {
-			$this->logger->error('Failed to persist crime log', [
+			$this->logger->error('Failed to persist fire log', [
 				'incident_number' => $crnnumber,
 				'error' => $e->getMessage(),
 				'trace' => $e->getTraceAsString()
@@ -180,7 +304,7 @@ class CrimeLogController extends AbstractFOSRestController
 			];
 		}
 
-		$serialized = $this->serializer->serialize($crimelog, "json", ['groups' => 'crimelog']);
+		$serialized = $this->serializer->serialize($fireLog, "json", ['groups' => 'crimelog']);
 
 		return [
 			'success' => true,

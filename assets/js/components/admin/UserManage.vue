@@ -295,6 +295,25 @@
 								</div>
 							</div>
 						</div>
+            <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
+              <div class="card card-accent card-accent-green">
+                <div class="card-header">Emergency Banner</div>
+                <div class="card-body">
+                  <template
+                      v-for="role in rolesEmergency"
+                      :key="'user-emergency-' + role"
+                  >
+                    <input
+                        type="checkbox"
+                        v-model="user.roles"
+                        :disabled="!isEditMode"
+                        :value="role"
+                    />
+                    {{ role }} <br />
+                  </template>
+                </div>
+              </div>
+            </div>
 					</div>
 					<!-- VALIDATION AND SUCCESS/ERROR MESSAGES -->
 					<div
@@ -386,6 +405,7 @@ export default {
 			rolesCrimeLog: [],
 			rolesDepartments: [],
 			rolesPhoto: [],
+      rolesEmergency: [],
 			success: false,
 			successMessage: "",
 			user: {
@@ -466,6 +486,9 @@ export default {
 						if (key.startsWith("ROLE_PHOTO_")) {
 							self.rolesPhoto.push(key)
 						}
+            if (key.startsWith("ROLE_EMERGENCY_")) {
+              self.rolesEmergency.push(key)
+            }
 					}
 				})
 				// fail
