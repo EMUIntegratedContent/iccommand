@@ -13,7 +13,7 @@
           </p>
           <template v-else>
             <ModuleCategoryCards v-if="campusSafetyModules.length > 0" :modules="campusSafetyModules" mdDisplay="col-md-6"></ModuleCategoryCards>
-            <ModuleCategoryCards v-if="mapAndDirectoryModules.length > 0" :modules="mapAndDirectoryModules"></ModuleCategoryCards>
+            <ModuleCategoryCards v-if="mapAndDirectoryModules.length > 0" :modules="mapAndDirectoryModules" mdDisplay="col-md-6"></ModuleCategoryCards>
             <ModuleCategoryCards v-if="photographyModules.length > 0" :modules="photographyModules" mdDisplay="col-md-12"></ModuleCategoryCards>
             <ModuleCategoryCards v-if="webServicesModules.length > 0" :modules="webServicesModules"></ModuleCategoryCards>
           </template>
