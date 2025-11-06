@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Create a catalog program.{% endblock %}
+{% block title %}Create a program.{% endblock %}
 
 {% block modulenav %}
     {% include 'programs/nav_programs.html.twig' %}
 {% endblock %}
 
 {% block body %}
-    <h1 class="display-4">Create Catalog Program</h1>
+    <h1 class="display-4">Create Program</h1>
     <div id="app">
         <program-form :prog-exists="false" start-mode="edit"
                       :permissions="[{{ permissions }}]"></program-form>

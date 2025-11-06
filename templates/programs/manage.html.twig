@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Catalog Programs Permissions Management{% endblock %}
+{% block title %}Degrees & Programs Permissions Management{% endblock %}
 
 {% block modulenav %}
   {% include 'programs/nav_programs.html.twig' %}
@@ -8,7 +8,7 @@
 
 {% block body %}
 <div id="app">
-  <h1 class="display-4">Programs App Management</h1>
+  <h1 class="display-4">Degrees & Programs App Management</h1>
   <app-manage role-prefix="ROLE_PROGRAMS_" app-slug="redirect" app-name="Programs App" current-user="{{ app.user.username }}"></app-manage>
 </div>
 {% endblock %}
