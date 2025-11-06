@@ -112,4 +112,18 @@ class DepartmentRepository extends ServiceEntityRepository
 
 		return $qb->getQuery()->getResult();
 	}
+
+	/**
+	 * Get departments that start with the given letter.
+	 * @param $letter
+	 * @return array
+	 */
+	public function searchResultsStartWithLetter($letter) {
+		$qb = $this->createQueryBuilder('d');
+		$qb->where('d.department LIKE :letter')
+			->setParameter('letter', $letter . '%')
+			->orderBy('d.department', 'ASC');
+
+		return $qb->getQuery()->getResult();
+	}
 }

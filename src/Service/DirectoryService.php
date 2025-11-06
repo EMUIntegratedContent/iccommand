@@ -122,6 +122,19 @@ class DirectoryService
 		return $repository->searchResultsDepartmentsByPhone($phoneNumber);
 	}
 
+	/**
+	 * Get departments that start with the specified letter.
+	 * @param $letter
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getDepartmentsStartWithLetter($letter) {
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Department::class);
+		return $repository->searchResultsStartWithLetter($letter);
+	}
+
   /**
    * Normalizes search terms by splitting by @@, trimming, filtering empty values, deduplicating, and joining back
    * Terms are converted to lowercase.

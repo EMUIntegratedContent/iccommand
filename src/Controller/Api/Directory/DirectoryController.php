@@ -115,6 +115,9 @@ class DirectoryController extends AbstractFOSRestController
 		// If the search term is numeric, search by phone number
 		if (is_numeric($searchTerm)){
 			$departments = $this->service->getDepartmentsByPhone($searchTerm);
+		} else if(strlen($searchTerm) === 1) {
+			// If the search term is a single character, search where dept name starts with that character
+			$departments = $this->service->getDepartmentsStartWithLetter($searchTerm);
 		} else {
 			$departments = $this->service->getDepartmentsByName($searchTerm);
 		}
