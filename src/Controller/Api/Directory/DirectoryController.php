@@ -107,7 +107,17 @@ class DirectoryController extends AbstractFOSRestController
 
     $searchTerm = $request->query->get('searchterm');
 
-    $departments = $this->service->getDepartmentsByName($searchTerm);
+		// Special case: if the search term is "it" (case-insensitive), change it to "information tech"
+		if(strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $searchTerm == 'it'))) {
+			$searchTerm = 'information tech';
+		}
+
+		// If the search term is numeric, search by phone number
+		if (is_numeric($searchTerm)){
+			$departments = $this->service->getDepartmentsByPhone($searchTerm);
+		} else {
+			$departments = $this->service->getDepartmentsByName($searchTerm);
+		}
 
     $serialized = $this->serializer->serialize($departments, "json", ['groups' => 'department']);
 

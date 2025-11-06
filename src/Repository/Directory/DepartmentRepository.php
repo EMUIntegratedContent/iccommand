@@ -96,4 +96,20 @@ class DepartmentRepository extends ServiceEntityRepository
 
     return $qb->getQuery()->getResult();
   }
+
+	/**
+	 * Get departments that match the phone number (used at emich.edu/directory).
+	 * @param $phoneNumber
+	 * @return array
+	 */
+	public function searchResultsDepartmentsByPhone($phoneNumber)
+	{
+		$qb = $this->createQueryBuilder('d');
+		$qb->where('d.phone LIKE :phoneNumber')
+			->setParameter('phoneNumber', '%' . $phoneNumber . '%')
+			->orderBy('d.department', 'ASC')
+			->setMaxResults(10);
+
+		return $qb->getQuery()->getResult();
+	}
 }

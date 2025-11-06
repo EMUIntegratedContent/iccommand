@@ -108,6 +108,20 @@ class DirectoryService
     return $repository->searchResultsDepartments($searchTerm);
   }
 
+	/**
+	 * Get departments that match the phone number (used on emich.edu/directory).
+	 * @param $phoneNumber
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getDepartmentsByPhone($phoneNumber)
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Department::class);
+		return $repository->searchResultsDepartmentsByPhone($phoneNumber);
+	}
+
   /**
    * Normalizes search terms by splitting by @@, trimming, filtering empty values, deduplicating, and joining back
    * Terms are converted to lowercase.
