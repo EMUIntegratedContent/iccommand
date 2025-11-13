@@ -105,6 +105,11 @@ class DirectoryService
   {
     // Get the Doctrine repository
     $repository = $this->doctrine->getRepository(Department::class);
+
+		$depts = $repository->searchResultsDepartments($searchTerm);
+
+		// Make kebab-case versions of department names for matching
+
     return $repository->searchResultsDepartments($searchTerm);
   }
 
