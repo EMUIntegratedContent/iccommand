@@ -312,6 +312,12 @@ class Department
 		if(!$this->mapBuilding) {
 			return null;
 		}
-		return strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', str_replace("'", '', $this->mapBuilding->getName())));
+		return trim(strtolower(
+			preg_replace(
+				'/[^a-zA-Z0-9]+/',
+				'-',
+				str_replace("'", '', $this->mapBuilding->getName())
+			)
+		), '-');
 	}
 }
