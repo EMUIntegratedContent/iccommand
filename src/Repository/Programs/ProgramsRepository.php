@@ -25,9 +25,13 @@ class ProgramsRepository extends ServiceEntityRepository{
 	public function getProgram($id) {
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine
 		$programSql = "
-			SELECT p.*, w.id AS website_id, w.url
+			SELECT p.*, w.id AS website_id, w.url,
+				GROUP_CONCAT(DISTINCT pd.delivery_id) AS delivery_ids,
+				GROUP_CONCAT(DISTINCT pkl.keyword_id) AS keyword_ids
 			FROM programs.program_programs p
 			LEFT JOIN programs.program_websites w ON p.program = w.program
+			LEFT JOIN programs.program_delivery pd ON p.id = pd.program_id
+			LEFT JOIN programs.program_keyword_links pkl ON p.id = pkl.program_id
 			WHERE p.id = :id
 		";
 
@@ -144,5 +148,79 @@ class ProgramsRepository extends ServiceEntityRepository{
 
 		$stmt = $this->em->getConnection()->prepare($catalogSql);
 		return $stmt->executeQuery()->fetchAllAssociative();
+	}
+
+	/**
+	 * Updates the delivery modes for a program using a transaction.
+	 * Deletes existing modes and inserts new ones.
+	 * 
+	 * @param int $programId The ID of the program
+	 * @param array<int> $deliveryIds Array of delivery mode IDs
+	 * @throws \Exception If database operation fails
+	 */
+	public function updateProgramDeliveryModes(int $programId, array $deliveryIds): void {
+		try {
+			$conn = $this->em->getConnection();
+			$conn->beginTransaction();
+
+			// Delete existing delivery modes
+			$delSql = 'DELETE FROM programs.program_delivery WHERE program_id = :program_id';
+			$stmt = $conn->prepare($delSql);
+			$stmt->executeStatement(['program_id' => $programId]);
+
+			// Insert new delivery modes
+			$insSql = 'INSERT INTO programs.program_delivery (program_id, delivery_id) VALUES (:program_id, :delivery_id)';
+			$ins = $conn->prepare($insSql);
+			foreach ($deliveryIds as $deliveryId) {
+				$ins->executeStatement([
+					'program_id' => $programId,
+					'delivery_id' => $deliveryId
+				]);
+			}
+
+			$conn->commit();
+		} catch (\Exception $e) {
+			if ($conn->isTransactionActive()) {
+				$conn->rollBack();
+			}
+			throw $e;
+		}
+	}
+
+	/**
+	 * Updates the keywords for a program using a transaction.
+	 * Deletes existing keywords and inserts new ones.
+	 * 
+	 * @param int $programId The ID of the program
+	 * @param array<int> $keywordIds Array of keyword IDs
+	 * @throws \Exception If database operation fails
+	 */
+	public function updateProgramKeywords(int $programId, array $keywordIds): void {
+		try {
+			$conn = $this->em->getConnection();
+			$conn->beginTransaction();
+
+			// Delete existing keywords
+			$delSql = 'DELETE FROM programs.program_keyword_links WHERE program_id = :program_id';
+			$stmt = $conn->prepare($delSql);
+			$stmt->executeStatement(['program_id' => $programId]);
+
+			// Insert new keywords
+			$insSql = 'INSERT INTO programs.program_keyword_links (program_id, keyword_id) VALUES (:program_id, :keyword_id)';
+			$ins = $conn->prepare($insSql);
+			foreach ($keywordIds as $keywordId) {
+				$ins->executeStatement([
+					'program_id' => $programId,
+					'keyword_id' => $keywordId
+				]);
+			}
+
+			$conn->commit();
+		} catch (\Exception $e) {
+			if ($conn->isTransactionActive()) {
+				$conn->rollBack();
+			}
+			throw $e;
+		}
 	}
 }

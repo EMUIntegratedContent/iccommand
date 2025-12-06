@@ -191,6 +191,21 @@ class ProgramsController extends AbstractFOSRestController{
 
 		return new Response($serialized, 200, array("Content-Type" => "application/json"));
 	}
+	
+	/**
+	 * Get all keywords
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/keywords', methods: ['GET'])]
+	// #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
+	public function getKeywordsAction(Request $request): Response{
+		$keywords = $this->service->getKeywords();
+
+		$serialized = $this->serializer->serialize($keywords, "json");
+
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
 
 	/**
 	 * Gets the program by the specified ID.
@@ -248,6 +263,21 @@ class ProgramsController extends AbstractFOSRestController{
 
 		$this->em->persist($program); // Persist the program.
 		$this->em->flush(); // Commit everything to the database.
+
+		// Update delivery modes using service method
+		try {
+			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
+		} catch (\Exception $e) {
+			throw $e;
+		}
+
+		// Update keywords
+		$keywordIds = $request->request->all("keyword_ids");
+		try {
+			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
+		} catch (\Exception $e) {
+			throw $e;
+		}
 
 		// Update the program website information
 		$this->service->updateProgWebsite('', $progName, $url);
@@ -328,6 +358,24 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->persist($program); // Persist the program.
 		$this->em->flush(); // Commit everything to the database.
 
+		// handle delivery ids (may be array, CSV string, or single value)
+		$deliveryIds = $request->request->all("delivery_ids");
+
+		// Update delivery modes using service method
+		try {
+			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
+		} catch (\Exception $e) {
+			throw $e;
+		}
+
+		// Update keywords
+		$keywordIds = $request->request->all("keyword_ids");
+		try {
+			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
+		} catch (\Exception $e) {
+			throw $e;
+		}
+
 		// Update the program website information
 		$this->service->updateProgWebsite($origProgName, $progName, $url);
 
@@ -366,6 +414,40 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->flush();
 
 		return new Response("Program has been deleted.", 204, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Create a new keyword
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/keywords', methods: ['POST'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
+	public function postKeywordAction(Request $request): Response{
+		$keywordName = $request->request->get("keyword");
+
+		if (empty($keywordName)) {
+			return new Response("Keyword name is required.", 422, array("Content-Type" => "application/json"));
+		}
+
+		$keyword = $this->service->createKeyword($keywordName);
+
+		$serialized = $this->serializer->serialize($keyword, "json");
+
+		return new Response($serialized, 201, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Delete a keyword
+	 * @param $id
+	 * @return Response
+	 */
+	#[Route('/keywords/{id}', methods: ['DELETE'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
+	public function deleteKeywordAction($id): Response{
+		$this->service->deleteKeyword($id);
+
+		return new Response("Keyword has been deleted.", 204, array("Content-Type" => "application/json"));
 	}
 }
 

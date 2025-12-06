@@ -387,6 +387,45 @@
 							{{ errors.url }}
 						</div>
 					</div>
+					<div>
+						<template v-if="isEditMode">
+							<label for="selectkeywords" class="mt-2">Keywords</label>
+							<VueMultiselect
+								v-model="selectedKeywords"
+								track-by="id"
+								:options="keywords"
+								:multiple="true"
+								:clear-on-select="true"
+								placeholder="Select keywords"
+								label="keyword"
+								id="selectkeywords"
+								class="form-control"
+								style="padding: 0"
+								name="selectkeywords"
+								@update:modelValue="formDirty = true"
+							>
+							</VueMultiselect>
+						</template>
+						<template v-else>
+							<div class="form-group">
+								<label>Keywords</label>
+								<input
+									v-if="selectedKeywords && selectedKeywords.length"
+									type="text"
+									:value="keywordDisplay"
+									class="form-control form-control-plaintext"
+									readonly
+								/>
+								<input
+									v-else
+									type="text"
+									value=""
+									class="form-control form-control-plaintext"
+									readonly
+								/>
+							</div>
+						</template>
+					</div>
 					<div
 						v-if="Object.keys(errors).length && isEditMode"
 						class="alert alert-danger fade show"
@@ -483,6 +522,7 @@ export default {
 		this.fetchDepts()
 		this.fetchProgTypes()
 		this.fetchDegrees()
+		this.fetchKeywords()
 	},
 
 	components: {
@@ -531,6 +571,7 @@ export default {
 			colleges: [],
 			degrees: [],
 			departments: [],
+			keywords: [],
 			is404: false,
 			isDeleteError: false,
 			isDataLoaded: false,
@@ -548,7 +589,10 @@ export default {
 				program: null,
 				catalog: null,
 				department_id: null,
-				class_type: null,
+				// store as array of ids for multiple modes
+				delivery_ids: [],
+				// store as array of ids for keywords
+				keyword_ids: [],
 				type_id: null,
 				degree_id: null
 			},
@@ -634,12 +678,66 @@ export default {
 		// for the multiselect since it can't bind directly to the record.class_type without the full object
 		selectedMode: {
 			get() {
-				return (
-					this.modes.find((mode) => mode.id === this.record.class_type) || null
-				)
+				if (!this.record.delivery_ids || !Array.isArray(this.record.delivery_ids)) return []
+				return this.modes.filter((mode) => this.record.delivery_ids.includes(mode.id))
 			},
-			set(newValue) {
-				this.record.class_type = newValue ? newValue.id : null
+			set(newValues) {
+				// newValues is an array of mode objects (or null). Store as array of ids.
+				if (!newValues) {
+					this.record.delivery_ids = []
+					return
+				}
+				this.record.delivery_ids = newValues.map((m) => m.id)
+			}
+		},
+		modeDisplay: {
+			get() {
+				return this.selectedMode && this.selectedMode.length
+					? this.selectedMode.map((m) => m.mode).join(', ')
+					: ''
+			},
+			set(value) {
+				// v-model requires a setter. Non-edit mode is readonly, but some
+				// form components still attempt to write the value. Provide a
+				// tolerant setter that maps a comma-separated string back to
+				// delivery_ids where possible, or clears the array if empty.
+				if (!value || (typeof value === 'string' && value.trim() === '')) {
+					this.record.delivery_ids = []
+					return
+				}
+				if (typeof value === 'string') {
+					const names = value
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean)
+					// map names back to ids when possible
+					const ids = this.modes
+						.filter((m) => names.includes(m.mode))
+						.map((m) => m.id)
+					this.record.delivery_ids = ids
+				}
+			}
+		},
+		// for the multiselect since it can't bind directly to the record.keyword_ids without the full object
+		selectedKeywords: {
+			get() {
+				if (!this.record.keyword_ids || !Array.isArray(this.record.keyword_ids)) return []
+				return this.keywords.filter((keyword) => this.record.keyword_ids.includes(keyword.id))
+			},
+			set(newValues) {
+				// newValues is an array of keyword objects (or null). Store as array of ids.
+				if (!newValues) {
+					this.record.keyword_ids = []
+					return
+				}
+				this.record.keyword_ids = newValues.map((k) => k.id)
+			}
+		},
+		keywordDisplay: {
+			get() {
+				return this.selectedKeywords && this.selectedKeywords.length
+					? this.selectedKeywords.map((k) => k.keyword).join(', ')
+					: ''
 			}
 		},
 		// for the multiselect since it can't bind directly to the record.type_id without the full object
@@ -695,7 +793,11 @@ export default {
 				.get("/api/programs/" + progId)
 				.then(function (response) {
 					// Success.
-					self.record = response.data
+					// Normalize delivery_ids to array of ids for multi-select support
+					let structuredResponse = response.data
+					structuredResponse.delivery_ids = self.formatDeliveryIds(response.data.delivery_ids)
+					structuredResponse.keyword_ids = self.formatKeywordIds(response.data.keyword_ids)
+					self.record = structuredResponse
 					self.isDataLoaded = true
 				})
 				.catch(function (error) {
@@ -776,6 +878,48 @@ export default {
 		},
 
 		/**
+		 * Get the list of keywords
+		 */
+		fetchKeywords: function () {
+			const self = this
+			axios
+				.get("/api/programs/keywords")
+				.then(function (response) {
+					// Success.
+					self.keywords = response.data
+				})
+				.catch(function (error) {
+					// Failure.
+					console.log(error)
+				})
+		},
+
+		/**
+		 * Format keyword_ids from string (comma-separated) or array to array of integers
+		 * @param {string|array} keywordIds
+		 * @return {array}
+		 */
+		formatKeywordIds: function (keywordIds) {
+			if (!keywordIds) return []
+			if (Array.isArray(keywordIds)) {
+				return keywordIds.map(id => parseInt(id))
+			}
+			if (typeof keywordIds === 'string') {
+				if (keywordIds.trim() === '') return []
+				return keywordIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+			}
+			return []
+		},
+
+		formatDeliveryIds: function (deliveryIds) {
+			if (!deliveryIds) return []
+			return deliveryIds
+				.split(',')
+				.map((delivery_id) => Number(delivery_id.trim()))
+		},
+
+>>>>>>> Stashed changes
+		/**
 		 * Gets called from the @programDeleted event emission from the delete Modal.
 		 */
 		markProgramDeleted: function () {
@@ -818,7 +962,10 @@ export default {
 			})
 				.then(function (response) {
 					// Success.
-					self.record = response.data // This sets the program's ID.
+					let structuredResponse = response.data;
+					structuredResponse.delivery_ids = self.formatDeliveryIds(response.data.delivery_ids)
+					structuredResponse.keyword_ids = self.formatKeywordIds(response.data.keyword_ids)
+					self.record = structuredResponse // This sets the program's ID.
 					self.afterSubmitSucceeds()
 				})
 				.catch(function (error) {

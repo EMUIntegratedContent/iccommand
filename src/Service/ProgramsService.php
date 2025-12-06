@@ -3,6 +3,7 @@ namespace App\Service;
 
 use App\Entity\Programs\Programs;
 use App\Entity\Programs\ProgramWebsites;
+use App\Entity\Programs\ProgramKeywords;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -320,5 +321,97 @@ class ProgramsService {
 		$slug = preg_replace('/-+/', '-', $slug);
 		$slug = trim($slug, '-');
 		return $slug;
+	}
+
+	/**
+	 * Normalize and update delivery modes for a program by delegating to the repository.
+	 * Accepts an array or comma-separated string and ensures an array of ints is passed
+	 * to the repository.
+	 *
+	 * @param int $programId
+	 * @param mixed $deliveryIds
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function updateProgramDeliveryModes(int $programId, $deliveryIds): void {
+		if (is_string($deliveryIds)) {
+			$deliveryIds = trim($deliveryIds) === '' ? [] : explode(',', $deliveryIds);
+		}
+		if (!is_array($deliveryIds)) {
+			$deliveryIds = $deliveryIds ? [$deliveryIds] : [];
+		}
+		$deliveryIds = array_map('intval', $deliveryIds);
+
+		$repository = $this->em->getRepository(Programs::class);
+		$repository->updateProgramDeliveryModes($programId, $deliveryIds);
+	}
+
+	/**
+	 * Get all keywords.
+	 * @return array
+	 */
+	public function getKeywords(): array
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		return $repository->findAll();
+	}
+
+	/**
+	 * Create a new keyword.
+	 * @param string $keywordName
+	 * @return ProgramKeywords
+	 */
+	public function createKeyword(string $keywordName): ProgramKeywords
+	{
+		$keyword = new ProgramKeywords();
+		$keyword->setKeyword($keywordName);
+		$this->em->persist($keyword);
+		$this->em->flush();
+		return $keyword;
+	}
+
+	/**
+	 * Delete a keyword and cascade delete from links.
+	 * @param int $id
+	 * @return void
+	 */
+	public function deleteKeyword(int $id): void
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		$keyword = $repository->find($id);
+		if ($keyword) {
+			// Delete all links first
+			$conn = $this->em->getConnection();
+			$delSql = 'DELETE FROM programs.program_keyword_links WHERE keyword_id = :keyword_id';
+			$stmt = $conn->prepare($delSql);
+			$stmt->executeStatement(['keyword_id' => $id]);
+			
+			$this->em->remove($keyword);
+			$this->em->flush();
+		}
+	}
+
+	/**
+	 * Normalize and update keywords for a program by delegating to the repository.
+	 * Accepts an array or comma-separated string and ensures an array of ints is passed
+	 * to the repository.
+	 *
+	 * @param int $programId
+	 * @param mixed $keywordIds
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function updateProgramKeywords(int $programId, $keywordIds): void
+	{
+		if (is_string($keywordIds)) {
+			$keywordIds = trim($keywordIds) === '' ? [] : explode(',', $keywordIds);
+		}
+		if (!is_array($keywordIds)) {
+			$keywordIds = $keywordIds ? [$keywordIds] : [];
+		}
+		$keywordIds = array_map('intval', $keywordIds);
+
+		$repository = $this->em->getRepository(Programs::class);
+		$repository->updateProgramKeywords($programId, $keywordIds);
 	}
 }
