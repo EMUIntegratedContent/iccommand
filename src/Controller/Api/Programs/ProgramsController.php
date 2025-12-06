@@ -247,7 +247,15 @@ class ProgramsController extends AbstractFOSRestController{
 		$program->setDepartmentId($request->request->get("department_id"));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
-		$program->setClassType($request->request->get("class_type"));
+		
+		$deliveryIds = $request->request->all("delivery_ids");
+		if (is_string($deliveryIds)) {
+			$deliveryIds = trim($deliveryIds) === '' ? [] : explode(',', $deliveryIds);
+		}
+		if (!is_array($deliveryIds)) {
+			$deliveryIds = $deliveryIds ? [$deliveryIds] : [];
+		}
+		$deliveryIds = array_map('intval', $deliveryIds);
 		$program->setCollegeId($request->request->get("college_id"));
 		$program->setSlug($this->service->makeProgramSlug($progName));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
