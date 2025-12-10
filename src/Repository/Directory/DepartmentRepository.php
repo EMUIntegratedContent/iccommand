@@ -136,7 +136,7 @@ class DepartmentRepository extends ServiceEntityRepository
   public function departmentsWithBldgName()
   {
     $qb = $this->createQueryBuilder('d');
-    $qb->join('d.mapBuilding', 'mi')
+    $qb->leftJoin('d.mapBuilding', 'mi')
       ->select('d.department', 'mi.name AS map_building_name') // matches the existing file style
       ->orderBy('d.department', 'ASC');
 
