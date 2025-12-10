@@ -140,6 +140,19 @@ class DirectoryService
 		return $repository->searchResultsStartWithLetter($letter);
 	}
 
+	/**
+	 * Get the departments with the name of their associated building (if any).
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getDepartmentsWithBldgName()
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Department::class);
+		return $repository->departmentsWithBldgName();
+	}
+
   /**
    * Normalizes search terms by splitting by @@, trimming, filtering empty values, deduplicating, and joining back
    * Terms are converted to lowercase.

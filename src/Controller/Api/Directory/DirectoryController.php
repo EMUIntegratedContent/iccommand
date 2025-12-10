@@ -128,6 +128,20 @@ class DirectoryController extends AbstractFOSRestController
   }
 
   /**
+   * Get departments with map building name (emich.edu/map + /map/_site/php/fetch-departments.php).
+   * @return Response Departments, the status code, and the HTTP headers.
+   */
+  #[Route('/bldgnames', methods: ['GET'])]
+  public function getDepartmentWithBldgNameAction(): Response
+  {
+    $departments = $this->service->getDepartmentsWithBldgName();
+
+    $serialized = $this->serializer->serialize($departments, "json", ['groups' => 'department']);
+
+    return new Response($serialized, 200, array("Content-Type" => "application/json"));
+  }
+
+  /**
    * Gets the department by the specified ID.
    * @param $id The ID of the department.
    * @return Response The department, the status code, and the HTTP headers.
