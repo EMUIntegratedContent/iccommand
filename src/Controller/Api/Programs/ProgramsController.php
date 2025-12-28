@@ -278,7 +278,7 @@ class ProgramsController extends AbstractFOSRestController{
 		try {
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
-			throw $e;
+			return new Response("Failed to save program delivery modes.", 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update keywords
@@ -286,7 +286,7 @@ class ProgramsController extends AbstractFOSRestController{
 		try {
 			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
 		} catch (\Exception $e) {
-			throw $e;
+			return new Response("Failed to save program keywords.", 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update the program website information
@@ -373,7 +373,7 @@ class ProgramsController extends AbstractFOSRestController{
 		try {
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
-			throw $e;
+			return new Response("Failed to save program delivery modes.", 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update keywords
@@ -381,7 +381,7 @@ class ProgramsController extends AbstractFOSRestController{
 		try {
 			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
 		} catch (\Exception $e) {
-			throw $e;
+			return new Response("Failed to save program keywords.", 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update the program website information
