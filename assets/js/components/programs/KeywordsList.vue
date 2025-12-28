@@ -105,7 +105,7 @@
                           :multiple="false"
                           :clear-on-select="true"
                           placeholder="Search programs (type at least 3 characters)"
-                          label="full_name"
+                          label="fullName"
                           track-by="id"
                           :searchable="true"
                           :internal-search="false"
@@ -214,6 +214,11 @@ export default {
         .then((response) => {
           this.keywords = response.data;
           this.loadingKeywords = false;
+
+        // Pre-load program counts for all keywords
+        this.keywords.forEach(keyword => {
+          this.fetchKeywordPrograms(keyword.id);
+        });
         })
         .catch((error) => {
           this.apiError.status = error.response ? error.response.status : 500;
@@ -358,7 +363,7 @@ export default {
       // Debounce search
       this.searchTimeouts[keywordId] = setTimeout(() => {
         this.searchPrograms(keywordId, searchTerm);
-      }, 300);
+      }, 500);
     },
     searchPrograms: function(keywordId, searchTerm) {
 
