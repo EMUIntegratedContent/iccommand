@@ -324,7 +324,7 @@
 					</div>
 					<div>
 						<template v-if="isEditMode">
-							<Field name="progMode" type="hidden" v-model="record.class_type">
+							<Field name="progMode" type="hidden" v-model="record.delivery_ids">
 								<!-- for validation purposes only -->
 							</Field>
 							<label for="selectmode" class="mt-2"
@@ -332,8 +332,9 @@
 							>
 							<VueMultiselect
 								v-model="selectedMode"
+								track-by="id"
 								:options="modes"
-								:multiple="false"
+								:multiple="true"
 								:clear-on-select="true"
 								placeholder="Select mode"
 								label="mode"
@@ -352,19 +353,14 @@
 						<template v-else>
 							<div class="form-group">
 								<label>Mode</label>
-								<Field
-									v-if="selectedMode"
-									v-model="selectedMode.mode"
-									name="mode"
+								<input
+									v-if="selectedMode && selectedMode.length"
 									type="text"
+									:value="modeDisplay"
 									class="form-control"
-									:class="{
-										'is-invalid': errors.class_type,
-										'form-control-plaintext': !userCanEdit || !isEditMode
-									}"
-									:readonly="true"
-								>
-								</Field>
+									:class="{ 'is-invalid': errors.delivery_ids, 'form-control-plaintext': !userCanEdit || !isEditMode }"
+									readonly
+								/>
 							</div>
 						</template>
 					</div>
@@ -578,9 +574,9 @@ export default {
 			isDeleted: false,
 			isEditMode: false, // This is true if the forms are editable.
 			modes: [
-				{ id: 0, mode: "In-Person/Hybrid" },
-				{ id: 1, mode: "Online" },
-				{ id: 2, mode: "Hyflex" }
+				{ id: 1, mode: "In-Person/Hybrid" },
+				{ id: 2, mode: "Online" },
+				{ id: 3, mode: "Hyflex" }
 			],
 			progTypes: [],
 			record: {
@@ -618,7 +614,7 @@ export default {
 				progDept: Yup.number().required().label("Department "),
 				progType: Yup.number().required().label("Program Type "),
 				progDegree: Yup.number().required().label("Degree Classification "),
-				progMode: Yup.number().required().label("Mode ")
+				progMode: Yup.array().of(Yup.number()).min(1).required().label("Mode ")
 			}
 			return Yup.object(yupObj)
 		},
@@ -675,7 +671,8 @@ export default {
 				this.record.department_id = newValue ? newValue.id : null
 			}
 		},
-		// for the multiselect since it can't bind directly to the record.class_type without the full object
+
+		// for the multiselect since it can't bind directly to the record.delivery_ids without the full object
 		selectedMode: {
 			get() {
 				if (!this.record.delivery_ids || !Array.isArray(this.record.delivery_ids)) return []
@@ -894,21 +891,11 @@ export default {
 				})
 		},
 
-		/**
-		 * Format keyword_ids from string (comma-separated) or array to array of integers
-		 * @param {string|array} keywordIds
-		 * @return {array}
-		 */
 		formatKeywordIds: function (keywordIds) {
 			if (!keywordIds) return []
-			if (Array.isArray(keywordIds)) {
-				return keywordIds.map(id => parseInt(id))
-			}
-			if (typeof keywordIds === 'string') {
-				if (keywordIds.trim() === '') return []
-				return keywordIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
-			}
-			return []
+			return keywordIds
+				.split(',')
+				.map((keyword_id) => Number(keyword_id.trim()))
 		},
 
 		formatDeliveryIds: function (deliveryIds) {
@@ -918,7 +905,6 @@ export default {
 				.map((delivery_id) => Number(delivery_id.trim()))
 		},
 
->>>>>>> Stashed changes
 		/**
 		 * Gets called from the @programDeleted event emission from the delete Modal.
 		 */

@@ -5,15 +5,96 @@ namespace App\Repository\Programs;
 use App\Entity\Programs\ProgramKeywords;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 
 /**
  * @extends ServiceEntityRepository<ProgramKeywords>
  */
 class ProgramKeywordsRepository extends ServiceEntityRepository
 {
+    protected ObjectManager $em;
+
     public function __construct(ManagerRegistry $doctrine)
     {
         parent::__construct($doctrine, ProgramKeywords::class);
+        $this->em = $doctrine->getManager('programs');
+    }
+
+    /**
+     * Delete all links for a keyword by keyword ID.
+     * @param int $keywordId
+     * @return void
+     */
+    public function deleteByKeywordId(int $keywordId): void
+    {
+        $conn = $this->em->getConnection();
+        $sql = 'DELETE FROM programs.program_keyword_links WHERE keyword_id = :keyword_id';
+        $stmt = $conn->prepare($sql);
+        $stmt->executeStatement(['keyword_id' => $keywordId]);
+    }
+
+    /**
+     * Get all programs linked to a keyword.
+     * @param int $keywordId
+     * @return array
+     */
+    public function getProgramsForKeyword(int $keywordId): array
+    {
+        $sql = "
+            SELECT p.id, p.program, p.full_name, p.catalog
+            FROM programs.program_programs p
+            INNER JOIN programs.program_keyword_links pkl ON p.id = pkl.program_id
+            WHERE pkl.keyword_id = :keyword_id
+            ORDER BY p.full_name ASC
+        ";
+
+        $stmt = $this->em->getConnection()->prepare($sql);
+        return $stmt->executeQuery(['keyword_id' => $keywordId])->fetchAllAssociative();
+    }
+
+    /**
+     * Link a program to a keyword.
+     * @param int $keywordId
+     * @param int $programId
+     * @return void
+     */
+    public function linkProgramToKeyword(int $keywordId, int $programId): void
+    {
+        $conn = $this->em->getConnection();
+        
+        // Check if link already exists
+        $checkSql = 'SELECT COUNT(*) FROM programs.program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
+        $checkStmt = $conn->prepare($checkSql);
+        $count = $checkStmt->executeQuery([
+            'keyword_id' => $keywordId,
+            'program_id' => $programId
+        ])->fetchOne();
+
+        if ($count == 0) {
+            $sql = 'INSERT INTO programs.program_keyword_links (keyword_id, program_id) VALUES (:keyword_id, :program_id)';
+            $stmt = $conn->prepare($sql);
+            $stmt->executeStatement([
+                'keyword_id' => $keywordId,
+                'program_id' => $programId
+            ]);
+        }
+    }
+
+    /**
+     * Unlink a program from a keyword.
+     * @param int $keywordId
+     * @param int $programId
+     * @return void
+     */
+    public function unlinkProgramFromKeyword(int $keywordId, int $programId): void
+    {
+        $conn = $this->em->getConnection();
+        $sql = 'DELETE FROM programs.program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
+        $stmt = $conn->prepare($sql);
+        $stmt->executeStatement([
+            'keyword_id' => $keywordId,
+            'program_id' => $programId
+        ]);
     }
 }
 

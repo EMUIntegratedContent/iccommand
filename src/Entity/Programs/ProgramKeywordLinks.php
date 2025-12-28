@@ -4,14 +4,21 @@ namespace App\Entity\Programs;
 
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
 #[ORM\Table(name: 'program_keyword_links', schema: 'programs')]
 class ProgramKeywordLinks
 {
     #[ORM\Column]
+    #[ORM\Id]
     private ?int $program_id = null;
 
     #[ORM\Column]
+    #[ORM\Id]
     private ?int $keyword_id = null;
+
+    #[ORM\ManyToOne(targetEntity: ProgramKeywords::class, inversedBy: 'programKeywordLinks')]
+    #[ORM\JoinColumn(name: 'keyword_id', referencedColumnName: 'id')]
+    private ?ProgramKeywords $keyword = null;
 
     public function getProgramId(): ?int
     {

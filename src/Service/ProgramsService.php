@@ -357,6 +357,16 @@ class ProgramsService {
 	}
 
 	/**
+	 * Get a ProgramKeyword entity by ID.
+	 * @param int $id
+	 * @return ?ProgramKeywords
+	 */
+	public function getProgramKeywordEntity(int $id): ?ProgramKeywords
+	{
+		return $this->em->getRepository(ProgramKeywords::class)->find($id);
+	}
+
+	/**
 	 * Create a new keyword.
 	 * @param string $keywordName
 	 * @return ProgramKeywords
@@ -380,12 +390,7 @@ class ProgramsService {
 		$repository = $this->em->getRepository(ProgramKeywords::class);
 		$keyword = $repository->find($id);
 		if ($keyword) {
-			// Delete all links first
-			$conn = $this->em->getConnection();
-			$delSql = 'DELETE FROM programs.program_keyword_links WHERE keyword_id = :keyword_id';
-			$stmt = $conn->prepare($delSql);
-			$stmt->executeStatement(['keyword_id' => $id]);
-			
+			$repository->deleteByKeywordId($id);
 			$this->em->remove($keyword);
 			$this->em->flush();
 		}
@@ -413,5 +418,40 @@ class ProgramsService {
 
 		$repository = $this->em->getRepository(Programs::class);
 		$repository->updateProgramKeywords($programId, $keywordIds);
+	}
+
+	/**
+	 * Get all programs linked to a keyword.
+	 * @param int $keywordId
+	 * @return array
+	 */
+	public function getProgramsForKeyword(int $keywordId): array
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		return $repository->getProgramsForKeyword($keywordId);
+	}
+
+	/**
+	 * Link a program to a keyword.
+	 * @param int $keywordId
+	 * @param int $programId
+	 * @return void
+	 */
+	public function linkProgramToKeyword(int $keywordId, int $programId): void
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		$repository->linkProgramToKeyword($keywordId, $programId);
+	}
+
+	/**
+	 * Unlink a program from a keyword.
+	 * @param int $keywordId
+	 * @param int $programId
+	 * @return void
+	 */
+	public function unlinkProgramFromKeyword(int $keywordId, int $programId): void
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		$repository->unlinkProgramFromKeyword($keywordId, $programId);
 	}
 }
