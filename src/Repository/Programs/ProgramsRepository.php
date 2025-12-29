@@ -83,6 +83,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 		$qb = $this->em->createQueryBuilder();
 
 		$query = $qb->select('p')
+			->distinct()
 			->from(Programs::class, 'p')
 			// join keyword links and keywords without relying on entity associations
 			->leftJoin(ProgramKeywordLinks::class, 'pkl', 'WITH', 'p.id = pkl.program_id')
