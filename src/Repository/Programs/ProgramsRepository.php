@@ -3,6 +3,8 @@
 namespace App\Repository\Programs;
 
 use App\Entity\Programs\Programs;
+use App\Entity\Programs\ProgramKeywordLinks;
+use App\Entity\Programs\ProgramKeywords;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -78,18 +80,28 @@ class ProgramsRepository extends ServiceEntityRepository{
 
 	public function searchResults($searchTerm, $catalog): array{
 		// Build the query for getting paginated records
-		return $this->em->createQueryBuilder()
-			->select('p')
+		$qb = $this->em->createQueryBuilder();
+
+		$query = $qb->select('p')
 			->from(Programs::class, 'p')
+			// join keyword links and keywords without relying on entity associations
+			->leftJoin(ProgramKeywordLinks::class, 'pkl', 'WITH', 'p.id = pkl.program_id')
+			->leftJoin(ProgramKeywords::class, 'pk', 'WITH', 'pkl.keyword_id = pk.id')
 			->where('p.catalog = :catalog')
-			->andWhere('p.full_name LIKE :searchTerm')
-			->orWhere('p.program LIKE :searchTerm')
+			->andWhere(
+				$qb->expr()->orX(
+					$qb->expr()->like('p.full_name', ':searchTerm'),
+					$qb->expr()->like('p.program', ':searchTerm'),
+					$qb->expr()->like('pk.keyword', ':searchTerm')
+				)
+			)
 			->orderBy('p.full_name', 'ASC')
 			->setMaxResults(30)
 			->setParameter('catalog', $catalog)
 			->setParameter('searchTerm', '%'.$searchTerm.'%')
-			->getQuery()
-			->getResult();
+			->getQuery();
+
+		return $query->getResult();
 	}
 	public function getColleges(): array {
 		$clgSql = "
