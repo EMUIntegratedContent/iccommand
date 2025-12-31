@@ -347,13 +347,16 @@ class ProgramsService {
 	}
 
 	/**
-	 * Get all keywords.
+	 * Get keywords with pagination and optional search.
+	 * @param int $page
+	 * @param int $limit
+	 * @param string|null $searchTerm
 	 * @return array
 	 */
-	public function getKeywords(): array
+	public function getKeywordsPagination(int $page, int $limit, ?string $searchTerm = null): array
 	{
 		$repository = $this->em->getRepository(ProgramKeywords::class);
-		return $repository->findAllWithProgramCount();
+		return $repository->findAllWithProgramCountPagination($page, $limit, $searchTerm);
 	}
 
 	/**

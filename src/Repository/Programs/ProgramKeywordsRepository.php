@@ -98,20 +98,51 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find all with program count
+     * Find all with program count, with pagination and optional search
+     * @param int $page
+     * @param int $limit
+     * @param string|null $searchTerm
      * @return array
-     */    public function findAllWithProgramCount(): array
+     */
+    public function findAllWithProgramCountPagination(int $page, int $limit, ?string $searchTerm = null): array
     {
         $conn = $this->em->getConnection();
+        $offset = ($page - 1) * $limit;
+
+        // Build WHERE clause for search
+        $whereClause = '';
+        $params = [];
+        if ($searchTerm !== null && $searchTerm !== '') {
+            $whereClause = 'WHERE pk.keyword LIKE :searchTerm';
+            $params['searchTerm'] = '%' . $searchTerm . '%';
+        }
+
+        // Get paginated results (using string interpolation for LIMIT/OFFSET like ProgramsRepository)
         $sql = "
             SELECT pk.id, pk.keyword, COUNT(pkl.program_id) AS program_count
             FROM programs.program_keywords pk
             LEFT JOIN programs.program_keyword_links pkl ON pk.id = pkl.keyword_id
+            {$whereClause}
             GROUP BY pk.id, pk.keyword
             ORDER BY pk.keyword ASC
+            LIMIT {$offset}, {$limit}
         ";
         $stmt = $conn->prepare($sql);
-        return $stmt->executeQuery()->fetchAllAssociative();
+        $results = $stmt->executeQuery($params)->fetchAllAssociative();
+
+        // Get total count
+        $countSql = "
+            SELECT COUNT(DISTINCT pk.id) AS total
+            FROM programs.program_keywords pk
+            {$whereClause}
+        ";
+        $countStmt = $conn->prepare($countSql);
+        $totalCount = $countStmt->executeQuery($params)->fetchOne();
+
+        return [
+            'keywords' => $results,
+            'totalRows' => (int)$totalCount
+        ];
     }
 }
 

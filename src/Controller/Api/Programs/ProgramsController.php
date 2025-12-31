@@ -203,9 +203,13 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/keywords', methods: ['GET'])]
 	// #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getKeywordsAction(Request $request): Response{
-		$keywords = $this->service->getKeywords();
+		$page = $request->query->get('page') ?? 1;
+		$limit = $request->query->get('limit') ?? 50;
+		$searchTerm = $request->query->get('searchterm');
 
-		$serialized = $this->serializer->serialize($keywords, "json");
+		$result = $this->service->getKeywordsPagination($page, $limit, $searchTerm);
+
+		$serialized = $this->serializer->serialize($result, "json");
 
 		return new Response($serialized, 200, array("Content-Type" => "application/json"));
 	}
