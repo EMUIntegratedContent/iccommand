@@ -96,6 +96,23 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
             'program_id' => $programId
         ]);
     }
+
+    /**
+     * Find all with program count
+     * @return array
+     */    public function findAllWithProgramCount(): array
+    {
+        $conn = $this->em->getConnection();
+        $sql = "
+            SELECT pk.id, pk.keyword, COUNT(pkl.program_id) AS program_count
+            FROM programs.program_keywords pk
+            LEFT JOIN programs.program_keyword_links pkl ON pk.id = pkl.keyword_id
+            GROUP BY pk.id, pk.keyword
+            ORDER BY pk.keyword ASC
+        ";
+        $stmt = $conn->prepare($sql);
+        return $stmt->executeQuery()->fetchAllAssociative();
+    }
 }
 
 

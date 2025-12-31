@@ -75,8 +75,9 @@
                     <span v-if="keywordPrograms[keyword.id]">
                       {{ keywordPrograms[keyword.id].length }} program(s)
                     </span>
-                    <span v-else-if="loadingPrograms[keyword.id]">Loading...</span>
-                    <span v-else>0 programs</span>
+                    <span v-else>
+                      {{ keyword.program_count || 0 }} program(s)
+                    </span>
                   </td>
                   <td>
                     <button
@@ -95,6 +96,7 @@
                   <td colspan="4" class="p-3 bg-light">
                     <div v-if="loadingPrograms[keyword.id]" class="text-center">
                       <img src="/images/loading.gif" alt="Loading..."/>
+                      <div class="mt-2 text-muted">Loading programs (expecting {{ keyword.program_count || 0 }})</div>
                     </div>
                     <div v-else>
                       <div v-if="userCanEdit" class="mb-3">
@@ -214,11 +216,6 @@ export default {
         .then((response) => {
           this.keywords = response.data;
           this.loadingKeywords = false;
-
-        // Pre-load program counts for all keywords
-        this.keywords.forEach(keyword => {
-          this.fetchKeywordPrograms(keyword.id);
-        });
         })
         .catch((error) => {
           this.apiError.status = error.response ? error.response.status : 500;
@@ -324,6 +321,13 @@ export default {
       axios.get(`/api/programs/keywords/${keywordId}/programs`)
         .then((response) => {
           this.keywordPrograms[keywordId] = response.data;
+
+          // keep keyword.program_count in sync with authoritative list
+          const keyword = this.keywords.find(k => k.id === keywordId);
+          if (keyword) {
+            keyword.program_count = Array.isArray(response.data) ? response.data.length : 0;
+          }
+
           this.loadingPrograms[keywordId] = false;
         })
         .catch((error) => {

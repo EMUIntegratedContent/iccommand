@@ -353,7 +353,7 @@ class ProgramsService {
 	public function getKeywords(): array
 	{
 		$repository = $this->em->getRepository(ProgramKeywords::class);
-		return $repository->findAll();
+		return $repository->findAllWithProgramCount();
 	}
 
 	/**
