@@ -37,12 +37,17 @@
           <label for="keywordSearch" class="form-label">Search Keywords</label>
           <div class="position-relative">
             <input type="text" class="form-control" id="keywordSearch" v-model="keywordSearchTerm"
-              placeholder="Search keywords (type at least 3 characters)" @keyup.enter="handleKeywordSearch"
+              placeholder="Search keywords" @keyup.enter="handleKeywordSearch"
               style="padding-right: 40px;" />
             <button type="button" class="btn btn-link position-absolute"
               style="right: 0; top: 0; height: 100%; border: none; padding: 0 12px;" @click="handleKeywordSearch"
               :disabled="loadingKeywords">
               <i class="fa fa-search"></i>
+            </button>
+            <button v-if="keywordSearchTerm" type="button" class="btn btn-link position-absolute"
+                    style="right: 0; top: 0; height: 100%; border: none; margin: 0 40px;" @click="keywordSearchTerm = ''; handleKeywordSearch()"
+                    :disabled="loadingKeywords">
+              <i class="fa fa-remove"></i>
             </button>
           </div>
         </div>
