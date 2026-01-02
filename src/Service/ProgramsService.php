@@ -362,11 +362,12 @@ class ProgramsService {
 	/**
 	 * Get a ProgramKeyword entity by ID.
 	 * @param int $id
-	 * @return ?ProgramKeywords
+	 * @return mixed
 	 */
-	public function getProgramKeywordEntity(int $id): ?ProgramKeywords
+	public function getProgramKeywordEntity(int $id)
 	{
-		return $this->em->getRepository(ProgramKeywords::class)->find($id);
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		return $repository->getProgramsForKeyword($id);
 	}
 
 	/**
