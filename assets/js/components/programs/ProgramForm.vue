@@ -383,6 +383,45 @@
 							{{ errors.url }}
 						</div>
 					</div>
+					<div>
+						<template v-if="isEditMode">
+							<label for="selectkeywords" class="mt-2">Keywords</label>
+							<VueMultiselect
+								v-model="selectedKeywords"
+								track-by="id"
+								:options="keywords"
+								:multiple="true"
+								:clear-on-select="true"
+								placeholder="Select keywords"
+								label="keyword"
+								id="selectkeywords"
+								class="form-control"
+								style="padding: 0"
+								name="selectkeywords"
+								@update:modelValue="formDirty = true"
+							>
+							</VueMultiselect>
+						</template>
+						<template v-else>
+							<div class="form-group">
+								<label>Keywords</label>
+								<input
+									v-if="selectedKeywords && selectedKeywords.length"
+									type="text"
+									:value="keywordDisplay"
+									class="form-control form-control-plaintext"
+									readonly
+								/>
+								<input
+									v-else
+									type="text"
+									value=""
+									class="form-control form-control-plaintext"
+									readonly
+								/>
+							</div>
+						</template>
+					</div>
 					<div
 						v-if="Object.keys(errors).length && isEditMode"
 						class="alert alert-danger fade show"
@@ -413,7 +452,7 @@
 					<div
 						v-if="userCanEdit && isEditMode"
 						aria-label="action buttons"
-						class="mb-4"
+						class="my-4"
 					>
 						<p v-if="formDirty" class="red">You have unsaved changes.</p>
 						<p v-if="isSaveFailed" class="red">
@@ -479,6 +518,7 @@ export default {
 		this.fetchDepts()
 		this.fetchProgTypes()
 		this.fetchDegrees()
+		this.fetchKeywords()
 	},
 
 	components: {
@@ -527,15 +567,16 @@ export default {
 			colleges: [],
 			degrees: [],
 			departments: [],
+			keywords: [],
 			is404: false,
 			isDeleteError: false,
 			isDataLoaded: false,
 			isDeleted: false,
 			isEditMode: false, // This is true if the forms are editable.
 			modes: [
-				{ id: 0, mode: "In-Person/Hybrid" },
-				{ id: 1, mode: "Online" },
-				{ id: 2, mode: "Hyflex" }
+				{ id: 1, mode: "In-Person/Hybrid" },
+				{ id: 2, mode: "Online" },
+				{ id: 3, mode: "Hyflex" }
 			],
 			progTypes: [],
 			record: {
@@ -546,6 +587,8 @@ export default {
 				department_id: null,
 				// store as array of ids for multiple modes
 				delivery_ids: [],
+				// store as array of ids for keywords
+				keyword_ids: [],
 				type_id: null,
 				degree_id: null
 			},
@@ -671,6 +714,28 @@ export default {
 				}
 			}
 		},
+		// for the multiselect since it can't bind directly to the record.keyword_ids without the full object
+		selectedKeywords: {
+			get() {
+				if (!this.record.keyword_ids || !Array.isArray(this.record.keyword_ids)) return []
+				return this.keywords.filter((keyword) => this.record.keyword_ids.includes(keyword.id))
+			},
+			set(newValues) {
+				// newValues is an array of keyword objects (or null). Store as array of ids.
+				if (!newValues) {
+					this.record.keyword_ids = []
+					return
+				}
+				this.record.keyword_ids = newValues.map((k) => k.id)
+			}
+		},
+		keywordDisplay: {
+			get() {
+				return this.selectedKeywords && this.selectedKeywords.length
+					? this.selectedKeywords.map((k) => k.keyword).join(', ')
+					: ''
+			}
+		},
 		// for the multiselect since it can't bind directly to the record.type_id without the full object
 		selectedProgType: {
 			get() {
@@ -727,6 +792,7 @@ export default {
 					// Normalize delivery_ids to array of ids for multi-select support
 					let structuredResponse = response.data
 					structuredResponse.delivery_ids = self.formatDeliveryIds(response.data.delivery_ids)
+					structuredResponse.keyword_ids = self.formatKeywordIds(response.data.keyword_ids)
 					self.record = structuredResponse
 					self.isDataLoaded = true
 				})
@@ -807,6 +873,30 @@ export default {
 				})
 		},
 
+		/**
+		 * Get the list of keywords
+		 */
+		fetchKeywords: function () {
+			const self = this
+			axios
+				.get("/api/programs/keywords")
+				.then(function (response) {
+					// Success.
+					self.keywords = response.data.keywords
+				})
+				.catch(function (error) {
+					// Failure.
+					console.log(error)
+				})
+		},
+
+		formatKeywordIds: function (keywordIds) {
+			if (!keywordIds) return []
+			return keywordIds
+				.split(',')
+				.map((keyword_id) => Number(keyword_id.trim()))
+		},
+
 		formatDeliveryIds: function (deliveryIds) {
 			if (!deliveryIds) return []
 			return deliveryIds
@@ -859,6 +949,7 @@ export default {
 					// Success.
 					let structuredResponse = response.data;
 					structuredResponse.delivery_ids = self.formatDeliveryIds(response.data.delivery_ids)
+					structuredResponse.keyword_ids = self.formatKeywordIds(response.data.keyword_ids)
 					self.record = structuredResponse // This sets the program's ID.
 					self.afterSubmitSucceeds()
 				})

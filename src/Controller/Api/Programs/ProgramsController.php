@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller\Api\Programs;
 
+use App\Entity\Programs\ProgramKeywords;
 use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
 use App\Service\ProgramsService;
@@ -30,6 +31,7 @@ class ProgramsController extends AbstractFOSRestController{
 	private ProgramsService $service;
 	private LoggerInterface $logger;
 	private ObjectManager $em;
+	private ObjectManager $programKeywordManager;
 	private SerializerInterface $serializer;
 
 	/**
@@ -40,6 +42,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->service = $service;
 		$this->logger = $logger;
 		$this->em = $doctrine->getManager('programs');
+		$this->programKeywordManager = $doctrine->getManagerForClass(ProgramKeywords::class);
 		$this->serializer = $serializer;
 	}
 
@@ -193,6 +196,25 @@ class ProgramsController extends AbstractFOSRestController{
 	}
 
 	/**
+	 * Get all keywords
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/keywords', methods: ['GET'])]
+	// #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
+	public function getKeywordsAction(Request $request): Response{
+		$page = $request->query->get('page') ?? 1;
+		$limit = $request->query->get('limit') ?? 50;
+		$searchTerm = $request->query->get('searchterm');
+
+		$result = $this->service->getKeywordsPagination($page, $limit, $searchTerm);
+
+		$serialized = $this->serializer->serialize($result, "json");
+
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
+
+	/**
 	 * Gets the program by the specified ID.
 	 * @param $id // The ID of the program.
 	 * @return Response The program, the status code, and the HTTP headers.
@@ -231,6 +253,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$program->setDepartmentId($request->request->get("department_id"));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
+
 		// handle delivery ids (may be array, CSV string, or single value)
 		$deliveryIds = $request->request->all("delivery_ids");
 		if (is_string($deliveryIds)) {
@@ -260,8 +283,17 @@ class ProgramsController extends AbstractFOSRestController{
 		try {
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
-			throw $e;
+			return new Response("Failed to save program delivery modes.", 500, array("Content-Type" => "application/json"));
 		}
+
+		// Update keywords
+		$keywordIds = $request->request->all("keyword_ids");
+		try {
+			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
+		} catch (\Exception $e) {
+			return new Response("Failed to save program keywords.", 500, array("Content-Type" => "application/json"));
+		}
+
 		// Update the program website information
 		$this->service->updateProgWebsite('', $progName, $url);
 
@@ -346,7 +378,15 @@ class ProgramsController extends AbstractFOSRestController{
 		try {
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
-			throw $e;
+			return new Response("Failed to save program delivery modes.", 500, array("Content-Type" => "application/json"));
+		}
+
+		// Update keywords
+		$keywordIds = $request->request->all("keyword_ids");
+		try {
+			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
+		} catch (\Exception $e) {
+			return new Response("Failed to save program keywords.", 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update the program website information
@@ -387,6 +427,118 @@ class ProgramsController extends AbstractFOSRestController{
 		$this->em->flush();
 
 		return new Response("Program has been deleted.", 204, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Create a new keyword
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/keywords', methods: ['POST'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
+	public function postKeywordAction(Request $request): Response{
+		$keywordName = $request->request->get("keyword");
+
+		if (empty($keywordName)) {
+			return new Response("Keyword name is required.", 422, array("Content-Type" => "application/json"));
+		}
+
+		$keyword = $this->service->createKeyword($keywordName);
+
+		$serialized = $this->serializer->serialize($keyword, "json");
+
+		return new Response($serialized, 201, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Delete a keyword
+	 * @param $id
+	 * @return Response
+	 */
+	#[Route('/keywords/{id}', methods: ['DELETE'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
+	public function deleteKeywordAction($id): Response{
+		$this->service->deleteKeyword($id);
+
+		return new Response("Keyword has been deleted.", 204, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Get all programs linked to a keyword
+	 * @param $id The keyword ID
+	 * @return Response
+	 */
+	#[Route('/keywords/{id}/programs', methods: ['GET'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
+	public function getKeywordProgramsAction($id): Response{
+		$programKeyword = $this->service->getProgramKeywordEntity($id);
+		if (!$programKeyword) {
+			return new Response("Keyword not found.", 404, array("Content-Type" => "application/json"));
+		}
+
+		$programs = $this->service->getProgramsForKeyword($id);
+		$serialized = $this->serializer->serialize($programs, "json");
+
+		return new Response($serialized, 200, array("Content-Type" => "application/json"));
+	}
+
+	/**
+	 * Link a program to a keyword
+	 * @param $id The keyword ID
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/keywords/{id}/programs', methods: ['POST'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
+	public function linkProgramToKeywordAction($id, Request $request): Response{
+		$programKeyword = $this->service->getProgramKeywordEntity($id);
+		if (!$programKeyword) {
+			return new Response("Keyword not found.", 404, array("Content-Type" => "application/json"));
+		}
+
+		$programId = $request->request->get("program_id");
+		if (!$programId) {
+			return new Response("Program ID is required.", 422, array("Content-Type" => "application/json"));
+		}
+
+		$program = $this->service->getProgramEntity(intval($programId));
+		if (!$program) {
+			return new Response("Program not found.", 404, array("Content-Type" => "application/json"));
+		}
+
+		try {
+			$this->service->linkProgramToKeyword(intval($id), intval($programId));
+			return new Response("Program linked successfully.", 201, array("Content-Type" => "application/json"));
+		} catch (\Exception $e) {
+			return new Response("Error linking program: " . $e->getMessage(), 500, array("Content-Type" => "application/json"));
+		}
+	}
+
+	/**
+	 * Unlink a program from a keyword
+	 * @param $id The keyword ID
+	 * @param $programId The program ID
+	 * @return Response
+	 */
+	#[Route('/keywords/{id}/programs/{programId}', methods: ['DELETE'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
+	public function unlinkProgramFromKeywordAction($id, $programId): Response{
+		$programKeyword = $this->service->getProgramKeywordEntity($id);
+		if (!$programKeyword) {
+			return new Response("Keyword not found.", 404, array("Content-Type" => "application/json"));
+		}
+
+		$program = $this->service->getProgramEntity(intval($programId));
+		if (!$program) {
+			return new Response("Program not found.", 404, array("Content-Type" => "application/json"));
+		}
+
+		try {
+			$this->service->unlinkProgramFromKeyword(intval($id), intval($programId));
+			return new Response("Program unlinked successfully.", 204, array("Content-Type" => "application/json"));
+		} catch (\Exception $e) {
+			return new Response("Error unlinking program: " . $e->getMessage(), 500, array("Content-Type" => "application/json"));
+		}
 	}
 }
 
