@@ -3,8 +3,8 @@ namespace App\Controller\Api\Programs;
 
 use App\Entity\Programs\ProgramKeywords;
 use App\Entity\Programs\ProgramWebsites;
-use App\Service\ProgramsService;
 use App\Entity\Programs\Programs;
+use App\Service\ProgramsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -254,6 +254,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
 
+		// handle delivery ids (may be array, CSV string, or single value)
 		$deliveryIds = $request->request->all("delivery_ids");
 		if (is_string($deliveryIds)) {
 			$deliveryIds = trim($deliveryIds) === '' ? [] : explode(',', $deliveryIds);

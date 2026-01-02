@@ -35,25 +35,29 @@
 					<div class="card-body">
 						<div class="row">
 							<div class="col-md-6">
-								<strong>Name:</strong> {{ photoRequest.firstName }}
-								{{ photoRequest.lastName }}
+								<strong>Name</strong>
+                <p>{{ photoRequest.firstName }}
+                  {{ photoRequest.lastName }}</p>
 							</div>
 							<div class="col-md-6">
-								<strong>Email:</strong> {{ photoRequest.email }}
-							</div>
-						</div>
-						<div class="row mt-2">
-							<div class="col-md-6">
-								<strong>Phone:</strong> {{ photoRequest.phone }}
-							</div>
-							<div class="col-md-6">
-								<strong>Department:</strong> {{ photoRequest.department }}
+								<strong>Email</strong>
+                <p>{{ photoRequest.email }}</p>
 							</div>
 						</div>
 						<div class="row mt-2">
 							<div class="col-md-6">
-								<strong>Type of request:</strong><br />
-								{{ getShootTypeDisplay(photoRequest.shootType) }}
+								<strong>Phone</strong>
+                <p>{{ photoRequest.phone }}</p>
+							</div>
+							<div class="col-md-6">
+								<strong>Department</strong>
+                <p>{{ photoRequest.department }}</p>
+							</div>
+						</div>
+						<div class="row mt-2">
+							<div class="col-md-6">
+								<strong>Type of request</strong>
+                <p>{{ getShootTypeDisplay(photoRequest.shootType) }}</p>
 							</div>
 							<div
 								class="col-md-6"
@@ -63,8 +67,8 @@
 									photoRequest.photoType.includes('Event')
 								"
 							>
-								<strong>Name of Event:</strong>
-								{{ photoRequest.shootName || "---" }}
+								<strong>Name of Event</strong>
+								<p>{{ photoRequest.shootName || "---" }}</p>
 							</div>
 						</div>
 						<div class="row mt-2">
@@ -72,28 +76,29 @@
 								class="col-md-6"
 								v-if="photoRequest.shootType === 'photoshoot'"
 							>
-								<strong>Type of Photoshoot:</strong>
-								{{ photoRequest.photoType || "---" }}
+								<strong>Type of Photoshoot</strong>
+                <p>{{ photoRequest.photoType || "---" }}</p>
 							</div>
 							<div
 								class="col-md-6"
 								v-if="photoRequest.shootType === 'photoshoot'"
 							>
-								<strong>Location:</strong> {{ photoRequest.location || "---" }}
+								<strong>Location</strong>
+                <p>{{ photoRequest.location || "---" }}</p>
 							</div>
 						</div>
 						<div class="row mt-2">
 							<div class="col-md-4">
-								<strong>Proposed Shoot Date:</strong>
-								{{ formatDate(photoRequest.shootDate) }}
+								<strong>Proposed Shoot Date</strong>
+                <p>{{ formatDate(photoRequest.shootDate) }}</p>
 							</div>
 							<div class="col-md-4">
-								<strong>Start Time:</strong>
-								{{ formatTime(photoRequest.startTime) }}
+								<strong>Start Time</strong>
+                <p>{{ formatTime(photoRequest.startTime) }}</p>
 							</div>
 							<div class="col-md-4">
 								<strong>End Time:</strong>
-								{{ formatTime(photoRequest.endTime) }}
+                <p>{{ formatTime(photoRequest.endTime) }}</p>
 							</div>
 						</div>
 					</div>
@@ -110,7 +115,7 @@
 								photoRequest.shootType === 'photoshoot'
 							"
 						>
-							<strong>Shoot Description:</strong>
+							<strong>Shoot Description</strong>
 							<p>{{ photoRequest.description }}</p>
 						</div>
 						<div v-if="photoRequest.shootType === 'archive'">
@@ -120,15 +125,15 @@
 							<p>{{ photoRequest.photoExplaination || "---" }}</p>
 						</div>
 						<div>
-							<strong>Intended Use:</strong>
+							<strong>Intended Use</strong>
 							<p>{{ photoRequest.intendedUse || "---" }}</p>
 						</div>
 						<div v-if="photoRequest.intendedUse != ''">
-							<strong>Describe how photo(s) will be used:</strong>
+							<strong>Describe how photo(s) will be used</strong>
 							<p>{{ photoRequest.forUse }}</p>
 						</div>
 						<div v-if="photoRequest.intendedUse != ''">
-							<strong>Designer Info: </strong>
+							<strong>Designer Info</strong>
 							<p>{{ photoRequest.designer }}</p>
 						</div>
 					</div>
@@ -288,7 +293,7 @@ export default {
 		formatDate: function (dateString) {
 			if (!dateString) return "N/A"
 			const date = new Date(dateString)
-			return date.toLocaleDateString()
+			return date.toLocaleString('en-us', {  weekday: 'long' }) + ", " + date.toLocaleDateString()
 		},
 
 		formatTime: function (timeString) {

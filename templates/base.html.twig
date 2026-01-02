@@ -18,29 +18,19 @@
 
     <div class="collapse navbar-collapse" id="iccommand-mainnav-container">
         <ul class="navbar-nav mr-auto">
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_EMERGENCY_EDIT') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/emergency">Emergency Banner</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CRIMELOG_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/crimelog">DPS Crime Log</a>
+                </li>
+            {% endif %}
             {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') %}
                 <li class="nav-item">
                     <a class="nav-link" href="/map">Campus Map</a>
-                </li>
-            {% endif %}
-{#            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MULTIMEDIA_VIEW') %}#}
-{#                <li class="nav-item">#}
-{#                    <a class="nav-link" href="/multimediarequests">Multimedia Requests</a>#}
-{#                </li>#}
-{#            {% endif %}#}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/redirects">Redirects</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/programs">Catalog Programs</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PHOTO_VIEW') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/photorequests">Photo Requests</a>
                 </li>
             {% endif %}
             {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_DEPARTMENTS_USER') %}
@@ -48,15 +38,25 @@
                     <a class="nav-link" href="/directory">Dept. Directory</a>
                 </li>
             {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PHOTO_VIEW') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/photorequests">Photo Requests</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/redirects">Redirects</a>
+                </li>
+            {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/programs">Degrees & Programs</a>
+                </li>
+            {% endif %}
             {% if is_granted('ROLE_USER') %}
             <li class="nav-item">
                 <a class="nav-link" href="/applinks">Ext. App Links</a>
             </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CRIMELOG_USER') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/crimelog">DPS Crime Log</a>
-                </li>
             {% endif %}
         </ul>
         <ul class="navbar-nav ml-auto">

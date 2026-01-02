@@ -105,8 +105,53 @@ class DirectoryService
   {
     // Get the Doctrine repository
     $repository = $this->doctrine->getRepository(Department::class);
+
+		$depts = $repository->searchResultsDepartments($searchTerm);
+
+		// Make kebab-case versions of department names for matching
+
     return $repository->searchResultsDepartments($searchTerm);
   }
+
+	/**
+	 * Get departments that match the phone number (used on emich.edu/directory).
+	 * @param $phoneNumber
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getDepartmentsByPhone($phoneNumber)
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Department::class);
+		return $repository->searchResultsDepartmentsByPhone($phoneNumber);
+	}
+
+	/**
+	 * Get departments that start with the specified letter.
+	 * @param $letter
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getDepartmentsStartWithLetter($letter) {
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Department::class);
+		return $repository->searchResultsStartWithLetter($letter);
+	}
+
+	/**
+	 * Get the departments with the name of their associated building (if any).
+	 * @return array
+	 * @throws \Doctrine\ORM\NoResultException
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getDepartmentsWithBldgName()
+	{
+		// Get the Doctrine repository
+		$repository = $this->doctrine->getRepository(Department::class);
+		return $repository->departmentsWithBldgName();
+	}
 
   /**
    * Normalizes search terms by splitting by @@, trimming, filtering empty values, deduplicating, and joining back

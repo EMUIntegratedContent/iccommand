@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Emergency Banner{% endblock %}
+
+{% block modulenav %}
+  {% include 'emergency/nav_emergency.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+    <emergency-banner :permissions="[{{ permissions }}]"></emergency-banner>
+</div>
+{% endblock %} 

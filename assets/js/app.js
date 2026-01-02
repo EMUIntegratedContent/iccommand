@@ -100,6 +100,9 @@ app.component("photorequests-list", require("./components/photorequest/PhotoRequ
 app.component("photorequests-show", require("./components/photorequest/PhotoRequestShow.vue").default);
 app.component("photorequests-form", require("./components/photorequest/PhotoRequestForm.vue").default);
 
+/* Emergency Banner and Notices */
+app.component("emergency-banner", require("./components/emergency/EmergencyBanner.vue").default);
+
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(CKEditor)

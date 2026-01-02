@@ -170,4 +170,8 @@ class Programs
         return $this;
     }
 
+		public function getDeliveryMethods()
+		{
+			return $this->delivery_methods;
+		}
 }

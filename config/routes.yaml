@@ -49,3 +49,7 @@ directory:
 photorequests:
   resource: App\Controller\Api\PhotoRequest\PhotoRequestController
   prefix: /api/photorequests/
+
+emergency:
+  resource: App\Controller\Api\Emergency\EmergencyController
+  prefix: /api/emergency/

@@ -35,6 +35,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 			LEFT JOIN programs.program_delivery pd ON p.id = pd.program_id
 			LEFT JOIN programs.program_keyword_links pkl ON p.id = pkl.program_id
 			WHERE p.id = :id
+			GROUP BY p.id
 		";
 
 		$stmt = $this->em->getConnection()->prepare($programSql);
@@ -166,7 +167,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 	/**
 	 * Updates the delivery modes for a program using a transaction.
 	 * Deletes existing modes and inserts new ones.
-	 * 
+	 *
 	 * @param int $programId The ID of the program
 	 * @param array<int> $deliveryIds Array of delivery mode IDs
 	 * @throws \Exception If database operation fails
@@ -203,7 +204,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 	/**
 	 * Updates the keywords for a program using a transaction.
 	 * Deletes existing keywords and inserts new ones.
-	 * 
+	 *
 	 * @param int $programId The ID of the program
 	 * @param array<int> $keywordIds Array of keyword IDs
 	 * @throws \Exception If database operation fails

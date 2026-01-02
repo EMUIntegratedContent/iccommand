@@ -671,7 +671,6 @@ export default {
 				this.record.department_id = newValue ? newValue.id : null
 			}
 		},
-
 		// for the multiselect since it can't bind directly to the record.delivery_ids without the full object
 		selectedMode: {
 			get() {
