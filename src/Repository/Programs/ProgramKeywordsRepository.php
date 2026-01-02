@@ -33,6 +33,10 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
         $stmt->executeStatement(['keyword_id' => $keywordId]);
     }
 
+		public function getKeywordEntity(int $keywordId): ?ProgramKeywords {
+			return $this->findOneBy(['id' => $keywordId]);
+		}
+
     /**
      * Get all programs linked to a keyword.
      * @param int $keywordId
@@ -61,7 +65,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     public function linkProgramToKeyword(int $keywordId, int $programId): void
     {
         $conn = $this->em->getConnection();
-        
+
         // Check if link already exists
         $checkSql = 'SELECT COUNT(*) FROM programs.program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
         $checkStmt = $conn->prepare($checkSql);

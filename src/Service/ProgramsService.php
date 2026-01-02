@@ -367,7 +367,7 @@ class ProgramsService {
 	public function getProgramKeywordEntity(int $id)
 	{
 		$repository = $this->em->getRepository(ProgramKeywords::class);
-		return $repository->getProgramsForKeyword($id);
+		return $repository->getKeywordEntity($id);
 	}
 
 	/**
