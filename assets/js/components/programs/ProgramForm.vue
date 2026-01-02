@@ -452,7 +452,7 @@
 					<div
 						v-if="userCanEdit && isEditMode"
 						aria-label="action buttons"
-						class="mb-4"
+						class="my-4"
 					>
 						<p v-if="formDirty" class="red">You have unsaved changes.</p>
 						<p v-if="isSaveFailed" class="red">
@@ -883,7 +883,7 @@ export default {
 				.get("/api/programs/keywords")
 				.then(function (response) {
 					// Success.
-					self.keywords = response.data
+					self.keywords = response.data.keywords
 				})
 				.catch(function (error) {
 					// Failure.
