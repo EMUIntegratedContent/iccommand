@@ -34,7 +34,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     }
 
 		public function getKeywordEntity(int $keywordId): ?ProgramKeywords {
-			return $this->findOneBy(['id' => $keywordId]);
+			return $this->em->find(ProgramKeywords::class, $keywordId);
 		}
 
     /**
