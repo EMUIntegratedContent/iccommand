@@ -457,10 +457,7 @@ class ProgramsController extends AbstractFOSRestController{
 	#[Route('/keywords/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteKeywordAction($id): Response{
-		$programKeyword = $this->service->getProgramKeywordEntity($id);
-
-		$this->em->remove($programKeyword);
-		$this->em->flush();
+		$this->service->deleteKeyword($id);
 
 		return new Response("Keyword has been deleted.", 204, array("Content-Type" => "application/json"));
 	}

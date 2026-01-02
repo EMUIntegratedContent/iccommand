@@ -1,6 +1,7 @@
 <?php
 namespace App\Service;
 
+use App\Entity\Programs\ProgramKeywordLinks;
 use App\Entity\Programs\Programs;
 use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\ProgramKeywords;
@@ -391,13 +392,13 @@ class ProgramsService {
 	 */
 	public function deleteKeyword(int $id): void
 	{
-		$repository = $this->em->getRepository(ProgramKeywords::class);
-		$keyword = $repository->find($id);
-		if ($keyword) {
-			$repository->deleteByKeywordId($id);
-			$this->em->remove($keyword);
-			$this->em->flush();
-		}
+		$programKeyword = $this->getProgramKeywordEntity($id);
+		$this->em->remove($programKeyword);
+		$this->em->flush();
+
+		// Also remove any links
+		$repository = $this->em->getRepository(ProgramKeywordLinks::class);
+		$repository->deleteByKeywordId($id);
 	}
 
 	/**
