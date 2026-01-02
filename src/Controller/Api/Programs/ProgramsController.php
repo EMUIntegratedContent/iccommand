@@ -194,7 +194,7 @@ class ProgramsController extends AbstractFOSRestController{
 
 		return new Response($serialized, 200, array("Content-Type" => "application/json"));
 	}
-	
+
 	/**
 	 * Get all keywords
 	 * @param Request $request
@@ -253,7 +253,7 @@ class ProgramsController extends AbstractFOSRestController{
 		$program->setDepartmentId($request->request->get("department_id"));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
-		
+
 		$deliveryIds = $request->request->all("delivery_ids");
 		if (is_string($deliveryIds)) {
 			$deliveryIds = trim($deliveryIds) === '' ? [] : explode(',', $deliveryIds);
@@ -458,12 +458,9 @@ class ProgramsController extends AbstractFOSRestController{
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
 	public function deleteKeywordAction($id): Response{
 		$programKeyword = $this->service->getProgramKeywordEntity($id);
-		if (!$programKeyword) {
-			return new Response("Keyword not found.", 404, array("Content-Type" => "application/json"));
-		}
 
-		$this->programKeywordManager->remove($programKeyword);
-		$this->programKeywordManager->flush();
+		$this->em->remove($programKeyword);
+		$this->em->flush();
 
 		return new Response("Keyword has been deleted.", 204, array("Content-Type" => "application/json"));
 	}
