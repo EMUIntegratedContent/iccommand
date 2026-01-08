@@ -1,4 +1,4 @@
-FROM php:8.3-apache
+FROM php:8.5-apache
 
 # Set the DocumentRoot for Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public

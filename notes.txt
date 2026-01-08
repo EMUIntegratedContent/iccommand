@@ -1,3 +1,6 @@
+## UPDATES JANUARY 2026 (PHP 8.5)
+- Update from 7.1 to 8.0 (https://symfony.com/doc/current/setup/upgrade_major.html)
+
 ## UPDATES 2025
 - MULTIMEDIA REQUESTS APP NO LONGER IN USE!
 - Replacing with a new app called "Photography Requests" (which replaces the CMA2 app...https://www.emich.edu/admin/cma/photo_requests/index.php)
