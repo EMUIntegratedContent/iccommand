@@ -79,6 +79,16 @@ class ProgramsController extends AbstractController {
 	}
 
 	/**
+	 * The keywords management page.
+	 */
+	#[Route('/programs/keywords', name: 'programs_keywords')]
+	public function keywords(): Response
+	{
+		$permissions = json_encode($this->service->getProgramsPermissions());
+		return $this->render('programs/keywords.html.twig', ['permissions' => $permissions]);
+	}
+
+	/**
 	 * The view page of the website.
 	 */
 	#[Route('/programs/websites/{id}', name: 'website_show')]

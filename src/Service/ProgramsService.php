@@ -1,8 +1,10 @@
 <?php
 namespace App\Service;
 
+use App\Entity\Programs\ProgramKeywordLinks;
 use App\Entity\Programs\Programs;
 use App\Entity\Programs\ProgramWebsites;
+use App\Entity\Programs\ProgramKeywords;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -343,5 +345,118 @@ class ProgramsService {
 
 		$repository = $this->em->getRepository(Programs::class);
 		$repository->updateProgramDeliveryModes($programId, $deliveryIds);
+	}
+
+	/**
+	 * Get keywords with pagination and optional search.
+	 * @param int $page
+	 * @param int $limit
+	 * @param string|null $searchTerm
+	 * @return array
+	 */
+	public function getKeywordsPagination(int $page, int $limit, ?string $searchTerm = null): array
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		return $repository->findAllWithProgramCountPagination($page, $limit, $searchTerm);
+	}
+
+	/**
+	 * Get a ProgramKeyword entity by ID.
+	 * @param int $id
+	 * @return ?ProgramKeywords
+	 */
+	public function getProgramKeywordEntity(int $id): ?ProgramKeywords
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		return $repository->getKeywordEntity($id);
+	}
+
+	/**
+	 * Create a new keyword.
+	 * @param string $keywordName
+	 * @return ProgramKeywords
+	 */
+	public function createKeyword(string $keywordName): ProgramKeywords
+	{
+		$keyword = new ProgramKeywords();
+		$keyword->setKeyword($keywordName);
+		$this->em->persist($keyword);
+		$this->em->flush();
+		return $keyword;
+	}
+
+	/**
+	 * Delete a keyword and cascade delete from links.
+	 * @param int $id
+	 * @return void
+	 */
+	public function deleteKeyword(int $id): void
+	{
+		$programKeyword = $this->getProgramKeywordEntity($id);
+		$this->em->remove($programKeyword);
+		$this->em->flush();
+
+		// Also remove any links
+		$repository = $this->em->getRepository(ProgramKeywordLinks::class);
+		$repository->deleteByKeywordId($id);
+	}
+
+	/**
+	 * Normalize and update keywords for a program by delegating to the repository.
+	 * Accepts an array or comma-separated string and ensures an array of ints is passed
+	 * to the repository.
+	 *
+	 * @param int $programId
+	 * @param mixed $keywordIds
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function updateProgramKeywords(int $programId, $keywordIds): void
+	{
+		if (is_string($keywordIds)) {
+			$keywordIds = trim($keywordIds) === '' ? [] : explode(',', $keywordIds);
+		}
+		if (!is_array($keywordIds)) {
+			$keywordIds = $keywordIds ? [$keywordIds] : [];
+		}
+		$keywordIds = array_map('intval', $keywordIds);
+
+		$repository = $this->em->getRepository(Programs::class);
+		$repository->updateProgramKeywords($programId, $keywordIds);
+	}
+
+	/**
+	 * Get all programs linked to a keyword.
+	 * @param int $keywordId
+	 * @return array
+	 */
+	public function getProgramsForKeyword(int $keywordId): array
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		return $repository->getProgramsForKeyword($keywordId);
+	}
+
+	/**
+	 * Link a program to a keyword.
+	 * @param int $keywordId
+	 * @param int $programId
+	 * @return void
+	 */
+	public function linkProgramToKeyword(int $keywordId, int $programId): void
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		$repository->linkProgramToKeyword($keywordId, $programId);
+	}
+
+	/**
+	 * Unlink a program from a keyword.
+	 * @param int $keywordId
+	 * @param int $programId
+	 * @return void
+	 */
+	public function unlinkProgramFromKeyword(int $keywordId, int $programId): void
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+		$repository->unlinkProgramFromKeyword($keywordId, $programId);
 	}
 }

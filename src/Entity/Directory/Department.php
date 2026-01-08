@@ -304,4 +304,20 @@ class Department
 
     return $this;
   }
+
+	// Get the building name in kebab-case (lowercase with hyphens. apostrophes should just be replaced with nothing. Used for campus map links emich.edu/map)
+	#[Groups("department")]
+	public function getMapBuildingKebab(): string | null
+	{
+		if(!$this->mapBuilding) {
+			return null;
+		}
+		return trim(strtolower(
+			preg_replace(
+				'/[^a-zA-Z0-9]+/',
+				'-',
+				str_replace("'", '', $this->mapBuilding->getName())
+			)
+		), '-');
+	}
 }

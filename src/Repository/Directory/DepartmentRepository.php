@@ -96,4 +96,50 @@ class DepartmentRepository extends ServiceEntityRepository
 
     return $qb->getQuery()->getResult();
   }
+
+  /**
+   * Get departments that match the phone number (used at emich.edu/directory).
+   * @param $phoneNumber
+   * @return array
+   */
+  public function searchResultsDepartmentsByPhone($phoneNumber)
+  {
+    $qb = $this->createQueryBuilder('d');
+    $qb->where('d.phone LIKE :phoneNumber')
+      ->setParameter('phoneNumber', '%' . $phoneNumber . '%')
+      ->orderBy('d.department', 'ASC')
+      ->setMaxResults(10);
+
+    return $qb->getQuery()->getResult();
+  }
+
+  /**
+   * Get departments that start with the given letter.
+   * @param $letter
+   * @return array
+   */
+  public function searchResultsStartWithLetter($letter)
+  {
+    $qb = $this->createQueryBuilder('d');
+    $qb->where('d.department LIKE :letter')
+      ->setParameter('letter', $letter . '%')
+      ->orderBy('d.department', 'ASC');
+
+    return $qb->getQuery()->getResult();
+  }
+
+  /**
+   * Get departments with the name of the associated building (if any)
+   * Originally used for campus map "In this Building" feature 12/10/25
+   * @return array
+   */
+  public function departmentsWithBldgName()
+  {
+    $qb = $this->createQueryBuilder('d');
+    $qb->leftJoin('d.mapBuilding', 'mi')
+      ->select('d.department', 'mi.name AS map_building_name') // matches the existing file style
+      ->orderBy('d.department', 'ASC');
+
+    return $qb->getQuery()->getResult();
+  }
 }

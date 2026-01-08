@@ -10,7 +10,7 @@ security:
         class: 'App\Entity\User'
         property: email
 
-  # CONFIG FOR WORKING where EMU LDAP is available
+  # # CONFIG FOR WORKING where EMU LDAP is available
   firewalls:
    dev:
      pattern: ^/(_(profiler|wdt)|css|images|js)/

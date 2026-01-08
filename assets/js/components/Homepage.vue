@@ -54,7 +54,7 @@ export default {
 				map: {
 					title: "Campus Map",
 					description:
-						"The campus map application contains all points of interest at EMU. These items are displayed at emich.edu/maps.",
+						"The campus map application contains all points of interest at EMU. These items are displayed at <a href=\"https://www.emich.edu/maps\" target=\"_blank\">emich.edu/maps</a>.",
 					buttonText: "Open Application",
 					buttonLink: "/map/items",
 					display: false,
@@ -70,9 +70,9 @@ export default {
           category: 'Web Services'
 				},
 				programs: {
-					title: "Catalog Programs Manager",
+					title: "Degrees & Programs Manager",
 					description:
-						"The catalog programs manager allows for the editing of program names, websites, etc., from the Acalog course catalog.",
+						"The degrees and programs manager allows for the editing of program names, marketing website URLs, delivery modes, etc., that display at <a href=\"https://www.emich.edu/degrees\" target=\"_blank\">emich.edu/degrees</a>.",
 					buttonText: "Manage Programs",
 					buttonLink: "/programs",
 					display: false,
@@ -82,7 +82,7 @@ export default {
 					// Added July 2025
 					title: "Department Directory",
 					description:
-						"The department directory application manages all department information for the university directory.",
+						"The department directory application manages all department information for the university directory at <a href=\"https://www.emich.edu/directory\" target=\"_blank\">emich.edu/directory</a>.",
 					buttonText: "Manage Departments",
 					buttonLink: "/directory",
 					display: false,
@@ -92,7 +92,7 @@ export default {
 					// Added July 2025
 					title: "Photo Requests",
 					description:
-						"The photo requests application handles photography and headshot requests that are submitted on the EMU website.",
+						"The photo requests application handles photography and headshot requests that are submitted at <a href=\"https://www.emich.edu/photorequest\" target=\"_blank\">emich.edu/photorequest</a>.",
 					buttonText: "See Requests",
 					buttonLink: "/photorequests",
 					display: false,
@@ -112,7 +112,7 @@ export default {
           // Added Sept. 2025
           title: "Emergency Banner and Notices",
           description:
-              "The emergency banner application manages the emergency banner and page for EMU websites.",
+              "The emergency banner application manages the emergency banner that displays above the header across all EMU websites.",
           buttonText: "Manage Banner",
           buttonLink: "/emergency",
           display: false,
@@ -122,7 +122,7 @@ export default {
 					// Added June 2025
 					title: "DPS Crime Log",
 					description:
-						'This application allows DPS staff to upload the Daily Crime Log CSV file for display on the <a href="https://www.emich.edu/police/crime-alerts-stats/daily-crime-log.php" target="_blank">EMU Police website</a>.',
+						'This application allows DPS staff to upload the Daily Crime Log CSV file for display on <a href="https://www.emich.edu/police/crime-alerts-stats/daily-crime-log.php" target="_blank">emich.edu/police</a>.',
 					buttonText: "DPS Crime Log Upload",
 					buttonLink: "/crimelog",
 					display: false,
