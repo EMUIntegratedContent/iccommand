@@ -1,5 +1,6 @@
 ## UPDATES JANUARY 2026 (PHP 8.5)
 - Update from 7.1 to 8.0 (https://symfony.com/doc/current/setup/upgrade_major.html)
+- So far, I've updated Degrees and Programs where it's error free. Use this as reference when converting other sections.
 
 ## UPDATES 2025
 - MULTIMEDIA REQUESTS APP NO LONGER IN USE!
