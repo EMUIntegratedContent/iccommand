@@ -944,7 +944,13 @@ export default {
 				method: method,
 				url: route,
 				data: self.record
-			})
+			},
+			{
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded"
+				}
+			}
+			)
 				.then(function (response) {
 					// Success.
 					let structuredResponse = response.data;

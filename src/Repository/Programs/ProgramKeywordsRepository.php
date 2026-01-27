@@ -29,13 +29,13 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     {
         $conn = $this->em->getConnection();
         $sql = 'DELETE FROM programs.program_keyword_links WHERE keyword_id = :keyword_id';
-        $stmt = $conn->prepare($sql);
-        $stmt->executeStatement(['keyword_id' => $keywordId]);
+        $conn->executeStatement($sql, ['keyword_id' => $keywordId]);
     }
 
-		public function getKeywordEntity(int $keywordId): ?ProgramKeywords {
-			return $this->em->find(ProgramKeywords::class, $keywordId);
-		}
+    public function getKeywordEntity(int $keywordId): ?ProgramKeywords
+    {
+        return $this->em->find(ProgramKeywords::class, $keywordId);
+    }
 
     /**
      * Get all programs linked to a keyword.
@@ -52,8 +52,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
             ORDER BY p.full_name ASC
         ";
 
-        $stmt = $this->em->getConnection()->prepare($sql);
-        return $stmt->executeQuery(['keyword_id' => $keywordId])->fetchAllAssociative();
+        return $this->em->getConnection()->executeQuery($sql, ['keyword_id' => $keywordId])->fetchAllAssociative();
     }
 
     /**
@@ -68,16 +67,17 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
 
         // Check if link already exists
         $checkSql = 'SELECT COUNT(*) FROM programs.program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
-        $checkStmt = $conn->prepare($checkSql);
-        $count = $checkStmt->executeQuery([
-            'keyword_id' => $keywordId,
-            'program_id' => $programId
-        ])->fetchOne();
+        $count = $conn->executeQuery(
+            $checkSql,
+            [
+                'keyword_id' => $keywordId,
+                'program_id' => $programId
+            ]
+        )->fetchOne();
 
         if ($count == 0) {
             $sql = 'INSERT INTO programs.program_keyword_links (keyword_id, program_id) VALUES (:keyword_id, :program_id)';
-            $stmt = $conn->prepare($sql);
-            $stmt->executeStatement([
+            $conn->executeStatement($sql, [
                 'keyword_id' => $keywordId,
                 'program_id' => $programId
             ]);
@@ -94,8 +94,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     {
         $conn = $this->em->getConnection();
         $sql = 'DELETE FROM programs.program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
-        $stmt = $conn->prepare($sql);
-        $stmt->executeStatement([
+        $conn->executeStatement($sql, [
             'keyword_id' => $keywordId,
             'program_id' => $programId
         ]);
@@ -131,8 +130,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
             ORDER BY pk.keyword ASC
             LIMIT {$offset}, {$limit}
         ";
-        $stmt = $conn->prepare($sql);
-        $results = $stmt->executeQuery($params)->fetchAllAssociative();
+        $results = $conn->executeQuery($sql, $params)->fetchAllAssociative();
 
         // Get total count
         $countSql = "
@@ -140,8 +138,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
             FROM programs.program_keywords pk
             {$whereClause}
         ";
-        $countStmt = $conn->prepare($countSql);
-        $totalCount = $countStmt->executeQuery($params)->fetchOne();
+        $totalCount = $conn->executeQuery($countSql, $params)->fetchOne();
 
         return [
             'keywords' => $results,
@@ -149,5 +146,3 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
         ];
     }
 }
-
-

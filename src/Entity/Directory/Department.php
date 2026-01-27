@@ -5,8 +5,7 @@ namespace App\Entity\Directory;
 use App\Entity\Map\MapBuilding;
 use App\Repository\Directory\DepartmentRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: DepartmentRepository::class)]
 #[ORM\Table(name: 'directory_department')]

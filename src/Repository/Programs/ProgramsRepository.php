@@ -12,19 +12,23 @@ use Doctrine\Persistence\ObjectManager;
 /**
  * @extends ServiceEntityRepository<Programs>
  */
-class ProgramsRepository extends ServiceEntityRepository{
+class ProgramsRepository extends ServiceEntityRepository
+{
 
 	protected ObjectManager $em;
-	public function __construct(ManagerRegistry $doctrine){
+	public function __construct(ManagerRegistry $doctrine)
+	{
 		parent::__construct($doctrine, Programs::class);
 		$this->em = $doctrine->getManager('programs');
 	}
 
-	public function getProgramEntity($id): ?Programs{
+	public function getProgramEntity($id): ?Programs
+	{
 		return $this->em->find(Programs::class, $id);
 	}
 
-	public function getProgram($id) {
+	public function getProgram($id)
+	{
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine
 		$programSql = "
 			SELECT p.*, w.id AS website_id, w.url,
@@ -38,13 +42,13 @@ class ProgramsRepository extends ServiceEntityRepository{
 			GROUP BY p.id
 		";
 
-		$stmt = $this->em->getConnection()->prepare($programSql);
-		return $stmt->executeQuery([
+		return $this->em->getConnection()->executeQuery($programSql, [
 			'id' => $id
 		])->fetchAssociative();
 	}
 
-	public function paginatedPrograms($currentPage, $pageSize, $catalog): array{
+	public function paginatedPrograms($currentPage, $pageSize, $catalog): array
+	{
 		// Calculate the offset
 		$offset = ($currentPage - 1) * $pageSize;
 
@@ -58,8 +62,7 @@ class ProgramsRepository extends ServiceEntityRepository{
 			LIMIT $offset, $pageSize
 		";
 
-		$stmt = $this->em->getConnection()->prepare($programSql);
-		$programs = $stmt->executeQuery([
+		$programs = $this->em->getConnection()->executeQuery($programSql, [
 			'catalog' => $catalog
 		])->fetchAllAssociative();
 
@@ -79,7 +82,8 @@ class ProgramsRepository extends ServiceEntityRepository{
 	}
 
 
-	public function searchResults($searchTerm, $catalog): array{
+	public function searchResults($searchTerm, $catalog): array
+	{
 		// Build the query for getting paginated records
 		$qb = $this->em->createQueryBuilder();
 
@@ -100,68 +104,68 @@ class ProgramsRepository extends ServiceEntityRepository{
 			->orderBy('p.full_name', 'ASC')
 			->setMaxResults(30)
 			->setParameter('catalog', $catalog)
-			->setParameter('searchTerm', '%'.$searchTerm.'%')
+			->setParameter('searchTerm', '%' . $searchTerm . '%')
 			->getQuery();
 
 		return $query->getResult();
 	}
-	public function getColleges(): array {
+	public function getColleges(): array
+	{
 		$clgSql = "
 			SELECT *
 			FROM programs.program_colleges
 			ORDER BY college ASC
 		";
 
-		$stmt = $this->em->getConnection()->prepare($clgSql);
-		return $stmt->executeQuery()->fetchAllAssociative();
+		return $this->em->getConnection()->executeQuery($clgSql)->fetchAllAssociative();
 	}
 
-	public function getDepartments(): array {
+	public function getDepartments(): array
+	{
 		$departmentsSql = "
 			SELECT id, department
 			FROM programs.program_departments
 			ORDER BY department ASC
 		";
 
-		$stmt = $this->em->getConnection()->prepare($departmentsSql);
-		return $stmt->executeQuery()->fetchAllAssociative();
+		return $this->em->getConnection()->executeQuery($departmentsSql)->fetchAllAssociative();
 	}
 
-	public function getProgTypes(): array {
+	public function getProgTypes(): array
+	{
 		$typesSql = "
 			SELECT *
 			FROM programs.program_types
 			ORDER BY type ASC
 		";
 
-		$stmt = $this->em->getConnection()->prepare($typesSql);
-		return $stmt->executeQuery()->fetchAllAssociative();
+		return $this->em->getConnection()->executeQuery($typesSql)->fetchAllAssociative();
 	}
 
-	public function getDegrees(): array {
+	public function getDegrees(): array
+	{
 		$degreesSql = "
 			SELECT *
 			FROM programs.program_degrees
 			ORDER BY degree ASC
 		";
 
-		$stmt = $this->em->getConnection()->prepare($degreesSql);
-		return $stmt->executeQuery()->fetchAllAssociative();
+		return $this->em->getConnection()->executeQuery($degreesSql)->fetchAllAssociative();
 	}
 
 	/**
 	 * Get all unique catalog IDs (they change every year).
 	 * @return array
 	 */
-	public function getCatalogIds(): array {
+	public function getCatalogIds(): array
+	{
 		$catalogSql = "
 			SELECT DISTINCT catalog, catalog_id
 			FROM programs.program_programs
 			ORDER BY catalog_id ASC
 		";
 
-		$stmt = $this->em->getConnection()->prepare($catalogSql);
-		return $stmt->executeQuery()->fetchAllAssociative();
+		return $this->em->getConnection()->executeQuery($catalogSql)->fetchAllAssociative();
 	}
 
 	/**
@@ -172,21 +176,20 @@ class ProgramsRepository extends ServiceEntityRepository{
 	 * @param array<int> $deliveryIds Array of delivery mode IDs
 	 * @throws \Exception If database operation fails
 	 */
-	public function updateProgramDeliveryModes(int $programId, array $deliveryIds): void {
+	public function updateProgramDeliveryModes(int $programId, array $deliveryIds): void
+	{
 		try {
 			$conn = $this->em->getConnection();
 			$conn->beginTransaction();
 
 			// Delete existing delivery modes
 			$delSql = 'DELETE FROM programs.program_delivery WHERE program_id = :program_id';
-			$stmt = $conn->prepare($delSql);
-			$stmt->executeStatement(['program_id' => $programId]);
+			$conn->executeStatement($delSql, ['program_id' => $programId]);
 
 			// Insert new delivery modes
 			$insSql = 'INSERT INTO programs.program_delivery (program_id, delivery_id) VALUES (:program_id, :delivery_id)';
-			$ins = $conn->prepare($insSql);
 			foreach ($deliveryIds as $deliveryId) {
-				$ins->executeStatement([
+				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
 					'delivery_id' => $deliveryId
 				]);
@@ -209,21 +212,20 @@ class ProgramsRepository extends ServiceEntityRepository{
 	 * @param array<int> $keywordIds Array of keyword IDs
 	 * @throws \Exception If database operation fails
 	 */
-	public function updateProgramKeywords(int $programId, array $keywordIds): void {
+	public function updateProgramKeywords(int $programId, array $keywordIds): void
+	{
 		try {
 			$conn = $this->em->getConnection();
 			$conn->beginTransaction();
 
 			// Delete existing keywords
 			$delSql = 'DELETE FROM programs.program_keyword_links WHERE program_id = :program_id';
-			$stmt = $conn->prepare($delSql);
-			$stmt->executeStatement(['program_id' => $programId]);
+			$conn->executeStatement($delSql, ['program_id' => $programId]);
 
 			// Insert new keywords
 			$insSql = 'INSERT INTO programs.program_keyword_links (program_id, keyword_id) VALUES (:program_id, :keyword_id)';
-			$ins = $conn->prepare($insSql);
 			foreach ($keywordIds as $keywordId) {
-				$ins->executeStatement([
+				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
 					'keyword_id' => $keywordId
 				]);

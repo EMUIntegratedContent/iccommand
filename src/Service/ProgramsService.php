@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Entity\Programs\ProgramKeywordLinks;
@@ -15,28 +16,31 @@ use Doctrine\Persistence\ObjectManager;
 /**
  * The programs service is used primarily for CRUD actions on Catalog Programs
  */
-class ProgramsService {
-  private AuthorizationCheckerInterface $authorizationChecker;
-  private ValidatorInterface $validator;
-  private ObjectManager $em;
+class ProgramsService
+{
+	private AuthorizationCheckerInterface $authorizationChecker;
+	private ValidatorInterface $validator;
+	private ObjectManager $em;
 
-  /**
-   * The constructor of the service of the redirects.
-   */
-  public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine) {
-    $this->authorizationChecker = $authorizationChecker;
-    $this->validator = $validator;
-    $this->em = $doctrine->getManager('programs');
-  }
+	/**
+	 * The constructor of the service of the redirects.
+	 */
+	public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine)
+	{
+		$this->authorizationChecker = $authorizationChecker;
+		$this->validator = $validator;
+		$this->em = $doctrine->getManager('programs');
+	}
 
 	/**
 	 * Uses the Symfony container's validator to validate fields for a program.
 	 * @param Programs $program
 	 * @return ConstraintViolationList A list of errors.
 	 */
-  public function validate($program): ConstraintViolationList {
-    return $this->validator->validate($program);
-  }
+	public function validate($program): ConstraintViolationList
+	{
+		return $this->validator->validate($program);
+	}
 
 	/**
 	 * Fetches the permissions of the user for managing programs.
@@ -178,7 +182,8 @@ class ProgramsService {
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
-	public function getDegrees() {
+	public function getDegrees()
+	{
 		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getDegrees();
 	}
@@ -216,7 +221,8 @@ class ProgramsService {
 	 * @param $id
 	 * @return Programs
 	 */
-	public function getProgram($id) {
+	public function getProgram($id)
+	{
 		// Get the Doctrine repository
 		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getProgram($id);
@@ -227,7 +233,8 @@ class ProgramsService {
 	 * @param $id
 	 * @return mixed
 	 */
-	public function getProgramEntity($id) {
+	public function getProgramEntity($id)
+	{
 		$repository = $this->em->getRepository(Programs::class);
 		return $repository->getProgramEntity($id);
 	}
@@ -237,7 +244,8 @@ class ProgramsService {
 	 * @param $id
 	 * @return mixed
 	 */
-	public function getWebsiteEntity($id) {
+	public function getWebsiteEntity($id)
+	{
 		$repository = $this->em->getRepository(ProgramWebsites::class);
 		return $repository->getWebsiteEntity($id);
 	}
@@ -251,39 +259,38 @@ class ProgramsService {
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
-	public function updateProgWebsite($origName, $newName, $url = null): ?ProgramWebsites{
+	public function updateProgWebsite($origName, $newName, $url = null): ?ProgramWebsites
+	{
 		// Case 1. If there is a program without a URL. See if there is a website record with that program name and remove the record
 		// Case 2. If there is a program with a URL. See if there is a website record with that program name. If there is, update the record. If there isn't, create a new record.
 
 		// Strip out any host information from the URL
-		if($url){
+		if ($url) {
 			$parsedUrl = parse_url($url);
 
-			if(array_key_exists("host", $parsedUrl) && preg_match("/emich\.edu/", $parsedUrl["host"])){
-				if($parsedUrl["path"][0] != "/"){
-					$url = "/".$parsedUrl["path"];
-				}
-				else{
+			if (array_key_exists("host", $parsedUrl) && preg_match("/emich\.edu/", $parsedUrl["host"])) {
+				if ($parsedUrl["path"][0] != "/") {
+					$url = "/" . $parsedUrl["path"];
+				} else {
 					$url = $parsedUrl["path"];
 				}
-			}
-			else if(!array_key_exists("host", $parsedUrl) && $parsedUrl["path"][0] != "/"){
-				$url = "/".$parsedUrl["path"];
+			} else if (!array_key_exists("host", $parsedUrl) && $parsedUrl["path"][0] != "/") {
+				$url = "/" . $parsedUrl["path"];
 			}
 		}
 
 		$website = null;
-		if($origName != ''){
+		if ($origName != '') {
 			$website = $this->getWebsiteByProg($origName);
 		}
 
-		if($website && !$url){
+		if ($website && !$url) {
 			$this->em->remove($website);
 		} else if ($website && $url) {
 			$website->setProgram($newName);
 			$website->setUrl($url);
 			$this->em->persist($website);
-		} else if(!$website && $url) {
+		} else if (!$website && $url) {
 			$website = new ProgramWebsites();
 			$website->setProgram($newName);
 			$website->setUrl($url);
@@ -299,12 +306,13 @@ class ProgramsService {
 	 * @param $catalog
 	 * @return int|null
 	 */
-	public function getCatalogIdFromName ($catalog) {
+	public function getCatalogIdFromName($catalog)
+	{
 		$repository = $this->em->getRepository(Programs::class);
 		$catRows = $repository->getCatalogIds();
 		$catId = null;
-		foreach($catRows as $catRow){
-			if($catRow['catalog'] == $catalog){
+		foreach ($catRows as $catRow) {
+			if ($catRow['catalog'] == $catalog) {
 				$catId = $catRow['catalog_id'];
 			}
 		}
@@ -316,7 +324,8 @@ class ProgramsService {
 	 * @param $programName
 	 * @return string
 	 */
-	public function makeProgramSlug($programName){
+	public function makeProgramSlug($programName)
+	{
 		$slug = strtolower($programName);
 		$slug = preg_replace('/[^a-z0-9]/', '-', $slug);
 		$slug = preg_replace('/-+/', '-', $slug);
@@ -334,7 +343,8 @@ class ProgramsService {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function updateProgramDeliveryModes(int $programId, $deliveryIds): void {
+	public function updateProgramDeliveryModes(int $programId, $deliveryIds): void
+	{
 		if (is_string($deliveryIds)) {
 			$deliveryIds = trim($deliveryIds) === '' ? [] : explode(',', $deliveryIds);
 		}
@@ -343,8 +353,7 @@ class ProgramsService {
 		}
 		$deliveryIds = array_map('intval', $deliveryIds);
 
-		$repository = $this->em->getRepository(Programs::class);
-		$repository->updateProgramDeliveryModes($programId, $deliveryIds);
+		$this->em->getRepository(Programs::class)->updateProgramDeliveryModes($programId, $deliveryIds);
 	}
 
 	/**

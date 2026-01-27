@@ -7,10 +7,11 @@ use Doctrine\ORM\Mapping\InverseJoinColumn;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
+
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapItemRepository")]
 #[UniqueEntity(fields: ["alias"], message: "Another map item already uses this alias")]
@@ -190,7 +191,7 @@ abstract class MapItem
 		return $this->images;
 	}
 
-	public function addImage(MapitemImage $image = null)
+	public function addImage(?MapitemImage $image = null)
 	{
 		$this->images[] = $image;
 	}

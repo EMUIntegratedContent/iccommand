@@ -31,10 +31,7 @@ class MapItemRepository extends ServiceEntityRepository
           SELECT m.discr FROM map_item m
           WHERE m.id = :id
           ';
-      $stmt = $conn->prepare($sql);
-      $stmt->execute(['id' => $id]);
-
-      $mapItem = $stmt->fetchAll();
+      $mapItem = $conn->executeQuery($sql, ['id' => $id])->fetchAllAssociative();
       if($mapItem){
         return $mapItem[0]['discr'];
       }

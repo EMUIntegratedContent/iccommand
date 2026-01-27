@@ -256,7 +256,12 @@ export default {
 
       axios.post("/api/programs/keywords", {
         keyword: this.newKeywordName
-      })
+      },
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
         .then((response) => {
           this.newKeywordName = "";
           this.isCreating = false;
@@ -422,9 +427,13 @@ export default {
     linkProgram: function (keywordId, programId) {
       this.apiError.status = null;
 
-      axios.post(`/api/programs/keywords/${keywordId}/programs`, {
-        program_id: programId
-      })
+      axios.post(`/api/programs/keywords/${keywordId}/programs`,
+        `program_id=${programId}`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
         .then(() => {
           // Refresh the programs list for this keyword
           this.fetchKeywordPrograms(keywordId);

@@ -45,8 +45,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 			LIMIT $offset, $pageSize
 		";
 
-		$stmt = $this->em->getConnection()->prepare($websitesSql);
-		$websites = $stmt->executeQuery()->fetchAllAssociative();
+		$websites = $this->em->getConnection()->executeQuery($websitesSql)->fetchAllAssociative();
 
 		$numRows = $this->em->createQueryBuilder()
 			->select('COUNT(w.id)')
@@ -71,7 +70,6 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 			LIMIT 30
 		";
 
-		$stmt = $this->em->getConnection()->prepare($websitesSql);
-		return $stmt->executeQuery(['searchTerm' => "%$searchTerm%"])->fetchAllAssociative();
+		return $this->em->getConnection()->executeQuery($websitesSql, ['searchTerm' => "%$searchTerm%"])->fetchAllAssociative();
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller\Api\Programs;
 
 use App\Entity\Programs\ProgramKeywords;
@@ -16,7 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-if(!ini_get('display_errors')){
+if (!ini_get('display_errors')) {
 	ini_set('display_errors', '1');
 }
 error_reporting(E_ALL);
@@ -26,7 +27,8 @@ error_reporting(E_ALL);
  * This controller manages the programs (and associated websites) with the actions of getting, adding,
  * updating, and deleting.
  */
-class ProgramsController extends AbstractController{
+class ProgramsController extends AbstractController
+{
 	private ProgramsService $service;
 	private LoggerInterface $logger;
 	private ObjectManager $em;
@@ -37,7 +39,8 @@ class ProgramsController extends AbstractController{
 	 * The constructor of the ProgramsController.
 	 * @param ProgramsService $service The service container of this controller.
 	 */
-	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer){
+	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer)
+	{
 		$this->service = $service;
 		$this->logger = $logger;
 		$this->em = $doctrine->getManager('programs');
@@ -52,7 +55,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/list', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function getProgramsAction(Request $request): Response{
+	public function getProgramsAction(Request $request): Response
+	{
 		$page = $request->query->get('page') ?? 1;
 		$pageSize = $request->query->get('limit') ?? 25;
 		$catalog = $request->query->get('catalog') ?? 'undergraduate';
@@ -71,7 +75,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/search', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function searchProgramsAction(Request $request): Response{
+	public function searchProgramsAction(Request $request): Response
+	{
 		$searchTerm = $request->query->get('searchterm');
 		$catalog = $request->query->get('catalog') ?? 'undergraduate';
 
@@ -89,7 +94,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/websites', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function getWebsitesAction(Request $request): Response{
+	public function getWebsitesAction(Request $request): Response
+	{
 		$page = $request->query->get('page') ?? 1;
 		$pageSize = $request->query->get('limit') ?? 25;
 
@@ -107,7 +113,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/searchwebsites', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function searchWebsitesAction(Request $request): Response{
+	public function searchWebsitesAction(Request $request): Response
+	{
 		$searchTerm = $request->query->get('searchterm');
 
 		$websites = $this->service->searchWebsites($searchTerm);
@@ -124,7 +131,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/colleges', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function progCollegesAction(Request $request): Response{
+	public function progCollegesAction(Request $request): Response
+	{
 		$colleges = $this->service->getColleges();
 
 		$serialized = $this->serializer->serialize($colleges, "json");
@@ -139,7 +147,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/departments', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function progDeptsAction(Request $request): Response{
+	public function progDeptsAction(Request $request): Response
+	{
 		$depts = $this->service->getDepartments();
 
 		$serialized = $this->serializer->serialize($depts, "json");
@@ -154,7 +163,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/types', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function progTypesAction(Request $request): Response{
+	public function progTypesAction(Request $request): Response
+	{
 		$progTypes = $this->service->getProgTypes();
 
 		$serialized = $this->serializer->serialize($progTypes, "json");
@@ -169,7 +179,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/degrees', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function degreesAction(Request $request): Response{
+	public function degreesAction(Request $request): Response
+	{
 		$degrees = $this->service->getDegrees();
 
 		$serialized = $this->serializer->serialize($degrees, "json");
@@ -184,9 +195,10 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('websites/{id}', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function getWebsiteAction($id): Response{
+	public function getWebsiteAction($id): Response
+	{
 		$website = $this->service->getWebsiteEntity($id);
-		if(!$website){
+		if (!$website) {
 			return new Response("The website you requested was not found.", 404, array("Content-Type" => "application/json"));
 		}
 		$serialized = $this->serializer->serialize($website, "json");
@@ -201,7 +213,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/keywords', methods: ['GET'])]
 	// #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function getKeywordsAction(Request $request): Response{
+	public function getKeywordsAction(Request $request): Response
+	{
 		$page = $request->query->get('page') ?? 1;
 		$limit = $request->query->get('limit') ?? 50;
 		$searchTerm = $request->query->get('searchterm');
@@ -220,9 +233,10 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/{id}', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function getProgramAction($id): Response{
+	public function getProgramAction($id): Response
+	{
 		$program = $this->service->getProgram($id);
-		if(!$program){
+		if (!$program) {
 			return new Response("The program you requested was not found.", 404, array("Content-Type" => "application/json"));
 		}
 		$serialized = $this->serializer->serialize($program, "json");
@@ -237,11 +251,13 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
-	public function postProgramAction(Request $request): Response{
-		$catalog = strtolower($request->request->get("catalog"));
-		$progFullName = $request->request->get("full_name");
-		$progName = $request->request->get("program");
-		$url = strtolower($request->request->get("url"));
+	public function postProgramAction(Request $request): Response
+	{
+		$data = json_decode($request->getContent(), true);
+		$catalog = strtolower($data["catalog"]);
+		$progFullName = $data["full_name"];
+		$progName = $data["program"];
+		$url = isset($data["url"]) ? strtolower($data["url"]) : null;
 
 		$program = new Programs();
 		// Get the max id and increment by 1
@@ -249,30 +265,20 @@ class ProgramsController extends AbstractController{
 		$program->setProgram($progName);
 		$program->setFullName($progFullName);
 		$program->setCatalog($catalog);
-		$program->setDepartmentId($request->request->get("department_id"));
-		$program->setDegreeId($request->request->get("degree_id"));
-		$program->setTypeId($request->request->get("type_id"));
-
-		// handle delivery ids (may be array, CSV string, or single value)
-		$deliveryIds = $request->request->all("delivery_ids");
-		if (is_string($deliveryIds)) {
-			$deliveryIds = trim($deliveryIds) === '' ? [] : explode(',', $deliveryIds);
-		}
-		if (!is_array($deliveryIds)) {
-			$deliveryIds = $deliveryIds ? [$deliveryIds] : [];
-		}
-		$deliveryIds = array_map('intval', $deliveryIds);
-		$program->setCollegeId($request->request->get("college_id"));
+		$program->setDepartmentId($data["department_id"]);
+		$program->setDegreeId($data["degree_id"]);
+		$program->setTypeId($data["type_id"]);
+		$program->setCollegeId($data["college_id"]);
 		$program->setSlug($this->service->makeProgramSlug($progName));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
 		if (count($errors) > 0) {
-				// Do the following if there is more than one error.
-				$serialized = $this->serializer->serialize($errors, "json");
+			// Do the following if there is more than one error.
+			$serialized = $this->serializer->serialize($errors, "json");
 
-				return new Response($serialized, 422, array("Content-Type" => "application/json"));
+			return new Response($serialized, 422, array("Content-Type" => "application/json"));
 		}
 
 		$this->em->persist($program); // Persist the program.
@@ -280,13 +286,15 @@ class ProgramsController extends AbstractController{
 
 		// Update delivery modes using service method
 		try {
+			// handle delivery ids (may be array, CSV string, or single value)
+			$deliveryIds = $data["delivery_ids"];
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
-			return new Response("Failed to save program delivery modes.", 500, array("Content-Type" => "application/json"));
+			return new Response($e->getMessage(), 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update keywords
-		$keywordIds = $request->request->all("keyword_ids");
+		$keywordIds = $data["keyword_ids"];
 		try {
 			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
 		} catch (\Exception $e) {
@@ -308,14 +316,16 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/websites/', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
-	public function putWebsiteAction(Request $request): Response{
-		$id = $request->request->get("id");
-		$progName = $request->request->get("program");
-		$url = strtolower($request->request->get("url"));
+	public function putWebsiteAction(Request $request): Response
+	{
+		$data = json_decode($request->getContent(), true);
+		$id = $data["id"];
+		$progName = $data["program"];
+		$url = strtolower($data["url"]);
 
 		// Make sure there isn't already a website with the same program name.
 		$existing = $this->service->getWebsiteByProg($progName);
-		if($existing && $existing->getId() != $id){
+		if ($existing && $existing->getId() != $id) {
 			$url = $existing->getUrl();
 			return new Response("This program already has a website ($url).", 422, array("Content-Type" => "application/json"));
 		}
@@ -339,12 +349,14 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
-	public function putProgramAction(Request $request): Response{
-		$id = $request->request->get("id");
-		$progFullName = $request->request->get("full_name");
-		$progName = $request->request->get("program");
-		$catalog = strtolower($request->request->get("catalog"));
-		$url = strtolower($request->request->get("url"));
+	public function putProgramAction(Request $request): Response
+	{
+		$data = json_decode($request->getContent(), true);
+		$id = $data["id"];
+		$progFullName = $data["full_name"];
+		$progName = $data["program"];
+		$catalog = strtolower($data["catalog"]);
+		$url = strtolower($data["url"]);
 
 		$program = $this->service->getProgramEntity($id);
 		$progOrig = clone $program;
@@ -352,15 +364,15 @@ class ProgramsController extends AbstractController{
 		$program->setProgram($progName);
 		$program->setCatalog($catalog);
 		$program->setFullName($progFullName);
-		$program->setDepartmentId($request->request->get("department_id"));
-		$program->setDegreeId($request->request->get("degree_id"));
-		$program->setTypeId($request->request->get("type_id"));
-		$program->setCollegeId($request->request->get("college_id"));
+		$program->setDepartmentId($data["department_id"]);
+		$program->setDegreeId($data["degree_id"]);
+		$program->setTypeId($data["type_id"]);
+		$program->setCollegeId($data["college_id"]);
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
-		if(count($errors) > 0){
+		if (count($errors) > 0) {
 			// Do the following if there is more than one error.
 			$serialized = $this->serializer->serialize($errors, "json");
 
@@ -371,17 +383,17 @@ class ProgramsController extends AbstractController{
 		$this->em->flush(); // Commit everything to the database.
 
 		// handle delivery ids (may be array, CSV string, or single value)
-		$deliveryIds = $request->request->all("delivery_ids");
+		$deliveryIds = $data["delivery_ids"];
 
 		// Update delivery modes using service method
 		try {
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
-			return new Response("Failed to save program delivery modes.", 500, array("Content-Type" => "application/json"));
+			return new Response($e->getMessage(), 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update keywords
-		$keywordIds = $request->request->all("keyword_ids");
+		$keywordIds = $data["keyword_ids"];
 		try {
 			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
 		} catch (\Exception $e) {
@@ -403,7 +415,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/websites/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
-	public function deleteWebsiteAction($id): Response{
+	public function deleteWebsiteAction($id): Response
+	{
 		$website = $this->service->getWebsiteEntity($id);
 
 		$this->em->remove($website);
@@ -419,7 +432,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
-	public function deleteProgramAction($id): Response{
+	public function deleteProgramAction($id): Response
+	{
 		$program = $this->service->getProgramEntity($id);
 
 		$this->em->remove($program);
@@ -435,8 +449,10 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/keywords', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
-	public function postKeywordAction(Request $request): Response{
-		$keywordName = $request->request->get("keyword");
+	public function postKeywordAction(Request $request): Response
+	{
+		$data = json_decode($request->getContent(), true);
+		$keywordName = $data["keyword"];
 
 		if (empty($keywordName)) {
 			return new Response("Keyword name is required.", 422, array("Content-Type" => "application/json"));
@@ -456,7 +472,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/keywords/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_DELETE")'))]
-	public function deleteKeywordAction($id): Response{
+	public function deleteKeywordAction($id): Response
+	{
 		$this->service->deleteKeyword($id);
 
 		return new Response("Keyword has been deleted.", 204, array("Content-Type" => "application/json"));
@@ -469,7 +486,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/keywords/{id}/programs', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
-	public function getKeywordProgramsAction($id): Response{
+	public function getKeywordProgramsAction($id): Response
+	{
 		$programKeyword = $this->service->getProgramKeywordEntity($id);
 		if (!$programKeyword) {
 			return new Response("Keyword not found.", 404, array("Content-Type" => "application/json"));
@@ -489,13 +507,16 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/keywords/{id}/programs', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
-	public function linkProgramToKeywordAction($id, Request $request): Response{
+	public function linkProgramToKeywordAction($id, Request $request): Response
+	{
+		$data = json_decode($request->getContent(), true);
+		$programId = $data["program_id"];
+
 		$programKeyword = $this->service->getProgramKeywordEntity($id);
 		if (!$programKeyword) {
 			return new Response("Keyword not found.", 404, array("Content-Type" => "application/json"));
 		}
 
-		$programId = $request->request->get("program_id");
 		if (!$programId) {
 			return new Response("Program ID is required.", 422, array("Content-Type" => "application/json"));
 		}
@@ -521,7 +542,8 @@ class ProgramsController extends AbstractController{
 	 */
 	#[Route('/keywords/{id}/programs/{programId}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
-	public function unlinkProgramFromKeywordAction($id, $programId): Response{
+	public function unlinkProgramFromKeywordAction($id, $programId): Response
+	{
 		$programKeyword = $this->service->getProgramKeywordEntity($id);
 		if (!$programKeyword) {
 			return new Response("Keyword not found.", 404, array("Content-Type" => "application/json"));
@@ -540,5 +562,3 @@ class ProgramsController extends AbstractController{
 		}
 	}
 }
-
-?>

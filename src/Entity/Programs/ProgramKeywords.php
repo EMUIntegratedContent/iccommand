@@ -20,8 +20,6 @@ class ProgramKeywords
 
     #[ORM\OneToMany(targetEntity: ProgramKeywordLinks::class, mappedBy: 'keyword_id')]
     #[ORM\JoinColumn(name: 'id', referencedColumnName: 'keyword_id')]
-    private PersistentCollection $programKeywordLinks;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -39,5 +37,3 @@ class ProgramKeywords
         return $this;
     }
 }
-
-

@@ -6,7 +6,7 @@ use App\Entity\Emergency\EmergencySeverity;
 use App\Repository\Emergency\EmergencyRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: EmergencyRepository::class)]
 #[ORM\Table(name: "emergency_banner")]

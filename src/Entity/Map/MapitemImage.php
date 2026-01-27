@@ -4,7 +4,7 @@ namespace App\Entity\Map;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Image;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapitemImageRepository")]
 class MapitemImage extends Image
