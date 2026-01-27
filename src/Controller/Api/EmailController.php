@@ -4,16 +4,16 @@
  */
 namespace App\Controller\Api;
 
-use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class EmailController extends AbstractFOSRestController
+class EmailController extends AbstractController
 {
 	private MailerInterface $mailer;
 

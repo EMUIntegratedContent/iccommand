@@ -4,14 +4,14 @@ namespace App\Controller\Api;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Carbon\Carbon;
 
-class CalendarController extends AbstractFOSRestController
+class CalendarController extends AbstractController
 {
 	private SerializerInterface $serializer;
 	private ManagerRegistry $doctrine;

@@ -5,7 +5,7 @@ namespace App\Controller\Map;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 //use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Entity\Map\MapItem;
 use App\Service\MapItemService;

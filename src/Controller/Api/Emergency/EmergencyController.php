@@ -7,21 +7,21 @@ use App\Entity\Emergency\EmergencyNotice;
 use App\Service\EmergencyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * API Emergency Banner and Notices Controller
  * This controller manages the emergency banner and notices with the actions of getting, adding,
  * updating, and deleting.
  */
-class EmergencyController extends AbstractFOSRestController
+class EmergencyController extends AbstractController
 {
   private EmergencyService $service;
   private LoggerInterface $logger;

@@ -5,17 +5,16 @@ namespace App\Controller\Api\PhotoRequest;
 use App\Entity\PhotoRequest\PhotoRequest;
 use App\Entity\User;
 use App\Service\PhotoRequestService;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 if (!ini_get('display_errors')) {
   ini_set('display_errors', '1');
@@ -27,7 +26,7 @@ error_reporting(E_ALL);
  * This controller manages the photo requests with the actions of getting, adding,
  * updating, and deleting.
  */
-class PhotoRequestController extends AbstractFOSRestController
+class PhotoRequestController extends AbstractController
 {
   private PhotoRequestService $service;
   private LoggerInterface $logger;

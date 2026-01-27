@@ -5,17 +5,16 @@ use App\Entity\Programs\ProgramKeywords;
 use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
 use App\Service\ProgramsService;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 if(!ini_get('display_errors')){
 	ini_set('display_errors', '1');
@@ -27,7 +26,7 @@ error_reporting(E_ALL);
  * This controller manages the programs (and associated websites) with the actions of getting, adding,
  * updating, and deleting.
  */
-class ProgramsController extends AbstractFOSRestController{
+class ProgramsController extends AbstractController{
 	private ProgramsService $service;
 	private LoggerInterface $logger;
 	private ObjectManager $em;

@@ -1,7 +1,7 @@
 security:
   # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
   # show full user not found message
-  hide_user_not_found: false
+#  hide_user_not_found: false
   #    always_authenticate_before_granting:  true -- DEPRECATED: no substitute found yet
 
   providers:

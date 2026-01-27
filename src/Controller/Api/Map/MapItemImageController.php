@@ -4,21 +4,17 @@ namespace App\Controller\Api\Map;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
-use FOS\RestBundle\Serializer\Serializer;
 use Symfony\Component\ExpressionLanguage\Expression;
-use Symfony\Component\Routing\Annotation\Route;
-use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Map\MapitemImage;
 use App\Entity\Map\MapItem;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class MapItemImageController extends AbstractFOSRestController
+class MapItemImageController extends AbstractController
 {
 	private UserService $service;
 	private SerializerInterface $serializer;
