@@ -67,7 +67,7 @@ class RedirectRepository extends ServiceEntityRepository {
 			return [];
 		}
 
-		// Build the query for getting paginated records
+		// Build the query for getting paginated records (one param for both LIKEs)
 		return $this->createQueryBuilder('r')
 			->select('CONCAT(r.fromLink, \' -> \', r.toLink) AS linkDescr, r.id')
 			->where('r.fromLink LIKE :searchTerm')
@@ -75,7 +75,6 @@ class RedirectRepository extends ServiceEntityRepository {
 			->andWhere('r.itemType = :type')
 			->orderBy('r.fromLink', 'ASC')
 			->setMaxResults(30)
-			->setParameter('searchTerm', '%' . $searchTerm . '%')
 			->setParameter('searchTerm', '%' . $searchTerm . '%')
 			->setParameter('type', $itemType)
 			->getQuery()

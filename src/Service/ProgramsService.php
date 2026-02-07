@@ -229,7 +229,7 @@ class ProgramsService
 	}
 
 	/**
-	 * Get a Program entity by ID (used to locate a program for editing because Symfony + Doctrine are too stupid to know which connection to use...)
+	 * Get a Program entity by ID (used when editing; the programs entity manager must be used explicitly.)
 	 * @param $id
 	 * @return mixed
 	 */
@@ -240,7 +240,7 @@ class ProgramsService
 	}
 
 	/**
-	 * Get a ProgramWebsites entity by ID (used to locate a program for editing because Symfony + Doctrine are too stupid to know which connection to use...)
+	 * Get a ProgramWebsites entity by ID (used when editing; the programs entity manager must be used explicitly.)
 	 * @param $id
 	 * @return mixed
 	 */

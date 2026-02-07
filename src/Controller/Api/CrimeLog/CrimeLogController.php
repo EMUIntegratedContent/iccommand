@@ -14,12 +14,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-
-if (!ini_get('display_errors')) {
-	ini_set('display_errors', '1');
-}
-error_reporting(E_ALL);
-
 /**
  * API CrimeLog Controller
  * This controller manages the crimelog with the actions of adding.

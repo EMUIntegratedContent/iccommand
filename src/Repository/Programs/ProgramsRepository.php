@@ -16,10 +16,16 @@ class ProgramsRepository extends ServiceEntityRepository
 {
 
 	protected ObjectManager $em;
+
 	public function __construct(ManagerRegistry $doctrine)
 	{
 		parent::__construct($doctrine, Programs::class);
 		$this->em = $doctrine->getManager('programs');
+	}
+
+	public function getEntityManager(): \Doctrine\ORM\EntityManagerInterface
+	{
+		return $this->em;
 	}
 
 	public function getProgramEntity($id): ?Programs

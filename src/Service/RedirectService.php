@@ -2,7 +2,7 @@
 namespace App\Service;
 
 use App\Entity\Redirect\Redirect;
-use App\Enttiy\Redirect\Uncaught;
+use App\Entity\Redirect\Uncaught;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;

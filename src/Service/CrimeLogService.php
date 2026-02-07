@@ -4,13 +4,12 @@ namespace App\Service;
 
 use App\Entity\CrimeLog\CrimeLog;
 use App\Entity\CrimeLog\FireLog;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use phpDocumentor\Reflection\PseudoTypes\ArrayShape;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Doctrine\Persistence\ObjectManager;
 
 /**
  * The crimelog service is used primary for deleting crimelogs, getting crimelog
@@ -20,18 +19,16 @@ class CrimeLogService
 {
   private AuthorizationCheckerInterface $authorizationChecker;
   private ValidatorInterface $validator;
-  private ManagerRegistry $doctrine;
   private ObjectManager $em;
 
   /**
    * The constructor of the service of the crimelogs.
    */
-  public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine, EntityManagerInterface $em)
+  public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine)
   {
     $this->authorizationChecker = $authorizationChecker;
     $this->validator = $validator;
-    $this->doctrine = $doctrine;
-    $this->em = $em;
+    $this->em = $doctrine->getManager('dps');
   }
 
   /**

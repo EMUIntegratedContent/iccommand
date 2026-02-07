@@ -13,11 +13,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-if (!ini_get('display_errors')) {
-    ini_set('display_errors', '1');
-}
-error_reporting(E_ALL);
-
 /**
  * API Uncaught Controller
  * This controller manages the redirect items with the actions of getting,

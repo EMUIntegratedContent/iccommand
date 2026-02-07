@@ -16,11 +16,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-if (!ini_get('display_errors')) {
-  ini_set('display_errors', '1');
-}
-error_reporting(E_ALL);
-
 /**
  * API Photo Request Controller
  * This controller manages the photo requests with the actions of getting, adding,

@@ -8,16 +8,21 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @extends ServiceEntityRepository<FireLogRespository>
+ * @extends ServiceEntityRepository<FireLog>
  */
 class FireLogRepository extends ServiceEntityRepository
 {
-
     protected ObjectManager $em;
+
     public function __construct(ManagerRegistry $doctrine)
     {
         parent::__construct($doctrine, FireLog::class);
         $this->em = $doctrine->getManager('dps');
+    }
+
+    public function getEntityManager(): \Doctrine\ORM\EntityManagerInterface
+    {
+        return $this->em;
     }
 
     public function deleteById(int $id): void

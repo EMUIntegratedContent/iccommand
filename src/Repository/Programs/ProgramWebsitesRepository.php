@@ -19,6 +19,11 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 		$this->em = $doctrine->getManager('programs');
 	}
 
+	public function getEntityManager(): \Doctrine\ORM\EntityManagerInterface
+	{
+		return $this->em;
+	}
+
 	public function getWebsiteEntity($id): ?ProgramWebsites{
 		return $this->em->find(ProgramWebsites::class, $id);
 	}

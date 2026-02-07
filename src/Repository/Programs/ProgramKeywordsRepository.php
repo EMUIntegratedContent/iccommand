@@ -20,6 +20,11 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
         $this->em = $doctrine->getManager('programs');
     }
 
+    public function getEntityManager(): \Doctrine\ORM\EntityManagerInterface
+    {
+        return $this->em;
+    }
+
     /**
      * Delete all links for a keyword by keyword ID.
      * @param int $keywordId
