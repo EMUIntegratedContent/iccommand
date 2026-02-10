@@ -7,195 +7,155 @@
       {{ apiError.message }}
     </div>
     <br/>
-    <div id="accordion">
-      <!-- Broken Links Section -->
-      <div class="card">
-        <div class="card-header" id="headingRedirectsOfBrokenLinks">
-          <h5 class="mb-0">
-            <button
-                class="btn btn-link"
-                data-toggle="collapse"
-                data-target="#collapseRedirectsOfBrokenLinks"
-                aria-expanded="true"
-                aria-controls="collapseRedirectsOfBrokenLinks">
-              Redirects of Broken Links
-              <span
-                  v-if="!loadingRedirectsOfBrokenLinks"
-                  class="badge badge-primary">{{ totalBrokenRedirects }}</span>
-              <span v-else><i class="fa fa-spinner"></i></span>
-            </button>
-          </h5>
+    <ul class="nav nav-tabs mb-3" id="linkTabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="broken-links-tab" data-toggle="tab" href="#broken" role="tab" aria-controls="home" aria-selected="true">Broken Links
+          <span v-if="!loadingRedirectsOfBrokenLinks" class="badge badge-primary">{{ totalBrokenRedirects }}</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="shortened-links-tab" data-toggle="tab" href="#shortened" role="tab" aria-controls="profile" aria-selected="false">Shortened Links <span
+            v-if="!loadingRedirectsOfShortenedLinks"
+            class="badge badge-primary">{{ totalShortenedRedirects }}</span></a>
+      </li>
+    </ul>
+    <div class="tab-content" id="linkTabsContent">
+      <div class="tab-pane fade show active" id="broken" role="tabpanel" aria-labelledby="broken-links-tab">
+        <div>
+          <label for="selectedredir" class="sr-only">Search broken redirects</label>
+          <VueMultiselect
+              :options="brokenSearchResults"
+              :multiple="false"
+              :clear-on-select="true"
+              placeholder="Search broken redirects (type at least 3 characters)"
+              label="linkDescr"
+              track-by="id"
+              id="selectedredir"
+              class="form-control"
+              style="padding:0"
+              name="selectedredir"
+              @input="handleBrokenSearchInput"
+              @select="handleRedirectSelected"
+          >
+          </VueMultiselect>
         </div>
-        <div
-            id="collapseRedirectsOfBrokenLinks"
-            class="collapse show"
-            aria-labelledby="headingRedirectsOfBrokenLinks"
-            data-parent="#accordion">
-          <div class="card-body">
-            <div>
-              <label for="selectedredir" class="sr-only">Search broken redirects</label>
-              <VueMultiselect
-                  :options="brokenSearchResults"
-                  :multiple="false"
-                  :clear-on-select="true"
-                  placeholder="Search broken redirects (type at least 3 characters)"
-                  label="linkDescr"
-                  track-by="id"
-                  id="selectedredir"
-                  class="form-control"
-                  style="padding:0"
-                  name="selectedredir"
-                  @input="handleBrokenSearchInput"
-                  @select="handleRedirectSelected"
-              >
-              </VueMultiselect>
-            </div>
-            <div v-if="!loadingRedirectsOfBrokenLinks" class="table-responsive">
-              <table class="table table-hover table-sm">
-                <thead>
-                <tr>
-                  <th scope="col">Broken Links</th>
-                  <th scope="col">Actual Links</th>
-                  <th scope="col">Last Visit</th>
-                  <th scope="col">Visits</th>
-                  <th scope="col">Created</th>
-                  <th scope="col">Updated</th>
-                  <th scope="col">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="redirect in brokenLinks" :id="redirect.id" :key="`broken-${redirect.id}`">
-                  <td>
-                    <a
-                        :href="'https://www.emich.edu' + redirect.fromLink"
-                        target="_blank"
-                        title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
-                  </td>
-                  <td>
-                    <a
-                        :href="getFixedLink(redirect.toLink)"
-                        target="_blank"
-                        title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
-                  </td>
-                  <td>{{ formatDate(redirect.lastVisit) }}</td>
-                  <td>{{ redirect.visits }}</td>
-                  <td>{{ redirect.createdBy }}</td>
-                  <td>{{ redirect.contentChanged }}</td>
-                  <td>
-                    <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-            <div v-else>
-              <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
-            </div>
-            <external-paginator
-                v-show="!loadingRedirectsOfBrokenLinks"
-                :ext-curr-pg="brokenRedirectsCurrentPage"
-                :ext-items-per-pg="brokenRedirectsItemsPerPage"
-                :total-recs="totalBrokenRedirects"
-                :items="brokenLinks"
-                @itemsPerPageChanged="handleBrokenItemsPerPageChanged"
-                @pageChanged="handleBrokenItemsPageChanged"></external-paginator>
-          </div>
+        <div v-if="!loadingRedirectsOfBrokenLinks" class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+              <th scope="col">Broken Links</th>
+              <th scope="col">Actual Links</th>
+              <th scope="col">Last Visit</th>
+              <th scope="col">Visits</th>
+              <th scope="col">Created</th>
+              <th scope="col">Updated</th>
+              <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="redirect in brokenLinks" :id="redirect.id" :key="`broken-${redirect.id}`">
+              <td>
+                <a
+                    :href="'https://www.emich.edu' + redirect.fromLink"
+                    target="_blank"
+                    title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
+              </td>
+              <td>
+                <a
+                    :href="getFixedLink(redirect.toLink)"
+                    target="_blank"
+                    title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
+              </td>
+              <td>{{ formatDate(redirect.lastVisit) }}</td>
+              <td>{{ redirect.visits }}</td>
+              <td>{{ redirect.createdBy }}</td>
+              <td>{{ redirect.contentChanged }}</td>
+              <td>
+                <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-      <br>
-      <!-- Shortened Links Section -->
-      <div class="card">
-        <div class="card-header" id="headingRedirectsOfShortenedLinks">
-          <h5 class="mb-0">
-            <button
-                class="btn btn-link collapsed"
-                data-toggle="collapse"
-                data-target="#collapseRedirectsOfShortenedLinks"
-                aria-expanded="false"
-                aria-controls="collapseRedirectsOfShortenedLinks">
-              Redirects of Shortened Links
-              <span
-                  v-if="!loadingRedirectsOfShortenedLinks"
-                  class="badge badge-primary">{{ totalShortenedRedirects }}</span>
-              <span v-else><i class="fa fa-spinner"></i></span>
-            </button>
-          </h5>
+        <div v-else>
+          <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
         </div>
-        <div
-            id="collapseRedirectsOfShortenedLinks"
-            class="collapse"
-            aria-labelledby="headingRedirectsOfShortenedLinks"
-            data-parent="#accordion">
-          <div class="card-body">
-            <div>
-              <label for="selectedshort" class="sr-only">Search shortened redirects</label>
-              <VueMultiselect
-                  :options="shortenedSearchResults"
-                  :multiple="false"
-                  :clear-on-select="true"
-                  placeholder="Search shortened redirects (type at least 3 characters)"
-                  label="linkDescr"
-                  track-by="id"
-                  id="selectedshort"
-                  class="form-control"
-                  style="padding:0"
-                  name="selectedshort"
-                  @input="handleShortenedSearchInput"
-                  @select="handleRedirectSelected"
-              >
-              </VueMultiselect>
-            </div>
-            <div v-if="!loadingRedirectsOfShortenedLinks" class="table-responsive">
-              <table class="table table-hover table-sm">
-                <thead>
-                <tr>
-                  <th scope="col">Shortened/Vanity Links</th>
-                  <th scope="col">Full Links</th>
-                  <th scope="col">Last Visit</th>
-                  <th scope="col">Visits</th>
-                  <th scope="col">Created</th>
-                  <th scope="col">Updated</th>
-                  <th scope="col">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="redirect in shortenedLinks" :id="redirect.id" :key="`shortened-${redirect.id}`">
-                  <td>
-                    <a
-                        :href="'https://www.emich.edu' + redirect.fromLink"
-                        target="_blank"
-                        title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
-                  </td>
-                  <td>
-                    <a
-                        :href="getFixedLink(redirect.toLink)"
-                        target="_blank"
-                        title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
-                  </td>
-                  <td>{{ formatDate(redirect.lastVisit) }}</td>
-                  <td>{{ redirect.visits }}</td>
-                  <td>{{ redirect.createdBy }}</td>
-                  <td>{{ redirect.contentChanged }}</td>
-                  <td>
-                    <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-            <div v-else>
-              <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
-            </div>
-            <external-paginator
-                v-show="!loadingRedirectsOfShortenedLinks"
-                :items="shortenedLinks"
-                :ext-curr-pg="shortenedRedirectsCurrentPage"
-                :ext-items-per-pg="shortenedRedirectsItemsPerPage"
-                :total-recs="totalShortenedRedirects"
-                @itemsPerPageChanged="handleShortenedItemsPerPageChanged"
-                @pageChanged="handleShortenedItemsPageChanged"></external-paginator>
-          </div>
+        <external-paginator
+            v-show="!loadingRedirectsOfBrokenLinks"
+            :ext-curr-pg="brokenRedirectsCurrentPage"
+            :ext-items-per-pg="brokenRedirectsItemsPerPage"
+            :total-recs="totalBrokenRedirects"
+            :items="brokenLinks"
+            @itemsPerPageChanged="handleBrokenItemsPerPageChanged"
+            @pageChanged="handleBrokenItemsPageChanged"></external-paginator>
         </div>
+      <div class="tab-pane fade" id="shortened" role="tabpanel" aria-labelledby="shortened-links-tab">
+        <div>
+          <label for="selectedshort" class="sr-only">Search shortened redirects</label>
+          <VueMultiselect
+              :options="shortenedSearchResults"
+              :multiple="false"
+              :clear-on-select="true"
+              placeholder="Search shortened redirects (type at least 3 characters)"
+              label="linkDescr"
+              track-by="id"
+              id="selectedshort"
+              class="form-control"
+              style="padding:0"
+              name="selectedshort"
+              @input="handleShortenedSearchInput"
+              @select="handleRedirectSelected"
+          >
+          </VueMultiselect>
+        </div>
+        <div v-if="!loadingRedirectsOfShortenedLinks" class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+              <th scope="col">Shortened/Vanity Links</th>
+              <th scope="col">Full Links</th>
+              <th scope="col">Last Visit</th>
+              <th scope="col">Visits</th>
+              <th scope="col">Created</th>
+              <th scope="col">Updated</th>
+              <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="redirect in shortenedLinks" :id="redirect.id" :key="`shortened-${redirect.id}`">
+              <td>
+                <a
+                    :href="'https://www.emich.edu' + redirect.fromLink"
+                    target="_blank"
+                    title="Go to this Eastern Michigan University page.">{{ redirect.fromLink }}</a>
+              </td>
+              <td>
+                <a
+                    :href="getFixedLink(redirect.toLink)"
+                    target="_blank"
+                    title="Go to this Eastern Michigan University page.">{{ redirect.toLink }}</a>
+              </td>
+              <td>{{ formatDate(redirect.lastVisit) }}</td>
+              <td>{{ redirect.visits }}</td>
+              <td>{{ redirect.createdBy }}</td>
+              <td>{{ redirect.contentChanged }}</td>
+              <td>
+                <a v-if="userCanEdit" :href="'/redirects/' + redirect.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else>
+          <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
+        </div>
+        <external-paginator
+            v-show="!loadingRedirectsOfShortenedLinks"
+            :items="shortenedLinks"
+            :ext-curr-pg="shortenedRedirectsCurrentPage"
+            :ext-items-per-pg="shortenedRedirectsItemsPerPage"
+            :total-recs="totalShortenedRedirects"
+            @itemsPerPageChanged="handleShortenedItemsPerPageChanged"
+            @pageChanged="handleShortenedItemsPageChanged"></external-paginator>
       </div>
     </div>
   </div>
