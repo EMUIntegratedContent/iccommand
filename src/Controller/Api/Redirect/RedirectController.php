@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller\Api\Redirect;
 
 use App\Entity\Redirect\Redirect;
@@ -192,17 +193,21 @@ class RedirectController extends AbstractController
         $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
         $parsedToLink = parse_url($toLink);
 
-        if (array_key_exists("host", $parsedToLink)
+        if (
+            array_key_exists("host", $parsedToLink)
             && array_key_exists("path", $parsedToLink)
-            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
+            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))
+        ) {
             if ($parsedToLink["path"][0] != "/") {
                 $toLink = "/" . $parsedToLink["path"];
             } else {
                 $toLink = $parsedToLink["path"];
             }
-        } else if (!array_key_exists("host", $parsedToLink)
+        } else if (
+            !array_key_exists("host", $parsedToLink)
             && array_key_exists("path", $parsedToLink)
-            && $parsedToLink["path"][0] != "/") {
+            && $parsedToLink["path"][0] != "/"
+        ) {
             $toLink = "/" . $parsedToLink["path"];
         }
 
@@ -223,8 +228,10 @@ class RedirectController extends AbstractController
 
         /* Validation of toLink */
 
-        if ($redirect->getItemType() != "invalid redirect of broken link"
-            && $redirect->getItemType() != "invalid redirect of shortened link") {
+        if (
+            $redirect->getItemType() != "invalid redirect of broken link"
+            && $redirect->getItemType() != "invalid redirect of shortened link"
+        ) {
             // Check if the toLink is a valid URL if it is supposed to be a valid redirect.
             $fullToLink = $toLink[0] == "/" ? "https://www.emich.edu$toLink" : $toLink;
 
@@ -263,99 +270,107 @@ class RedirectController extends AbstractController
     #[Route('/', methods: ['PUT'])]
     public function putRedirectAction(Request $request): Response
     {
-        $redirect = $this->doctrine->getRepository(Redirect::class)->find($request->request->get("id"));
+        $data = json_decode($request->getContent(), true);
+        $id = $data["id"];
+        $fromLink = $data["fromLink"];
+        $toLink = $data["toLink"];
+        $itemType = $data["itemType"];
 
-        /* Formatting fromLink */
-        $fromLink = $request->request->get("fromLink");
-        $fromLink = preg_replace("/ /", "%20", $fromLink); // Replaces " " with "%20"
-        $fromLink = substr($fromLink, -1) == "/" ? substr($fromLink, 0, -1) : $fromLink; // Remove "/" if it is the last character.
-        $parsedFromLink = parse_url($fromLink);
+        $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(["id" => 17340]);
 
-        if (array_key_exists("host", $parsedFromLink) && preg_match("/emich\.edu/", $parsedFromLink["host"])) {
-            if ($parsedFromLink["path"][0] != "/") {
-                $fromLink = "/" . $parsedFromLink["path"];
-            } else {
-                $fromLink = $parsedFromLink["path"];
-            }
-        } else if (!array_key_exists("host", $parsedFromLink) && $parsedFromLink["path"][0] != "/") {
-            $fromLink = "/" . $parsedFromLink["path"];
-        }
+        return new Response(json_encode($redirect), 201, array("Content-Type" => "application/json"));
 
-        /* Formatting toLink */
+        // /* Formatting fromLink */
+        // $fromLink = $request->request->get("fromLink");
+        // $fromLink = preg_replace("/ /", "%20", $fromLink); // Replaces " " with "%20"
+        // $fromLink = substr($fromLink, -1) == "/" ? substr($fromLink, 0, -1) : $fromLink; // Remove "/" if it is the last character.
+        // $parsedFromLink = parse_url($fromLink);
 
-        $toLink = $request->request->get("toLink");
-        $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
-        $parsedToLink = parse_url($toLink);
+        // if (array_key_exists("host", $parsedFromLink) && preg_match("/emich\.edu/", $parsedFromLink["host"])) {
+        //     if ($parsedFromLink["path"][0] != "/") {
+        //         $fromLink = "/" . $parsedFromLink["path"];
+        //     } else {
+        //         $fromLink = $parsedFromLink["path"];
+        //     }
+        // } else if (!array_key_exists("host", $parsedFromLink) && $parsedFromLink["path"][0] != "/") {
+        //     $fromLink = "/" . $parsedFromLink["path"];
+        // }
 
-        if (array_key_exists("host", $parsedToLink)
-            && array_key_exists("path", $parsedToLink)
-            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
-            if ($parsedToLink["path"][0] != "/") {
-                $toLink = "/" . $parsedToLink["path"];
-            } else {
-                $toLink = $parsedToLink["path"];
-            }
-        } else if (!array_key_exists("host", $parsedToLink)
-            && array_key_exists("path", $parsedToLink)
-            && $parsedToLink["path"][0] != "/") {
-            $toLink = "/" . $parsedToLink["path"];
-        }
+        // /* Formatting toLink */
 
-        // Set the fields for all redirect objects.
-        $redirect->setFromLink($fromLink);
-        $redirect->setToLink($toLink);
-        $redirect->setItemType($request->request->get("itemType"));
+        // $toLink = $request->request->get("toLink");
+        // $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
+        // $parsedToLink = parse_url($toLink);
 
-        $errors = $this->service->validate($redirect); // Validate the redirect.
+        // if (array_key_exists("host", $parsedToLink)
+        //     && array_key_exists("path", $parsedToLink)
+        //     && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
+        //     if ($parsedToLink["path"][0] != "/") {
+        //         $toLink = "/" . $parsedToLink["path"];
+        //     } else {
+        //         $toLink = $parsedToLink["path"];
+        //     }
+        // } else if (!array_key_exists("host", $parsedToLink)
+        //     && array_key_exists("path", $parsedToLink)
+        //     && $parsedToLink["path"][0] != "/") {
+        //     $toLink = "/" . $parsedToLink["path"];
+        // }
 
-        if (count($errors) > 0) {
-            // Do the following if there is more than one error.
-            $serialized = $this->serializer->serialize($errors, "json", ['groups' => 'redir']);
+        // // Set the fields for all redirect objects.
+        // $redirect->setFromLink($fromLink);
+        // $redirect->setToLink($toLink);
+        // $redirect->setItemType($itemType);
 
-            return new Response($serialized, 422, array("Content-Type" => "application/json"));
-        }
+        // $errors = $this->service->validate($redirect); // Validate the redirect.
 
-        if ($redirect->getItemType() != "invalid redirect of broken link"
-            && $redirect->getItemType() != "invalid redirect of shortened link"
-            && $redirect->getItemType() != "expired redirect of broken link"
-            && $redirect->getItemType() != "expired redirect of shortened link") {
-            // Check if the toLink is a valid URL if it is supposed to be a valid redirect.
-            $fullToLink = $toLink[0] == "/" ? "https://www.emich.edu$toLink" : $toLink;
+        // if (count($errors) > 0) {
+        //     // Do the following if there is more than one error.
+        //     $serialized = $this->serializer->serialize($errors, "json", ['groups' => 'redir']);
 
-            if (get_headers($fullToLink, 1)[0] == "HTTP/1.1 404 Not Found") {
-                $message = $redirect->getItemType() == "redirect of broken link"
-                    ? "The actual link is not valid." : "The full link is not valid.";
-                $serialized = $this->serializer->serialize($message, "json", ['groups' => 'redir']);
+        //     return new Response($serialized, 422, array("Content-Type" => "application/json"));
+        // }
 
-                return new Response($serialized, 422, array("Content-Type" => "application/json"));
-            }
+        // if ($redirect->getItemType() != "invalid redirect of broken link"
+        //     && $redirect->getItemType() != "invalid redirect of shortened link"
+        //     && $redirect->getItemType() != "expired redirect of broken link"
+        //     && $redirect->getItemType() != "expired redirect of shortened link") {
+        //     // Check if the toLink is a valid URL if it is supposed to be a valid redirect.
+        //     $fullToLink = $toLink[0] == "/" ? "https://www.emich.edu$toLink" : $toLink;
 
-            // Check if the toLink has any spaces.
-            if ($toLink != trim($toLink)) {
-                $message = $redirect->getItemType() == "redirect of broken link"
-                    ? "The actual link should not include any spaces." : "The full link should not include any spaces.";
+        //     if (get_headers($fullToLink, 1)[0] == "HTTP/1.1 404 Not Found") {
+        //         $message = $redirect->getItemType() == "redirect of broken link"
+        //             ? "The actual link is not valid." : "The full link is not valid.";
+        //         $serialized = $this->serializer->serialize($message, "json", ['groups' => 'redir']);
 
-                return new Response($message, 422, array("Content-Type" => "application/json"));
-            }
-        } else if ($redirect->getItemType() == "invalid redirect of broken link"
-            || $redirect->getItemType() == "invalid redirect of shortened link") {
+        //         return new Response($serialized, 422, array("Content-Type" => "application/json"));
+        //     }
 
-            /* Validation of toLink */
+        //     // Check if the toLink has any spaces.
+        //     if ($toLink != trim($toLink)) {
+        //         $message = $redirect->getItemType() == "redirect of broken link"
+        //             ? "The actual link should not include any spaces." : "The full link should not include any spaces.";
 
-            $fullToLink = $redirect->getToLink()[0] == "/"
-                ? "https://www.emich.edu" . $redirect->getToLink() : $redirect->getToLink();
+        //         return new Response($message, 422, array("Content-Type" => "application/json"));
+        //     }
+        // } else if ($redirect->getItemType() == "invalid redirect of broken link"
+        //     || $redirect->getItemType() == "invalid redirect of shortened link") {
 
-            if (get_headers($fullToLink, 1)[0] != "HTTP/1.1 404 Not Found") {
-                $redirect->setItemType(preg_replace("/invalid /", "", $redirect->getItemType())); // Some broken redirects may be fixed.
-            }
-        }
+        //     /* Validation of toLink */
 
-        $this->em->persist($redirect); // Persist the redirect.
-        $this->em->flush(); // Commit everything to the database.
+        //     $fullToLink = $redirect->getToLink()[0] == "/"
+        //         ? "https://www.emich.edu" . $redirect->getToLink() : $redirect->getToLink();
 
-        $serialized = $this->serializer->serialize($redirect, "json", ['groups' => 'redir']);
+        //     if (get_headers($fullToLink, 1)[0] != "HTTP/1.1 404 Not Found") {
+        //         $redirect->setItemType(preg_replace("/invalid /", "", $redirect->getItemType())); // Some broken redirects may be fixed.
+        //     }
+        // }
 
-        return new Response($serialized, 201, array("Content-Type" => "application/json"));
+        // $this->em->persist($redirect); // Persist the redirect.
+        // $this->em->flush(); // Commit everything to the database.
+
+        // $serialized = $this->serializer->serialize($redirect, "json", ['groups' => 'redir']);
+
+        // return new Response($serialized, 201, array("Content-Type" => "application/json"));
     }
 
     /**
@@ -368,10 +383,12 @@ class RedirectController extends AbstractController
 
         for ($i = 0; $i < count($redirects); $i++) {
             // Check to see if the toLink is a valid URL if it is supposed to be a valid redirect.
-            if ($redirects[$i]->getItemType() != "invalid redirect of broken link"
+            if (
+                $redirects[$i]->getItemType() != "invalid redirect of broken link"
                 && $redirects[$i]->getItemType() != "invalid redirect of shortened link"
                 && $redirects[$i]->getItemType() != "expired redirect of broken link"
-                && $redirects[$i]->getItemType() != "expired redirect of shortened link") {
+                && $redirects[$i]->getItemType() != "expired redirect of shortened link"
+            ) {
 
                 /* Formatting toLink for Later Use */
 
@@ -379,17 +396,21 @@ class RedirectController extends AbstractController
                 $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
                 $parsedToLink = parse_url($toLink);
 
-                if (array_key_exists("host", $parsedToLink)
+                if (
+                    array_key_exists("host", $parsedToLink)
                     && array_key_exists("path", $parsedToLink)
-                    && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
+                    && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))
+                ) {
                     if ($parsedToLink["path"][0] != "/") {
                         $toLink = "/" . $parsedToLink["path"];
                     } else {
                         $toLink = $parsedToLink["path"];
                     }
-                } else if (!array_key_exists("host", $parsedToLink)
+                } else if (
+                    !array_key_exists("host", $parsedToLink)
                     && array_key_exists("path", $parsedToLink)
-                    && $parsedToLink["path"][0] != "/") {
+                    && $parsedToLink["path"][0] != "/"
+                ) {
                     $toLink = "/" . $parsedToLink["path"];
                 }
 
@@ -403,8 +424,10 @@ class RedirectController extends AbstractController
                 if (get_headers($fullToLink, 1)[0] == "HTTP/1.1 404 Not Found") {
                     $redirects[$i]->setItemType("invalid " . $redirects[$i]->getItemType()); // Some redirects may be broken later on.
                 }
-            } else if ($redirects[$i]->getItemType() == "invalid redirect of broken link"
-                || $redirects[$i]->getItemType() == "invalid redirect of shortened link") {
+            } else if (
+                $redirects[$i]->getItemType() == "invalid redirect of broken link"
+                || $redirects[$i]->getItemType() == "invalid redirect of shortened link"
+            ) {
                 $fullToLink = $redirects[$i]->getToLink()[0] == "/"
                     ? "https://www.emich.edu" . $redirects[$i]->getToLink() : $redirects[$i]->getToLink();
 
@@ -436,7 +459,7 @@ class RedirectController extends AbstractController
         $headers = array_shift($csvFile);
 
         $csv    = array();
-        foreach($csvFile as $row) {
+        foreach ($csvFile as $row) {
             $csv[] = array_combine($headers, $row);
         }
 
@@ -445,10 +468,10 @@ class RedirectController extends AbstractController
 
         $rejectedArr = [];
 
-        if(count($csv) > 0){
-            foreach($csv as $redirect){
+        if (count($csv) > 0) {
+            foreach ($csv as $redirect) {
                 $newRedirect = $this->_addRedirect($redirect);
-                switch($newRedirect->getStatusCode()){
+                switch ($newRedirect->getStatusCode()) {
                     case 201:
                         ++$added;
                         break;
@@ -495,17 +518,21 @@ class RedirectController extends AbstractController
         $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
         $parsedToLink = parse_url($toLink);
 
-        if (array_key_exists("host", $parsedToLink)
+        if (
+            array_key_exists("host", $parsedToLink)
             && array_key_exists("path", $parsedToLink)
-            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
+            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))
+        ) {
             if ($parsedToLink["path"][0] != "/") {
                 $toLink = "/" . $parsedToLink["path"];
             } else {
                 $toLink = $parsedToLink["path"];
             }
-        } else if (!array_key_exists("host", $parsedToLink)
+        } else if (
+            !array_key_exists("host", $parsedToLink)
             && array_key_exists("path", $parsedToLink)
-            && $parsedToLink["path"][0] != "/") {
+            && $parsedToLink["path"][0] != "/"
+        ) {
             $toLink = "/" . $parsedToLink["path"];
         }
 
@@ -526,8 +553,10 @@ class RedirectController extends AbstractController
 
         /* Validation of toLink */
 
-        if ($redirect->getItemType() != "invalid redirect of broken link"
-            && $redirect->getItemType() != "invalid redirect of shortened link") {
+        if (
+            $redirect->getItemType() != "invalid redirect of broken link"
+            && $redirect->getItemType() != "invalid redirect of shortened link"
+        ) {
             // Check if the toLink is a valid URL if it is supposed to be a valid redirect.
             $fullToLink = $toLink[0] == "/" ? "https://www.emich.edu$toLink" : $toLink;
 
@@ -558,5 +587,3 @@ class RedirectController extends AbstractController
         return new Response($serialized, 201, array("Content-Type" => "application/json"));
     }
 }
-
-?>
