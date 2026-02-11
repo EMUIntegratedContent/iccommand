@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapItemRepository")]
+#[ORM\Table(name: 'map_item')]
 #[UniqueEntity(fields: ["alias"], message: "Another map item already uses this alias")]
 #[ORM\InheritanceType("JOINED")]
 #[ORM\DiscriminatorColumn(name: "discr", type: "string")]

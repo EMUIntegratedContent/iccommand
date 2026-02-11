@@ -21,7 +21,7 @@ class MapItemControllerTest extends WebTestCase
     public function testIndex()
     {
         $this->logIn();
-        $crawler = $this->client->request('GET', '/map/items');
+        $crawler = $this->client->request('GET', '/map');
 
         $this->assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         $this->assertCount(1, $crawler->filter('map-index')); // make sure Vue component is on the page

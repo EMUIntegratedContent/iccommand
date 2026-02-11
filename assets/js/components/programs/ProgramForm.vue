@@ -913,7 +913,7 @@ export default {
 			setTimeout(function () {
 				// This record doesn't exist anymore, so send the user back to the
 				// programs list page.
-				window.location.replace("/programs/list")
+				window.location.replace("/programs")
 			}, 3000)
 		},
 

@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapEmergencyTypeRepository")]
+#[ORM\Table(name: 'map_emergency_type')]
 #[UniqueEntity(fields: ["name"], message: "There is already an emergency device type with this name.", errorPath: "name")]
 class MapEmergencyType
 {

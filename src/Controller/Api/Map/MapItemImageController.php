@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller\Api\Map;
 
 use App\Service\UserService;
@@ -12,6 +13,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Map\MapitemImage;
 use App\Entity\Map\MapItem;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class MapItemImageController extends AbstractController
@@ -32,7 +34,7 @@ class MapItemImageController extends AbstractController
 	/**
 	 * Process new image uploads
 	 */
-	#[Rest\Post(path: "/uploads")]
+	#[Route('/uploads', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_UPLOAD")'))]
 	public function postMapitemimageUploadAction(Request $request): Response
 	{
@@ -57,11 +59,12 @@ class MapItemImageController extends AbstractController
 	/**
 	 * Reorder the images for a map item
 	 */
-	#[Rest\Put(path: "/reorder")]
+	#[Route('/reorder', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_EDIT")'))]
 	public function putMapitemimageReorderAction(Request $request): Response
 	{
-		$idArray = $request->get('imageIds');
+		$data = json_decode($request->getContent(), true);
+		$idArray = $data['imageIds'] ?? [];
 
 		for ($i = 0; $i < count($idArray); $i++) {
 			$image = $this->doctrine->getRepository(MapitemImage::class)->find($idArray[$i]); // find the matching image
@@ -81,11 +84,14 @@ class MapItemImageController extends AbstractController
 	/**
 	 * Rename a single image for a map item
 	 */
-	#[Rest\Put(path: "/rename")]
+	#[Route('/rename', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_EDIT")'))]
 	public function putMapitemimageRenameAction(Request $request): Response
 	{
-		$imageArr = $request->get('image');
+		// Decode JSON body directly — $request->get() was removed in Symfony 8,
+		// and $request->request->get() rejects non-scalar values like the image object.
+		$data = json_decode($request->getContent(), true);
+		$imageArr = $data['image'];
 
 		$image = $this->doctrine->getRepository(MapitemImage::class)->find($imageArr['id']); // find the matching image
 
@@ -105,7 +111,7 @@ class MapItemImageController extends AbstractController
 	/**
 	 * Delete a single image for a map item
 	 */
-	#[Rest\Delete(path: "/{id}")]
+	#[Route('/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_DELETE")'))]
 	public function deleteMapitemimageAction($id): Response
 	{

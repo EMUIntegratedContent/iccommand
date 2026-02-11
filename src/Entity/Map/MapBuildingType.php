@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapBuildingTypeRepository")]
+#[ORM\Table(name: 'map_building_type')]
 #[UniqueEntity(fields: ["name"], message: "There is already a building type with this name.", errorPath: "name")]
 class MapBuildingType
 {

@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapBathroomRepository")]
+#[ORM\Table(name: 'map_bathroom')]
 class MapBathroom extends MapItem
 {
 	const ITEM_TYPE = 'bathroom';

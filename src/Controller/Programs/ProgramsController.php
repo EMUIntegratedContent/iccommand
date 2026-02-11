@@ -40,16 +40,6 @@ class ProgramsController extends AbstractController {
   }
 
   /**
-   * The list page of the programs.
-   */
-	#[Route('/programs/list', name: 'programs_list')]
-  public function list(): Response
-  {
-    $permissions = json_encode($this->service->getProgramsPermissions());
-    return $this->render('programs/list.html.twig', ['permissions' => $permissions]);
-  }
-
-  /**
    * The create page of the program.
    */
 	#[Route('/programs/create', name: 'programs_create')]

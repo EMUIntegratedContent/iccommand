@@ -74,7 +74,6 @@ app.component("map-item-form", require("./components/map/MapItemForm.vue").defau
 app.component("new-map-item", require("./components/map/NewMapItem.vue").default);
 
 /* Redirects Application */
-app.component("redirect-index", require("./components/redirect/RedirectIndex.vue").default);
 app.component("new-redirect-item", require("./components/redirect/NewRedirectItem.vue").default);
 app.component("redirect-item-form", require("./components/redirect/RedirectItemForm.vue").default);
 app.component("redirect-list", require("./components/redirect/RedirectList.vue").default);
@@ -85,7 +84,6 @@ app.component("department-list", require("./components/directory/DepartmentList.
 app.component("department-delete-modal", require("./components/directory/DepartmentDeleteModal.vue").default);
 
 /* Catalog Programs */
-app.component("programs-index", require("./components/programs/ProgramsIndex.vue").default);
 app.component("programs-list", require("./components/programs/ProgramsList.vue").default);
 app.component("program-form", require("./components/programs/ProgramForm.vue").default);
 app.component("websites-list", require("./components/programs/WebsitesList.vue").default);

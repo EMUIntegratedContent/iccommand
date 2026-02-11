@@ -50,6 +50,7 @@ class UserImageController extends AbstractController{
   /**
    * Delete a user's profile image
 	 */
+	#[Route('/{id}', methods: ['DELETE'])]
 	#[IsGranted('ROLE_USER')]
   public function deleteUserimageAction($id) : Response
   {

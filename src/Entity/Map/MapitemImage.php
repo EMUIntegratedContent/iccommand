@@ -7,6 +7,7 @@ use App\Entity\Image;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapitemImageRepository")]
+#[ORM\Table(name: 'mapitem_image')]
 class MapitemImage extends Image
 {
 		#[ORM\Column(type: "integer")]

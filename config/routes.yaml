@@ -6,10 +6,6 @@ admin_users:
   resource: App\Controller\Api\Admin\UserController
   prefix: /api/admin/
 
-calendar:
-  resource: App\Controller\Api\CalendarController
-  prefix: /api/calendar/
-
 emails_api:
   resource: App\Controller\Api\EmailController
   prefix: /api/

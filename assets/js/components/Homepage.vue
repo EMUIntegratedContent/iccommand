@@ -56,7 +56,7 @@ export default {
 					description:
 						"The campus map application contains all points of interest at EMU. These items are displayed at <a href=\"https://www.emich.edu/maps\" target=\"_blank\">emich.edu/maps</a>.",
 					buttonText: "Open Application",
-					buttonLink: "/map/items",
+					buttonLink: "/map",
 					display: false,
           category: 'Map & Directory'
 				},

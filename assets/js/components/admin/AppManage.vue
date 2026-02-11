@@ -383,8 +383,8 @@ export default {
       let self = this
       this.originalUserRoles.forEach(function (item) {
         if (item.userId == userId) {
-          self.users[index].roles = JSON.parse(item.originalRoles) // restore original roles
-          self.modifiedCards.splice(self.modifiedCards[index], 1) // unmark card as being modified (need VALUE of index, not the index itself)
+          self.paginatedUsers[index].roles = JSON.parse(item.originalRoles) // restore original roles
+          self.modifiedCards.splice(self.modifiedCards.indexOf(index), 1) // unmark card as being modified
         }
       })
     },

@@ -65,9 +65,7 @@ class EmergencyController extends AbstractController
   public function updateBannerAction(Request $request): Response
   {
     try {
-      $data = json_decode($request->getContent(), true);
-
-      $result = $this->service->updateBanner($data);
+      $result = $this->service->updateBanner($request->request->all());
 
       if ($result['success']) {
         $serialized = $this->serializer->serialize($result['banner'], "json", ['groups' => 'banner']);

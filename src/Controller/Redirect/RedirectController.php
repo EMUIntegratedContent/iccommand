@@ -80,16 +80,6 @@ class RedirectController extends AbstractController {
   }
 
   /**
-   * The list page of the redirects.
-   */
-	#[Route('/redirects/list', name: 'redirects_list')]
-  public function list(): Response
-  {
-    $permissions = json_encode($this->service->getUserRedirectPermissions());
-    return $this->render('redirect/list.html.twig', ['permissions' => $permissions]);
-  }
-
-  /**
    * The show page of the redirects.
    */
 	#[Route('/redirects/{id}', name: 'redirects_show')]

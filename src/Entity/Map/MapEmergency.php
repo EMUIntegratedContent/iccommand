@@ -8,6 +8,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapEmergencyRepository")]
+#[ORM\Table(name: 'map_emergency')]
 class MapEmergency extends MapItem
 {
 	const ITEM_TYPE = 'emergency device';

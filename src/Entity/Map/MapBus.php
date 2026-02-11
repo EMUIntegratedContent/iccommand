@@ -9,6 +9,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapBusRepository")]
+#[ORM\Table(name: 'map_bus')]
 class MapBus extends MapItem
 {
   const ITEM_TYPE = 'bus';

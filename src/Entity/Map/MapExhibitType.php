@@ -7,6 +7,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapExhibitTypeRepository")]
+#[ORM\Table(name: 'map_exhibit_type')]
 class MapExhibitType
 {
 	#[ORM\Id]

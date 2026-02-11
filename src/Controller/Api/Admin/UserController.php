@@ -37,17 +37,15 @@ class UserController extends AbstractController
 	#[IsGranted('ROLE_GLOBAL_ADMIN')]
 	public function getUsersAction(): Response
 	{
-		$userRepo = $this->em->getRepository(User::class);
-		$users = $userRepo->findBy([], ['enabled' => 'DESC', 'username' => 'ASC']);
-		$view = $this->view($users, 200);
-
-		return $this->handleView($view);
+		$users = $this->doctrine->getRepository(User::class)->findBy([], ['enabled' => 'DESC', 'username' => 'ASC']);
+		$serialized = $this->serializer->serialize($users, 'json');
+		return new Response($serialized, 200, ['Content-Type' => 'application/json']);
 	}
 
 	/**
 	 * Return an individual user (by username)
 	 */
-	#[Rest\Get(path: "/users/{username}")]
+	#[Route('/users/{username}', methods: ['GET'])]
 	#[IsGranted('ROLE_USER')]
 	public function getUserAction($username): Response
 	{
@@ -60,7 +58,7 @@ class UserController extends AbstractController
 	/**
 	 * Return all defined roles
 	 */
-	#[Rest\Get(path: "/roles")]
+	#[Route('/roles', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
 	public function getRolesAction(): Response
 	{
@@ -73,7 +71,7 @@ class UserController extends AbstractController
 	/**
 	 * Update a user's information and roles
 	 */
-	#[Rest\Put(path: "/users/{username}")]
+	#[Route('/users/{username}', methods: ['PUT'])]
 	#[IsGranted('ROLE_USER')]
 	public function putUserAction(Request $request, string $username): Response
 	{
@@ -83,13 +81,17 @@ class UserController extends AbstractController
 			throw $this->createNotFoundException('The user ' . $username . ' was not found.');
 		}
 
-		$user->setFirstName($request->request->get('firstName'));
-		$user->setLastName($request->request->get('lastName'));
-		$user->setJobTitle($request->request->get('jobTitle'));
-		$user->setDepartment($request->request->get('department'));
-		$user->setPhone($request->request->get('phone'));
-		$user->setRoles($request->get('roles'));
-		$user->setEnabled($request->request->get('enabled'));
+		// Decode JSON body directly — $request->get() was removed in Symfony 8,
+		// and $request->request->get() rejects non-scalar values like the roles array.
+		$data = json_decode($request->getContent(), true);
+
+		$user->setFirstName($data['firstName']);
+		$user->setLastName($data['lastName']);
+		$user->setJobTitle($data['jobTitle']);
+		$user->setDepartment($data['department']);
+		$user->setPhone($data['phone']);
+		$user->setRoles($data['roles']);
+		$user->setEnabled($data['enabled']);
 		$this->em->persist($user);
 		$this->em->flush();
 
@@ -99,7 +101,7 @@ class UserController extends AbstractController
 	/**
 	 * Return all users of an application
 	 */
-	#[Rest\Get(path: "/appusers/{rolePrefix}")]
+	#[Route('/appusers/{rolePrefix}', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
 	public function getAppusersAction(string $rolePrefix): Response
 	{
@@ -112,7 +114,7 @@ class UserController extends AbstractController
 	/**
 	 * Return all users that are NOT part of an application
 	 */
-	#[Rest\Get(path: "/appusers/not/{rolePrefix}")]
+	#[Route('/appusers/not/{rolePrefix}', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN")'))]
 	public function getAppusersNotAction(string $rolePrefix): Response
 	{

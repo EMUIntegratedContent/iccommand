@@ -1,6 +1,7 @@
 <?php
 namespace App\Entity\Redirect;
 
+use App\Repository\Redirect\UncaughtRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -10,7 +11,8 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
  * An uncaught link is a broken link that a large number of users have visited
  * and is recommended to be part of a redirect.
  */
-#[ORM\Entity(repositoryClass: "App\Repository\Redirect\UncaughtRepository")]
+#[ORM\Entity(repositoryClass: UncaughtRepository::class)]
+#[ORM\Table(name: 'uncaught')]
 #[UniqueEntity("link")]
 class Uncaught {
 	/* *************************** Member Variables *************************** */

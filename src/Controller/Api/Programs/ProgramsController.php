@@ -248,11 +248,10 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
 	public function postProgramAction(Request $request): Response
 	{
-		$data = json_decode($request->getContent(), true);
-		$catalog = strtolower($data["catalog"]);
-		$progFullName = $data["full_name"];
-		$progName = $data["program"];
-		$url = isset($data["url"]) ? strtolower($data["url"]) : null;
+		$catalog = strtolower($request->request->get("catalog"));
+		$progFullName = $request->request->get("full_name");
+		$progName = $request->request->get("program");
+		$url = $request->request->get("url") ? strtolower($request->request->get("url")) : null;
 
 		$program = new Programs();
 		// Get the max id and increment by 1
@@ -260,10 +259,10 @@ class ProgramsController extends AbstractController
 		$program->setProgram($progName);
 		$program->setFullName($progFullName);
 		$program->setCatalog($catalog);
-		$program->setDepartmentId($data["department_id"]);
-		$program->setDegreeId($data["degree_id"]);
-		$program->setTypeId($data["type_id"]);
-		$program->setCollegeId($data["college_id"]);
+		$program->setDepartmentId($request->request->get("department_id"));
+		$program->setDegreeId($request->request->get("degree_id"));
+		$program->setTypeId($request->request->get("type_id"));
+		$program->setCollegeId($request->request->get("college_id"));
 		$program->setSlug($this->service->makeProgramSlug($progName));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
 
@@ -282,14 +281,14 @@ class ProgramsController extends AbstractController
 		// Update delivery modes using service method
 		try {
 			// handle delivery ids (may be array, CSV string, or single value)
-			$deliveryIds = $data["delivery_ids"];
+			$deliveryIds = $request->request->all("delivery_ids");
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
 			return new Response($e->getMessage(), 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update keywords
-		$keywordIds = $data["keyword_ids"];
+		$keywordIds = $request->request->all("keyword_ids");
 		try {
 			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
 		} catch (\Exception $e) {
@@ -313,10 +312,9 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
 	public function putWebsiteAction(Request $request): Response
 	{
-		$data = json_decode($request->getContent(), true);
-		$id = $data["id"];
-		$progName = $data["program"];
-		$url = strtolower($data["url"]);
+		$id = $request->request->get("id");
+		$progName = $request->request->get("program");
+		$url = strtolower($request->request->get("url"));
 
 		// Make sure there isn't already a website with the same program name.
 		$existing = $this->service->getWebsiteByProg($progName);
@@ -346,12 +344,11 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
 	public function putProgramAction(Request $request): Response
 	{
-		$data = json_decode($request->getContent(), true);
-		$id = $data["id"];
-		$progFullName = $data["full_name"];
-		$progName = $data["program"];
-		$catalog = strtolower($data["catalog"]);
-		$url = strtolower($data["url"]);
+		$id = $request->request->get("id");
+		$progFullName = $request->request->get("full_name");
+		$progName = $request->request->get("program");
+		$catalog = strtolower($request->request->get("catalog"));
+		$url = strtolower($request->request->get("url"));
 
 		$program = $this->service->getProgramEntity($id);
 		$progOrig = clone $program;
@@ -359,10 +356,10 @@ class ProgramsController extends AbstractController
 		$program->setProgram($progName);
 		$program->setCatalog($catalog);
 		$program->setFullName($progFullName);
-		$program->setDepartmentId($data["department_id"]);
-		$program->setDegreeId($data["degree_id"]);
-		$program->setTypeId($data["type_id"]);
-		$program->setCollegeId($data["college_id"]);
+		$program->setDepartmentId($request->request->get("department_id"));
+		$program->setDegreeId($request->request->get("degree_id"));
+		$program->setTypeId($request->request->get("type_id"));
+		$program->setCollegeId($request->request->get("college_id"));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
 
 		$errors = $this->service->validate($program); // Validate the program.
@@ -378,7 +375,7 @@ class ProgramsController extends AbstractController
 		$this->em->flush(); // Commit everything to the database.
 
 		// handle delivery ids (may be array, CSV string, or single value)
-		$deliveryIds = $data["delivery_ids"];
+		$deliveryIds = $request->request->all("delivery_ids");
 
 		// Update delivery modes using service method
 		try {
@@ -388,7 +385,7 @@ class ProgramsController extends AbstractController
 		}
 
 		// Update keywords
-		$keywordIds = $data["keyword_ids"];
+		$keywordIds = $request->request->all("keyword_ids");
 		try {
 			$this->service->updateProgramKeywords($program->getId(), $keywordIds);
 		} catch (\Exception $e) {
@@ -446,8 +443,7 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
 	public function postKeywordAction(Request $request): Response
 	{
-		$data = json_decode($request->getContent(), true);
-		$keywordName = $data["keyword"];
+		$keywordName = $request->request->get("keyword");
 
 		if (empty($keywordName)) {
 			return new Response("Keyword name is required.", 422, array("Content-Type" => "application/json"));
@@ -504,8 +500,7 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
 	public function linkProgramToKeywordAction($id, Request $request): Response
 	{
-		$data = json_decode($request->getContent(), true);
-		$programId = $data["program_id"];
+		$programId = $request->request->get("program_id");
 
 		$programKeyword = $this->service->getProgramKeywordEntity($id);
 		if (!$programKeyword) {

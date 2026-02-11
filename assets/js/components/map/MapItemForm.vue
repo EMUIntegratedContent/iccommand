@@ -1769,7 +1769,7 @@ export default {
       this.isDeleted = true
       setTimeout(function () {
         // This record doesn't exist anymore, so send the user back to the map items list page
-        window.location.replace('/map/items')
+        window.location.replace('/map')
       }, 3000)
     },
     markItemDeleteError: function () {

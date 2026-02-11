@@ -7,6 +7,7 @@ use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Service\MapItemService;
+use Symfony\Component\HttpFoundation\Response;
 
 class MapController extends AbstractController
 {
@@ -17,9 +18,10 @@ class MapController extends AbstractController
 	}
 
 	#[Route('/map', name: 'map_index')]
-	public function index()
+	public function index(): Response
 	{
-		return $this->render('map/index.html.twig', []);
+		$permissions = json_encode($this->service->getUserMapPermissions());
+		return $this->render('map/index.html.twig', ['permissions' => $permissions]);
 	}
 
 	#[Route('/map/manage', name: 'map_manage')]

@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: "App\Repository\PhotoRequest\PhotoRequestRepository")]
+#[ORM\Table(name: 'photo_request')]
 class PhotoRequest
 {
   #[ORM\Id]

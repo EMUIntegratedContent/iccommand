@@ -530,7 +530,7 @@ export default {
 			setTimeout(function () {
 				// This record doesn't exist anymore, so send the user back to the
 				// redirect items list page.
-				window.location.replace("/redirects/list")
+				window.location.replace("/redirects")
 			}, 3000)
 		},
 

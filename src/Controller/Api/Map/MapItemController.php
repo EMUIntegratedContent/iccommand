@@ -43,7 +43,7 @@ class MapItemController extends AbstractController
 	/**
 	 * EXTERNAL API ENDPOINT. Get all map items
 	 */
-	#[Rest\Get(path: "external/mapitems")]
+	#[Route('/external/mapitems', methods: ['GET'])]
 	public function getExternalMapitemsAction(): Response
 	{
 		$mapItems = $this->doctrine->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
@@ -68,7 +68,7 @@ class MapItemController extends AbstractController
 	/**
 	 * Get a single map item
 	 */
-	#[Rest\Get(path: "mapitems/{id}")]
+	#[Route('/mapitems/{id}', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapitemAction($id): Response
 	{
@@ -99,7 +99,7 @@ class MapItemController extends AbstractController
 	/**
 	 * Get building types
 	 */
-	#[Rest\Get(path: "mapbuildingtypes/")]
+	#[Route('/mapbuildingtypes', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapbuildingtypesAction(): Response
 	{
@@ -113,7 +113,7 @@ class MapItemController extends AbstractController
 	/**
 	 * Get emergency types
 	 */
-	#[Rest\Get(path: "mapemergencytypes/")]
+	#[Route('/mapemergencytypes', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapemergencytypesAction(): Response
 	{
@@ -126,7 +126,7 @@ class MapItemController extends AbstractController
 	/**
 	 * Get exhibit types
 	 */
-	#[Rest\Get(path: "mapexhibittypes/")]
+	#[Route('/mapexhibittypes', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapexhibittypesAction(): Response
 	{
@@ -139,7 +139,7 @@ class MapItemController extends AbstractController
 	/**
 	 * Get parking types
 	 */
-	#[Rest\Get(path: "mapparkingtypes/")]
+	#[Route('/mapparkingtypes', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapparkingtypesAction(): Response
 	{
@@ -152,7 +152,7 @@ class MapItemController extends AbstractController
 	/**
 	 * Get service types
 	 */
-	#[Rest\Get(path: "mapservicetypes/")]
+	#[Route('/mapservicetypes', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_VIEW")'))]
 	public function getMapservicetypesAction(): Response
 	{
@@ -165,26 +165,29 @@ class MapItemController extends AbstractController
 	/**
 	 * Save a map item to the database
 	 */
-	#[Rest\Post(path: "mapitems")]
+	#[Route('/mapitems', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_CREATE")'))]
 	public function postMapitemAction(Request $request): Response
 	{
-		$itemType = $request->request->get('itemType');
+		// Decode JSON body directly — $request->get() was removed in Symfony 8,
+		// and $request->request->get() rejects non-scalar values like arrays and objects.
+		$data = json_decode($request->getContent(), true);
+		$itemType = $data['itemType'];
 
 		$em = $this->doctrine->getManager();
 
 		switch ($itemType) {
 			case "bathroom":
 				$mapItem = new MapBathroom();
-				$mapItem->setIsGenderNeutral($request->request->get('isGenderNeutral'));
+				$mapItem->setIsGenderNeutral($data['isGenderNeutral']);
 				break;
 			case "building":
 				$mapItem = new MapBuilding();
-				$mapItem->setHours($request->request->get('hours'));
-				$mapItem->setAddress($request->request->get('address'));
+				$mapItem->setHours($data['hours']);
+				$mapItem->setAddress($data['address']);
 
 				// Building Type
-				$buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($request->get('buildingType')['id']);
+				$buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($data['buildingType']['id']);
 				if ($buildingType) {
 					$mapItem->setBuildingType($buildingType);
 				}
@@ -200,9 +203,9 @@ class MapItemController extends AbstractController
 				break;
 			case "parking":
 				$mapItem = new MapParking();
-				$mapItem->setSpaces($request->request->get('spaces'));
-				$mapItem->setHours($request->request->get('hours'));
-				$mapItem->setHasHandicapSpaces($request->request->get('hasHandicapSpaces'));
+				$mapItem->setSpaces($data['spaces']);
+				$mapItem->setHours($data['hours']);
+				$mapItem->setHasHandicapSpaces($data['hasHandicapSpaces']);
 				break;
 			case "service":
 				$mapItem = new MapService();
@@ -212,15 +215,15 @@ class MapItemController extends AbstractController
 		}
 
 		// set common fields for all mapItem objects
-		$mapItem->setName($request->request->get('name'));
-		$mapItem->setDescription($request->request->get('description'));
-		$mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
-		$mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
-		$mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
-		$mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
-		$mapItem->setAdmissionsTour($request->request->get('admissionsTour'));
-		if ($request->request->get('alias') != '') {
-			$mapItem->setAlias($request->request->get('alias'));
+		$mapItem->setName($data['name']);
+		$mapItem->setDescription($data['description']);
+		$mapItem->setLatitudeIllustration($data['latitudeIllustration']);
+		$mapItem->setLongitudeIllustration($data['longitudeIllustration']);
+		$mapItem->setLatitudeSatellite($data['latitudeSatellite']);
+		$mapItem->setLongitudeStaellite($data['longitudeSatellite']);
+		$mapItem->setAdmissionsTour($data['admissionsTour']);
+		if ($data['alias'] != '') {
+			$mapItem->setAlias($data['alias']);
 		}
 
 		// validate map item
@@ -236,7 +239,7 @@ class MapItemController extends AbstractController
 		switch ($itemType) {
 			case "building":
 				// Building Bathrooms
-				foreach ($request->get('bathrooms') as $bldgBathroom) {
+				foreach ($data['bathrooms'] as $bldgBathroom) {
 					$bathroom = new MapBathroom();
 					$bathroom->setName($bldgBathroom['name']);
 					$bathroom->setIsGenderNeutral($bldgBathroom['isGenderNeutral']);
@@ -251,7 +254,7 @@ class MapItemController extends AbstractController
 				}
 
 				// Building Dining Options
-				foreach ($request->get('diningOptions') as $bldgDining) {
+				foreach ($data['diningOptions'] as $bldgDining) {
 					$dining = new MapDining();
 					$dining->setName($bldgDining['name']);
 					$dining->setHours($bldgDining['hours']);
@@ -267,7 +270,7 @@ class MapItemController extends AbstractController
 				}
 
 				// Building Emergency Devices
-				foreach ($request->get('emergencyDevices') as $bldgEmergency) {
+				foreach ($data['emergencyDevices'] as $bldgEmergency) {
 					// need to find the emergency type entity
 					$emergencyType = $this->doctrine->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
 					if (!$emergencyType) {
@@ -287,7 +290,7 @@ class MapItemController extends AbstractController
 				}
 
 				// Building Exhibits
-				foreach ($request->get('exhibits') as $bldgExhibit) {
+				foreach ($data['exhibits'] as $bldgExhibit) {
 					// need to find the exhibit type entity
 					$exhibitType = $this->doctrine->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
 					if (!$exhibitType) {
@@ -308,7 +311,7 @@ class MapItemController extends AbstractController
 				}
 
 				// Building Services
-				foreach ($request->get('services') as $bldgService) {
+				foreach ($data['services'] as $bldgService) {
 					// need to find the service type entity
 					$serviceType = $this->doctrine->getRepository(MapServiceType::class)->find($bldgService['type']['id']);
 					if (!$serviceType) {
@@ -331,14 +334,14 @@ class MapItemController extends AbstractController
 			case "emergency device":
 			case "exhibit":
 				// Find the building in which this device/exhibit is located (if any)
-				$building = $request->get('building');
+				$building = $data['building'] ?? null;
 				if ($building) {
 					$building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
 				}
 				$mapItem->setBuilding($building);
 
 				// Get which type of device/exhibit this is
-				$type = $request->get('type');
+				$type = $data['type'] ?? null;
 				if (!$type) {
 					return new Response("Each " . $itemType . " must have a type set.", 400, ['Content-Type' => 'application/json']);
 				}
@@ -351,7 +354,7 @@ class MapItemController extends AbstractController
 				break;
 			case "parking":
 				// Parking lot types
-				foreach ($request->get('parkingTypes') as $type) {
+				foreach ($data['parkingTypes'] as $type) {
 					// find the parking type entity
 					$parkingType = $this->doctrine->getRepository(MapParkingType::class)->find($type['id']);
 					if (!$parkingType) {
@@ -362,14 +365,14 @@ class MapItemController extends AbstractController
 				break;
 			case "service":
 				// Find the building in which this device/exhibit is located (if any)
-				$building = $request->request->get('building');
+				$building = $data['building'] ?? null;
 				if ($building) {
 					$building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
 				}
 				$mapItem->setBuilding($building);
 
 				// Get which type of device/exhibit this is
-				$type = $request->request->get('type');
+				$type = $data['type'] ?? null;
 				if (!$type) {
 					return new Response("Each " . $itemType . " must have a type set.", 400, ['Content-Type' => 'application/json']);
 				}
@@ -387,30 +390,33 @@ class MapItemController extends AbstractController
 	/**
 	 * Update a map item to the database
 	 */
-	#[Rest\Put(path: "mapitem")]
+	#[Route('/mapitem', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_EDIT")'))]
 	public function putMapitemAction(Request $request): Response
 	{
-		$itemType = $request->request->get('itemType');
+		// Decode JSON body directly — $request->get() was removed in Symfony 8,
+		// and $request->request->get() rejects non-scalar values like arrays and objects.
+		$data = json_decode($request->getContent(), true);
+		$itemType = $data['itemType'];
 
 		$em = $this->doctrine->getManager();
 
-		$mapItem = $this->doctrine->getRepository(MapItem::class)->find($request->request->get('id'));
+		$mapItem = $this->doctrine->getRepository(MapItem::class)->find($data['id']);
 		switch ($itemType) {
 			case "bathroom":
-				$mapItem->setIsGenderNeutral($request->request->get('isGenderNeutral'));
+				$mapItem->setIsGenderNeutral($data['isGenderNeutral']);
 				break;
 			case "building":
-				$mapItem->setHours($request->request->get('hours'));
-				$mapItem->setAddress($request->request->get('address'));
+				$mapItem->setHours($data['hours']);
+				$mapItem->setAddress($data['address']);
 				// Building Type
-				$buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($request->get('buildingType')['id']);
+				$buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($data['buildingType']['id']);
 				if ($buildingType) {
 					$mapItem->setBuildingType($buildingType);
 				}
 
 				// Building bathrooms
-				foreach ($request->get('bathrooms') as $bldgBathroom) {
+				foreach ($data['bathrooms'] as $bldgBathroom) {
 					// a new bathroom won't have an ID
 					if (isset($bldgBathroom['id'])) {
 						$bathroom = $this->doctrine->getRepository(MapItem::class)->find($bldgBathroom['id']);
@@ -430,10 +436,10 @@ class MapItemController extends AbstractController
 					$em->persist($bathroom); // persist but don't save until the end
 				}
 				// Compare and delete any bathrooms not in the updated list
-				$this->service->mapItemCollectionCompare($mapItem->getBathrooms(), $request->get('bathrooms'));
+				$this->service->mapItemCollectionCompare($mapItem->getBathrooms(), $data['bathrooms']);
 
 				// Building Dining Options
-				foreach ($request->get('diningOptions') as $bldgDining) {
+				foreach ($data['diningOptions'] as $bldgDining) {
 					// a new dining option won't have an ID
 					if (isset($bldgDining['id'])) {
 						$dining = $this->doctrine->getRepository(MapItem::class)->find($bldgDining['id']);
@@ -455,10 +461,10 @@ class MapItemController extends AbstractController
 					$em->persist($dining); // persist but don't save until the end
 				}
 				// Compare and delete any bathrooms not in the updated list
-				$this->service->mapItemCollectionCompare($mapItem->getDiningOptions(), $request->get('diningOptions'));
+				$this->service->mapItemCollectionCompare($mapItem->getDiningOptions(), $data['diningOptions']);
 
 				// Building Emergency Devices
-				foreach ($request->get('emergencyDevices') as $bldgEmergency) {
+				foreach ($data['emergencyDevices'] as $bldgEmergency) {
 					// need to find the emergency type entity
 					$emergencyType = $this->doctrine->getRepository(MapEmergencyType::class)->find($bldgEmergency['type']['id']);
 					if (!$emergencyType) {
@@ -484,10 +490,10 @@ class MapItemController extends AbstractController
 					$em->persist($emergencyDevice); // persist but don't save until the end
 				}
 				// Compare and delete any emergency devices not in the updated list
-				$this->service->mapItemCollectionCompare($mapItem->getEmergencyDevices(), $request->get('emergencyDevices'));
+				$this->service->mapItemCollectionCompare($mapItem->getEmergencyDevices(), $data['emergencyDevices']);
 
 				// Building Exhibits
-				foreach ($request->get('exhibits') as $bldgExhibit) {
+				foreach ($data['exhibits'] as $bldgExhibit) {
 					// need to find the exhibit type entity
 					$exhibitType = $this->doctrine->getRepository(MapExhibitType::class)->find($bldgExhibit['type']['id']);
 					if (!$exhibitType) {
@@ -513,10 +519,10 @@ class MapItemController extends AbstractController
 					$em->persist($exhibit); // persist but don't save until the end
 				}
 				// Compare and delete any exhibits not in the updated list
-				$this->service->mapItemCollectionCompare($mapItem->getExhibits(), $request->get('exhibits'));
+				$this->service->mapItemCollectionCompare($mapItem->getExhibits(), $data['exhibits']);
 
 				// Building Services
-				foreach ($request->get('services') as $bldgService) {
+				foreach ($data['services'] as $bldgService) {
 					// need to find the service type entity
 					$serviceType = $this->doctrine->getRepository(MapServiceType::class)->find($bldgService['type']['id']);
 					if (!$serviceType) {
@@ -542,10 +548,10 @@ class MapItemController extends AbstractController
 					$em->persist($service); // persist but don't save until the end
 				}
 				// Compare and delete any services not in the updated list
-				$this->service->mapItemCollectionCompare($mapItem->getServices(), $request->get('services'));
+				$this->service->mapItemCollectionCompare($mapItem->getServices(), $data['services']);
 
 				// Cycle Dispensers
-				foreach ($request->get('dispensers') as $bldgDispenser) {
+				foreach ($data['dispensers'] as $bldgDispenser) {
 					// a new dispenser won't have an ID
 					if (isset($bldgDispenser['id'])) {
 						$dispenser = $this->doctrine->getRepository(MapItem::class)->find($bldgDispenser['id']);
@@ -565,20 +571,20 @@ class MapItemController extends AbstractController
 					$em->persist($dispenser); // persist but don't save until the end
 				}
 				// Compare and delete any dispensers not in the updated list
-				$this->service->mapItemCollectionCompare($mapItem->getDispensers(), $request->get('dispensers'));
+				$this->service->mapItemCollectionCompare($mapItem->getDispensers(), $data['dispensers']);
 				break;
 			case "bus":
 				break;
 			case "emergency device":
 			case "exhibit":
 				// Find the building in which this device/exhibit is located (if any)
-				$building = $request->get('building');
+				$building = $data['building'] ?? null;
 				if ($building) {
 					$building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
 				}
 				$mapItem->setBuilding($building);
 				// Get which type of device/exhibit this is
-				$type = $request->get('type');
+				$type = $data['type'] ?? null;
 				if (!$type) {
 					return new Response("Each " . $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
 				}
@@ -590,22 +596,22 @@ class MapItemController extends AbstractController
 				$mapItem->setType($type);
 				break;
 			case "parking":
-				$mapItem->setSpaces($request->request->get('spaces'));
-				$mapItem->setHours($request->request->get('hours'));
-				$mapItem->setHasHandicapSpaces($request->request->get('hasHandicapSpaces'));
+				$mapItem->setSpaces($data['spaces']);
+				$mapItem->setHours($data['hours']);
+				$mapItem->setHasHandicapSpaces($data['hasHandicapSpaces']);
 				// Compare and delete any parking lot types not in the updated list
-				$this->service->mapParkingLotTypeCompare($mapItem->getParkingTypes(), $request->get('parkingTypes'), $mapItem);
+				$this->service->mapParkingLotTypeCompare($mapItem->getParkingTypes(), $data['parkingTypes'], $mapItem);
 				break;
 			case "service":
 				// Find the building in which this device/exhibit is located (if any)
-				$building = $request->request->get('building');
+				$building = $data['building'] ?? null;
 				if ($building) {
 					$building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
 				}
 				$mapItem->setBuilding($building);
 
 				// Get which type of device/exhibit this is
-				$type = $request->get('type');
+				$type = $data['type'] ?? null;
 				if (!$type) {
 					return new Response("Each " . $itemType . " must have a type set.", 400, array('Content-Type' => 'application/json'));
 				}
@@ -613,7 +619,7 @@ class MapItemController extends AbstractController
 				break;
 			case "dispenser":
 				// Find the building in which this dispenser is located
-				$building = $request->request->get('building');
+				$building = $data['building'] ?? null;
 				if ($building) {
 					$building = $this->doctrine->getRepository(MapItem::class)->find($building['id']);
 				}
@@ -624,15 +630,15 @@ class MapItemController extends AbstractController
 		}
 
 		// set common fields for all mapItem objects
-		$mapItem->setName($request->request->get('name'));
-		$mapItem->setDescription($request->request->get('description'));
-		$mapItem->setLatitudeIllustration($request->request->get('latitudeIllustration'));
-		$mapItem->setLongitudeIllustration($request->request->get('longitudeIllustration'));
-		$mapItem->setLatitudeSatellite($request->request->get('latitudeSatellite'));
-		$mapItem->setLongitudeStaellite($request->request->get('longitudeSatellite'));
-		$mapItem->setAdmissionsTour($request->request->get('admissionsTour'));
-		if ($request->request->get('alias') != '') {
-			$mapItem->setAlias($request->request->get('alias'));
+		$mapItem->setName($data['name']);
+		$mapItem->setDescription($data['description']);
+		$mapItem->setLatitudeIllustration($data['latitudeIllustration']);
+		$mapItem->setLongitudeIllustration($data['longitudeIllustration']);
+		$mapItem->setLatitudeSatellite($data['latitudeSatellite']);
+		$mapItem->setLongitudeStaellite($data['longitudeSatellite']);
+		$mapItem->setAdmissionsTour($data['admissionsTour']);
+		if ($data['alias'] != '') {
+			$mapItem->setAlias($data['alias']);
 		} else {
 			$mapItem->setAlias(null);
 		}
@@ -657,7 +663,7 @@ class MapItemController extends AbstractController
 	 * @param $id
 	 * @return Response
 	 */
-	#[Rest\Delete(path: "mapitems/{id}")]
+	#[Route('/mapitems/{id}', methods: ['DELETE'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_MAP_DELETE")'))]
 	public function deleteMapitemAction($id): Response
 	{

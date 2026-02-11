@@ -21,13 +21,6 @@ class MapItemController extends AbstractController
 		$this->doctrine = $doctrine;
 	}
 
-	#[Route('/map/items', name: 'map_items')]
-	public function index(): Response
-	{
-		$permissions = json_encode($this->service->getUserMapPermissions());
-		return $this->render('map/map_item/index.html.twig', ['permissions' => $permissions]);
-	}
-
 	#[Route('/map/items/create', name: 'map_items_create')]
 	public function add(): Response
 	{

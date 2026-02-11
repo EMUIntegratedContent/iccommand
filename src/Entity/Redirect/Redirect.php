@@ -1,6 +1,7 @@
 <?php
 namespace App\Entity\Redirect;
 
+use App\Repository\Redirect\RedirectRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -11,7 +12,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 /**
  * A redirect is used to send someone from one link to another link.
  */
-#[ORM\Entity(repositoryClass: "App\Repository\Redirect\RedirectRepository")]
+#[ORM\Entity(repositoryClass: RedirectRepository::class)]
+#[ORM\Table(name: 'redirect')]
 #[UniqueEntity(fields: ["fromLink"], message: "The link has already been redirected to another link.")]
 class Redirect {
 	/* *************************** Member Variables *************************** */
