@@ -324,7 +324,11 @@
 					</div>
 					<div>
 						<template v-if="isEditMode">
-							<Field name="progMode" type="hidden" v-model="record.delivery_ids">
+							<Field
+								name="progMode"
+								type="hidden"
+								v-model="record.delivery_ids"
+							>
 								<!-- for validation purposes only -->
 							</Field>
 							<label for="selectmode" class="mt-2"
@@ -358,7 +362,10 @@
 									type="text"
 									:value="modeDisplay"
 									class="form-control"
-									:class="{ 'is-invalid': errors.delivery_ids, 'form-control-plaintext': !userCanEdit || !isEditMode }"
+									:class="{
+										'is-invalid': errors.delivery_ids,
+										'form-control-plaintext': !userCanEdit || !isEditMode
+									}"
 									readonly
 								/>
 							</div>
@@ -574,9 +581,9 @@ export default {
 			isDeleted: false,
 			isEditMode: false, // This is true if the forms are editable.
 			modes: [
-				{ id: 1, mode: "In-Person/Hybrid" },
-				{ id: 2, mode: "Online" },
-				{ id: 3, mode: "Hyflex" }
+				{ id: 0, mode: "In-Person/Hybrid" },
+				{ id: 1, mode: "Online" },
+				{ id: 2, mode: "Hyflex" }
 			],
 			progTypes: [],
 			record: {
@@ -674,8 +681,14 @@ export default {
 		// for the multiselect since it can't bind directly to the record.delivery_ids without the full object
 		selectedMode: {
 			get() {
-				if (!this.record.delivery_ids || !Array.isArray(this.record.delivery_ids)) return []
-				return this.modes.filter((mode) => this.record.delivery_ids.includes(mode.id))
+				if (
+					!this.record.delivery_ids ||
+					!Array.isArray(this.record.delivery_ids)
+				)
+					return []
+				return this.modes.filter((mode) =>
+					this.record.delivery_ids.includes(mode.id)
+				)
 			},
 			set(newValues) {
 				// newValues is an array of mode objects (or null). Store as array of ids.
@@ -689,21 +702,21 @@ export default {
 		modeDisplay: {
 			get() {
 				return this.selectedMode && this.selectedMode.length
-					? this.selectedMode.map((m) => m.mode).join(', ')
-					: ''
+					? this.selectedMode.map((m) => m.mode).join(", ")
+					: ""
 			},
 			set(value) {
 				// v-model requires a setter. Non-edit mode is readonly, but some
 				// form components still attempt to write the value. Provide a
 				// tolerant setter that maps a comma-separated string back to
 				// delivery_ids where possible, or clears the array if empty.
-				if (!value || (typeof value === 'string' && value.trim() === '')) {
+				if (!value || (typeof value === "string" && value.trim() === "")) {
 					this.record.delivery_ids = []
 					return
 				}
-				if (typeof value === 'string') {
+				if (typeof value === "string") {
 					const names = value
-						.split(',')
+						.split(",")
 						.map((s) => s.trim())
 						.filter(Boolean)
 					// map names back to ids when possible
@@ -717,8 +730,11 @@ export default {
 		// for the multiselect since it can't bind directly to the record.keyword_ids without the full object
 		selectedKeywords: {
 			get() {
-				if (!this.record.keyword_ids || !Array.isArray(this.record.keyword_ids)) return []
-				return this.keywords.filter((keyword) => this.record.keyword_ids.includes(keyword.id))
+				if (!this.record.keyword_ids || !Array.isArray(this.record.keyword_ids))
+					return []
+				return this.keywords.filter((keyword) =>
+					this.record.keyword_ids.includes(keyword.id)
+				)
 			},
 			set(newValues) {
 				// newValues is an array of keyword objects (or null). Store as array of ids.
@@ -732,8 +748,8 @@ export default {
 		keywordDisplay: {
 			get() {
 				return this.selectedKeywords && this.selectedKeywords.length
-					? this.selectedKeywords.map((k) => k.keyword).join(', ')
-					: ''
+					? this.selectedKeywords.map((k) => k.keyword).join(", ")
+					: ""
 			}
 		},
 		// for the multiselect since it can't bind directly to the record.type_id without the full object
@@ -791,8 +807,12 @@ export default {
 					// Success.
 					// Normalize delivery_ids to array of ids for multi-select support
 					let structuredResponse = response.data
-					structuredResponse.delivery_ids = self.formatDeliveryIds(response.data.delivery_ids)
-					structuredResponse.keyword_ids = self.formatKeywordIds(response.data.keyword_ids)
+					structuredResponse.delivery_ids = self.formatDeliveryIds(
+						response.data.delivery_ids
+					)
+					structuredResponse.keyword_ids = self.formatKeywordIds(
+						response.data.keyword_ids
+					)
 					self.record = structuredResponse
 					self.isDataLoaded = true
 				})
@@ -893,14 +913,14 @@ export default {
 		formatKeywordIds: function (keywordIds) {
 			if (!keywordIds) return []
 			return keywordIds
-				.split(',')
+				.split(",")
 				.map((keyword_id) => Number(keyword_id.trim()))
 		},
 
 		formatDeliveryIds: function (deliveryIds) {
 			if (!deliveryIds) return []
 			return deliveryIds
-				.split(',')
+				.split(",")
 				.map((delivery_id) => Number(delivery_id.trim()))
 		},
 
@@ -940,22 +960,27 @@ export default {
 
 			const self = this
 			/* Ajax (Axios) Submission */
-			axios({
-				method: method,
-				url: route,
-				data: self.record
-			},
-			{
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded"
+			axios(
+				{
+					method: method,
+					url: route,
+					data: self.record
+				},
+				{
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded"
+					}
 				}
-			}
 			)
 				.then(function (response) {
 					// Success.
-					let structuredResponse = response.data;
-					structuredResponse.delivery_ids = self.formatDeliveryIds(response.data.delivery_ids)
-					structuredResponse.keyword_ids = self.formatKeywordIds(response.data.keyword_ids)
+					let structuredResponse = response.data
+					structuredResponse.delivery_ids = self.formatDeliveryIds(
+						response.data.delivery_ids
+					)
+					structuredResponse.keyword_ids = self.formatKeywordIds(
+						response.data.keyword_ids
+					)
 					self.record = structuredResponse // This sets the program's ID.
 					self.afterSubmitSucceeds()
 				})
