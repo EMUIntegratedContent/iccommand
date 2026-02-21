@@ -7,18 +7,24 @@ use App\Entity\CrimeLog\FireLog;
 use App\Service\CrimeLogService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
+
+
+if (!ini_get('display_errors')) {
+	ini_set('display_errors', '1');
+}
+error_reporting(E_ALL);
 
 /**
  * API CrimeLog Controller
  * This controller manages the crimelog with the actions of adding.
  */
-class CrimeLogController extends AbstractController
+class CrimeLogController extends AbstractFOSRestController
 {
 	private CrimeLogService $service;
 	private LoggerInterface $logger;
