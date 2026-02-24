@@ -325,7 +325,7 @@ class ProgramsController extends AbstractController
 		if ($programId) {
 			$program = $this->service->getProgramEntity(intval($programId));
 		} else {
-			$program = $this->em->getRepository(Programs::class)->findOneBy(['program' => $progName]);
+			$program = $this->service->findProgramByProgramName($progName);
 		}
 
 		// Duplicate check: by program_id when linked to a program, else by program name
@@ -346,8 +346,7 @@ class ProgramsController extends AbstractController
 		$website->setProgramRef($program);
 		$website->setUrl($url);
 
-		$this->em->persist($website);
-		$this->em->flush();
+		$this->service->saveWebsite($website);
 
 		$serialized = $this->serializer->serialize($this->service->getWebsiteEntity($id), "json");
 

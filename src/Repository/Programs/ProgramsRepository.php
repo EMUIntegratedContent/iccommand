@@ -33,6 +33,11 @@ class ProgramsRepository extends ServiceEntityRepository
 		return $this->em->find(Programs::class, $id);
 	}
 
+	public function findOneByProgramName(string $progName): ?Programs
+	{
+		return $this->findOneBy(['program' => $progName]);
+	}
+
 	public function getProgram($id)
 	{
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine

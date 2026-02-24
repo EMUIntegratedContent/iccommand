@@ -251,6 +251,17 @@ class ProgramsService
 	}
 
 	/**
+	 * Find a Program entity by its program name (the 'program' field).
+	 * @param string $progName
+	 * @return Programs|null
+	 */
+	public function findProgramByProgramName(string $progName): ?Programs
+	{
+		$repository = $this->em->getRepository(Programs::class);
+		return $repository->findOneByProgramName($progName);
+	}
+
+	/**
 	 * Get a ProgramWebsites entity by ID (used when editing; the programs entity manager must be used explicitly.)
 	 * @param $id
 	 * @return mixed
@@ -259,6 +270,17 @@ class ProgramsService
 	{
 		$repository = $this->em->getRepository(ProgramWebsites::class);
 		return $repository->getWebsiteEntity($id);
+	}
+
+	/**
+	 * Persist and flush a ProgramWebsites entity (uses programs entity manager).
+	 * @param ProgramWebsites $website
+	 * @return void
+	 */
+	public function saveWebsite(ProgramWebsites $website): void
+	{
+		$this->em->persist($website);
+		$this->em->flush();
 	}
 
 	/**
