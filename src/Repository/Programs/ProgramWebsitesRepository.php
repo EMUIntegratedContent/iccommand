@@ -39,6 +39,17 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 			->getOneOrNullResult();
 	}
 
+	public function getWebsiteByProgramId(int $programId): ?ProgramWebsites{
+		return $this->em->createQueryBuilder()
+			->from(ProgramWebsites::class, 'w')
+			->select('w')
+			->innerJoin('w.programRef', 'p')
+			->where('p.id = :programId')
+			->setParameter('programId', $programId)
+			->getQuery()
+			->getOneOrNullResult();
+	}
+
 	public function paginatedWebsites($currentPage, $pageSize): array{
 		$offset = ($currentPage - 1) * $pageSize;
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine

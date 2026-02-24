@@ -296,7 +296,7 @@ class ProgramsController extends AbstractController
 		}
 
 		// Update the program website information
-		$this->service->updateProgWebsite('', $progName, $url);
+		$this->service->updateProgWebsite($program, $url);
 
 		$serialized = $this->serializer->serialize($program, "json");
 
@@ -313,22 +313,41 @@ class ProgramsController extends AbstractController
 	public function putWebsiteAction(Request $request): Response
 	{
 		$id = $request->request->get("id");
+		$programId = $request->request->get("program_id");
 		$progName = $request->request->get("program");
 		$url = strtolower($request->request->get("url"));
 
-		// Make sure there isn't already a website with the same program name.
-		$existing = $this->service->getWebsiteByProg($progName);
-		if ($existing && $existing->getId() != $id) {
-			$url = $existing->getUrl();
-			return new Response("This program already has a website ($url).", 422, array("Content-Type" => "application/json"));
+		if (!$progName) {
+			return new Response("Program name is required.", 422, array("Content-Type" => "application/json"));
+		}
+
+		$program = null;
+		if ($programId) {
+			$program = $this->service->getProgramEntity(intval($programId));
+		} else {
+			$program = $this->em->getRepository(Programs::class)->findOneBy(['program' => $progName]);
+		}
+
+		// Duplicate check: by program_id when linked to a program, else by program name
+		if ($program) {
+			$existing = $this->service->getWebsiteByProgramId($program->getId());
+			if ($existing && $existing->getId() != $id) {
+				return new Response("This program already has a website (" . $existing->getUrl() . ").", 422, array("Content-Type" => "application/json"));
+			}
+		} else {
+			$existing = $this->service->getWebsiteByProg($progName);
+			if ($existing && $existing->getId() != $id) {
+				return new Response("This program name already has a website (" . $existing->getUrl() . ").", 422, array("Content-Type" => "application/json"));
+			}
 		}
 
 		$website = $this->service->getWebsiteEntity($id);
 		$website->setProgram($progName);
+		$website->setProgramRef($program);
 		$website->setUrl($url);
 
-		$this->em->persist($website); // Persist the program.
-		$this->em->flush(); // Commit everything to the database.
+		$this->em->persist($website);
+		$this->em->flush();
 
 		$serialized = $this->serializer->serialize($this->service->getWebsiteEntity($id), "json");
 
@@ -393,7 +412,7 @@ class ProgramsController extends AbstractController
 		}
 
 		// Update the program website information
-		$this->service->updateProgWebsite($origProgName, $progName, $url);
+		$this->service->updateProgWebsite($program, $url);
 
 		$serialized = $this->serializer->serialize($this->service->getProgram($id), "json");
 

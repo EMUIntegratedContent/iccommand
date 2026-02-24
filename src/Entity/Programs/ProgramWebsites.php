@@ -4,7 +4,6 @@ namespace App\Entity\Programs;
 
 use App\Repository\Programs\ProgramWebsitesRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProgramWebsitesRepository::class)]
 #[ORM\Table(name: 'program_websites', schema: 'programs')]
@@ -15,8 +14,11 @@ class ProgramWebsites{
 	private int $id;
 
 	#[ORM\Column(length: 255, unique: true)]
-	#[Assert\Unique(message: 'This program already has a website.')]
 	private ?string $program = null;
+
+	#[ORM\ManyToOne(targetEntity: Programs::class)]
+	#[ORM\JoinColumn(name: 'program_id', referencedColumnName: 'id', unique: true, nullable: true)]
+	private ?Programs $programRef = null;
 
 	#[ORM\Column(length: 255)]
 	private ?string $url = null;
@@ -34,6 +36,21 @@ class ProgramWebsites{
 		$this->program = $program;
 
 		return $this;
+	}
+
+	public function getProgramRef(): ?Programs{
+		return $this->programRef;
+	}
+
+	public function setProgramRef(?Programs $programRef): static{
+		$this->programRef = $programRef;
+
+		return $this;
+	}
+
+	/** Convenience method to get the linked program's ID. */
+	public function getProgramId(): ?int{
+		return $this->programRef?->getId();
 	}
 
 	public function getUrl(): ?string{

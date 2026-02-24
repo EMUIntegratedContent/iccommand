@@ -217,6 +217,17 @@ class ProgramsService
 	}
 
 	/**
+	 * A single website by program ID.
+	 * @param int $programId
+	 * @return ?ProgramWebsites
+	 */
+	public function getWebsiteByProgramId(int $programId): ?ProgramWebsites
+	{
+		$repository = $this->em->getRepository(ProgramWebsites::class);
+		return $repository->getWebsiteByProgramId($programId);
+	}
+
+	/**
 	 * Return a single program with join data for website info
 	 * @param $id
 	 * @return Programs
@@ -252,17 +263,14 @@ class ProgramsService
 
 	/**
 	 * Update a program's website information in program_websites
-	 * @param $origName
-	 * @param $newName
-	 * @param $url
+	 * @param Programs $program
+	 * @param string|null $url
 	 * @return ?ProgramWebsites
-	 * @throws \Doctrine\ORM\NoResultException
-	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
-	public function updateProgWebsite($origName, $newName, $url = null): ?ProgramWebsites
+	public function updateProgWebsite(Programs $program, $url = null): ?ProgramWebsites
 	{
-		// Case 1. If there is a program without a URL. See if there is a website record with that program name and remove the record
-		// Case 2. If there is a program with a URL. See if there is a website record with that program name. If there is, update the record. If there isn't, create a new record.
+		// Case 1. If there is a program without a URL. See if there is a website record with that program id and remove the record
+		// Case 2. If there is a program with a URL. See if there is a website record with that program id. If there is, update the record. If there isn't, create a new record.
 
 		// Strip out any host information from the URL
 		if ($url) {
@@ -279,26 +287,25 @@ class ProgramsService
 			}
 		}
 
-		$website = null;
-		if ($origName != '') {
-			$website = $this->getWebsiteByProg($origName);
-		}
+		$website = $this->getWebsiteByProgramId($program->getId());
 
 		if ($website && !$url) {
 			$this->em->remove($website);
 		} else if ($website && $url) {
-			$website->setProgram($newName);
+			$website->setProgram($program->getProgram());
+			$website->setProgramRef($program);
 			$website->setUrl($url);
 			$this->em->persist($website);
 		} else if (!$website && $url) {
 			$website = new ProgramWebsites();
-			$website->setProgram($newName);
+			$website->setProgram($program->getProgram());
+			$website->setProgramRef($program);
 			$website->setUrl($url);
 			$this->em->persist($website);
 		}
 		$this->em->flush();
 
-		return $this->getWebsiteByProg($newName);
+		return $this->getWebsiteByProgramId($program->getId());
 	}
 
 	/**

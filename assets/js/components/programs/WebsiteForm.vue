@@ -365,12 +365,16 @@ export default {
 			const route = "/api/programs/websites/"
 
 			const self = this
+			const payload = { ...self.record }
+			if (self.record.programId) {
+				payload.program_id = self.record.programId
+			}
 			/* Ajax (Axios) Submission */
 			axios(
 				{
 					method: method,
 					url: route,
-					data: self.record
+					data: payload
 				},
 				{
 					headers: {
