@@ -1,56 +1,13 @@
 security:
-  # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
-  # show full user not found message
-  #  hide_user_not_found: false
-  #    always_authenticate_before_granting:  true -- DEPRECATED: no substitute found yet
-
   providers:
     users:
       entity:
         class: 'App\Entity\User'
         property: email
 
-   # CONFIG FOR WORKING where EMU LDAP is available
-  firewalls:
-    dev:
-      pattern: ^/(_(profiler|wdt)|css|images|js)/
-      security: false
-    main:
-      lazy: true
-      provider: users
-
-      form_login_ldap:
-        login_path: app_login
-        check_path: app_login
-        service: Symfony\Component\Ldap\Ldap
-        # SYMFONY 7: bug #53529 [Ldap] Use {user_identifier} over deprecated {username} in factories (tcitworld)
-        dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
-      logout:
-        path: /logout
-
-  #CONFIG FOR WORKING REMOTELY (where EMU LDAP is not available)
-#  firewalls:
-#    dev:
-#      pattern: ^/(_(profiler|wdt)|css|images|js)/
-#      user_checker: App\Security\UserChecker
-#    main:
-#      pattern: ^/
-#      user_checker: App\Security\UserChecker
-#      lazy: true
-#      form_login:
-#        provider: users
-#        login_path: app_login
-#        check_path: app_login
-#      logout:
-#        path: /logout
-
   password_hashers:
-    # Use native password hasher, which auto-selects and migrates the best
-    # possible hashing algorithm (which currently is "bcrypt")
     Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
 
-  # Easy way to control access for large sections of your site
-  # Note: Only the *first* access control that matches will be used
   access_control:
     - { path: ^/directory, roles: [ROLE_DEPARTMENTS_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/photorequests, roles: [ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN] }
@@ -107,3 +64,70 @@ security:
     # Emergency
     ROLE_EMERGENCY_EDIT: ROLE_USER
     ROLE_EMERGENCY_ADMIN: ROLE_EMERGENCY_EDIT
+
+# Local development (Docker) - form login with UserChecker
+when@dev:
+  security:
+    firewalls:
+      dev:
+        pattern: ^/(_(profiler|wdt)|css|images|js)/
+        security: false
+      main:
+        pattern: ^/
+        user_checker: App\Security\UserChecker
+        lazy: true
+        form_login:
+          provider: users
+          login_path: app_login
+          check_path: app_login
+        logout:
+          path: /logout
+
+# Staging server - LDAP auth
+when@staging:
+  security:
+    firewalls:
+      dev:
+        pattern: ^/(_(profiler|wdt)|css|images|js)/
+        security: false
+      main:
+        lazy: true
+        provider: users
+        form_login_ldap:
+          login_path: app_login
+          check_path: app_login
+          service: Symfony\Component\Ldap\Ldap
+          dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
+        logout:
+          path: /logout
+
+# Production server - LDAP auth
+when@prod:
+  security:
+    firewalls:
+      dev:
+        pattern: ^/(_(profiler|wdt)|css|images|js)/
+        security: false
+      main:
+        lazy: true
+        provider: users
+        form_login_ldap:
+          login_path: app_login
+          check_path: app_login
+          service: Symfony\Component\Ldap\Ldap
+          dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
+        logout:
+          path: /logout
+
+# Test environment - form login without UserChecker (for PHPUnit)
+when@test:
+  security:
+    firewalls:
+      main:
+        lazy: true
+        form_login:
+          provider: users
+          login_path: app_login
+          check_path: app_login
+        logout:
+          path: /logout

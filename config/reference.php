@@ -1634,6 +1634,21 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         liip_imagine?: LiipImagineConfig,
  *         webpack_encore?: WebpackEncoreConfig,
  *     },
+ *     "when@staging"?: array{
+ *         imports?: ImportsConfig,
+ *         parameters?: ParametersConfig,
+ *         services?: ServicesConfig,
+ *         framework?: FrameworkConfig,
+ *         twig?: TwigConfig,
+ *         security?: SecurityConfig,
+ *         monolog?: MonologConfig,
+ *         doctrine?: DoctrineConfig,
+ *         doctrine_migrations?: DoctrineMigrationsConfig,
+ *         nelmio_cors?: NelmioCorsConfig,
+ *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
+ *         liip_imagine?: LiipImagineConfig,
+ *         webpack_encore?: WebpackEncoreConfig,
+ *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1732,6 +1747,7 @@ namespace Symfony\Component\Routing\Loader\Configurator;
  * @psalm-type RoutesConfig = array{
  *     "when@dev"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
  *     "when@prod"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
+ *     "when@staging"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
  *     "when@test"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
  *     ...<string, RouteConfig|ImportConfig|AliasConfig>
  * }
