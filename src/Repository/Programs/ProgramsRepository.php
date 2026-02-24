@@ -35,7 +35,14 @@ class ProgramsRepository extends ServiceEntityRepository
 
 	public function findOneByProgramName(string $progName): ?Programs
 	{
-		return $this->em->getRepository(Programs::class)->findOneBy(['program' => $progName]);
+		return $this->em->createQueryBuilder()
+			->select('p')
+			->from(Programs::class, 'p')
+			->where('p.program = :progName')
+			->setParameter('progName', $progName)
+			->setMaxResults(1)
+			->getQuery()
+			->getOneOrNullResult();
 	}
 
 	public function getProgram($id)
