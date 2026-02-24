@@ -77,7 +77,7 @@ Routes are defined in `config/routes.yaml` mapping controllers to prefixes:
 
 Configured in `config/packages/security.yaml`. Hierarchical role system with per-module role chains (e.g., `ROLE_MAP_VIEW → ROLE_MAP_CREATE → ROLE_MAP_EDIT → ROLE_MAP_DELETE → ROLE_MAP_ADMIN`). `ROLE_GLOBAL_ADMIN` has access to all modules.
 
-Two firewall configs exist in security.yaml: one for LDAP auth (when on EMU network) and one for local form login (for remote development). Toggle by commenting/uncommenting the relevant `firewalls` block.
+Auth method is selected automatically via Symfony `when@` blocks: `dev` uses local form login, `staging` and `prod` use LDAP, `test` uses form login without UserChecker.
 
 ### Rate Limiting
 
