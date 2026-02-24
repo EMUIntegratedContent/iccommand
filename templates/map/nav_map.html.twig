@@ -3,6 +3,9 @@
     <li class="nav-item">
         <a class="nav-link active" href="/"><i class="fa fa-home"></i></a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/map">Map Items</a>
+    </li>
     {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_CREATE') %}
         <li class="nav-item">
             <a class="nav-link" href="/map/items/create">Create new item</a>
