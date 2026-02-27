@@ -11,167 +11,128 @@
         This is a list of all programs that are in the current year's course catalog, divided into undergraduate and graduate views. The list does NOT include previous year's programs.
       </p>
     </div>
-    <div id="accordion">
-      <div class="card">
-        <div class="card-header" id="headingUgPrograms">
-          <h5 class="mb-0">
-            <button
-                class="btn btn-link"
-                data-toggle="collapse"
-                data-target="#collapseUgPrograms"
-                aria-expanded="true"
-                aria-controls="collapseUgPrograms">
-              Undergraduate Catalog Programs
-              <span
-                  v-if="!loadingUgPrograms"
-                  class="badge badge-primary">{{ totalUgPrograms }}</span>
-              <span v-else><i class="fa fa-spinner"></i></span>
-            </button>
-          </h5>
+    <ul class="nav nav-tabs mb-3" id="programTabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="undergraduate-tab" data-toggle="tab" href="#undergraduate" role="tab" aria-controls="undergraduate" aria-selected="true">Undergraduate Catalog Programs
+          <span v-if="!loadingUgPrograms" class="badge badge-primary">{{ totalUgPrograms }}</span>
+          <span v-else><i class="fa fa-spinner"></i></span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="graduate-tab" data-toggle="tab" href="#graduate" role="tab" aria-controls="graduate" aria-selected="false">Graduate Catalog Programs
+          <span v-if="!loadingGradPrograms" class="badge badge-primary">{{ totalGradPrograms }}</span>
+          <span v-else><i class="fa fa-spinner"></i></span></a>
+      </li>
+    </ul>
+    <div class="tab-content" id="programTabsContent">
+      <div class="tab-pane fade show active" id="undergraduate" role="tabpanel" aria-labelledby="undergraduate-tab">
+        <div>
+          <label for="ugselectedprog" class="sr-only">Search undergrad catalog</label>
+          <VueMultiselect
+              :options="ugSearchResults"
+              :multiple="false"
+              :clear-on-select="true"
+              placeholder="Search undergrad catalog (type at least 3 characters)"
+              label="program"
+              track-by="id"
+              id="ugselectedprog"
+              class="form-control"
+              style="padding:0"
+              name="ugselectedprog"
+              @input="handleUgSearchInput"
+              @select="handleProgSelected"
+          >
+          </VueMultiselect>
         </div>
-        <div
-            id="collapseUgPrograms"
-            class="collapse show"
-            aria-labelledby="headingUgPrograms"
-            data-parent="#accordion">
-          <div class="card-body">
-            <div>
-              <label for="ugselectedprog" class="sr-only">Search undergrad catalog</label>
-              <VueMultiselect
-                  :options="ugSearchResults"
-                  :multiple="false"
-                  :clear-on-select="true"
-                  placeholder="Search undergrad catalog (type at least 3 characters)"
-                  label="program"
-                  track-by="id"
-                  id="ugselectedprog"
-                  class="form-control"
-                  style="padding:0"
-                  name="ugselectedprog"
-                  @input="handleUgSearchInput"
-                  @select="handleProgSelected"
-              >
-              </VueMultiselect>
-            </div>
-            <div v-if="!loadingUgPrograms" class="table-responsive">
-              <table class="table table-hover table-sm">
-                <thead>
-                <tr>
-                  <th scope="col">Program Full Name</th>
-                  <th scope="col">Website</th>
-                  <th scope="col">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="ugp in ugPrograms" :id="ugp.id" :key="`program-${ugp.id}`">
-                  <td>
-                    {{ ugp.full_name }}
-                  </td>
-                  <td>{{ ugp.url }}</td>
-                  <td>
-                    <a v-if="userCanEdit" :href="'/programs/' + ugp.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-            <div v-else>
-              <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
-            </div>
-            <external-paginator
-                v-show="!loadingUgPrograms"
-                :ext-curr-pg="ugProgramsCurrentPage"
-                :ext-items-per-pg="ugProgramsItemsPerPage"
-                :total-recs="totalUgPrograms"
-                :items="ugPrograms"
-                @itemsPerPageChanged="handleUgProgramsItemsPerPageChanged"
-                @pageChanged="handleUgProgramsPageChanged"
-            >
-            </external-paginator>
-          </div>
+        <div v-if="!loadingUgPrograms" class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+              <th scope="col">Program Full Name</th>
+              <th scope="col">Website</th>
+              <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="ugp in ugPrograms" :id="ugp.id" :key="`program-${ugp.id}`">
+              <td>
+                {{ ugp.full_name }}
+              </td>
+              <td>{{ ugp.url }}</td>
+              <td>
+                <a v-if="userCanEdit" :href="'/programs/' + ugp.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
+        <div v-else>
+          <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
+        </div>
+        <external-paginator
+            v-show="!loadingUgPrograms"
+            :ext-curr-pg="ugProgramsCurrentPage"
+            :ext-items-per-pg="ugProgramsItemsPerPage"
+            :total-recs="totalUgPrograms"
+            :items="ugPrograms"
+            @itemsPerPageChanged="handleUgProgramsItemsPerPageChanged"
+            @pageChanged="handleUgProgramsPageChanged"
+        >
+        </external-paginator>
       </div>
-    </div>
-    <br>
-    <div id="accordion">
-      <div class="card">
-        <div class="card-header" id="headingGradPrograms">
-          <h5 class="mb-0">
-            <button
-                class="btn btn-link"
-                data-toggle="collapse"
-                data-target="#collapseGradPrograms"
-                aria-expanded="true"
-                aria-controls="collapseGradPrograms">
-              Graduate Catalog Programs
-              <span
-                  v-if="!loadingUgPrograms"
-                  class="badge badge-primary">{{ totalGradPrograms }}</span>
-              <span v-else><i class="fa fa-spinner"></i></span>
-            </button>
-          </h5>
+      <div class="tab-pane fade" id="graduate" role="tabpanel" aria-labelledby="graduate-tab">
+        <div>
+          <label for="gradselectedprog" class="sr-only">Search graduate catalog</label>
+          <VueMultiselect
+              :options="gradSearchResults"
+              :multiple="false"
+              :clear-on-select="true"
+              placeholder="Search graduate catalog (type at least 3 characters)"
+              label="program"
+              track-by="id"
+              id="gradselectedprog"
+              class="form-control"
+              style="padding:0"
+              name="gradselectedprog"
+              @input="handleGradSearchInput"
+              @select="handleProgSelected"
+          >
+          </VueMultiselect>
         </div>
-        <div
-            id="collapseGradPrograms"
-            class="collapse show"
-            aria-labelledby="headingGradPrograms"
-            data-parent="#accordion">
-          <div class="card-body">
-            <div>
-              <label for="gradselectedprog" class="sr-only">Search graduate catalog</label>
-              <VueMultiselect
-                  :options="gradSearchResults"
-                  :multiple="false"
-                  :clear-on-select="true"
-                  placeholder="Search graduate catalog (type at least 3 characters)"
-                  label="program"
-                  track-by="id"
-                  id="gradselectedprog"
-                  class="form-control"
-                  style="padding:0"
-                  name="gradselectedprog"
-                  @input="handleGradSearchInput"
-                  @select="handleProgSelected"
-              >
-              </VueMultiselect>
-            </div>
-            <div v-if="!loadingGradPrograms" class="table-responsive">
-              <table class="table table-hover table-sm">
-                <thead>
-                <tr>
-                  <th scope="col">Program Full Name</th>
-                  <th scope="col">Website</th>
-                  <th scope="col">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="grad in gradPrograms" :id="grad.id" :key="`program-${grad.id}`">
-                  <td>
-                    {{ grad.full_name }}
-                  </td>
-                  <td>{{ grad.url }}</td>
-                  <td>
-                    <a v-if="userCanEdit" :href="'/programs/' + grad.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-            <div v-else>
-              <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
-            </div>
-            <external-paginator
-                v-show="!loadingGradPrograms"
-                :ext-curr-pg="gradProgramsCurrentPage"
-                :ext-items-per-pg="gradProgramsItemsPerPage"
-                :total-recs="totalGradPrograms"
-                :items="gradPrograms"
-                @itemsPerPageChanged="handleGradProgramsItemsPerPageChanged"
-                @pageChanged="handleGradProgramsPageChanged"
-            >
-            </external-paginator>
-          </div>
+        <div v-if="!loadingGradPrograms" class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+              <th scope="col">Program Full Name</th>
+              <th scope="col">Website</th>
+              <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="grad in gradPrograms" :id="grad.id" :key="`program-${grad.id}`">
+              <td>
+                {{ grad.full_name }}
+              </td>
+              <td>{{ grad.url }}</td>
+              <td>
+                <a v-if="userCanEdit" :href="'/programs/' + grad.id"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
+        <div v-else>
+          <p style="text-align: center"><img src="/images/loading.gif" alt="Loading..."/></p>
+        </div>
+        <external-paginator
+            v-show="!loadingGradPrograms"
+            :ext-curr-pg="gradProgramsCurrentPage"
+            :ext-items-per-pg="gradProgramsItemsPerPage"
+            :total-recs="totalGradPrograms"
+            :items="gradPrograms"
+            @itemsPerPageChanged="handleGradProgramsItemsPerPageChanged"
+            @pageChanged="handleGradProgramsPageChanged"
+        >
+        </external-paginator>
       </div>
     </div>
   </div>
