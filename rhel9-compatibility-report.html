@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHEL 8 to RHEL 9 Compatibility Assessment - ICCommand</title>
+    <style>
+        :root {
+            --green: #2e7d32;
+            --green-bg: #e8f5e9;
+            --yellow: #f57f17;
+            --yellow-bg: #fff8e1;
+            --red: #c62828;
+            --red-bg: #ffebee;
+            --blue: #1565c0;
+            --blue-bg: #e3f2fd;
+            --gray: #546e7a;
+            --gray-bg: #f5f5f5;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: #fafafa;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            color: #1a1a1a;
+            border-bottom: 3px solid var(--blue);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .context {
+            background: var(--blue-bg);
+            border-left: 4px solid var(--blue);
+            padding: 1rem 1.25rem;
+            margin-bottom: 2rem;
+            border-radius: 0 4px 4px 0;
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            color: #1a1a1a;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.35rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        h3 {
+            font-size: 1.05rem;
+            color: #444;
+            margin: 1.25rem 0 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+
+        .badge-high { background: var(--red-bg); color: var(--red); }
+        .badge-medium { background: var(--yellow-bg); color: var(--yellow); }
+        .badge-low { background: var(--green-bg); color: var(--green); }
+        .badge-none { background: var(--gray-bg); color: var(--gray); }
+        .badge-action { background: var(--red-bg); color: var(--red); }
+
+        p, li { margin-bottom: 0.5rem; }
+        ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+
+        code {
+            background: #eee;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+        }
+
+        pre {
+            background: #263238;
+            color: #eeffff;
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 0.75rem 0 1rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        .comment { color: #546e7a; }
+        .key { color: #82aaff; }
+        .value { color: #c3e88d; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.75rem 0 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #37474f;
+            color: white;
+            text-align: left;
+            padding: 0.6rem 0.75rem;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:nth-child(even) { background: #f5f5f5; }
+        tr:hover { background: #e8eaf6; }
+
+        .callout {
+            padding: 1rem 1.25rem;
+            border-radius: 0 4px 4px 0;
+            margin: 1rem 0;
+        }
+
+        .callout-warning {
+            background: var(--yellow-bg);
+            border-left: 4px solid var(--yellow);
+        }
+
+        .callout-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .callout-success {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .callout-info {
+            background: var(--blue-bg);
+            border-left: 4px solid var(--blue);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-table td:first-child {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .verification ol {
+            counter-reset: step;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .verification li {
+            counter-increment: step;
+            padding: 0.5rem 0 0.5rem 2.5rem;
+            position: relative;
+            border-bottom: 1px solid #eee;
+        }
+
+        .verification li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            width: 1.75rem;
+            height: 1.75rem;
+            background: var(--blue);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 1.75rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .bottom-line {
+            background: #263238;
+            color: white;
+            padding: 1.25rem 1.5rem;
+            border-radius: 6px;
+            margin-top: 2rem;
+        }
+
+        .bottom-line strong { color: #80cbc4; }
+
+        footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<h1>RHEL 8 &rarr; RHEL 9 Compatibility Assessment</h1>
+<p class="subtitle">ICCommand Application &mdash; Eastern Michigan University</p>
+
+<div class="context">
+    The IT department is upgrading the production server from RHEL 8 to RHEL 9. This report assesses the ICCommand codebase against three known risk areas: OpenSSL 3.0 migration, binary dependency rebuilds, and PCRE2 engine changes.
+</div>
+
+<!-- ============================================================ -->
+<h2>1. OpenSSL 3.0 (The "Crypto" Break) <span class="badge badge-action">Action Required</span></h2>
+
+<h3>LDAP Connection <span class="badge badge-high">High Risk</span></h3>
+
+<p>The LDAP configuration in <code>config/services.yaml:33-40</code> connects to <code>ad.emich.edu</code> on <strong>port 389 with <code>encryption: none</code></strong>. This is the biggest compatibility concern:</p>
+
+<ul>
+    <li><strong>RHEL 9's stricter crypto policy</strong> may reject the unencrypted LDAP bind. The underlying OpenLDAP client library is upgraded from 2.4.x to 2.6.x on RHEL 9 with stricter defaults.</li>
+    <li><strong>Passwords are transmitted in cleartext</strong> during LDAP authentication (used in staging and production per <code>config/packages/security.yaml:96-100, 114-118</code>).</li>
+</ul>
+
+<div class="callout callout-danger">
+    <strong>Recommended Fix &mdash; Upgrade to LDAPS or STARTTLS:</strong>
+</div>
+
+<pre><code><span class="comment"># Option A: LDAPS (preferred - encrypted from the start)</span>
+<span class="key">Symfony\Component\Ldap\Adapter\ExtLdap\Adapter</span>:
+  <span class="key">arguments</span>:
+    - <span class="key">host</span>: <span class="value">ad.emich.edu</span>
+      <span class="key">port</span>: <span class="value">636</span>
+      <span class="key">encryption</span>: <span class="value">ssl</span>
+      <span class="key">options</span>:
+        <span class="key">protocol_version</span>: <span class="value">3</span>
+        <span class="key">referrals</span>: <span class="value">false</span>
+
+<span class="comment"># Option B: STARTTLS (upgrades plaintext connection to TLS)</span>
+<span class="key">Symfony\Component\Ldap\Adapter\ExtLdap\Adapter</span>:
+  <span class="key">arguments</span>:
+    - <span class="key">host</span>: <span class="value">ad.emich.edu</span>
+      <span class="key">port</span>: <span class="value">389</span>
+      <span class="key">encryption</span>: <span class="value">tls</span>
+      <span class="key">options</span>:
+        <span class="key">protocol_version</span>: <span class="value">3</span>
+        <span class="key">referrals</span>: <span class="value">false</span></code></pre>
+
+<div class="callout callout-warning">
+    <strong>Before changing:</strong> Confirm with your AD/LDAP team whether <code>ad.emich.edu</code> supports LDAPS on port 636 or STARTTLS on port 389.
+</div>
+
+<h3>Database Connections <span class="badge badge-low">Low Risk</span></h3>
+<p>All three database connections (<code>default</code>, <code>programs</code>, <code>dps</code>) in <code>config/packages/doctrine.yaml</code> use <code>pdo_mysql</code> without explicit SSL/TLS. If the database server is on the same host or trusted network, this is fine. If it crosses an untrusted network, you'd want to add SSL options, but that's independent of the RHEL upgrade.</p>
+
+<h3>Password Hashing <span class="badge badge-none">No Risk</span></h3>
+<p><code>config/packages/security.yaml:8-9</code> uses <code>"auto"</code> (bcrypt). No MD5/SHA1 password hashing that would conflict with OpenSSL 3.0's stricter defaults.</p>
+
+<h3>Mailer <span class="badge badge-none">No Risk</span></h3>
+<p>Currently set to <code>null://localhost</code> in <code>.env</code>. No SMTP TLS to worry about until a real mailer is configured.</p>
+
+<h3>Outbound HTTPS Calls <span class="badge badge-none">No Risk</span></h3>
+<p>No Guzzle, HttpClient, or curl usage found in application code. No external API integrations to worry about.</p>
+
+<!-- ============================================================ -->
+<h2>2. Dependency Management (The Binary Break) <span class="badge badge-action">Action Required</span></h2>
+
+<p>All PHP extensions must be <strong>reinstalled from RHEL 9-compatible packages</strong> (not copied from RHEL 8).</p>
+
+<h3>Required PHP Extensions</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Extension</th>
+            <th>System Library</th>
+            <th>RHEL 9 Package</th>
+            <th>Used By</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>pdo_mysql</code></td>
+            <td>libmysqlclient / mariadb-connector</td>
+            <td><code>php-mysqlnd</code></td>
+            <td>All 3 database connections</td>
+        </tr>
+        <tr>
+            <td><code>mysqli</code></td>
+            <td>libmysqlclient / mariadb-connector</td>
+            <td><code>php-mysqlnd</code></td>
+            <td>Legacy MySQL access</td>
+        </tr>
+        <tr>
+            <td><code>gd</code></td>
+            <td>libpng, libjpeg-turbo, freetype</td>
+            <td><code>php-gd</code> + devel packages</td>
+            <td>Liip Imagine image processing</td>
+        </tr>
+        <tr>
+            <td><code>ldap</code></td>
+            <td>openldap</td>
+            <td><code>php-ldap</code> + <code>openldap-devel</code></td>
+            <td>LDAP authentication</td>
+        </tr>
+        <tr>
+            <td><code>zip</code></td>
+            <td>libzip</td>
+            <td><code>php-pecl-zip</code> + <code>libzip-devel</code></td>
+            <td>ZIP handling</td>
+        </tr>
+        <tr>
+            <td><code>iconv</code></td>
+            <td>glibc</td>
+            <td><code>php-iconv</code> (usually bundled)</td>
+            <td>String encoding</td>
+        </tr>
+        <tr>
+            <td><code>mbstring</code></td>
+            <td>oniguruma</td>
+            <td><code>php-mbstring</code> + <code>oniguruma-devel</code></td>
+            <td>Required by Liip Imagine</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>GD Extension Configuration</h3>
+<p>The Dockerfile shows GD is configured with <code>--enable-gd --with-freetype --with-jpeg</code>. The Liip Imagine config (<code>config/packages/liip_imagine.yaml:4</code>) explicitly uses <code>driver: "gd"</code>. Ensure the RHEL 9 GD package is built with FreeType and JPEG support.</p>
+
+<h3>PHP 8.5 Availability</h3>
+<div class="callout callout-warning">
+    <strong>RHEL 9 standard repos do not include PHP 8.5.</strong>
+    Your <code>composer.json</code> requires <code>php &gt;= 8.5</code>. You'll need the Remi repository: switch from <code>remi-release-8.rpm</code> to <code>remi-release-9.rpm</code>.
+</div>
+
+<pre><code>dnf module enable php:remi-8.5
+dnf install php php-cli php-fpm php-mysqlnd php-gd \
+    php-ldap php-mbstring php-pecl-zip php-iconv</code></pre>
+
+<h3>Node.js <span class="badge badge-low">Low Risk</span></h3>
+<p>No <code>.nvmrc</code> or <code>.node-version</code> file exists. <code>package.json</code> has no <code>engines</code> field. RHEL 9 provides Node.js 18+ in standard repos, which is compatible with the webpack 5 / Vue 3 toolchain.</p>
+
+<!-- ============================================================ -->
+<h2>3. PCRE2 Engine Differences <span class="badge badge-low">Low Risk</span></h2>
+
+<p>Found <strong>15 regex patterns</strong> across the codebase. All are simple and well-formed:</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>File</th>
+            <th>Pattern(s)</th>
+            <th>Risk</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>RedirectController.php</code></td>
+            <td><code>/ /</code>, <code>/emich\.edu/</code>, <code>/invalid /</code></td>
+            <td>None &mdash; simple literals</td>
+        </tr>
+        <tr>
+            <td><code>ProgramsService.php</code></td>
+            <td><code>/emich\.edu/</code>, <code>/[^a-z0-9]/</code>, <code>/-+/</code></td>
+            <td>None &mdash; standard character classes</td>
+        </tr>
+        <tr>
+            <td><code>Document.php:152</code></td>
+            <td><code>/[^A-Za-z0-9 _ .-]/</code></td>
+            <td>Minimal &mdash; hyphen at end (safe)</td>
+        </tr>
+        <tr>
+            <td><code>PhotoRequestController.php:201</code></td>
+            <td><code>/.*API.*/i</code></td>
+            <td>None</td>
+        </tr>
+        <tr>
+            <td><code>DirectoryController.php:97,111</code></td>
+            <td><code>/.*API.*/i</code>, <code>/[^A-Za-z0-9 ]/</code></td>
+            <td>None</td>
+        </tr>
+        <tr>
+            <td><code>Department.php:315</code></td>
+            <td><code>/[^a-zA-Z0-9]+/</code></td>
+            <td>None</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="callout callout-success">
+    <strong>No problematic patterns found.</strong> No unescaped braces, no <code>\p</code> without braces, no ambiguous escape sequences. No regex-based Symfony route requirements or <code>#[Assert\Regex]</code> validators are used. The PCRE2 upgrade should be transparent.
+</div>
+
+<!-- ============================================================ -->
+<h2>4. Other Findings</h2>
+
+<h3>Apache <span class="badge badge-none">No Risk</span></h3>
+<p>RHEL 8 and 9 both ship Apache 2.4.x. The <code>public/.htaccess</code> uses standard rewrite rules. <code>mod_rewrite</code> is the only non-default module needed.</p>
+
+<h3>MariaDB <span class="badge badge-low">Low Risk</span></h3>
+<p>RHEL 9 provides MariaDB 10.5/10.6. The app uses <code>utf8mb4</code> charset with no version-specific SQL. Should be seamless.</p>
+
+<h3>Background Workers</h3>
+<p>No cron jobs, systemd services, or supervisor configs found. The app is purely request-driven with no background workers to migrate.</p>
+
+<!-- ============================================================ -->
+<h2>Summary of Required Actions</h2>
+
+<table class="summary-table">
+    <thead>
+        <tr>
+            <th>Priority</th>
+            <th>Action</th>
+            <th>Risk if Skipped</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-high">High</span></td>
+            <td>Upgrade LDAP to LDAPS/STARTTLS<br><code>config/services.yaml:33-40</code></td>
+            <td>Auth may fail on RHEL 9; credentials sent in plaintext</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-high">High</span></td>
+            <td>Install PHP 8.5 from Remi repo for RHEL 9</td>
+            <td>App won't run</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-high">High</span></td>
+            <td>Reinstall all PHP extensions from RHEL 9 packages</td>
+            <td>Extensions will crash or fail to load</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-medium">Medium</span></td>
+            <td>Verify <code>ad.emich.edu</code> certificate is trusted by RHEL 9's CA bundle</td>
+            <td>LDAP auth failures after enabling LDAPS</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-low">Low</span></td>
+            <td>Test image upload/processing (GD + Liip Imagine)</td>
+            <td>Possible image handling regression</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-low">Low</span></td>
+            <td>If LDAP fails: <code>update-crypto-policies --set DEFAULT:SHA1</code></td>
+            <td>Temporary workaround only</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>Post-Upgrade Verification Checklist</h2>
+
+<div class="verification">
+    <ol>
+        <li><code>php -m</code> &mdash; verify all required extensions are loaded: pdo_mysql, mysqli, gd, ldap, zip, iconv, mbstring</li>
+        <li><code>php -r "echo gd_info()['FreeType Support'] ? 'OK' : 'MISSING';"</code> &mdash; verify GD has FreeType support</li>
+        <li>Test LDAP login on <strong>staging first</strong></li>
+        <li>Upload a profile image and map item image to verify GD / Liip Imagine</li>
+        <li>Test all three database connections (main app, programs catalog, crime log)</li>
+        <li>Run <code>php bin/phpunit</code> to catch any regressions</li>
+        <li>Build frontend assets with <code>npm run build</code> to verify Node.js compatibility</li>
+    </ol>
+</div>
+
+<!-- ============================================================ -->
+<div class="bottom-line">
+    <strong>Bottom Line:</strong> The only code change needed is updating the LDAP encryption setting in <code>config/services.yaml</code>. Everything else is server-level package management. No PHP code, regex patterns, or application logic needs to change.
+</div>
+
+<footer>
+    Generated February 27, 2026 &mdash; ICCommand RHEL 9 Migration Assessment
+</footer>
+
+</body>
+</html>
