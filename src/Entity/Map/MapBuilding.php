@@ -100,32 +100,32 @@ class MapBuilding extends MapItem
 		return self::ITEM_TYPE;
 	}
 
-	public function addBathroom(MapBathroom $bathroom = null)
+	public function addBathroom(?MapBathroom $bathroom = null)
 	{
 		$this->bathrooms[] = $bathroom;
 	}
 
-	public function addDiningOption(MapDining $diningOption = null)
+	public function addDiningOption(?MapDining $diningOption = null)
 	{
 		$this->diningOptions[] = $diningOption;
 	}
 
-	public function addEmergencyDevice(MapEmergency $emergencyDevice = null)
+	public function addEmergencyDevice(?MapEmergency $emergencyDevice = null)
 	{
 		$this->emergencyDevices[] = $emergencyDevice;
 	}
 
-	public function addExhibit(MapExhibit $exhibit = null)
+	public function addExhibit(?MapExhibit $exhibit = null)
 	{
 		$this->exhibits[] = $exhibit;
 	}
 
-	public function addService(MapService $service = null)
+	public function addService(?MapService $service = null)
 	{
 		$this->services[] = $service;
 	}
 
-	public function addDispenser(MapDispenser $dispenser = null)
+	public function addDispenser(?MapDispenser $dispenser = null)
 	{
 		$this->dispensers[] = $dispenser;
 	}

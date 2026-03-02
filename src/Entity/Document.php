@@ -87,7 +87,7 @@ abstract class Document
 		return $this->path;
 	}
 
-	public function setFile(UploadedFile $file = null)
+	public function setFile(?UploadedFile $file = null)
 	{
 		$this->file = $file;
 		if (isset($this->path)) {
