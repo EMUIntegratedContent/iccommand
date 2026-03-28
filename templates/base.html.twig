@@ -53,6 +53,11 @@
                     <a class="nav-link" href="/programs">Degrees & Programs</a>
                 </li>
             {% endif %}
+            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_GRADCAS_VIEW') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/gradcas">GradCAS</a>
+                </li>
+            {% endif %}
             {% if is_granted('ROLE_USER') %}
             <li class="nav-item">
                 <a class="nav-link" href="/applinks">Ext. App Links</a>

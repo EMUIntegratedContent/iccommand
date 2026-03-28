@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit GradCAS Link{% endblock %}
+
+{% block modulenav %}
+  {% include 'gradcas/nav_gradcas.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <gradcas-link-form :item-exists="true" start-mode="edit" item-id="{{ id }}" :permissions="[{{ permissions }}]"></gradcas-link-form>
+</div>
+{% endblock %}

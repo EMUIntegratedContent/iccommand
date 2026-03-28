@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create GradCAS Link{% endblock %}
+
+{% block modulenav %}
+  {% include 'gradcas/nav_gradcas.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<h1 class="display-4">Create Link</h1>
+<p class="text-muted">Cycle: {{ cycleName }}</p>
+<div id="app">
+    <gradcas-link-form :permissions="[{{ permissions }}]" cycle-id="{{ cycleId }}"></gradcas-link-form>
+</div>
+{% endblock %}

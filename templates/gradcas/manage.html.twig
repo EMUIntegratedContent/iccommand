@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}GradCAS App Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'gradcas/nav_gradcas.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-4">GradCAS App Management</h1>
+  <app-manage role-prefix="ROLE_GRADCAS_" app-slug="gradcas" app-name="GradCAS App" current-user="{{ app.user.username }}"></app-manage>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}GradCAS App Links{% endblock %}
+
+{% block modulenav %}
+  {% include 'gradcas/nav_gradcas.html.twig' %}
+{% endblock %}
+
+{% block body %}
+  <div id="app">
+    <gradcas-link-list :permissions="[{{ permissions }}]" :current-cycle-id="{{ currentCycleId }}"></gradcas-link-list>
+  </div>
+{% endblock %}

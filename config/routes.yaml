@@ -49,3 +49,11 @@ photorequests:
 emergency:
   resource: App\Controller\Api\Emergency\EmergencyController
   prefix: /api/emergency/
+
+gradcas:
+  resource: App\Controller\Api\GradCas\GradCasController
+  prefix: /api/gradcas/
+
+gradcas_external:
+  resource: App\Controller\Api\GradCas\GradCasExternalController
+  prefix: /api/external/gradcas/

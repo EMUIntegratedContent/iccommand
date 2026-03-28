@@ -101,6 +101,13 @@ app.component("photorequests-form", require("./components/photorequest/PhotoRequ
 /* Emergency Banner and Notices */
 app.component("emergency-banner", require("./components/emergency/EmergencyBanner.vue").default);
 
+/* GradCAS Application */
+app.component("gradcas-cycle-list", require("./components/gradcas/GradCasCycleList.vue").default);
+app.component("gradcas-cycle-form", require("./components/gradcas/GradCasCycleForm.vue").default);
+app.component("gradcas-link-list", require("./components/gradcas/GradCasLinkList.vue").default);
+app.component("gradcas-link-form", require("./components/gradcas/GradCasLinkForm.vue").default);
+app.component("gradcas-link-delete-modal", require("./components/gradcas/GradCasLinkDeleteModal.vue").default);
+
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(CKEditor)
