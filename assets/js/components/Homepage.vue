@@ -128,6 +128,16 @@ export default {
 					display: false,
           category: 'Campus Safety'
 				},
+				gradcas: {
+					// Added April 2026
+					title: "GradCAS Application Links",
+					description:
+						"The GradCAS application links application manages the links to the GradCAS directory for all graduate programs.",
+					buttonText: "Manage Links",
+					buttonLink: "/gradcas",
+					display: false,
+					category: 'Web Services'
+				}
 			}
 		}
 	},
@@ -226,6 +236,12 @@ export default {
 				role.includes("ROLE_GLOBAL_ADMIN")
 			) {
 				this.userModules.emergency.display = true
+			}
+			if (
+				role.includes("ROLE_GRADCAS_") ||
+				role.includes("ROLE_GLOBAL_ADMIN")
+			) {
+				this.userModules.gradcas.display = true
 			}
 		}
 	},
