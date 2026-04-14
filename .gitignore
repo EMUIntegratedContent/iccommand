@@ -44,3 +44,6 @@ yarn-error.log
 ###> liip/imagine-bundle ###
 /public/media/cache/
 ###< liip/imagine-bundle ###
+
+##ignore any .sql files that start with 'ic_'
+ic_*.sql
