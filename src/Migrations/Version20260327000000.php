@@ -19,7 +19,7 @@ final class Version20260327000000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE TABLE gradcas_cycle (
+        $this->addSql('CREATE TABLE IF NOT EXISTS gradcas_cycle (
             id INT AUTO_INCREMENT NOT NULL,
             cycle_name VARCHAR(255) NOT NULL,
             current TINYINT(1) NOT NULL DEFAULT 0,
@@ -30,7 +30,7 @@ final class Version20260327000000 extends AbstractMigration
             PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
 
-        $this->addSql('CREATE TABLE gradcas_link (
+        $this->addSql('CREATE TABLE IF NOT EXISTS gradcas_link (
             id INT AUTO_INCREMENT NOT NULL,
             cycle_id INT NOT NULL,
             program_id INT DEFAULT NULL,

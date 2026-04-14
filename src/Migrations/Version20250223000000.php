@@ -20,6 +20,13 @@ final class Version20250223000000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        $colExists = $this->connection->fetchOne(
+            "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'programs' AND TABLE_NAME = 'program_websites' AND COLUMN_NAME = 'program_id'"
+        );
+        if ($colExists) {
+            $this->warnIf(true, 'program_id column already exists on programs.program_websites, skipping');
+            return;
+        }
         $this->addSql('ALTER TABLE programs.program_websites ADD program_id INT DEFAULT NULL');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_program_websites_program_id ON programs.program_websites (program_id)');
         $this->addSql('ALTER TABLE programs.program_websites ADD CONSTRAINT FK_program_websites_program FOREIGN KEY (program_id) REFERENCES programs.program_programs (id)');
@@ -27,8 +34,8 @@ final class Version20250223000000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE programs.program_websites DROP FOREIGN KEY FK_program_websites_program');
-        $this->addSql('DROP INDEX UNIQ_program_websites_program_id ON programs.program_websites');
-        $this->addSql('ALTER TABLE programs.program_websites DROP program_id');
+        $this->addSql('ALTER TABLE programs.program_websites DROP FOREIGN KEY IF EXISTS FK_program_websites_program');
+        $this->addSql('DROP INDEX IF EXISTS UNIQ_program_websites_program_id ON programs.program_websites');
+        $this->addSql('ALTER TABLE programs.program_websites DROP COLUMN IF EXISTS program_id');
     }
 }

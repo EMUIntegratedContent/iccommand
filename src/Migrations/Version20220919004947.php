@@ -19,13 +19,18 @@ final class Version20220919004947 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        $colType = $this->connection->fetchOne(
+            "SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user' AND COLUMN_NAME = 'username'"
+        );
+        if ($colType === 'varchar') {
+            $this->warnIf(true, 'username column already VARCHAR, skipping');
+            return;
+        }
         $this->addSql('ALTER TABLE user CHANGE username username VARCHAR(50) NOT NULL');
     }
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE user CHANGE username username JSON NOT NULL');
     }
 }
