@@ -67,6 +67,23 @@ class GradCasLinkRepository extends ServiceEntityRepository {
 			->getResult();
 	}
 
+	public function findByDegreeNameAndCycle(string $degreeName, int $cycleId, ?int $excludeId = null): ?GradCasLink
+	{
+		$qb = $this->createQueryBuilder('l')
+			->where('l.degreeName = :degreeName')
+			->andWhere('l.cycle = :cycleId')
+			->setParameter('degreeName', $degreeName)
+			->setParameter('cycleId', $cycleId)
+			->setMaxResults(1);
+
+		if ($excludeId !== null) {
+			$qb->andWhere('l.id != :excludeId')
+				->setParameter('excludeId', $excludeId);
+		}
+
+		return $qb->getQuery()->getOneOrNullResult();
+	}
+
 	public function countByCycle(int $cycleId): int
 	{
 		return $this->createQueryBuilder('l')

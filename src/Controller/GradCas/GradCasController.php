@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class GradCasController extends AbstractController {
@@ -21,6 +22,7 @@ class GradCasController extends AbstractController {
 	}
 
 	#[Route('/gradcas', name: 'gradcas_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_VIEW")'))]
 	public function index(): Response
 	{
 		$permissions = json_encode($this->service->getUserGradCasPermissions());
@@ -34,7 +36,7 @@ class GradCasController extends AbstractController {
 	}
 
 	#[Route('/gradcas/cycles', name: 'gradcas_cycles')]
-	#[IsGranted('ROLE_GRADCAS_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
 	public function cycles(): Response
 	{
 		$permissions = json_encode($this->service->getUserGradCasPermissions());
@@ -44,7 +46,7 @@ class GradCasController extends AbstractController {
 	}
 
 	#[Route('/gradcas/cycle/create', name: 'gradcas_cycle_create')]
-	#[IsGranted('ROLE_GRADCAS_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
 	public function cycleCreate(): Response
 	{
 		$permissions = json_encode($this->service->getUserGradCasPermissions());
@@ -54,7 +56,7 @@ class GradCasController extends AbstractController {
 	}
 
 	#[Route('/gradcas/cycle/{id}/edit', name: 'gradcas_cycle_edit')]
-	#[IsGranted('ROLE_GRADCAS_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
 	public function cycleEdit(int $id): Response
 	{
 		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($id);
@@ -70,7 +72,7 @@ class GradCasController extends AbstractController {
 	}
 
 	#[Route('/gradcas/link/create/{cycleId}', name: 'gradcas_link_create')]
-	#[IsGranted('ROLE_GRADCAS_EDIT')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_EDIT")'))]
 	public function linkCreate(int $cycleId): Response
 	{
 		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($cycleId);
@@ -87,7 +89,7 @@ class GradCasController extends AbstractController {
 	}
 
 	#[Route('/gradcas/link/{id}/edit', name: 'gradcas_link_edit')]
-	#[IsGranted('ROLE_GRADCAS_EDIT')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_EDIT")'))]
 	public function linkEdit(int $id): Response
 	{
 		$link = $this->doctrine->getRepository(GradCasLink::class)->find($id);
@@ -103,7 +105,7 @@ class GradCasController extends AbstractController {
 	}
 
 	#[Route('/gradcas/manage', name: 'gradcas_manage')]
-	#[IsGranted('ROLE_GRADCAS_ADMIN')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
 	public function manage(): Response
 	{
 		return $this->render('gradcas/manage.html.twig', []);

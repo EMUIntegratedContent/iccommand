@@ -30,20 +30,21 @@
         </button>
       </div>
 
-      <form @submit.prevent="submitCycle">
+      <VeeForm @submit="submitCycle" :validation-schema="cycleSchema" v-slot="{ errors }">
         <fieldset>
           <div class="form-group">
-            <label for="cycleName">Cycle Name *</label>
-            <input
+            <label for="cycleName">Cycle Name <span class="text-danger">*</span></label>
+            <Field
+              name="cycleName"
               type="text"
               id="cycleName"
               class="form-control"
-              :class="{ 'form-control-plaintext': !isEditMode }"
+              :class="{ 'is-invalid': errors.cycleName, 'form-control-plaintext': !isEditMode }"
               :readonly="!isEditMode"
               v-model="record.cycleName"
               placeholder="e.g., Summer '26, Fall '26, or Winter '27"
-              required
             />
+            <div class="invalid-feedback">{{ errors.cycleName }}</div>
           </div>
         </fieldset>
 
@@ -53,7 +54,7 @@
           </button>
           <button v-if="itemExists" type="button" class="btn btn-danger" @click="showDeleteModal = true">Delete</button>
         </div>
-      </form>
+      </VeeForm>
 
       <div v-if="itemExists" class="mt-3 text-muted">
         <small>Created by {{ record.createdBy }} | Updated by {{ record.updatedBy }}</small>
@@ -93,6 +94,8 @@
 
 <script>
 import Heading from "../utils/Heading.vue";
+import { Field, Form as VeeForm } from 'vee-validate';
+import * as Yup from 'yup';
 
 export default {
   created() {
@@ -103,7 +106,7 @@ export default {
       this.isEditMode = true;
     }
   },
-  components: { Heading },
+  components: { Heading, Field, VeeForm },
   props: {
     permissions: { type: Array, required: true },
     itemExists: { type: Boolean, default: false },
@@ -133,6 +136,11 @@ export default {
       return this.isEditMode
         ? '<i class="fa fa-unlock"></i> Editing'
         : '<i class="fa fa-lock"></i> Locked';
+    },
+    cycleSchema() {
+      return Yup.object({
+        cycleName: Yup.string().required().label('Cycle Name')
+      });
     }
   },
   methods: {

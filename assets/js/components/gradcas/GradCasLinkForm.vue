@@ -2,6 +2,7 @@
   <div>
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
+      <a v-if="apiError.existingId" :href="'/gradcas/link/' + apiError.existingId + '/edit'">View existing link</a>
     </div>
     <div v-if="successMessage" class="alert alert-success fade show" role="alert">
       {{ successMessage }}
@@ -30,7 +31,7 @@
         </button>
       </div>
 
-      <form @submit.prevent="submitLink">
+      <VeeForm @submit="submitLink" :validation-schema="linkSchema" v-slot="{ errors }">
         <fieldset>
           <legend>Link Details</legend>
 
@@ -58,32 +59,34 @@
 
           <!-- Degree Name -->
           <div class="form-group">
-            <label for="degreeName">Degree/Program Name *</label>
-            <input
+            <label for="degreeName">Degree/Program Name <span class="text-danger">*</span></label>
+            <Field
+              name="degreeName"
               type="text"
               id="degreeName"
               class="form-control"
-              :class="{ 'form-control-plaintext': !isEditMode }"
+              :class="{ 'is-invalid': errors.degreeName, 'form-control-plaintext': !isEditMode }"
               :readonly="!isEditMode"
               v-model="record.degreeName"
               placeholder="e.g., Accounting [M.S.]"
-              required
             />
+            <div class="invalid-feedback">{{ errors.degreeName }}</div>
           </div>
 
           <!-- Link -->
           <div class="form-group">
-            <label for="link">Application Link *</label>
-            <input
+            <label for="link">Application Link <span class="text-danger">*</span></label>
+            <Field
+              name="linkUrl"
               type="url"
               id="link"
               class="form-control"
-              :class="{ 'form-control-plaintext': !isEditMode }"
+              :class="{ 'is-invalid': errors.linkUrl, 'form-control-plaintext': !isEditMode }"
               :readonly="!isEditMode"
               v-model="record.link"
               placeholder="https://..."
-              required
             />
+            <div class="invalid-feedback">{{ errors.linkUrl }}</div>
           </div>
         </fieldset>
 
@@ -93,7 +96,7 @@
           </button>
           <button v-if="itemExists" type="button" class="btn btn-danger" @click="showDeleteModal = true">Delete</button>
         </div>
-      </form>
+      </VeeForm>
 
       <div v-if="itemExists" class="mt-3 text-muted">
         <small>Created by {{ record.createdBy }} | Updated by {{ record.updatedBy }}</small>
@@ -114,6 +117,8 @@
 <script>
 import Heading from "../utils/Heading.vue";
 import VueMultiselect from 'vue-multiselect';
+import { Field, Form as VeeForm } from 'vee-validate';
+import * as Yup from 'yup';
 
 export default {
   created() {
@@ -125,7 +130,7 @@ export default {
     }
     this.fetchPrograms();
   },
-  components: { Heading, VueMultiselect },
+  components: { Heading, VueMultiselect, Field, VeeForm },
   props: {
     permissions: { type: Array, required: true },
     itemExists: { type: Boolean, default: false },
@@ -135,7 +140,7 @@ export default {
   },
   data() {
     return {
-      apiError: { message: null, status: null },
+      apiError: { message: null, status: null, existingId: null },
       successMessage: null,
       isDataLoaded: false,
       isEditMode: this.startMode === 'edit',
@@ -158,6 +163,12 @@ export default {
       return this.isEditMode
         ? '<i class="fa fa-unlock"></i> Editing'
         : '<i class="fa fa-lock"></i> Locked';
+    },
+    linkSchema() {
+      return Yup.object({
+        degreeName: Yup.string().required().label('Degree/Program Name'),
+        linkUrl: Yup.string().required().url().label('Application Link')
+      });
     }
   },
   methods: {
@@ -199,7 +210,7 @@ export default {
 
     submitLink() {
       let self = this;
-      self.apiError = { message: null, status: null };
+      self.apiError = { message: null, status: null, existingId: null };
       self.successMessage = null;
 
       let payload = {
@@ -216,21 +227,30 @@ export default {
             self.isEditMode = false;
           })
           .catch(function(error) {
+            let data = error.response ? error.response.data : null;
             self.apiError.status = error.response ? error.response.status : 500;
-            self.apiError.message = error.response ? error.response.data : 'Failed to update link.';
+            if (data && data.error === 'duplicate') {
+              self.apiError.message = data.message;
+              self.apiError.existingId = data.existingId;
+            } else {
+              self.apiError.message = data || 'Failed to update link.';
+            }
           });
       } else {
         payload.cycleId = parseInt(self.cycleId);
         axios.post('/api/gradcas/links', payload)
-          .then(function() {
-            self.successMessage = 'Link created successfully.';
-            setTimeout(function() {
-              window.location.href = '/gradcas';
-            }, 1500);
+          .then(function(response) {
+            window.location.href = '/gradcas/link/' + response.data.id + '/edit';
           })
           .catch(function(error) {
+            let data = error.response ? error.response.data : null;
             self.apiError.status = error.response ? error.response.status : 500;
-            self.apiError.message = error.response ? error.response.data : 'Failed to create link.';
+            if (data && data.error === 'duplicate') {
+              self.apiError.message = data.message;
+              self.apiError.existingId = data.existingId;
+            } else {
+              self.apiError.message = data || 'Failed to create link.';
+            }
           });
       }
     },

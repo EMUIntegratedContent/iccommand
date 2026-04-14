@@ -37,22 +37,22 @@ class GradCasCycleRepository extends ServiceEntityRepository {
 	{
 		$em = $this->getEntityManager();
 
-		// Unset all cycles
-		$em->createQueryBuilder()
-			->update(GradCasCycle::class, 'c')
-			->set('c.current', ':false')
-			->setParameter('false', false)
-			->getQuery()
-			->execute();
+		$em->wrapInTransaction(function () use ($em, $cycleId) {
+			$em->createQueryBuilder()
+				->update(GradCasCycle::class, 'c')
+				->set('c.current', ':false')
+				->setParameter('false', false)
+				->getQuery()
+				->execute();
 
-		// Set the specified cycle as current
-		$em->createQueryBuilder()
-			->update(GradCasCycle::class, 'c')
-			->set('c.current', ':true')
-			->where('c.id = :id')
-			->setParameter('true', true)
-			->setParameter('id', $cycleId)
-			->getQuery()
-			->execute();
+			$em->createQueryBuilder()
+				->update(GradCasCycle::class, 'c')
+				->set('c.current', ':true')
+				->where('c.id = :id')
+				->setParameter('true', true)
+				->setParameter('id', $cycleId)
+				->getQuery()
+				->execute();
+		});
 	}
 }

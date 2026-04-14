@@ -37,7 +37,7 @@
         class="form-control"
         style="padding:0"
         name="linkSearch"
-        @input="handleSearchInput"
+        @search-change="handleSearchInput"
         @select="handleLinkSelected"
       />
     </div>
@@ -94,7 +94,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">CSV Upload - Links for {{ selectedCycleName }}</h5>
-            <button type="button" class="close" @click="showUploadModal = false" aria-label="Close">
+            <button type="button" class="close" @click="closeUploadModal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -107,7 +107,7 @@
             <div v-if="uploadStatus === 'failed'" class="alert alert-danger">{{ uploadMessage }}</div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" @click="showUploadModal = false">Cancel</button>
+            <button type="button" class="btn btn-default" @click="closeUploadModal">Cancel</button>
             <button type="button" class="btn btn-primary" @click="uploadCsv" :disabled="uploadStatus === 'saving'">
               {{ uploadStatus === 'saving' ? 'Uploading...' : 'Upload' }}
             </button>
@@ -208,9 +208,8 @@ export default {
       this.fetchLinks();
     },
 
-    handleSearchInput(evt) {
-      let searchTerm = evt.target.value;
-      if (searchTerm.length > 2) {
+    handleSearchInput(searchTerm) {
+      if (searchTerm && searchTerm.length > 2) {
         let self = this;
         axios.get(`/api/gradcas/links/${self.selectedCycleId}/search?searchterm=${searchTerm}`)
           .then(function(response) {
@@ -238,6 +237,15 @@ export default {
 
     truncateLink(link) {
       return link.length > 60 ? link.substring(0, 60) + '...' : link;
+    },
+
+    closeUploadModal() {
+      this.showUploadModal = false;
+      this.uploadStatus = 'initial';
+      this.uploadMessage = '';
+      if (this.$refs.csvFile) {
+        this.$refs.csvFile.value = '';
+      }
     },
 
     uploadCsv() {

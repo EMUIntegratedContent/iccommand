@@ -77,6 +77,8 @@ Routes are defined in `config/routes.yaml` mapping controllers to prefixes:
 
 Configured in `config/packages/security.yaml`. Hierarchical role system with per-module role chains (e.g., `ROLE_MAP_VIEW → ROLE_MAP_CREATE → ROLE_MAP_EDIT → ROLE_MAP_DELETE → ROLE_MAP_ADMIN`). `ROLE_GLOBAL_ADMIN` has access to all modules.
 
+**Important:** `ROLE_GLOBAL_ADMIN` does not inherit module-specific roles in the hierarchy — it only inherits `ROLE_USER`. Every `#[IsGranted]` attribute on a route must include `ROLE_GLOBAL_ADMIN` via Expression syntax (e.g., `#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MODULE_ROLE")'))]`) so global admins are never locked out.
+
 Auth method is selected automatically via Symfony `when@` blocks: `dev` uses local form login, `staging` and `prod` use LDAP, `test` uses form login without UserChecker.
 
 ### Rate Limiting
