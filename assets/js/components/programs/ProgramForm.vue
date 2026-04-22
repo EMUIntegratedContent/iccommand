@@ -480,7 +480,7 @@
 					</div>
 				</VeeForm>
 				<gradcas-links-section
-					v-if="progExists && !isEditMode && record.id"
+					v-if="progExists && !isEditMode && record.id && record.catalog === 'graduate'"
 					:program-id="Number(record.id)"
 					:user-can-edit="userCanEdit"
 				/>
