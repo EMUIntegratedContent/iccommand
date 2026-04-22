@@ -67,6 +67,17 @@ class GradCasLinkRepository extends ServiceEntityRepository {
 			->getResult();
 	}
 
+	public function findByProgramId(int $programId): array
+	{
+		return $this->createQueryBuilder('l')
+			->innerJoin('l.cycle', 'c')
+			->where('l.programId = :programId')
+			->orderBy('c.cycleName', 'DESC')
+			->setParameter('programId', $programId)
+			->getQuery()
+			->getResult();
+	}
+
 	public function findByDegreeNameAndCycle(string $degreeName, int $cycleId, ?int $excludeId = null): ?GradCasLink
 	{
 		$qb = $this->createQueryBuilder('l')

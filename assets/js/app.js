@@ -89,6 +89,7 @@ app.component("program-form", require("./components/programs/ProgramForm.vue").d
 app.component("websites-list", require("./components/programs/WebsitesList.vue").default);
 app.component("website-form", require("./components/programs/WebsiteForm.vue").default);
 app.component("keywords-list", require("./components/programs/KeywordsList.vue").default);
+app.component("gradcas-links-section", require("./components/programs/GradcasLinksSection.vue").default);
 
 /* CrimeLog */
 app.component("crimelog-index", require("./components/crimelog/CrimeLogIndex.vue").default);

@@ -145,6 +145,15 @@ class GradCasController extends AbstractController
 
 	/* ========================= Link Endpoints ========================= */
 
+	#[Route('/links/by-program/{programId}', methods: ['GET'], requirements: ['programId' => '\d+'])]
+	#[IsGranted('ROLE_USER')]
+	public function getLinksByProgramAction(int $programId): Response
+	{
+		$links = $this->doctrine->getRepository(GradCasLink::class)->findByProgramId($programId);
+		$serialized = $this->serializer->serialize($links, "json", ['groups' => 'gradcas']);
+		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
+	}
+
 	#[Route('/links/{cycleId}', methods: ['GET'], requirements: ['cycleId' => '\d+'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_VIEW")'))]
 	public function getLinksAction(int $cycleId, Request $request): Response
