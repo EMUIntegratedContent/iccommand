@@ -30,6 +30,10 @@ class GradCasCycle {
 	#[Groups("gradcas")]
 	private bool $current = false;
 
+	#[ORM\Column(type: "boolean")]
+	#[Groups("gradcas")]
+	private bool $isPublic = false;
+
 	#[ORM\OneToMany(targetEntity: GradCasLink::class, mappedBy: "cycle", cascade: ["remove"])]
 	private Collection $links;
 
@@ -82,6 +86,15 @@ class GradCasCycle {
 
 	public function setCurrent(bool $current): self {
 		$this->current = $current;
+		return $this;
+	}
+
+	public function isPublic(): bool {
+		return $this->isPublic;
+	}
+
+	public function setIsPublic(bool $isPublic): self {
+		$this->isPublic = $isPublic;
 		return $this;
 	}
 

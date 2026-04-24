@@ -20,7 +20,20 @@
           <tr>
             <th scope="col">Cycle Name</th>
             <th scope="col">Links</th>
-            <th scope="col">Current</th>
+            <th scope="col">
+              Current
+              <span
+                title="Mark a cycle current to make it the first that appears on the list view. Only one cycle can be the current cycle."
+                style="cursor: help"
+              ><i class="fa fa-info-circle text-muted"></i></span>
+            </th>
+            <th scope="col">
+              Public
+              <span
+                title='Mark a cycle public to show it as an option under the "Start Terms" dropdown on https://emich.edu/apply'
+                style="cursor: help"
+              ><i class="fa fa-info-circle text-muted"></i></span>
+            </th>
             <th scope="col">Created By</th>
             <th scope="col">Actions</th>
           </tr>
@@ -40,6 +53,20 @@
                 />
                 <label class="custom-control-label" :for="'current-' + cycle.id">
                   {{ cycle.current ? 'Yes' : 'No' }}
+                </label>
+              </div>
+            </td>
+            <td>
+              <div class="custom-control custom-switch">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  :id="'public-' + cycle.id"
+                  :checked="cycle.isPublic"
+                  @change="togglePublic(cycle)"
+                />
+                <label class="custom-control-label" :for="'public-' + cycle.id">
+                  {{ cycle.isPublic ? 'Yes' : 'No' }}
                 </label>
               </div>
             </td>
@@ -127,6 +154,23 @@ export default {
           self.apiError.status = error.response ? error.response.status : 500;
           self.apiError.message = "Failed to load cycles.";
           self.loading = false;
+        });
+    },
+
+    togglePublic(cycle) {
+      let self = this;
+      self.successMessage = null;
+      self.apiError = { message: null, status: null };
+
+      axios.put('/api/gradcas/cycles/' + cycle.id + '/public')
+        .then(function() {
+          self.successMessage = '"' + cycle.cycleName + '" public status updated.';
+          self.fetchCycles();
+        })
+        .catch(function(error) {
+          self.apiError.status = error.response ? error.response.status : 500;
+          self.apiError.message = "Failed to update public status.";
+          self.fetchCycles();
         });
     },
 

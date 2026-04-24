@@ -25,6 +25,16 @@ class GradCasCycleRepository extends ServiceEntityRepository {
 			->getResult();
 	}
 
+	public function findPublicCycles(): array
+	{
+		return $this->createQueryBuilder('c')
+			->where('c.isPublic = :true')
+			->setParameter('true', true)
+			->orderBy('c.cycleName', 'ASC')
+			->getQuery()
+			->getResult();
+	}
+
 	public function findCurrentCycle(): ?GradCasCycle
 	{
 		return $this->findOneBy(['current' => true]);

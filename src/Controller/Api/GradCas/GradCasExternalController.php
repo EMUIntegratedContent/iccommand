@@ -25,31 +25,37 @@ class GradCasExternalController extends AbstractController
 	#[Route('/cycles', methods: ['GET'])]
 	public function getCyclesAction(): Response
 	{
-		$cycles = $this->doctrine->getRepository(GradCasCycle::class)->findAllOrderedByName();
+		$cycles = $this->doctrine->getRepository(GradCasCycle::class)->findPublicCycles();
 
-		$serialized = $this->serializer->serialize($cycles, "json", ['groups' => 'gradcas']);
+		// Just return the cycleName and id for the external API
+		$result = array_map(fn($cycle) => [
+			'cycleName' => $cycle->getCycleName(),
+			'id' => $cycle->getId(),
+		], $cycles);
+
+		$serialized = $this->serializer->serialize($result, "json");
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
-	#[Route('/links', methods: ['GET'])]
-	public function getLinksAction(Request $request): Response
+	#[Route('/links/{cycleId}', methods: ['GET'])]
+	public function getLinksAction(int $cycleId): Response
 	{
-		$cycleId = $request->query->get('cycle');
+		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($cycleId);
 
-		if ($cycleId) {
-			$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($cycleId);
-		} else {
-			// Default to the current cycle
-			$cycle = $this->doctrine->getRepository(GradCasCycle::class)->findCurrentCycle();
+		if (!$cycle || !$cycle->isPublic()) {
+			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
 		}
 
-		if (!$cycle) {
-			return new Response(json_encode("No cycle found."), 404, ["Content-Type" => "application/json"]);
-		}
+		/** @var \App\Repository\GradCas\GradCasLinkRepository $linkRepo */
+		$linkRepo = $this->doctrine->getRepository(GradCasLink::class);
+		$links = $linkRepo->findByCycle($cycle->getId());
 
-		$links = $this->doctrine->getRepository(GradCasLink::class)->findByCycle($cycle->getId());
+		// Just return the degreeName and link for the external API
+		$result = array_map(fn($link) => [
+			'degreeName' => $link->getDegreeName(),
+			'link' => $link->getLink(),
+		], $links);
 
-		$serialized = $this->serializer->serialize($links, "json", ['groups' => 'gradcas']);
-		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
+		return new Response(json_encode($result), 200, ["Content-Type" => "application/json"]);
 	}
 }

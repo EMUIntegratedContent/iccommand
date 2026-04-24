@@ -72,6 +72,7 @@ class GradCasController extends AbstractController
 
 		$cycle = new GradCasCycle();
 		$cycle->setCycleName($data['cycleName'] ?? '');
+		$cycle->setIsPublic((bool)($data['isPublic'] ?? false));
 
 		$errors = $this->service->validate($cycle);
 		if (count($errors) > 0) {
@@ -97,6 +98,9 @@ class GradCasController extends AbstractController
 
 		$data = json_decode($request->getContent(), true);
 		$cycle->setCycleName($data['cycleName'] ?? $cycle->getCycleName());
+		if (array_key_exists('isPublic', $data)) {
+			$cycle->setIsPublic((bool)$data['isPublic']);
+		}
 
 		$errors = $this->service->validate($cycle);
 		if (count($errors) > 0) {
@@ -123,6 +127,22 @@ class GradCasController extends AbstractController
 
 		// Refresh the entity to get updated state
 		$this->em->refresh($cycle);
+
+		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'gradcas']);
+		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
+	}
+
+	#[Route('/cycles/{id}/public', methods: ['PUT'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
+	public function toggleCyclePublicAction(int $id): Response
+	{
+		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($id);
+		if (!$cycle) {
+			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
+		}
+
+		$cycle->setIsPublic(!$cycle->isPublic());
+		$this->em->flush();
 
 		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'gradcas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);

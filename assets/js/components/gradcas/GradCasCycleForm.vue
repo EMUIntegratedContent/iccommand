@@ -46,6 +46,16 @@
             />
             <div class="invalid-feedback">{{ errors.cycleName }}</div>
           </div>
+          <div class="form-group form-check mt-2">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="isPublic"
+              v-model="record.isPublic"
+              :disabled="!isEditMode"
+            />
+            <label class="form-check-label" for="isPublic">Public (visible via external API)</label>
+          </div>
         </fieldset>
 
         <div v-if="isEditMode" class="form-group mt-3">
@@ -124,6 +134,7 @@ export default {
         id: null,
         cycleName: '',
         current: false,
+        isPublic: false,
         createdBy: '',
         updatedBy: ''
       },
@@ -167,7 +178,7 @@ export default {
       self.apiError = { message: null, status: null };
       self.successMessage = null;
 
-      let payload = { cycleName: self.record.cycleName };
+      let payload = { cycleName: self.record.cycleName, isPublic: self.record.isPublic };
 
       if (self.itemExists) {
         axios.put('/api/gradcas/cycles/' + self.itemId, payload)
