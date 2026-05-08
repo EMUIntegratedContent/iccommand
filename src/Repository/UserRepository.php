@@ -45,14 +45,15 @@ class UserRepository extends ServiceEntityRepository
     public function findByLikeRole($value, $not = false): array
     {
         $sql = $this->createQueryBuilder('u');
-        if($not === true) {
-            $sql->andWhere('u.roles NOT LIKE :val');
+        if ($not === true) {
+            $sql->andWhere('u.roles NOT LIKE :val')
+                ->andWhere('u.enabled = :enabled')
+                ->setParameter('enabled', true);
         } else {
             $sql->andWhere('u.roles LIKE :val');
         }
         $sql->setParameter('val', '%' . $value . '%')
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10);
+            ->orderBy('u.id', 'ASC');
 
         return $sql->getQuery()->getResult();
     }
