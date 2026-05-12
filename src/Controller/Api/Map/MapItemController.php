@@ -242,7 +242,7 @@ class MapItemController extends AbstractController
 				foreach ($data['bathrooms'] as $bldgBathroom) {
 					$bathroom = new MapBathroom();
 					$bathroom->setName($bldgBathroom['name']);
-					$bathroom->setIsGenderNeutral($bldgBathroom['isGenderNeutral']);
+					$bathroom->setIsGenderNeutral(isset($bldgBathroom['isGenderNeutral']) ? $bldgBathroom['isGenderNeutral'] : false);
 					$bathroom->setBuilding($mapItem);
 
 					$bathroomErrors = $this->service->validate($bathroom);
