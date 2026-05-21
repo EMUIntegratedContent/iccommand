@@ -89,7 +89,7 @@ app.component("program-form", require("./components/programs/ProgramForm.vue").d
 app.component("websites-list", require("./components/programs/WebsitesList.vue").default);
 app.component("website-form", require("./components/programs/WebsiteForm.vue").default);
 app.component("keywords-list", require("./components/programs/KeywordsList.vue").default);
-app.component("gradcas-links-section", require("./components/programs/GradcasLinksSection.vue").default);
+app.component("cas-links-section", require("./components/programs/CasLinksSection.vue").default);
 
 /* CrimeLog */
 app.component("crimelog-index", require("./components/crimelog/CrimeLogIndex.vue").default);
@@ -102,12 +102,12 @@ app.component("photorequests-form", require("./components/photorequest/PhotoRequ
 /* Emergency Banner and Notices */
 app.component("emergency-banner", require("./components/emergency/EmergencyBanner.vue").default);
 
-/* GradCAS Application */
-app.component("gradcas-cycle-list", require("./components/gradcas/GradCasCycleList.vue").default);
-app.component("gradcas-cycle-form", require("./components/gradcas/GradCasCycleForm.vue").default);
-app.component("gradcas-link-list", require("./components/gradcas/GradCasLinkList.vue").default);
-app.component("gradcas-link-form", require("./components/gradcas/GradCasLinkForm.vue").default);
-app.component("gradcas-link-delete-modal", require("./components/gradcas/GradCasLinkDeleteModal.vue").default);
+/* CAS Application */
+app.component("cas-cycle-list", require("./components/cas/CasCycleList.vue").default);
+app.component("cas-cycle-form", require("./components/cas/CasCycleForm.vue").default);
+app.component("cas-link-list", require("./components/cas/CasLinkList.vue").default);
+app.component("cas-link-form", require("./components/cas/CasLinkForm.vue").default);
+app.component("cas-link-delete-modal", require("./components/cas/CasLinkDeleteModal.vue").default);
 
 
 app.component('font-awesome-icon', FontAwesomeIcon)

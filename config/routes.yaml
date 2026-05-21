@@ -50,10 +50,10 @@ emergency:
   resource: App\Controller\Api\Emergency\EmergencyController
   prefix: /api/emergency/
 
-gradcas:
-  resource: App\Controller\Api\GradCas\GradCasController
-  prefix: /api/gradcas/
+cas:
+  resource: App\Controller\Api\Cas\CasController
+  prefix: /api/cas/
 
-gradcas_external:
-  resource: App\Controller\Api\GradCas\GradCasExternalController
-  prefix: /api/external/gradcas/
+cas_external:
+  resource: App\Controller\Api\Cas\CasExternalController
+  prefix: /api/external/cas/

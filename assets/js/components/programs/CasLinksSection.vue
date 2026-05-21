@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-4">
-		<heading>GradCAS Links</heading>
+		<heading>CAS Links</heading>
 		<div v-if="loading">
 			<p style="text-align: center">
 				<img src="/images/loading.gif" alt="Loading..." />
@@ -9,8 +9,8 @@
 		<div v-else-if="hidden"></div>
 		<div v-else-if="links.length === 0">
 			<p>
-				No GradCAS links for this program.
-				<a href="/gradcas">Go to GradCAS Links</a>
+				No CAS links for this program.
+				<a href="/cas">Go to CAS Links</a>
 			</p>
 		</div>
 		<table v-else class="table table-sm">
@@ -49,8 +49,8 @@
 					<td>
 						<a
 							v-if="userCanEdit"
-							:href="'/gradcas/link/' + link.id + '/edit'"
-							title="Edit this GradCAS link"
+							:href="'/cas/link/' + link.id + '/edit'"
+							title="Edit this CAS link"
 						>
 							<font-awesome-icon icon="fa-solid fa-pen-to-square" />
 						</a>
@@ -91,7 +91,7 @@ export default {
 		fetchLinks() {
 			let self = this
 			axios
-				.get("/api/gradcas/links/by-program/" + this.programId)
+				.get("/api/cas/links/by-program/" + this.programId)
 				.then(function (response) {
 					self.links = response.data
 					self.loading = false

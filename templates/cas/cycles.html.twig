@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Manage GradCAS Cycles{% endblock %}
+{% block title %}Manage CAS Cycles{% endblock %}
 
 {% block modulenav %}
-  {% include 'gradcas/nav_gradcas.html.twig' %}
+  {% include 'cas/nav_cas.html.twig' %}
 {% endblock %}
 
 {% block body %}
   <div id="app">
-    <gradcas-cycle-list :permissions="[{{ permissions }}]"></gradcas-cycle-list>
+    <cas-cycle-list :permissions="[{{ permissions }}]"></cas-cycle-list>
   </div>
 {% endblock %}

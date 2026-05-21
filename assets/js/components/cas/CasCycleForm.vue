@@ -161,7 +161,7 @@ export default {
 
     fetchCycle() {
       let self = this;
-      axios.get('/api/gradcas/cycles/' + self.itemId)
+      axios.get('/api/cas/cycles/' + self.itemId)
         .then(function(response) {
           self.record = response.data;
           self.isDataLoaded = true;
@@ -181,7 +181,7 @@ export default {
       let payload = { cycleName: self.record.cycleName, isPublic: self.record.isPublic };
 
       if (self.itemExists) {
-        axios.put('/api/gradcas/cycles/' + self.itemId, payload)
+        axios.put('/api/cas/cycles/' + self.itemId, payload)
           .then(function(response) {
             self.record = response.data;
             self.successMessage = 'Cycle updated successfully.';
@@ -192,11 +192,11 @@ export default {
             self.apiError.message = error.response ? error.response.data : 'Failed to update cycle.';
           });
       } else {
-        axios.post('/api/gradcas/cycles', payload)
+        axios.post('/api/cas/cycles', payload)
           .then(function(response) {
             self.successMessage = 'Cycle created successfully.';
             setTimeout(function() {
-              window.location.href = '/gradcas/cycles';
+              window.location.href = '/cas/cycles';
             }, 1500);
           })
           .catch(function(error) {
@@ -212,11 +212,11 @@ export default {
       let self = this;
       self.showDeleteModal = false;
 
-      axios.delete('/api/gradcas/cycles/' + self.itemId)
+      axios.delete('/api/cas/cycles/' + self.itemId)
         .then(function() {
           self.isDeleted = true;
           setTimeout(function() {
-            window.location.href = '/gradcas/cycles';
+            window.location.href = '/cas/cycles';
           }, 2000);
         })
         .catch(function(error) {

@@ -1,7 +1,7 @@
 <template>
   <div>
     <heading>
-      <span>Manage GradCAS Cycles</span>
+      <span>Manage CAS Cycles</span>
     </heading>
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
@@ -11,7 +11,7 @@
     </div>
 
     <div class="mb-3">
-      <a href="/gradcas/cycle/create" class="btn btn-success">Create New Cycle</a>
+      <a href="/cas/cycle/create" class="btn btn-success">Create New Cycle</a>
     </div>
 
     <div v-if="!loading" class="table-responsive">
@@ -72,7 +72,7 @@
             </td>
             <td>{{ cycle.createdBy }}</td>
             <td>
-              <a :href="'/gradcas/cycle/' + cycle.id + '/edit'" class="btn btn-sm btn-outline-primary mr-1">Edit</a>
+              <a :href="'/cas/cycle/' + cycle.id + '/edit'" class="btn btn-sm btn-outline-primary mr-1">Edit</a>
               <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(cycle)">Delete</button>
             </td>
           </tr>
@@ -145,7 +145,7 @@ export default {
       let self = this;
       self.loading = true;
 
-      axios.get('/api/gradcas/cycles')
+      axios.get('/api/cas/cycles')
         .then(function(response) {
           self.cycles = response.data;
           self.loading = false;
@@ -162,7 +162,7 @@ export default {
       self.successMessage = null;
       self.apiError = { message: null, status: null };
 
-      axios.put('/api/gradcas/cycles/' + cycle.id + '/public')
+      axios.put('/api/cas/cycles/' + cycle.id + '/public')
         .then(function() {
           self.successMessage = '"' + cycle.cycleName + '" public status updated.';
           self.fetchCycles();
@@ -179,7 +179,7 @@ export default {
       self.successMessage = null;
       self.apiError = { message: null, status: null };
 
-      axios.put('/api/gradcas/cycles/' + cycle.id + '/current')
+      axios.put('/api/cas/cycles/' + cycle.id + '/current')
         .then(function() {
           self.successMessage = '"' + cycle.cycleName + '" has been set as the current cycle.';
           self.fetchCycles();
@@ -203,7 +203,7 @@ export default {
       let self = this;
       self.showDeleteModal = false;
 
-      axios.delete('/api/gradcas/cycles/' + self.cycleToDelete.id)
+      axios.delete('/api/cas/cycles/' + self.cycleToDelete.id)
         .then(function() {
           self.successMessage = 'Cycle has been deleted.';
           self.cycleToDelete = null;

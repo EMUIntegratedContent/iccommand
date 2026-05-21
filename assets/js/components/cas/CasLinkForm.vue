@@ -2,7 +2,7 @@
   <div>
     <div v-if="apiError.status" class="alert alert-danger fade show" role="alert">
       {{ apiError.message }}
-      <a v-if="apiError.existingId" :href="'/gradcas/link/' + apiError.existingId + '/edit'">View existing link</a>
+      <a v-if="apiError.existingId" :href="'/cas/link/' + apiError.existingId + '/edit'">View existing link</a>
     </div>
     <div v-if="successMessage" class="alert alert-success fade show" role="alert">
       {{ successMessage }}
@@ -104,7 +104,7 @@
     </div>
 
     <!-- Delete Modal -->
-    <gradcas-link-delete-modal
+    <cas-link-delete-modal
       v-if="showDeleteModal"
       :link="record"
       @itemDeleted="handleDeleted"
@@ -178,7 +178,7 @@ export default {
 
     fetchLink() {
       let self = this;
-      axios.get('/api/gradcas/link/' + self.itemId)
+      axios.get('/api/cas/link/' + self.itemId)
         .then(function(response) {
           self.record = response.data;
           self.isDataLoaded = true;
@@ -192,7 +192,7 @@ export default {
 
     fetchPrograms() {
       let self = this;
-      axios.get('/api/gradcas/programs')
+      axios.get('/api/cas/programs')
         .then(function(response) {
           self.programs = response.data;
         })
@@ -220,7 +220,7 @@ export default {
       };
 
       if (self.itemExists) {
-        axios.put('/api/gradcas/links/' + self.itemId, payload)
+        axios.put('/api/cas/links/' + self.itemId, payload)
           .then(function(response) {
             self.record = response.data;
             self.successMessage = 'Link updated successfully.';
@@ -238,9 +238,9 @@ export default {
           });
       } else {
         payload.cycleId = parseInt(self.cycleId);
-        axios.post('/api/gradcas/links', payload)
+        axios.post('/api/cas/links', payload)
           .then(function(response) {
-            window.location.href = '/gradcas/link/' + response.data.id + '/edit';
+            window.location.href = '/cas/link/' + response.data.id + '/edit';
           })
           .catch(function(error) {
             let data = error.response ? error.response.data : null;
@@ -260,7 +260,7 @@ export default {
       this.showDeleteModal = false;
       let self = this;
       setTimeout(function() {
-        window.location.href = '/gradcas';
+        window.location.href = '/cas';
       }, 2000);
     },
 

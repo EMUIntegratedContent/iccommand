@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<heading>
-			<span>GradCAS Application Links</span>
+			<span>CAS Application Links</span>
 		</heading>
 		<div
 			v-if="apiError.status"
@@ -31,7 +31,7 @@
 			<div class="col-sm-6 d-flex align-items-center">
 				<a
 					v-if="userCanEdit"
-					:href="'/gradcas/link/create/' + selectedCycleId"
+					:href="'/cas/link/create/' + selectedCycleId"
 					class="btn btn-success mr-2"
 					>Add Link</a
 				>
@@ -109,7 +109,7 @@
 						<td>
 							<a
 								v-if="userCanEdit"
-								:href="'/gradcas/link/' + link.id + '/edit'"
+								:href="'/cas/link/' + link.id + '/edit'"
 							>
 								<font-awesome-icon icon="fa-solid fa-pen-to-square" />
 							</a>
@@ -262,7 +262,7 @@ export default {
 		fetchCycles() {
 			let self = this
 			axios
-				.get("/api/gradcas/cycles")
+				.get("/api/cas/cycles")
 				.then(function (response) {
 					self.cycles = response.data
 					if (self.selectedCycleId === 0 && self.cycles.length > 0) {
@@ -285,7 +285,7 @@ export default {
 
 			axios
 				.get(
-					`/api/gradcas/links/${self.selectedCycleId}?page=${self.currentPage}&limit=${self.itemsPerPage}`
+					`/api/cas/links/${self.selectedCycleId}?page=${self.currentPage}&limit=${self.itemsPerPage}`
 				)
 				.then(function (response) {
 					self.links = response.data.links
@@ -309,7 +309,7 @@ export default {
 				let self = this
 				axios
 					.get(
-						`/api/gradcas/links/${self.selectedCycleId}/search?searchterm=${searchTerm}`
+						`/api/cas/links/${self.selectedCycleId}/search?searchterm=${searchTerm}`
 					)
 					.then(function (response) {
 						self.searchResults = response.data
@@ -320,7 +320,7 @@ export default {
 
 		handleLinkSelected(evt) {
 			if (this.userCanEdit) {
-				window.location.href = "/gradcas/link/" + evt.id + "/edit"
+				window.location.href = "/cas/link/" + evt.id + "/edit"
 			}
 		},
 
@@ -358,7 +358,7 @@ export default {
 			formData.append("cycleId", self.selectedCycleId)
 
 			axios
-				.post("/api/gradcas/links/upload", formData, {
+				.post("/api/cas/links/upload", formData, {
 					headers: { "Content-Type": "multipart/form-data" }
 				})
 				.then(function (response) {

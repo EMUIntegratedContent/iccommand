@@ -1,20 +1,20 @@
 <?php
-namespace App\Repository\GradCas;
+namespace App\Repository\Cas;
 
-use App\Entity\GradCas\GradCasLink;
+use App\Entity\Cas\CasLink;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method GradCasLink|null find($id, $lockMode = null, $lockVersion = null)
- * @method GradCasLink|null findOneBy(array $criteria, array $orderBy = null)
- * @method GradCasLink[]    findAll()
- * @method GradCasLink[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CasLink|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CasLink|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CasLink[]    findAll()
+ * @method CasLink[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class GradCasLinkRepository extends ServiceEntityRepository {
+class CasLinkRepository extends ServiceEntityRepository {
 
 	public function __construct(ManagerRegistry $registry) {
-		parent::__construct($registry, GradCasLink::class);
+		parent::__construct($registry, CasLink::class);
 	}
 
 	public function paginatedLinks(int $cycleId, int $currentPage, int $pageSize): array
@@ -78,7 +78,7 @@ class GradCasLinkRepository extends ServiceEntityRepository {
 			->getResult();
 	}
 
-	public function findByDegreeNameAndCycle(string $degreeName, int $cycleId, ?int $excludeId = null): ?GradCasLink
+	public function findByDegreeNameAndCycle(string $degreeName, int $cycleId, ?int $excludeId = null): ?CasLink
 	{
 		$qb = $this->createQueryBuilder('l')
 			->where('l.degreeName = :degreeName')

@@ -1,8 +1,8 @@
 <?php
 namespace App\Service;
 
-use App\Entity\GradCas\GradCasCycle;
-use App\Entity\GradCas\GradCasLink;
+use App\Entity\Cas\CasCycle;
+use App\Entity\Cas\CasLink;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;
@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class GradCasService {
+class CasService {
 	private AuthorizationCheckerInterface $authorizationChecker;
 	private ValidatorInterface $validator;
 	private ManagerRegistry $doctrine;
@@ -24,7 +24,7 @@ class GradCasService {
 	}
 
 	#[ArrayShape(['view' => "bool", 'edit' => "bool", 'admin' => "bool"])]
-	public function getUserGradCasPermissions(): array
+	public function getUserCasPermissions(): array
 	{
 		$permissions = array(
 			'view' => false,
@@ -32,18 +32,18 @@ class GradCasService {
 			'admin' => false
 		);
 
-		if ($this->authorizationChecker->isGranted('ROLE_GRADCAS_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
+		if ($this->authorizationChecker->isGranted('ROLE_CAS_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
 			$permissions['view'] = true;
 			$permissions['edit'] = true;
 			$permissions['admin'] = true;
 		}
 
-		if ($this->authorizationChecker->isGranted('ROLE_GRADCAS_EDIT')) {
+		if ($this->authorizationChecker->isGranted('ROLE_CAS_EDIT')) {
 			$permissions['view'] = true;
 			$permissions['edit'] = true;
 		}
 
-		if ($this->authorizationChecker->isGranted('ROLE_GRADCAS_VIEW')) {
+		if ($this->authorizationChecker->isGranted('ROLE_CAS_VIEW')) {
 			$permissions['view'] = true;
 		}
 
@@ -56,13 +56,13 @@ class GradCasService {
 
 	public function getLinksPagination(int $cycleId, int $currentPage, int $pageSize): array
 	{
-		$repository = $this->doctrine->getRepository(GradCasLink::class);
+		$repository = $this->doctrine->getRepository(CasLink::class);
 		return $repository->paginatedLinks($cycleId, $currentPage, $pageSize);
 	}
 
 	public function getLinksByName(string $searchTerm, int $cycleId): array
 	{
-		$repository = $this->doctrine->getRepository(GradCasLink::class);
+		$repository = $this->doctrine->getRepository(CasLink::class);
 		return $repository->searchLinks($searchTerm, $cycleId);
 	}
 

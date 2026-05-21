@@ -1,27 +1,27 @@
 <?php
-namespace App\Entity\GradCas;
+namespace App\Entity\Cas;
 
-use App\Repository\GradCas\GradCasLinkRepository;
+use App\Repository\Cas\CasLinkRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: GradCasLinkRepository::class)]
-#[ORM\Table(name: 'gradcas_link')]
-class GradCasLink {
+#[ORM\Entity(repositoryClass: CasLinkRepository::class)]
+#[ORM\Table(name: 'cas_link')]
+class CasLink {
 
 	#[ORM\Id]
 	#[ORM\GeneratedValue]
 	#[ORM\Column(type: "integer")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $id;
 
-	#[ORM\ManyToOne(targetEntity: GradCasCycle::class, inversedBy: "links")]
+	#[ORM\ManyToOne(targetEntity: CasCycle::class, inversedBy: "links")]
 	#[ORM\JoinColumn(name: "cycle_id", referencedColumnName: "id", nullable: false)]
-	#[Groups("gradcas")]
-	private ?GradCasCycle $cycle = null;
+	#[Groups("cas")]
+	private ?CasCycle $cycle = null;
 
 	/**
 	 * Logical FK to programs.program_programs.id (cross-database, no DB constraint).
@@ -29,42 +29,42 @@ class GradCasLink {
 	 */
 	#[ORM\Column(type: "integer", nullable: true)]
 	#[SerializedName("programId")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private ?int $programId = null;
 
 	#[ORM\Column(type: "string", length: 255)]
 	#[SerializedName("degreeName")]
 	#[Assert\NotBlank(message: "You must provide a degree/program name.")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $degreeName;
 
 	#[ORM\Column(type: "string", length: 500)]
 	#[Assert\NotBlank(message: "You must provide an application link.")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $link;
 
 	/* Gedmo Variables */
 
 	#[ORM\Column(type: "datetime")]
 	#[Gedmo\Timestampable(on: "create")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $created;
 
 	#[ORM\Column(type: "string")]
 	#[Gedmo\Blameable(on: "create")]
 	#[SerializedName("createdBy")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $createdBy;
 
 	#[ORM\Column(type: "datetime")]
 	#[Gedmo\Timestampable(on: "update")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $updated;
 
 	#[ORM\Column(type: "string")]
 	#[Gedmo\Blameable(on: "update")]
 	#[SerializedName("updatedBy")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $updatedBy;
 
 	public function __construct() {
@@ -76,11 +76,11 @@ class GradCasLink {
 		return $this->id;
 	}
 
-	public function getCycle(): ?GradCasCycle {
+	public function getCycle(): ?CasCycle {
 		return $this->cycle;
 	}
 
-	public function setCycle(?GradCasCycle $cycle): self {
+	public function setCycle(?CasCycle $cycle): self {
 		$this->cycle = $cycle;
 		return $this;
 	}

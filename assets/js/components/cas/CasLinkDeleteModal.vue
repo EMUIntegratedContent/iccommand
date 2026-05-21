@@ -43,7 +43,7 @@ export default {
       let self = this;
       this.deleteConfirm = null;
 
-      axios.delete("/api/gradcas/links/" + this.link.id)
+      axios.delete("/api/cas/links/" + this.link.id)
         .then(function() {
           self.$emit("itemDeleted");
         })

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Controller\Api\GradCas;
+namespace App\Controller\Api\Cas;
 
-use App\Entity\GradCas\GradCasCycle;
-use App\Entity\GradCas\GradCasLink;
-use App\Service\GradCasService;
+use App\Entity\Cas\CasCycle;
+use App\Entity\Cas\CasLink;
+use App\Service\CasService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,14 +15,14 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class GradCasController extends AbstractController
+class CasController extends AbstractController
 {
-	private GradCasService $service;
+	private CasService $service;
 	private ManagerRegistry $doctrine;
 	private EntityManagerInterface $em;
 	private SerializerInterface $serializer;
 
-	public function __construct(GradCasService $service, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer)
+	public function __construct(CasService $service, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer)
 	{
 		$this->service = $service;
 		$this->doctrine = $doctrine;
@@ -33,16 +33,16 @@ class GradCasController extends AbstractController
 	/* ========================= Cycle Endpoints ========================= */
 
 	#[Route('/cycles', methods: ['GET'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_VIEW")'))]
 	public function getCyclesAction(): Response
 	{
-		$cycles = $this->doctrine->getRepository(GradCasCycle::class)->findAllOrderedByName();
+		$cycles = $this->doctrine->getRepository(CasCycle::class)->findAllOrderedByName();
 
 		// Attach link counts
-		$linkRepo = $this->doctrine->getRepository(GradCasLink::class);
+		$linkRepo = $this->doctrine->getRepository(CasLink::class);
 		$result = [];
 		foreach ($cycles as $cycle) {
-			$data = json_decode($this->serializer->serialize($cycle, "json", ['groups' => 'gradcas']), true);
+			$data = json_decode($this->serializer->serialize($cycle, "json", ['groups' => 'cas']), true);
 			$data['linkCount'] = $linkRepo->countByCycle($cycle->getId());
 			$result[] = $data;
 		}
@@ -51,26 +51,26 @@ class GradCasController extends AbstractController
 	}
 
 	#[Route('/cycles/{id}', methods: ['GET'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_VIEW")'))]
 	public function getCycleAction(int $id): Response
 	{
-		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($id);
+		$cycle = $this->doctrine->getRepository(CasCycle::class)->find($id);
 
 		if (!$cycle) {
 			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
 		}
 
-		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'cas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/cycles', methods: ['POST'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN")'))]
 	public function postCycleAction(Request $request): Response
 	{
 		$data = json_decode($request->getContent(), true);
 
-		$cycle = new GradCasCycle();
+		$cycle = new CasCycle();
 		$cycle->setCycleName($data['cycleName'] ?? '');
 		$cycle->setIsPublic((bool)($data['isPublic'] ?? false));
 
@@ -83,15 +83,15 @@ class GradCasController extends AbstractController
 		$this->em->persist($cycle);
 		$this->em->flush();
 
-		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'cas']);
 		return new Response($serialized, 201, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/cycles/{id}', methods: ['PUT'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN")'))]
 	public function putCycleAction(int $id, Request $request): Response
 	{
-		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($id);
+		$cycle = $this->doctrine->getRepository(CasCycle::class)->find($id);
 		if (!$cycle) {
 			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
 		}
@@ -110,33 +110,33 @@ class GradCasController extends AbstractController
 
 		$this->em->flush();
 
-		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'cas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/cycles/{id}/current', methods: ['PUT'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN")'))]
 	public function setCycleCurrentAction(int $id): Response
 	{
-		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($id);
+		$cycle = $this->doctrine->getRepository(CasCycle::class)->find($id);
 		if (!$cycle) {
 			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
 		}
 
-		$this->doctrine->getRepository(GradCasCycle::class)->setCurrentCycle($id);
+		$this->doctrine->getRepository(CasCycle::class)->setCurrentCycle($id);
 
 		// Refresh the entity to get updated state
 		$this->em->refresh($cycle);
 
-		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'cas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/cycles/{id}/public', methods: ['PUT'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN")'))]
 	public function toggleCyclePublicAction(int $id): Response
 	{
-		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($id);
+		$cycle = $this->doctrine->getRepository(CasCycle::class)->find($id);
 		if (!$cycle) {
 			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
 		}
@@ -144,15 +144,15 @@ class GradCasController extends AbstractController
 		$cycle->setIsPublic(!$cycle->isPublic());
 		$this->em->flush();
 
-		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($cycle, "json", ['groups' => 'cas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/cycles/{id}', methods: ['DELETE'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN")'))]
 	public function deleteCycleAction(int $id): Response
 	{
-		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($id);
+		$cycle = $this->doctrine->getRepository(CasCycle::class)->find($id);
 		if (!$cycle) {
 			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
 		}
@@ -169,13 +169,13 @@ class GradCasController extends AbstractController
 	#[IsGranted('ROLE_USER')]
 	public function getLinksByProgramAction(int $programId): Response
 	{
-		$links = $this->doctrine->getRepository(GradCasLink::class)->findByProgramId($programId);
-		$serialized = $this->serializer->serialize($links, "json", ['groups' => 'gradcas']);
+		$links = $this->doctrine->getRepository(CasLink::class)->findByProgramId($programId);
+		$serialized = $this->serializer->serialize($links, "json", ['groups' => 'cas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/links/{cycleId}', methods: ['GET'], requirements: ['cycleId' => '\d+'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_VIEW")'))]
 	public function getLinksAction(int $cycleId, Request $request): Response
 	{
 		$page = $request->query->get('page') ?? 1;
@@ -183,12 +183,12 @@ class GradCasController extends AbstractController
 
 		$links = $this->service->getLinksPagination($cycleId, $page, $pageSize);
 
-		$serialized = $this->serializer->serialize($links, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($links, "json", ['groups' => 'cas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/links/{cycleId}/search', methods: ['GET'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_VIEW")'))]
 	public function searchLinksAction(int $cycleId, Request $request): Response
 	{
 		$searchTerm = $request->query->get('searchterm');
@@ -203,34 +203,34 @@ class GradCasController extends AbstractController
 	}
 
 	#[Route('/link/{id}', methods: ['GET'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_VIEW")'))]
 	public function getLinkAction(int $id): Response
 	{
-		$link = $this->doctrine->getRepository(GradCasLink::class)->find($id);
+		$link = $this->doctrine->getRepository(CasLink::class)->find($id);
 
 		if (!$link) {
 			return new Response("Link not found.", 404, ["Content-Type" => "application/json"]);
 		}
 
-		$serialized = $this->serializer->serialize($link, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($link, "json", ['groups' => 'cas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/links', methods: ['POST'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_EDIT")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_EDIT")'))]
 	public function postLinkAction(Request $request): Response
 	{
 		$data = json_decode($request->getContent(), true);
 
-		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($data['cycleId'] ?? 0);
+		$cycle = $this->doctrine->getRepository(CasCycle::class)->find($data['cycleId'] ?? 0);
 		if (!$cycle) {
 			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
 		}
 
 		$degreeName = $data['degreeName'] ?? '';
 
-		/** @var \App\Repository\GradCas\GradCasLinkRepository $linkRepo */
-		$linkRepo = $this->doctrine->getRepository(GradCasLink::class);
+		/** @var \App\Repository\Cas\CasLinkRepository $linkRepo */
+		$linkRepo = $this->doctrine->getRepository(CasLink::class);
 		$existing = $linkRepo->findByDegreeNameAndCycle($degreeName, $cycle->getId());
 		if ($existing) {
 			return new Response(json_encode([
@@ -240,7 +240,7 @@ class GradCasController extends AbstractController
 			]), 409, ["Content-Type" => "application/json"]);
 		}
 
-		$link = new GradCasLink();
+		$link = new CasLink();
 		$link->setCycle($cycle);
 		$link->setDegreeName($degreeName);
 		$link->setLink($data['link'] ?? '');
@@ -255,15 +255,15 @@ class GradCasController extends AbstractController
 		$this->em->persist($link);
 		$this->em->flush();
 
-		$serialized = $this->serializer->serialize($link, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($link, "json", ['groups' => 'cas']);
 		return new Response($serialized, 201, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/links/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_EDIT")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_EDIT")'))]
 	public function putLinkAction(int $id, Request $request): Response
 	{
-		$link = $this->doctrine->getRepository(GradCasLink::class)->find($id);
+		$link = $this->doctrine->getRepository(CasLink::class)->find($id);
 		if (!$link) {
 			return new Response(json_encode("Link not found."), 404, ["Content-Type" => "application/json"]);
 		}
@@ -271,8 +271,8 @@ class GradCasController extends AbstractController
 		$data = json_decode($request->getContent(), true);
 		$degreeName = $data['degreeName'] ?? $link->getDegreeName();
 
-		/** @var \App\Repository\GradCas\GradCasLinkRepository $linkRepo */
-		$linkRepo = $this->doctrine->getRepository(GradCasLink::class);
+		/** @var \App\Repository\Cas\CasLinkRepository $linkRepo */
+		$linkRepo = $this->doctrine->getRepository(CasLink::class);
 		$existing = $linkRepo->findByDegreeNameAndCycle($degreeName, $link->getCycle()->getId(), $id);
 		if ($existing) {
 			return new Response(json_encode([
@@ -294,15 +294,15 @@ class GradCasController extends AbstractController
 
 		$this->em->flush();
 
-		$serialized = $this->serializer->serialize($link, "json", ['groups' => 'gradcas']);
+		$serialized = $this->serializer->serialize($link, "json", ['groups' => 'cas']);
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);
 	}
 
 	#[Route('/links/{id}', methods: ['DELETE'], requirements: ['id' => '\d+'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_EDIT")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_EDIT")'))]
 	public function deleteLinkAction(int $id): Response
 	{
-		$link = $this->doctrine->getRepository(GradCasLink::class)->find($id);
+		$link = $this->doctrine->getRepository(CasLink::class)->find($id);
 		if (!$link) {
 			return new Response(json_encode("Link not found."), 404, ["Content-Type" => "application/json"]);
 		}
@@ -314,7 +314,7 @@ class GradCasController extends AbstractController
 	}
 
 	#[Route('/links/upload', methods: ['POST'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN")'))]
 	public function postLinkBulkAction(Request $request): Response
 	{
 		$uploadedFile = $request->files->get('csv');
@@ -323,6 +323,8 @@ class GradCasController extends AbstractController
 		}
 
 		$file = file($uploadedFile);
+		// Strip UTF-8 BOM that Excel/Google Sheets prepend — it corrupts the first CSV header
+		$file[0] = preg_replace('/^\xEF\xBB\xBF/', '', $file[0]);
 		$csvFile = array_map('str_getcsv', $file);
 		$headers = array_shift($csvFile);
 
@@ -334,7 +336,7 @@ class GradCasController extends AbstractController
 		}
 
 		$cycleId = $request->request->get('cycleId');
-		$cycle = $this->doctrine->getRepository(GradCasCycle::class)->find($cycleId);
+		$cycle = $this->doctrine->getRepository(CasCycle::class)->find($cycleId);
 		if (!$cycle) {
 			return new Response(json_encode("Cycle not found."), 404, ["Content-Type" => "application/json"]);
 		}
@@ -352,8 +354,8 @@ class GradCasController extends AbstractController
 			$programLookup[mb_strtolower(trim($row['full_name']))] = (int) $row['id'];
 		}
 
-		/** @var \App\Repository\GradCas\GradCasLinkRepository $linkRepo */
-		$linkRepo = $this->doctrine->getRepository(GradCasLink::class);
+		/** @var \App\Repository\Cas\CasLinkRepository $linkRepo */
+		$linkRepo = $this->doctrine->getRepository(CasLink::class);
 		$existingLinks = $linkRepo->findByCycle($cycleId);
 		$existingNames = [];
 		foreach ($existingLinks as $existingLink) {
@@ -383,7 +385,7 @@ class GradCasController extends AbstractController
 
 			$programId = $programLookup[$nameKey] ?? null;
 
-			$link = new GradCasLink();
+			$link = new CasLink();
 			$link->setCycle($cycle);
 			$link->setDegreeName($degreeName);
 			$link->setLink($linkUrl);
@@ -412,7 +414,7 @@ class GradCasController extends AbstractController
 	/* ========================= Programs Endpoint ========================= */
 
 	#[Route('/programs', methods: ['GET'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_GRADCAS_ADMIN") or is_granted("ROLE_GRADCAS_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_VIEW")'))]
 	public function getProgramsAction(): Response
 	{
 		$programs = $this->service->getGraduatePrograms();

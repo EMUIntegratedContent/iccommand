@@ -1,7 +1,7 @@
 <?php
-namespace App\Entity\GradCas;
+namespace App\Entity\Cas;
 
-use App\Repository\GradCas\GradCasCycleRepository;
+use App\Repository\Cas\CasCycleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,55 +10,55 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: GradCasCycleRepository::class)]
-#[ORM\Table(name: 'gradcas_cycle')]
-class GradCasCycle {
+#[ORM\Entity(repositoryClass: CasCycleRepository::class)]
+#[ORM\Table(name: 'cas_cycle')]
+class CasCycle {
 
 	#[ORM\Id]
 	#[ORM\GeneratedValue]
 	#[ORM\Column(type: "integer")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $id;
 
 	#[ORM\Column(type: "string", length: 255)]
 	#[SerializedName("cycleName")]
 	#[Assert\NotBlank(message: "You must provide a cycle name.")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $cycleName;
 
 	#[ORM\Column(type: "boolean")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private bool $current = false;
 
 	#[ORM\Column(type: "boolean")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private bool $isPublic = false;
 
-	#[ORM\OneToMany(targetEntity: GradCasLink::class, mappedBy: "cycle", cascade: ["remove"])]
+	#[ORM\OneToMany(targetEntity: CasLink::class, mappedBy: "cycle", cascade: ["remove"])]
 	private Collection $links;
 
 	/* Gedmo Variables */
 
 	#[ORM\Column(type: "datetime")]
 	#[Gedmo\Timestampable(on: "create")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $created;
 
 	#[ORM\Column(type: "string")]
 	#[Gedmo\Blameable(on: "create")]
 	#[SerializedName("createdBy")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $createdBy;
 
 	#[ORM\Column(type: "datetime")]
 	#[Gedmo\Timestampable(on: "update")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $updated;
 
 	#[ORM\Column(type: "string")]
 	#[Gedmo\Blameable(on: "update")]
 	#[SerializedName("updatedBy")]
-	#[Groups("gradcas")]
+	#[Groups("cas")]
 	private $updatedBy;
 
 	public function __construct() {
