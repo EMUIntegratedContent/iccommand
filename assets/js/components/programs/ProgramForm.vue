@@ -140,7 +140,7 @@
 								<!-- for validation purposes only -->
 							</Field>
 							<label for="selectclg" class="mt-2"
-								>College <span class="red">*</span></label
+								>College(s) <span class="red">*</span></label
 							>
 							<VueMultiselect
 								v-model="selectedColleges"
@@ -164,7 +164,7 @@
 						</template>
 						<template v-else>
 							<div class="form-group">
-								<label>College</label>
+								<label>College(s)</label>
 								<input
 									v-if="selectedColleges && selectedColleges.length"
 									type="text"
@@ -185,7 +185,7 @@
 								<!-- for validation purposes only -->
 							</Field>
 							<label for="selectdept" class="mt-2"
-								>Department <span class="red">*</span></label
+								>Department(s) <span class="red">*</span></label
 							>
 							<VueMultiselect
 								v-model="selectedDepartments"
@@ -209,7 +209,7 @@
 						</template>
 						<template v-else>
 							<div class="form-group">
-								<label>Department</label>
+								<label>Department(s)</label>
 								<input
 									v-if="selectedDepartments && selectedDepartments.length"
 									type="text"
@@ -237,7 +237,7 @@
 								label="type"
 								id="selectprogtype"
 								class="form-control"
-								:class="{ 'is-invalid': errors.progDept }"
+								:class="{ 'is-invalid': errors.progType }"
 								style="padding: 0"
 								name="selectprogtype"
 								@update:modelValue="formDirty = true"
@@ -470,7 +470,12 @@
 					</div>
 				</VeeForm>
 				<gradcas-links-section
-					v-if="progExists && !isEditMode && record.id && record.catalog === 'graduate'"
+					v-if="
+						progExists &&
+						!isEditMode &&
+						record.id &&
+						record.catalog === 'graduate'
+					"
 					:program-id="Number(record.id)"
 					:user-can-edit="userCanEdit"
 				/>
@@ -613,8 +618,16 @@ export default {
 				progFullName: Yup.string().required().label("Program full name "),
 				progName: Yup.string().required().label("Program name "),
 				progCatalog: Yup.string().required().label("Catalog "),
-				progCollege: Yup.array().of(Yup.number()).min(1).required().label("College "),
-				progDept: Yup.array().of(Yup.number()).min(1).required().label("Department "),
+				progCollege: Yup.array()
+					.of(Yup.number())
+					.min(1)
+					.required()
+					.label("College "),
+				progDept: Yup.array()
+					.of(Yup.number())
+					.min(1)
+					.required()
+					.label("Department "),
 				progType: Yup.number().required().label("Program Type "),
 				progDegree: Yup.number().required().label("Degree Classification "),
 				progMode: Yup.array().of(Yup.number()).min(1).required().label("Mode ")
