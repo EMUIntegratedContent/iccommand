@@ -11,16 +11,16 @@ final class Version20260423000000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add is_public column to gradcas_cycle table';
+        return 'Add is_public column to cas_cycle table';
     }
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE gradcas_cycle ADD is_public TINYINT(1) NOT NULL DEFAULT 0');
+        $this->addSql('ALTER TABLE cas_cycle ADD is_public TINYINT(1) NOT NULL DEFAULT 0');
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE gradcas_cycle DROP COLUMN is_public');
+        $this->addSql('ALTER TABLE cas_cycle DROP COLUMN is_public');
     }
 }
