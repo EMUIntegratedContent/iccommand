@@ -135,7 +135,7 @@
 							<Field
 								name="progCollege"
 								type="hidden"
-								v-model="record.college_id"
+								v-model="record.college_ids"
 							>
 								<!-- for validation purposes only -->
 							</Field>
@@ -143,11 +143,12 @@
 								>College <span class="red">*</span></label
 							>
 							<VueMultiselect
-								v-model="selectedCollege"
+								v-model="selectedColleges"
+								track-by="id"
 								:options="colleges"
-								:multiple="false"
+								:multiple="true"
 								:clear-on-select="true"
-								placeholder="Select college"
+								placeholder="Select college(s)"
 								label="college"
 								id="selectclg"
 								class="form-control"
@@ -164,19 +165,13 @@
 						<template v-else>
 							<div class="form-group">
 								<label>College</label>
-								<Field
-									v-if="selectedCollege"
-									v-model="selectedCollege.college"
-									name="college"
+								<input
+									v-if="selectedColleges && selectedColleges.length"
 									type="text"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.college_id,
-										'form-control-plaintext': !userCanEdit || !isEditMode
-									}"
-									:readonly="true"
-								>
-								</Field>
+									:value="collegeDisplay"
+									class="form-control form-control-plaintext"
+									readonly
+								/>
 							</div>
 						</template>
 					</div>
@@ -185,7 +180,7 @@
 							<Field
 								name="progDept"
 								type="hidden"
-								v-model="record.department_id"
+								v-model="record.department_ids"
 							>
 								<!-- for validation purposes only -->
 							</Field>
@@ -193,11 +188,12 @@
 								>Department <span class="red">*</span></label
 							>
 							<VueMultiselect
-								v-model="selectedDepartment"
+								v-model="selectedDepartments"
+								track-by="id"
 								:options="departments"
-								:multiple="false"
+								:multiple="true"
 								:clear-on-select="true"
-								placeholder="Select department"
+								placeholder="Select department(s)"
 								label="department"
 								id="selectdept"
 								class="form-control"
@@ -214,19 +210,13 @@
 						<template v-else>
 							<div class="form-group">
 								<label>Department</label>
-								<Field
-									v-if="selectedDepartment"
-									v-model="selectedDepartment.department"
-									name="department"
+								<input
+									v-if="selectedDepartments && selectedDepartments.length"
 									type="text"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.department_id,
-										'form-control-plaintext': !userCanEdit || !isEditMode
-									}"
-									:readonly="true"
-								>
-								</Field>
+									:value="departmentDisplay"
+									class="form-control form-control-plaintext"
+									readonly
+								/>
 							</div>
 						</template>
 					</div>
@@ -596,7 +586,8 @@ export default {
 				full_name: null,
 				program: null,
 				catalog: null,
-				department_id: null,
+				college_ids: [],
+				department_ids: [],
 				// store as array of ids for multiple modes
 				delivery_ids: [],
 				// store as array of ids for keywords
@@ -622,8 +613,8 @@ export default {
 				progFullName: Yup.string().required().label("Program full name "),
 				progName: Yup.string().required().label("Program name "),
 				progCatalog: Yup.string().required().label("Catalog "),
-				progCollege: Yup.number().required().label("College "),
-				progDept: Yup.number().required().label("Department "),
+				progCollege: Yup.array().of(Yup.number()).min(1).required().label("College "),
+				progDept: Yup.array().of(Yup.number()).min(1).required().label("Department "),
 				progType: Yup.number().required().label("Program Type "),
 				progDegree: Yup.number().required().label("Degree Classification "),
 				progMode: Yup.array().of(Yup.number()).min(1).required().label("Mode ")
@@ -659,28 +650,53 @@ export default {
 				? true
 				: false
 		},
-		// for the multiselect since it can't bind directly to the record.college_id without the full object
-		selectedCollege: {
+		selectedColleges: {
 			get() {
-				return (
-					this.colleges.find((d) => d.id === this.record.college_id) || null
+				if (!this.record.college_ids || !Array.isArray(this.record.college_ids))
+					return []
+				return this.colleges.filter((c) =>
+					this.record.college_ids.includes(c.id)
 				)
 			},
-			set(newValue) {
-				this.record.college_id = newValue ? newValue.id : null
+			set(newValues) {
+				if (!newValues) {
+					this.record.college_ids = []
+					return
+				}
+				this.record.college_ids = newValues.map((c) => c.id)
 			}
 		},
-		// for the multiselect since it can't bind directly to the record.department_id without the full object
-		selectedDepartment: {
+		collegeDisplay: {
 			get() {
-				return (
-					this.departments.find(
-						(dept) => dept.id === this.record.department_id
-					) || null
+				return this.selectedColleges && this.selectedColleges.length
+					? this.selectedColleges.map((c) => c.college).join(", ")
+					: ""
+			}
+		},
+		selectedDepartments: {
+			get() {
+				if (
+					!this.record.department_ids ||
+					!Array.isArray(this.record.department_ids)
+				)
+					return []
+				return this.departments.filter((d) =>
+					this.record.department_ids.includes(d.id)
 				)
 			},
-			set(newValue) {
-				this.record.department_id = newValue ? newValue.id : null
+			set(newValues) {
+				if (!newValues) {
+					this.record.department_ids = []
+					return
+				}
+				this.record.department_ids = newValues.map((d) => d.id)
+			}
+		},
+		departmentDisplay: {
+			get() {
+				return this.selectedDepartments && this.selectedDepartments.length
+					? this.selectedDepartments.map((d) => d.department).join(", ")
+					: ""
 			}
 		},
 		// for the multiselect since it can't bind directly to the record.delivery_ids without the full object
@@ -810,13 +826,18 @@ export default {
 				.get("/api/programs/" + progId)
 				.then(function (response) {
 					// Success.
-					// Normalize delivery_ids to array of ids for multi-select support
 					let structuredResponse = response.data
 					structuredResponse.delivery_ids = self.formatDeliveryIds(
 						response.data.delivery_ids
 					)
 					structuredResponse.keyword_ids = self.formatKeywordIds(
 						response.data.keyword_ids
+					)
+					structuredResponse.college_ids = self.formatCollegeIds(
+						response.data.college_ids
+					)
+					structuredResponse.department_ids = self.formatDepartmentIds(
+						response.data.department_ids
 					)
 					self.record = structuredResponse
 					self.isDataLoaded = true
@@ -929,6 +950,20 @@ export default {
 				.map((delivery_id) => Number(delivery_id.trim()))
 		},
 
+		formatCollegeIds: function (collegeIds) {
+			if (!collegeIds) return []
+			return collegeIds
+				.split(",")
+				.map((college_id) => Number(college_id.trim()))
+		},
+
+		formatDepartmentIds: function (departmentIds) {
+			if (!departmentIds) return []
+			return departmentIds
+				.split(",")
+				.map((department_id) => Number(department_id.trim()))
+		},
+
 		/**
 		 * Gets called from the @programDeleted event emission from the delete Modal.
 		 */
@@ -985,6 +1020,12 @@ export default {
 					)
 					structuredResponse.keyword_ids = self.formatKeywordIds(
 						response.data.keyword_ids
+					)
+					structuredResponse.college_ids = self.formatCollegeIds(
+						response.data.college_ids
+					)
+					structuredResponse.department_ids = self.formatDepartmentIds(
+						response.data.department_ids
 					)
 					self.record = structuredResponse // This sets the program's ID.
 					self.afterSubmitSucceeds()

@@ -51,11 +51,15 @@ class ProgramsRepository extends ServiceEntityRepository
 		$programSql = "
 			SELECT p.*, w.id AS website_id, w.url,
 				GROUP_CONCAT(DISTINCT pd.delivery_id) AS delivery_ids,
-				GROUP_CONCAT(DISTINCT pkl.keyword_id) AS keyword_ids
+				GROUP_CONCAT(DISTINCT pkl.keyword_id) AS keyword_ids,
+				GROUP_CONCAT(DISTINCT pcl.college_id) AS college_ids,
+				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids
 			FROM programs.program_programs p
 			LEFT JOIN programs.program_websites w ON p.program = w.program
 			LEFT JOIN programs.program_delivery pd ON p.id = pd.program_id
 			LEFT JOIN programs.program_keyword_links pkl ON p.id = pkl.program_id
+			LEFT JOIN programs.program_college_link pcl ON p.id = pcl.program_id
+			LEFT JOIN programs.program_inter_dept pid ON p.id = pid.program_id
 			WHERE p.id = :id
 			GROUP BY p.id
 		";
@@ -246,6 +250,74 @@ class ProgramsRepository extends ServiceEntityRepository
 				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
 					'keyword_id' => $keywordId
+				]);
+			}
+
+			$conn->commit();
+		} catch (\Exception $e) {
+			if ($conn->isTransactionActive()) {
+				$conn->rollBack();
+			}
+			throw $e;
+		}
+	}
+
+	/**
+	 * Updates the colleges for a program using a transaction.
+	 * Deletes existing college links and inserts new ones.
+	 *
+	 * @param int $programId The ID of the program
+	 * @param array<int> $collegeIds Array of college IDs
+	 * @throws \Exception If database operation fails
+	 */
+	public function updateProgramColleges(int $programId, array $collegeIds): void
+	{
+		try {
+			$conn = $this->em->getConnection();
+			$conn->beginTransaction();
+
+			$delSql = 'DELETE FROM programs.program_college_link WHERE program_id = :program_id';
+			$conn->executeStatement($delSql, ['program_id' => $programId]);
+
+			$insSql = 'INSERT INTO programs.program_college_link (program_id, college_id) VALUES (:program_id, :college_id)';
+			foreach ($collegeIds as $collegeId) {
+				$conn->executeStatement($insSql, [
+					'program_id' => $programId,
+					'college_id' => $collegeId
+				]);
+			}
+
+			$conn->commit();
+		} catch (\Exception $e) {
+			if ($conn->isTransactionActive()) {
+				$conn->rollBack();
+			}
+			throw $e;
+		}
+	}
+
+	/**
+	 * Updates the departments for a program using a transaction.
+	 * Deletes existing department links and inserts new ones.
+	 *
+	 * @param int $programId The ID of the program
+	 * @param array<int> $departmentIds Array of department IDs
+	 * @throws \Exception If database operation fails
+	 */
+	public function updateProgramDepartments(int $programId, array $departmentIds): void
+	{
+		try {
+			$conn = $this->em->getConnection();
+			$conn->beginTransaction();
+
+			$delSql = 'DELETE FROM programs.program_inter_dept WHERE program_id = :program_id';
+			$conn->executeStatement($delSql, ['program_id' => $programId]);
+
+			$insSql = 'INSERT INTO programs.program_inter_dept (program_id, department_id) VALUES (:program_id, :department_id)';
+			foreach ($departmentIds as $departmentId) {
+				$conn->executeStatement($insSql, [
+					'program_id' => $programId,
+					'department_id' => $departmentId
 				]);
 			}
 

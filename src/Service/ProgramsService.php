@@ -440,6 +440,52 @@ class ProgramsService
 	}
 
 	/**
+	 * Normalize and update colleges for a program by delegating to the repository.
+	 * Accepts an array or comma-separated string and ensures an array of ints is passed
+	 * to the repository.
+	 *
+	 * @param int $programId
+	 * @param mixed $collegeIds
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function updateProgramColleges(int $programId, $collegeIds): void
+	{
+		if (is_string($collegeIds)) {
+			$collegeIds = trim($collegeIds) === '' ? [] : explode(',', $collegeIds);
+		}
+		if (!is_array($collegeIds)) {
+			$collegeIds = $collegeIds ? [$collegeIds] : [];
+		}
+		$collegeIds = array_map('intval', $collegeIds);
+
+		$this->em->getRepository(Programs::class)->updateProgramColleges($programId, $collegeIds);
+	}
+
+	/**
+	 * Normalize and update departments for a program by delegating to the repository.
+	 * Accepts an array or comma-separated string and ensures an array of ints is passed
+	 * to the repository.
+	 *
+	 * @param int $programId
+	 * @param mixed $departmentIds
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function updateProgramDepartments(int $programId, $departmentIds): void
+	{
+		if (is_string($departmentIds)) {
+			$departmentIds = trim($departmentIds) === '' ? [] : explode(',', $departmentIds);
+		}
+		if (!is_array($departmentIds)) {
+			$departmentIds = $departmentIds ? [$departmentIds] : [];
+		}
+		$departmentIds = array_map('intval', $departmentIds);
+
+		$this->em->getRepository(Programs::class)->updateProgramDepartments($programId, $departmentIds);
+	}
+
+	/**
 	 * Normalize and update keywords for a program by delegating to the repository.
 	 * Accepts an array or comma-separated string and ensures an array of ints is passed
 	 * to the repository.

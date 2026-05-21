@@ -253,23 +253,24 @@ class ProgramsController extends AbstractController
 		$progName = $request->request->get("program");
 		$url = $request->request->get("url") ? strtolower($request->request->get("url")) : null;
 
+		$collegeIds = $request->request->all("college_ids");
+		$departmentIds = $request->request->all("department_ids");
+
 		$program = new Programs();
-		// Get the max id and increment by 1
 
 		$program->setProgram($progName);
 		$program->setFullName($progFullName);
 		$program->setCatalog($catalog);
-		$program->setDepartmentId($request->request->get("department_id"));
+		$program->setCollegeId(is_array($collegeIds) && count($collegeIds) ? intval($collegeIds[0]) : intval($collegeIds));
+		$program->setDepartmentId(is_array($departmentIds) && count($departmentIds) ? intval($departmentIds[0]) : intval($departmentIds));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
-		$program->setCollegeId($request->request->get("college_id"));
 		$program->setSlug($this->service->makeProgramSlug($progName));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
 		if (count($errors) > 0) {
-			// Do the following if there is more than one error.
 			$serialized = $this->serializer->serialize($errors, "json");
 
 			return new Response($serialized, 422, array("Content-Type" => "application/json"));
@@ -278,9 +279,22 @@ class ProgramsController extends AbstractController
 		$this->em->persist($program); // Persist the program.
 		$this->em->flush(); // Commit everything to the database.
 
+		// Update colleges pivot table
+		try {
+			$this->service->updateProgramColleges($program->getId(), $collegeIds);
+		} catch (\Exception $e) {
+			return new Response("Failed to save program colleges.", 500, array("Content-Type" => "application/json"));
+		}
+
+		// Update departments pivot table
+		try {
+			$this->service->updateProgramDepartments($program->getId(), $departmentIds);
+		} catch (\Exception $e) {
+			return new Response("Failed to save program departments.", 500, array("Content-Type" => "application/json"));
+		}
+
 		// Update delivery modes using service method
 		try {
-			// handle delivery ids (may be array, CSV string, or single value)
 			$deliveryIds = $request->request->all("delivery_ids");
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
@@ -298,7 +312,7 @@ class ProgramsController extends AbstractController
 		// Update the program website information
 		$this->service->updateProgWebsite($program, $url);
 
-		$serialized = $this->serializer->serialize($program, "json");
+		$serialized = $this->serializer->serialize($this->service->getProgram($program->getId()), "json");
 
 		return new Response($serialized, 201, array("Content-Type" => "application/json"));
 	}
@@ -368,22 +382,22 @@ class ProgramsController extends AbstractController
 		$catalog = strtolower($request->request->get("catalog"));
 		$url = strtolower($request->request->get("url"));
 
+		$collegeIds = $request->request->all("college_ids");
+		$departmentIds = $request->request->all("department_ids");
+
 		$program = $this->service->getProgramEntity($id);
-		$progOrig = clone $program;
-		$origProgName = $progOrig->getProgram();
 		$program->setProgram($progName);
 		$program->setCatalog($catalog);
 		$program->setFullName($progFullName);
-		$program->setDepartmentId($request->request->get("department_id"));
+		$program->setCollegeId(is_array($collegeIds) && count($collegeIds) ? intval($collegeIds[0]) : intval($collegeIds));
+		$program->setDepartmentId(is_array($departmentIds) && count($departmentIds) ? intval($departmentIds[0]) : intval($departmentIds));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
-		$program->setCollegeId($request->request->get("college_id"));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
 		if (count($errors) > 0) {
-			// Do the following if there is more than one error.
 			$serialized = $this->serializer->serialize($errors, "json");
 
 			return new Response($serialized, 422, array("Content-Type" => "application/json"));
@@ -392,11 +406,23 @@ class ProgramsController extends AbstractController
 		$this->em->persist($program); // Persist the program.
 		$this->em->flush(); // Commit everything to the database.
 
-		// handle delivery ids (may be array, CSV string, or single value)
-		$deliveryIds = $request->request->all("delivery_ids");
-
-		// Update delivery modes using service method
+		// Update colleges pivot table
 		try {
+			$this->service->updateProgramColleges($program->getId(), $collegeIds);
+		} catch (\Exception $e) {
+			return new Response("Failed to save program colleges.", 500, array("Content-Type" => "application/json"));
+		}
+
+		// Update departments pivot table
+		try {
+			$this->service->updateProgramDepartments($program->getId(), $departmentIds);
+		} catch (\Exception $e) {
+			return new Response("Failed to save program departments.", 500, array("Content-Type" => "application/json"));
+		}
+
+		// Update delivery modes
+		try {
+			$deliveryIds = $request->request->all("delivery_ids");
 			$this->service->updateProgramDeliveryModes($program->getId(), $deliveryIds);
 		} catch (\Exception $e) {
 			return new Response($e->getMessage(), 500, array("Content-Type" => "application/json"));
