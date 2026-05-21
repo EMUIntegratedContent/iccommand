@@ -128,13 +128,13 @@ export default {
 					display: false,
           category: 'Campus Safety'
 				},
-				gradcas: {
+				cas: {
 					// Added April 2026
-					title: "GradCAS Application Links",
+					title: "CAS Application Links",
 					description:
-						"The GradCAS application links application manages the links to the GradCAS directory for all graduate programs.",
+						"The CAS application links application manages the links to the CAS directory for all graduate programs.",
 					buttonText: "Manage Links",
-					buttonLink: "/gradcas",
+					buttonLink: "/cas",
 					display: false,
 					category: 'Web Services'
 				}
@@ -238,10 +238,10 @@ export default {
 				this.userModules.emergency.display = true
 			}
 			if (
-				role.includes("ROLE_GRADCAS_") ||
+				role.includes("ROLE_CAS_") ||
 				role.includes("ROLE_GLOBAL_ADMIN")
 			) {
-				this.userModules.gradcas.display = true
+				this.userModules.cas.display = true
 			}
 		}
 	},

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create a CAS Cycle{% endblock %}
+
+{% block modulenav %}
+  {% include 'cas/nav_cas.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<h1 class="display-4">Create Cycle</h1>
+<div id="app">
+    <cas-cycle-form :permissions="[{{ permissions }}]"></cas-cycle-form>
+</div>
+{% endblock %}

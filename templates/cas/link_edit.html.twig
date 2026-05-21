@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit CAS Link{% endblock %}
+
+{% block modulenav %}
+  {% include 'cas/nav_cas.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <cas-link-form :item-exists="true" start-mode="edit" item-id="{{ id }}" :permissions="[{{ permissions }}]"></cas-link-form>
+</div>
+{% endblock %}

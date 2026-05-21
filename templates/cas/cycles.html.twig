@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage CAS Cycles{% endblock %}
+
+{% block modulenav %}
+  {% include 'cas/nav_cas.html.twig' %}
+{% endblock %}
+
+{% block body %}
+  <div id="app">
+    <cas-cycle-list :permissions="[{{ permissions }}]"></cas-cycle-list>
+  </div>
+{% endblock %}

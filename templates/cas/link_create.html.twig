@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create CAS Link{% endblock %}
+
+{% block modulenav %}
+  {% include 'cas/nav_cas.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<h1 class="display-4">Create Link</h1>
+<p class="text-muted">Cycle: {{ cycleName }}</p>
+<div id="app">
+    <cas-link-form :permissions="[{{ permissions }}]" cycle-id="{{ cycleId }}"></cas-link-form>
+</div>
+{% endblock %}

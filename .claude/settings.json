@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git mv *)",
+      "Bash(php -l src/Controller/Api/Cas/CasController.php)"
+    ]
+  }
+}
