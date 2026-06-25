@@ -424,6 +424,65 @@ class ProgramsService
 	}
 
 	/**
+	 * Bulk-create keywords from parsed CSV rows.
+	 *
+	 * Each row is an associative array with a required 'keyword' and an optional
+	 * 'program_id'. Per-row rules:
+	 *  - blank keyword            -> rejected (nothing created)
+	 *  - keyword already exists   -> skipped (nothing created, no link)
+	 *  - new keyword, no id       -> keyword created
+	 *  - new keyword, valid id    -> keyword created + linked to program
+	 *  - new keyword, bad id      -> keyword created, link skipped (program not found)
+	 *
+	 * @param array $rows
+	 * @return array{created: string[], skipped: string[], rejected: int, linkSkipped: string[]}
+	 */
+	public function bulkCreateKeywords(array $rows): array
+	{
+		$repository = $this->em->getRepository(ProgramKeywords::class);
+
+		$created = [];
+		$skipped = [];
+		$linkSkipped = [];
+		$rejected = 0;
+
+		foreach ($rows as $row) {
+			$keywordName = isset($row['keyword']) ? trim((string) $row['keyword']) : '';
+			if ($keywordName === '') {
+				++$rejected;
+				continue;
+			}
+
+			// Duplicate check (case-insensitive). Also catches keywords repeated
+			// within the same CSV, since createKeyword() flushes per call.
+			if ($repository->findOneByKeyword($keywordName)) {
+				$skipped[] = $keywordName;
+				continue;
+			}
+
+			$keyword = $this->createKeyword($keywordName);
+			$created[] = $keywordName;
+
+			$programId = isset($row['program_id']) ? trim((string) $row['program_id']) : '';
+			if ($programId !== '') {
+				$program = $this->getProgramEntity(intval($programId));
+				if ($program) {
+					$this->linkProgramToKeyword($keyword->getId(), intval($programId));
+				} else {
+					$linkSkipped[] = $keywordName;
+				}
+			}
+		}
+
+		return [
+			'created' => $created,
+			'skipped' => $skipped,
+			'rejected' => $rejected,
+			'linkSkipped' => $linkSkipped,
+		];
+	}
+
+	/**
 	 * Delete a keyword and cascade delete from links.
 	 * @param int $id
 	 * @return void

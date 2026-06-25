@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(git mv *)",
-      "Bash(php -l src/Controller/Api/Cas/CasController.php)"
+      "Bash(php -l src/Controller/Api/Cas/CasController.php)",
+      "Bash(php -l src/Service/ProgramsService.php)",
+      "Bash(php -l src/Controller/Api/Programs/ProgramsController.php)",
+      "Bash(php -l src/Repository/Programs/ProgramKeywordsRepository.php)"
     ]
   }
 }

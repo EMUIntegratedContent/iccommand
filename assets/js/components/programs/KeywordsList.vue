@@ -12,18 +12,48 @@
         individual program forms.
       </p>
     </div>
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Create New Keyword</h5>
-        <div class="form-group">
-          <label for="newKeyword">Keyword Name</label>
-          <input type="text" class="form-control" id="newKeyword" v-model="newKeywordName"
-            placeholder="Enter keyword name" @keyup.enter="createKeyword" />
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Create New Keyword</h5>
+            <div class="form-group">
+              <label for="newKeyword">Keyword Name</label>
+              <input type="text" class="form-control" id="newKeyword" v-model="newKeywordName"
+                placeholder="Enter keyword name" @keyup.enter="createKeyword" />
+            </div>
+            <button type="button" class="btn btn-primary" @click="createKeyword" :disabled="!newKeywordName || isCreating">
+              <span v-if="isCreating">Creating...</span>
+              <span v-else>Create Keyword</span>
+            </button>
+          </div>
         </div>
-        <button type="button" class="btn btn-primary" @click="createKeyword" :disabled="!newKeywordName || isCreating">
-          <span v-if="isCreating">Creating...</span>
-          <span v-else>Create Keyword</span>
-        </button>
+      </div>
+      <div v-if="userCanCreate" class="col-md-6 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Bulk Upload Keywords</h5>
+            <p class="text-muted mb-2">
+              Upload a CSV with columns <code>keyword</code> (required) and
+              <code>program_id</code> (optional). Existing keywords are skipped. The program id can be found on the Programs List page or on the Program Form page under "Internal ID". <br><br>
+              <p><a href="/bulk_keyword_template.csv" download>Download Sample Template [CSV]</a>.</p>
+            </p>
+            <div v-if="uploadStatus === 1" style="text-align: center">
+              <img src="/images/loading.gif" alt="Uploading..." />
+            </div>
+            <div v-else>
+              <div class="form-group">
+                <input type="file" class="form-control-file" accept=".csv" ref="csvInput"
+                  @change="onCsvFileChange" />
+              </div>
+              <button type="button" class="btn btn-primary" @click="uploadCsv" :disabled="!csvFile">
+                Upload CSV
+              </button>
+            </div>
+            <div v-if="uploadStatus === 2" class="alert alert-success mt-3" v-html="uploadMessage"></div>
+            <div v-if="uploadStatus === 3" class="alert alert-danger mt-3">{{ uploadMessage }}</div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="card mt-4">
@@ -189,7 +219,11 @@ export default {
       keywordsItemsPerPage: 50,
       totalKeywords: 0,
       // Search data
-      keywordSearchTerm: ''
+      keywordSearchTerm: '',
+      // Bulk CSV upload: 0=initial, 1=saving, 2=success, 3=failed
+      csvFile: null,
+      uploadStatus: 0,
+      uploadMessage: ''
     };
   },
   mounted() {
@@ -285,6 +319,51 @@ export default {
               break;
           }
           this.isCreating = false;
+        });
+    },
+    onCsvFileChange: function (e) {
+      const files = e.target.files || e.dataTransfer.files;
+      this.csvFile = files && files.length ? files[0] : null;
+      // Reset any previous result when a new file is chosen.
+      if (this.uploadStatus === 2 || this.uploadStatus === 3) {
+        this.uploadStatus = 0;
+        this.uploadMessage = '';
+      }
+    },
+    uploadCsv: function () {
+      if (!this.csvFile) {
+        return;
+      }
+
+      this.uploadStatus = 1;
+      this.apiError.status = null;
+
+      let formData = new FormData();
+      formData.append('csv', this.csvFile);
+
+      axios.post('/api/programs/keywords/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+        .then((response) => {
+          this.uploadStatus = 2;
+          this.uploadMessage = response.data;
+          this.csvFile = null;
+          if (this.$refs.csvInput) {
+            this.$refs.csvInput.value = '';
+          }
+          // Refresh the existing keywords list + count.
+          this.fetchKeywords();
+        })
+        .catch((error) => {
+          this.uploadStatus = 3;
+          const status = error.response ? error.response.status : 500;
+          if (status === 403) {
+            this.uploadMessage = "You do not have sufficient privileges to upload keywords.";
+          } else if (status === 422) {
+            this.uploadMessage = (error.response && error.response.data) || "Invalid CSV file.";
+          } else {
+            this.uploadMessage = "An error occurred during upload.";
+          }
         });
     },
     deleteKeyword: function (id) {
