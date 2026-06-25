@@ -43,6 +43,23 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find an existing keyword by its name (case-insensitive, trimmed).
+     * Used for duplicate detection in the bulk uploader, since the
+     * program_keywords.keyword column has no unique constraint.
+     * @param string $keyword
+     * @return ProgramKeywords|null
+     */
+    public function findOneByKeyword(string $keyword): ?ProgramKeywords
+    {
+        return $this->createQueryBuilder('pk')
+            ->where('LOWER(pk.keyword) = LOWER(:keyword)')
+            ->setParameter('keyword', trim($keyword))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
      * Get all programs linked to a keyword.
      * @param int $keywordId
      * @return array

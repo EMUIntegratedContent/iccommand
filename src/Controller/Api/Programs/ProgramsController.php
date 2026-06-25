@@ -479,6 +479,65 @@ class ProgramsController extends AbstractController
 	}
 
 	/**
+	 * Bulk-create keywords from an uploaded CSV file.
+	 * CSV columns: keyword (required), program_id (optional).
+	 * @param Request $request
+	 * @return Response
+	 */
+	#[Route('/keywords/upload', methods: ['POST'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
+	public function postKeywordBulkAction(Request $request): Response
+	{
+		$uploaded = $request->files->get('csv');
+		if (!$uploaded) {
+			return new Response("No CSV file was uploaded.", 422, array("Content-Type" => "application/json"));
+		}
+
+		// Same parse approach as the redirect bulk uploader (handles Excel-saved-as-CSV).
+		$file = file($uploaded);
+		$csvFile = array_map('str_getcsv', $file);
+		$headers = array_shift($csvFile);
+
+		$rows = array();
+		foreach ($csvFile as $row) {
+			// Skip fully empty trailing lines.
+			if (count($row) === 1 && trim((string) $row[0]) === '') {
+				continue;
+			}
+			// Pad/trim the row so array_combine doesn't error on ragged lines.
+			$row = array_slice(array_pad($row, count($headers), ''), 0, count($headers));
+			$rows[] = array_combine($headers, $row);
+		}
+
+		$result = $this->service->bulkCreateKeywords($rows);
+
+		// Keyword names originate from the uploaded CSV and are rendered via v-html
+		// on the client, so HTML-encode each before embedding to prevent stored/reflected XSS.
+		$escape = static fn (array $names): array => array_map(
+			static fn ($name) => htmlspecialchars((string) $name, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+			$names
+		);
+		$skipped = $escape($result['skipped']);
+		$linkSkipped = $escape($result['linkSkipped']);
+
+		$message = sprintf('%d created.', count($result['created']));
+
+		$message .= sprintf('<br>%d skipped (already exists):', count($skipped));
+		if (count($skipped) > 0) {
+			$message .= sprintf('<ul><li>%s</li></ul>', implode('</li><li>', $skipped));
+		}
+
+		$message .= sprintf('<br>%d rejected (blank keyword).', $result['rejected']);
+
+		if (count($linkSkipped) > 0) {
+			$message .= sprintf('<br>%d created but program link skipped (program not found):<ul><li>%s</li></ul>',
+				count($linkSkipped), implode('</li><li>', $linkSkipped));
+		}
+
+		return new Response($message, 201, array("Content-Type" => "application/json"));
+	}
+
+	/**
 	 * Create a new keyword
 	 * @param Request $request
 	 * @return Response

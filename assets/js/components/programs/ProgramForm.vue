@@ -42,6 +42,7 @@
 					@submit="submitProgram"
 					:validation-schema="programSchema"
 				>
+					<div class="form-group">Internal ID: {{ record.id }}</div>
 					<div class="form-group">
 						<label
 							>Full program name ("Program" column on Degrees & Programs public
@@ -470,7 +471,12 @@
 					</div>
 				</VeeForm>
 				<cas-links-section
-					v-if="progExists && !isEditMode && record.id && record.catalog === 'graduate'"
+					v-if="
+						progExists &&
+						!isEditMode &&
+						record.id &&
+						record.catalog === 'graduate'
+					"
 					:program-id="Number(record.id)"
 					:user-can-edit="userCanEdit"
 				/>
