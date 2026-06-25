@@ -51,12 +51,15 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
      */
     public function findOneByKeyword(string $keyword): ?ProgramKeywords
     {
-        return $this->createQueryBuilder('pk')
-            ->where('LOWER(pk.keyword) = LOWER(:keyword)')
-            ->setParameter('keyword', trim($keyword))
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $conn = $this->em->getConnection();
+        $sql = 'SELECT id FROM programs.program_keywords WHERE LOWER(keyword) = LOWER(:keyword) LIMIT 1';
+        $id = $conn->executeQuery($sql, ['keyword' => trim($keyword)])->fetchOne();
+
+        if ($id === false || $id === null) {
+            return null;
+        }
+
+        return $this->em->find(ProgramKeywords::class, (int) $id);
     }
 
     /**
