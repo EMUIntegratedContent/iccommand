@@ -345,7 +345,7 @@ class CasController extends AbstractController
 		$programsEm = $this->doctrine->getManager('programs');
 		$programsConn = $programsEm->getConnection();
 		$programRows = $programsConn->executeQuery(
-			'SELECT id, full_name FROM programs.program_programs'
+			'SELECT id, full_name FROM program_programs'
 		)->fetchAllAssociative();
 
 		// Load all rows into an array for quick lookup by full_name

@@ -76,8 +76,8 @@ class CasService {
 
 		$sql = "
 			SELECT p.id, p.program, p.full_name, pd.degree
-			FROM programs.program_programs p
-			LEFT JOIN programs.program_degrees pd ON p.degree_id = pd.id
+			FROM program_programs p
+			LEFT JOIN program_degrees pd ON p.degree_id = pd.id
 			WHERE p.catalog = 'graduate'
 			ORDER BY p.full_name ASC
 		";

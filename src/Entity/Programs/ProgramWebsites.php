@@ -6,7 +6,7 @@ use App\Repository\Programs\ProgramWebsitesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProgramWebsitesRepository::class)]
-#[ORM\Table(name: 'program_websites', schema: 'programs')]
+#[ORM\Table(name: 'program_websites')]
 class ProgramWebsites{
 	#[ORM\Id]
 	#[ORM\GeneratedValue]

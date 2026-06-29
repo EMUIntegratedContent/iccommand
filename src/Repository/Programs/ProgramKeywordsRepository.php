@@ -33,7 +33,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     public function deleteByKeywordId(int $keywordId): void
     {
         $conn = $this->em->getConnection();
-        $sql = 'DELETE FROM programs.program_keyword_links WHERE keyword_id = :keyword_id';
+        $sql = 'DELETE FROM program_keyword_links WHERE keyword_id = :keyword_id';
         $conn->executeStatement($sql, ['keyword_id' => $keywordId]);
     }
 
@@ -52,7 +52,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     public function findOneByKeyword(string $keyword): ?ProgramKeywords
     {
         $conn = $this->em->getConnection();
-        $sql = 'SELECT id FROM programs.program_keywords WHERE LOWER(keyword) = LOWER(:keyword) LIMIT 1';
+        $sql = 'SELECT id FROM program_keywords WHERE LOWER(keyword) = LOWER(:keyword) LIMIT 1';
         $id = $conn->executeQuery($sql, ['keyword' => trim($keyword)])->fetchOne();
 
         if ($id === false || $id === null) {
@@ -71,8 +71,8 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     {
         $sql = "
             SELECT p.id, p.program, p.full_name, p.catalog
-            FROM programs.program_programs p
-            INNER JOIN programs.program_keyword_links pkl ON p.id = pkl.program_id
+            FROM program_programs p
+            INNER JOIN program_keyword_links pkl ON p.id = pkl.program_id
             WHERE pkl.keyword_id = :keyword_id
             ORDER BY p.full_name ASC
         ";
@@ -91,7 +91,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
         $conn = $this->em->getConnection();
 
         // Check if link already exists
-        $checkSql = 'SELECT COUNT(*) FROM programs.program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
+        $checkSql = 'SELECT COUNT(*) FROM program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
         $count = $conn->executeQuery(
             $checkSql,
             [
@@ -101,7 +101,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
         )->fetchOne();
 
         if ($count == 0) {
-            $sql = 'INSERT INTO programs.program_keyword_links (keyword_id, program_id) VALUES (:keyword_id, :program_id)';
+            $sql = 'INSERT INTO program_keyword_links (keyword_id, program_id) VALUES (:keyword_id, :program_id)';
             $conn->executeStatement($sql, [
                 'keyword_id' => $keywordId,
                 'program_id' => $programId
@@ -118,7 +118,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
     public function unlinkProgramFromKeyword(int $keywordId, int $programId): void
     {
         $conn = $this->em->getConnection();
-        $sql = 'DELETE FROM programs.program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
+        $sql = 'DELETE FROM program_keyword_links WHERE keyword_id = :keyword_id AND program_id = :program_id';
         $conn->executeStatement($sql, [
             'keyword_id' => $keywordId,
             'program_id' => $programId
@@ -148,8 +148,8 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
         // Get paginated results (using string interpolation for LIMIT/OFFSET like ProgramsRepository)
         $sql = "
             SELECT pk.id, pk.keyword, COUNT(pkl.program_id) AS program_count
-            FROM programs.program_keywords pk
-            LEFT JOIN programs.program_keyword_links pkl ON pk.id = pkl.keyword_id
+            FROM program_keywords pk
+            LEFT JOIN program_keyword_links pkl ON pk.id = pkl.keyword_id
             {$whereClause}
             GROUP BY pk.id, pk.keyword
             ORDER BY pk.keyword ASC
@@ -160,7 +160,7 @@ class ProgramKeywordsRepository extends ServiceEntityRepository
         // Get total count
         $countSql = "
             SELECT COUNT(DISTINCT pk.id) AS total
-            FROM programs.program_keywords pk
+            FROM program_keywords pk
             {$whereClause}
         ";
         $totalCount = $conn->executeQuery($countSql, $params)->fetchOne();

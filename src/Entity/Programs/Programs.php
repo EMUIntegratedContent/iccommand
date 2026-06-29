@@ -6,7 +6,7 @@ use App\Repository\Programs\ProgramsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProgramsRepository::class)]
-#[ORM\Table(name: 'program_programs', schema: 'programs')]
+#[ORM\Table(name: 'program_programs')]
 class Programs
 {
     #[ORM\Id]

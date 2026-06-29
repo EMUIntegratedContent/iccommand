@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
 
 #[ORM\Entity(repositoryClass: ProgramKeywordsRepository::class)]
-#[ORM\Table(name: 'program_keywords', schema: 'programs')]
+#[ORM\Table(name: 'program_keywords')]
 class ProgramKeywords
 {
     #[ORM\Id]

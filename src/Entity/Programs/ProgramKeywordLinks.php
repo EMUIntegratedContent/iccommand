@@ -6,7 +6,7 @@ use App\Repository\Programs\ProgramKeywordsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProgramKeywordsRepository::class)]
-#[ORM\Table(name: 'program_keyword_links', schema: 'programs')]
+#[ORM\Table(name: 'program_keyword_links')]
 class ProgramKeywordLinks
 {
     #[ORM\Column]

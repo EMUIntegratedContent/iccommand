@@ -54,12 +54,12 @@ class ProgramsRepository extends ServiceEntityRepository
 				GROUP_CONCAT(DISTINCT pkl.keyword_id) AS keyword_ids,
 				GROUP_CONCAT(DISTINCT pcl.college_id) AS college_ids,
 				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids
-			FROM programs.program_programs p
-			LEFT JOIN programs.program_websites w ON p.program = w.program
-			LEFT JOIN programs.program_delivery pd ON p.id = pd.program_id
-			LEFT JOIN programs.program_keyword_links pkl ON p.id = pkl.program_id
-			LEFT JOIN programs.program_college_link pcl ON p.id = pcl.program_id
-			LEFT JOIN programs.program_inter_dept pid ON p.id = pid.program_id
+			FROM program_programs p
+			LEFT JOIN program_websites w ON p.program = w.program
+			LEFT JOIN program_delivery pd ON p.id = pd.program_id
+			LEFT JOIN program_keyword_links pkl ON p.id = pkl.program_id
+			LEFT JOIN program_college_link pcl ON p.id = pcl.program_id
+			LEFT JOIN program_inter_dept pid ON p.id = pid.program_id
 			WHERE p.id = :id
 			GROUP BY p.id
 		";
@@ -77,8 +77,8 @@ class ProgramsRepository extends ServiceEntityRepository
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine
 		$programSql = "
 			SELECT p.*, w.id AS website_id, w.url
-			FROM programs.program_programs p
-			LEFT JOIN programs.program_websites w ON p.program = w.program
+			FROM program_programs p
+			LEFT JOIN program_websites w ON p.program = w.program
 			WHERE p.catalog = :catalog
 			ORDER BY p.full_name ASC
 			LIMIT $offset, $pageSize
@@ -135,7 +135,7 @@ class ProgramsRepository extends ServiceEntityRepository
 	{
 		$clgSql = "
 			SELECT *
-			FROM programs.program_colleges
+			FROM program_colleges
 			ORDER BY college ASC
 		";
 
@@ -146,7 +146,7 @@ class ProgramsRepository extends ServiceEntityRepository
 	{
 		$departmentsSql = "
 			SELECT id, department
-			FROM programs.program_departments
+			FROM program_departments
 			ORDER BY department ASC
 		";
 
@@ -157,7 +157,7 @@ class ProgramsRepository extends ServiceEntityRepository
 	{
 		$typesSql = "
 			SELECT *
-			FROM programs.program_types
+			FROM program_types
 			ORDER BY type ASC
 		";
 
@@ -168,7 +168,7 @@ class ProgramsRepository extends ServiceEntityRepository
 	{
 		$degreesSql = "
 			SELECT *
-			FROM programs.program_degrees
+			FROM program_degrees
 			ORDER BY degree ASC
 		";
 
@@ -183,7 +183,7 @@ class ProgramsRepository extends ServiceEntityRepository
 	{
 		$catalogSql = "
 			SELECT DISTINCT catalog, catalog_id
-			FROM programs.program_programs
+			FROM program_programs
 			ORDER BY catalog_id ASC
 		";
 
@@ -205,11 +205,11 @@ class ProgramsRepository extends ServiceEntityRepository
 			$conn->beginTransaction();
 
 			// Delete existing delivery modes
-			$delSql = 'DELETE FROM programs.program_delivery WHERE program_id = :program_id';
+			$delSql = 'DELETE FROM program_delivery WHERE program_id = :program_id';
 			$conn->executeStatement($delSql, ['program_id' => $programId]);
 
 			// Insert new delivery modes
-			$insSql = 'INSERT INTO programs.program_delivery (program_id, delivery_id) VALUES (:program_id, :delivery_id)';
+			$insSql = 'INSERT INTO program_delivery (program_id, delivery_id) VALUES (:program_id, :delivery_id)';
 			foreach ($deliveryIds as $deliveryId) {
 				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
@@ -241,11 +241,11 @@ class ProgramsRepository extends ServiceEntityRepository
 			$conn->beginTransaction();
 
 			// Delete existing keywords
-			$delSql = 'DELETE FROM programs.program_keyword_links WHERE program_id = :program_id';
+			$delSql = 'DELETE FROM program_keyword_links WHERE program_id = :program_id';
 			$conn->executeStatement($delSql, ['program_id' => $programId]);
 
 			// Insert new keywords
-			$insSql = 'INSERT INTO programs.program_keyword_links (program_id, keyword_id) VALUES (:program_id, :keyword_id)';
+			$insSql = 'INSERT INTO program_keyword_links (program_id, keyword_id) VALUES (:program_id, :keyword_id)';
 			foreach ($keywordIds as $keywordId) {
 				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
@@ -276,10 +276,10 @@ class ProgramsRepository extends ServiceEntityRepository
 			$conn = $this->em->getConnection();
 			$conn->beginTransaction();
 
-			$delSql = 'DELETE FROM programs.program_college_link WHERE program_id = :program_id';
+			$delSql = 'DELETE FROM program_college_link WHERE program_id = :program_id';
 			$conn->executeStatement($delSql, ['program_id' => $programId]);
 
-			$insSql = 'INSERT INTO programs.program_college_link (program_id, college_id) VALUES (:program_id, :college_id)';
+			$insSql = 'INSERT INTO program_college_link (program_id, college_id) VALUES (:program_id, :college_id)';
 			foreach ($collegeIds as $collegeId) {
 				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
@@ -310,10 +310,10 @@ class ProgramsRepository extends ServiceEntityRepository
 			$conn = $this->em->getConnection();
 			$conn->beginTransaction();
 
-			$delSql = 'DELETE FROM programs.program_inter_dept WHERE program_id = :program_id';
+			$delSql = 'DELETE FROM program_inter_dept WHERE program_id = :program_id';
 			$conn->executeStatement($delSql, ['program_id' => $programId]);
 
-			$insSql = 'INSERT INTO programs.program_inter_dept (program_id, department_id) VALUES (:program_id, :department_id)';
+			$insSql = 'INSERT INTO program_inter_dept (program_id, department_id) VALUES (:program_id, :department_id)';
 			foreach ($departmentIds as $departmentId) {
 				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
