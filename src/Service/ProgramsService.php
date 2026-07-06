@@ -123,6 +123,184 @@ class ProgramsService
 	}
 
 	/**
+	 * Faceted Degrees & Programs search backing the public Modern Campus /degrees page.
+	 * Ports the WHERE-clause building, pagination and sort logic from the legacy
+	 * degrees-search-get-results.php, but normalizes/validates every filter and builds a
+	 * parameterized WHERE fragment (the repository runs the actual COUNT + SELECT).
+	 *
+	 * Accepted params (all optional): program (string), level (array of
+	 * 'undergraduate'|'graduate'), degree (array), mode (array of 0|1|2),
+	 * department (comma-separated ids), college (int), pathway (truthy), match
+	 * ('exact'|'wildcard'), sort ('field.asc'|'field.desc'), page (int).
+	 *
+	 * @param array $params Raw query params (typically $request->query->all()).
+	 * @return array{programs: array, count: int, pages: int, offset: int, end: int, areasOfStudy: array}
+	 */
+	public function searchDegreePrograms(array $params): array
+	{
+		$binds = [];
+		$where = '';
+
+		// --- Program level -> catalog filter --------------------------------------
+		// Legacy net behavior: only-graduate or only-undergraduate narrows p.catalog;
+		// both-or-neither applies no level filter.
+		$levels = $this->normalizeToArray($params['level'] ?? []);
+		$hasUndergrad = in_array('undergraduate', $levels, true);
+		$hasGrad = in_array('graduate', $levels, true);
+		if ($hasGrad && !$hasUndergrad) {
+			$where .= ' AND p.catalog = :catalog';
+			$binds['catalog'] = 'graduate';
+		} elseif ($hasUndergrad && !$hasGrad) {
+			$where .= ' AND p.catalog = :catalog';
+			$binds['catalog'] = 'undergraduate';
+		}
+
+		// --- MiTransfer Pathways (static predicate, no user input) -----------------
+		if (!empty($params['pathway'])) {
+			$where .= " AND p.full_name LIKE '%MiTransfer%Pathway%'";
+		}
+
+		// --- Keyword / program-name search ----------------------------------------
+		$program = isset($params['program']) ? trim((string) $params['program']) : '';
+		if ($program !== '') {
+			$progFrag = '(p.full_name LIKE :program OR pk.keyword LIKE :program)';
+			$exact = (isset($params['match']) && $params['match'] === 'exact');
+			$binds['program'] = $exact ? $program : '%' . $program . '%';
+
+			// Legacy "online" convenience: searching for online also matches online-delivery
+			// programs. The legacy `class_type` column is gone in this schema; delivery now
+			// lives in program_delivery, so test membership there (delivery_id 1 = online).
+			if (stripos($program, 'online') !== false || stripos('online', $program) !== false) {
+				$progFrag = '((' . $progFrag . ') OR EXISTS (SELECT 1 FROM program_delivery pdx WHERE pdx.program_id = p.id AND pdx.delivery_id = 1))';
+			}
+			$where .= ' AND ' . $progFrag;
+		}
+
+		// --- Area of Study (department ids) ---------------------------------------
+		$departmentIds = $this->intList($params['department'] ?? '');
+		if ($departmentIds !== []) {
+			$list = implode(',', $departmentIds);
+			$where .= " AND ((d.id IN ($list)) OR (pid.department_id IN ($list)))";
+		}
+
+		// --- College --------------------------------------------------------------
+		$college = isset($params['college']) ? (int) $params['college'] : 0;
+		if ($college > 0) {
+			$where .= ' AND (p.college_id = :college OR cl.college_id = :college_link)';
+			$binds['college'] = $college;
+			$binds['college_link'] = $college;
+		}
+
+		// --- Degree type ----------------------------------------------------------
+		$degrees = array_filter(
+			array_map('trim', $this->normalizeToArray($params['degree'] ?? [])),
+			static fn($d) => $d !== ''
+		);
+		if ($degrees !== []) {
+			$frag = ' AND (FALSE';
+			$i = 0;
+			foreach ($degrees as $degree) {
+				$ph = 'deg' . $i++;
+				$frag .= " OR de.degree LIKE :$ph";
+				$binds[$ph] = '%' . $degree . '%';
+			}
+			$frag .= ')';
+			$where .= $frag;
+		}
+
+		// --- Delivery mode --------------------------------------------------------
+		$modes = array_values(array_filter(
+			array_map('intval', $this->normalizeToArray($params['mode'] ?? [])),
+			static fn($m) => in_array($m, [0, 1, 2], true)
+		));
+		if ($modes !== []) {
+			$where .= ' AND pd.delivery_id IN (' . implode(',', $modes) . ')';
+		}
+
+		// --- Sort (whitelisted field + direction) ---------------------------------
+		$orderBy = $this->buildOrderBy($params['sort'] ?? null);
+
+		$page = isset($params['page']) ? (int) $params['page'] : 1;
+		$limit = 20;
+
+		$result = $this->em->getRepository(Programs::class)
+			->searchDegreePrograms($where, $binds, $orderBy, $page, $limit);
+
+		$result['areasOfStudy'] = $this->em->getRepository(Programs::class)->getAreasOfStudy();
+		unset($result['page']);
+
+		return $result;
+	}
+
+	/**
+	 * Coerce a query param into an array of strings (checkbox groups arrive as arrays,
+	 * a single selection may arrive as a scalar; empty/null becomes []).
+	 * @param mixed $value
+	 * @return string[]
+	 */
+	private function normalizeToArray($value): array
+	{
+		if (is_array($value)) {
+			return $value;
+		}
+		if ($value === null || $value === '') {
+			return [];
+		}
+		return [$value];
+	}
+
+	/**
+	 * Parse a comma-separated id string into a list of positive ints (injection-safe).
+	 * @param mixed $value
+	 * @return int[]
+	 */
+	private function intList($value): array
+	{
+		if (is_array($value)) {
+			$parts = $value;
+		} else {
+			$parts = explode(',', (string) $value);
+		}
+		$ids = array_filter(array_map('intval', $parts), static fn($v) => $v > 0);
+		return array_values($ids);
+	}
+
+	/**
+	 * Build a safe ORDER BY clause from a "field.direction" sort param. Field is
+	 * matched against a fixed allowlist and direction is normalized to ASC/DESC, so
+	 * no user text reaches the SQL. Defaults to program name ascending.
+	 * @param mixed $sort
+	 * @return string
+	 */
+	private function buildOrderBy($sort): string
+	{
+		$default = ' ORDER BY p.full_name ASC';
+		if (!is_string($sort) || $sort === '' || strpos($sort, '.') === false) {
+			return $default;
+		}
+
+		[$field, $direction] = explode('.', $sort, 2);
+		$direction = strtolower($direction) === 'desc' ? 'DESC' : 'ASC';
+
+		switch ($field) {
+			case 'program':
+				return ' ORDER BY p.full_name ' . $direction;
+			case 'department':
+				return ' ORDER BY d.department ' . $direction;
+			case 'college':
+				return ' ORDER BY c.college ' . $direction;
+			case 'degree':
+				return " ORDER BY IF(de.degree LIKE '%certificate%', 'Certificate', de.degree) " . $direction;
+			case 'mode':
+				// class_type is gone in this schema; approximate mode ordering by the
+				// lowest delivery id present for the program.
+				return ' ORDER BY MIN(pd.delivery_id) ' . $direction;
+			default:
+				return $default;
+		}
+	}
+
+	/**
 	 * Gets the websites with pagination.
 	 * @param $currentPage
 	 * @param $pageSize
