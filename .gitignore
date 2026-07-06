@@ -47,3 +47,4 @@ yarn-error.log
 
 ##ignore any .sql files that start with 'ic_'
 ic_*.sql
+programs*.sql
