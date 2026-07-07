@@ -61,3 +61,11 @@ cas:
 cas_external:
   resource: App\Controller\Api\Cas\CasExternalController
   prefix: /api/external/cas/
+
+scholarships:
+  resource: App\Controller\Api\Scholarship\ScholarshipController
+  prefix: /api/scholarships/
+
+scholarships_external:
+  resource: App\Controller\Api\Scholarship\ScholarshipExternalController
+  prefix: /api/external/scholarships/

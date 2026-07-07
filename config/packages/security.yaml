@@ -17,6 +17,7 @@ security:
     - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
     - { path: ^/cas, roles: [ROLE_CAS_VIEW, ROLE_GLOBAL_ADMIN] }
+    - { path: ^/scholarships, roles: [ROLE_SCHOLARSHIP_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
     - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
     - { path: ^/admin, role: ROLE_GLOBAL_ADMIN }
@@ -69,6 +70,12 @@ security:
     ROLE_CAS_VIEW: ROLE_USER
     ROLE_CAS_EDIT: ROLE_CAS_VIEW
     ROLE_CAS_ADMIN: ROLE_CAS_EDIT
+    # Scholarships
+    ROLE_SCHOLARSHIP_VIEW: ROLE_USER
+    ROLE_SCHOLARSHIP_CREATE: ROLE_SCHOLARSHIP_VIEW
+    ROLE_SCHOLARSHIP_EDIT: ROLE_SCHOLARSHIP_CREATE
+    ROLE_SCHOLARSHIP_DELETE: ROLE_SCHOLARSHIP_EDIT
+    ROLE_SCHOLARSHIP_ADMIN: ROLE_SCHOLARSHIP_DELETE
 
 # Local development (Docker) - form login with UserChecker
 when@dev:

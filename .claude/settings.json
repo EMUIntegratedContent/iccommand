@@ -37,7 +37,10 @@
       "Bash(curl -s 'http://localhost:8080/api/external/programs/search?program=zzzznotathing')",
       "Bash(python3 -c 'import sys,json; d=json.load\\(sys.stdin\\); print\\(\"count:\",d[\"count\"],\"pages:\",d[\"pages\"],\"programs:\",len\\(d[\"programs\"]\\)\\)')",
       "Bash(PBASE='http://localhost:9/api/external/programs' php harness.php basic)",
-      "Bash(PBASE='http://localhost:8080/api/external/programs/nope' php harness.php basic)"
+      "Bash(PBASE='http://localhost:8080/api/external/programs/nope' php harness.php basic)",
+      "Bash(curl -s -b /private/tmp/claude-502/-Users-cpuzzuol-emu-iccommand/d95fcbeb-e093-4e85-8db8-9a94ef802e81/scratchpad/cj.txt -X POST http://localhost:8080/api/scholarships/ -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{\"title\":\"E2E Scholarship\",\"active\":true,\"gpa\":\"3.50\",\"applyDate\":\"2026-09-01\",\"program_links\":[{\"program_id\":17816,\"notes\":\"primary\"}]}' -o /tmp/err.json -w 'HTTP %{http_code}\\\\n')",
+      "Read(//tmp/**)",
+      "Bash(curl -s -b /private/tmp/claude-502/-Users-cpuzzuol-emu-iccommand/d95fcbeb-e093-4e85-8db8-9a94ef802e81/scratchpad/cj.txt -o /tmp/put1.json -w 'HTTP %{http_code}\\\\n' -X PUT http://localhost:8080/api/scholarships/3 -H 'Content-Type: application/json' -d '{\"title\":\"E2E Scholarship \\(edited\\)\",\"program_links\":[]}')"
     ]
   }
 }
