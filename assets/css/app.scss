@@ -1,218 +1,270 @@
-@import 'variables';
-@import 'override';
-@import 'map';
-@import 'mixins';
+@import "variables";
+@import "override";
+@import "map";
+@import "mixins";
 
 // the ~ allows you to reference things in node_modules
 // this is BOOTSTRAP 4!
-@import '~bootstrap/scss/bootstrap';
+@import "~bootstrap/scss/bootstrap";
 // Font Awesome (CP 2/28/18)
 @import "~font-awesome/scss/font-awesome.scss";
 
 body {
-  font-family: "Poppins", "Roboto", "Open Sans", Helvetica, Arial, sans-serif;
-  color: $body-emu;
+	font-family: "Poppins", "Roboto", "Open Sans", Helvetica, Arial, sans-serif;
+	color: $body-emu;
 }
-.app-hero{
-  position: relative;
-  > h1{
-    position: absolute;
-    bottom: 0;
-    left: 2rem;
-  }
+.app-hero {
+	position: relative;
+	> h1 {
+		position: absolute;
+		bottom: 0;
+		left: 2rem;
+	}
 }
-#iccommand-content-container{
-  padding-top:40px;
+#iccommand-content-container {
+	padding-top: 40px;
 }
-.spacer-top{
-  margin-top: 20px;
+.spacer-top {
+	margin-top: 20px;
 }
-.spacer-bottom{
-  margin-bottom: 20px;
+.spacer-bottom {
+	margin-bottom: 20px;
 }
 #iccommand-mainnav-container {
-  li.active {
-    border-bottom: solid 2px $neon;
-  }
-  li:hover {
-    border-bottom: solid 2px $primary-light;
-  }
+	li.active {
+		border-bottom: solid 2px $neon;
+	}
+	li:hover {
+		border-bottom: solid 2px $primary-light;
+	}
+	.btn-group {
+		margin: 0 0.2rem;
+
+		a {
+			// not underlined
+			text-decoration: none;
+			color: $body-emu;
+			padding: 1rem 0.5rem;
+		}
+	}
 }
-.iccommand-thumb-container{
-  padding: 0 !important;
-  > .row{
-    padding: 1rem 0.25rem;
-  }
+.iccommand-thumb-container {
+	padding: 0 !important;
+	> .row {
+		padding: 1rem 0.25rem;
+	}
 }
-.btn-success{
-  background-color: $primary-light !important;
-  border-color: transparent !important;
-  &:hover{
-    background-color: lighten($primary-light, 10%) !important;
-  }
+.btn-success {
+	background-color: $primary-light !important;
+	border-color: transparent !important;
+	&:hover {
+		background-color: lighten($primary-light, 10%) !important;
+	}
 }
-.btn-danger{
-  background-color: $danger-emu !important;
-  border-color: transparent !important;
-  &:hover{
-    background-color: lighten($danger-emu, 10%) !important;
-  }
+.btn-danger {
+	background-color: $danger-emu !important;
+	border-color: transparent !important;
+	&:hover {
+		background-color: lighten($danger-emu, 10%) !important;
+	}
 }
-.btn-info{
-  background-color: $neon !important;
-  border-color: transparent !important;
-  color: $body-emu;
-  &:hover{
-    background-color: lighten($neon, 5%) !important;
-    color: $body-emu;
-  }
+.btn-info {
+	background-color: $neon !important;
+	border-color: transparent !important;
+	color: $body-emu;
+	&:hover {
+		background-color: lighten($neon, 5%) !important;
+		color: $body-emu;
+	}
 }
-.nav-tabs{
-  padding-top: 15px;
+.nav-tabs {
+	padding-top: 15px;
 }
-.card-accent{
-  border-top: 5px solid;
+.card-accent {
+	border-top: 5px solid;
 }
-.card-accent-green{
-  border-top-color: $primary-light;
-  background: linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, .2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(216, 217, 239, .1) 50%,
-    rgba(255, 255, 255, .2) 75%,
-    transparent 75%,
-    transparent
-  );
+.card-accent-green {
+	border-top-color: $primary-light;
+	background: linear-gradient(
+		-45deg,
+		rgba(255, 255, 255, 0.2) 25%,
+		transparent 25%,
+		transparent 50%,
+		rgba(216, 217, 239, 0.1) 50%,
+		rgba(255, 255, 255, 0.2) 75%,
+		transparent 75%,
+		transparent
+	);
 }
-.card-accent-green{
-  border-top-color: #155724;
-  background: linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, .2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(216, 239, 230, .1) 50%,
-    rgba(255, 255, 255, .2) 75%,
-    transparent 75%,
-    transparent
-  );
+.card-accent-green {
+	border-top-color: #155724;
+	background: linear-gradient(
+		-45deg,
+		rgba(255, 255, 255, 0.2) 25%,
+		transparent 25%,
+		transparent 50%,
+		rgba(216, 239, 230, 0.1) 50%,
+		rgba(255, 255, 255, 0.2) 75%,
+		transparent 75%,
+		transparent
+	);
 }
-.card-accent-orange{
-  border-top-color: $info-emu;
-  background: linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, .2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(240, 222, 209, .1) 50%,
-    rgba(255, 255, 255, .2) 75%,
-    transparent 75%,
-    transparent
-  );
+.card-accent-orange {
+	border-top-color: $info-emu;
+	background: linear-gradient(
+		-45deg,
+		rgba(255, 255, 255, 0.2) 25%,
+		transparent 25%,
+		transparent 50%,
+		rgba(240, 222, 209, 0.1) 50%,
+		rgba(255, 255, 255, 0.2) 75%,
+		transparent 75%,
+		transparent
+	);
 }
-.card-accent-red{
-  border-top-color: $danger-emu;
-  background: linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, .2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(239, 216, 216, .1) 50%,
-    rgba(255, 255, 255, .2) 75%,
-    transparent 75%,
-    transparent
-  );
+.card-accent-red {
+	border-top-color: $danger-emu;
+	background: linear-gradient(
+		-45deg,
+		rgba(255, 255, 255, 0.2) 25%,
+		transparent 25%,
+		transparent 50%,
+		rgba(239, 216, 216, 0.1) 50%,
+		rgba(255, 255, 255, 0.2) 75%,
+		transparent 75%,
+		transparent
+	);
 }
 .card-accent-yellow {
-  border-top-color: #856404;
-  background: linear-gradient(
-                  -45deg,
-                  rgba(255, 255, 255, .2) 25%,
-                  transparent 25%,
-                  transparent 50%,
-                  rgba(237, 239, 209, .1) 50%,
-                  rgba(255, 255, 255, .2) 75%,
-                  transparent 75%,
-                  transparent
-  );
+	border-top-color: #856404;
+	background: linear-gradient(
+		-45deg,
+		rgba(255, 255, 255, 0.2) 25%,
+		transparent 25%,
+		transparent 50%,
+		rgba(237, 239, 209, 0.1) 50%,
+		rgba(255, 255, 255, 0.2) 75%,
+		transparent 75%,
+		transparent
+	);
 }
-.login-card{
-  .h4{
-    padding: 20px 0 30px 0 !important;
-  }
+.login-card {
+	.h4 {
+		padding: 20px 0 30px 0 !important;
+	}
 }
-h3.module-nav-heading{
-  font-size: 1rem;
-  font-weight: bold;
-  padding-bottom: 5px;
+h3.module-nav-heading {
+	font-size: 1rem;
+	font-weight: bold;
+	padding-bottom: 5px;
 }
-.module-nav-pills{
-  padding-bottom: 10px;
-  border-bottom: 2px solid #333333;
-  margin-bottom: 5px;
+.module-nav-pills {
+	padding-bottom: 10px;
+	border-bottom: 2px solid #333333;
+	margin-bottom: 5px;
 }
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link{
-  background-color: $primary !important;
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+	background-color: $primary !important;
 }
-.nav-link{
-  color: $dark-bkg-emu;
-  &:hover{
-    color: $neon !important;
-  }
+.nav-link {
+	color: $dark-bkg-emu;
+	&:hover {
+		color: $neon !important;
+	}
 }
-.mapitem-add-aux{
-  text-align: center;
-  border: 5px dashed #cccccc;
-  color: #cccccc;
-  &:hover{
-    color: #888888;
-  }
+.mapitem-add-aux {
+	text-align: center;
+	border: 5px dashed #cccccc;
+	color: #cccccc;
+	&:hover {
+		color: #888888;
+	}
 }
-.heading-primary{
-    color: $primary;
+.heading-primary {
+	color: $primary;
 }
-.hand{
-  cursor: pointer;
+.hand {
+	cursor: pointer;
 }
-.iccommand-thumb-container{
-  border-top: 1px solid rgba(0,0,0,0.125) !important;
-  border-bottom: none !important;
-  border-left: none !important;
-  border-right: none !important;
+.iccommand-thumb-container {
+	border-top: 1px solid rgba(0, 0, 0, 0.125) !important;
+	border-bottom: none !important;
+	border-left: none !important;
+	border-right: none !important;
 }
-.iccommand-thumb-image{
-  width:103px;
-  float:left;
-  margin-right:10px;
+.iccommand-thumb-image {
+	width: 103px;
+	float: left;
+	margin-right: 10px;
 }
-.iccommand-thumb-hamburger{
-  width: 40px;
-  float: left;
-  position: relative;
-  top: 40px;
+.iccommand-thumb-hamburger {
+	width: 40px;
+	float: left;
+	position: relative;
+	top: 40px;
 }
-.col-sortable{
-  color: $primary-light;
-  text-decoration: underline;
-  cursor: pointer;
+.col-sortable {
+	color: $primary-light;
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 // This is for links that are not buttons
 a:not(.btn):not(.nav-link):not(.page-link):not(.navbar-brand) {
-  color: $primary;
-  text-decoration: underline;
+	color: $primary;
+	text-decoration: underline;
 }
 
 .navbar-dark .navbar-nav .nav-link {
-  color: rgba(255,255,255,1) !important;
+	color: rgba(255, 255, 255, 1) !important;
 }
 
 .bg-dark {
-  background-color: #333333 !important;
+	background-color: #333333 !important;
 }
-//
-//.emergency-banner-nav-item{
-//  background: $danger-emu !important;
-//}
+
+
+@include media-breakpoint-down(lg) {
+	#iccommand-mainnav-container .btn-group {
+		margin: 0.2rem 0;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+
+		> .btn {
+			width: 100%;
+		}
+
+		> .dropdown-menu {
+			position: static;
+			float: none;
+			width: 100%;
+			border: none;
+			background: transparent;
+			box-shadow: none;
+			padding: 0.25rem 0 0;
+			margin: 0;
+			pointer-events: none;
+
+			> .dropdown-item {
+				pointer-events: auto;
+				width: calc(100% - 1.25rem);
+				margin-left: 1.25rem;
+				margin-bottom: 0.25rem;
+				padding: 0.5rem 0.75rem;
+				color: rgba(255, 255, 255, 0.85);
+				border: 1px solid rgba(255, 255, 255, 0.4);
+				border-radius: 0.25rem;
+				text-decoration: none;
+
+				&:hover,
+				&:focus {
+					background-color: rgba(255, 255, 255, 0.1);
+					color: #fff;
+				}
+			}
+		}
+	}
+}
