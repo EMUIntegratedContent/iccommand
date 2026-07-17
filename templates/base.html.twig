@@ -47,7 +47,7 @@
             </div>
         </div>
         {% endif %}
-        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') or is_granted('ROLE_CAS_VIEW') %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') or is_granted('ROLE_CAS_VIEW') or is_granted('ROLE_SCHOLARSHIP_VIEW') %}
         <div class="btn-group">
             <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Academic Marketing
@@ -58,6 +58,9 @@
                 {% endif %}
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CAS_VIEW') %}
                 <a class="dropdown-item" href="/cas">CAS App Links</a>
+                {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_SCHOLARSHIP_VIEW') %}
+                <a class="dropdown-item" href="/scholarships">Scholarships</a>
                 {% endif %}
             </div>
         </div>
