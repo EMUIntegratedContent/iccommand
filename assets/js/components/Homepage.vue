@@ -12,10 +12,12 @@
             You do not currently belong to any applications.
           </p>
           <template v-else>
-            <ModuleCategoryCards v-if="campusSafetyModules.length > 0" :modules="campusSafetyModules" mdDisplay="col-md-6"></ModuleCategoryCards>
-            <ModuleCategoryCards v-if="mapAndDirectoryModules.length > 0" :modules="mapAndDirectoryModules" mdDisplay="col-md-6"></ModuleCategoryCards>
-            <ModuleCategoryCards v-if="photographyModules.length > 0" :modules="photographyModules" mdDisplay="col-md-12"></ModuleCategoryCards>
-            <ModuleCategoryCards v-if="webServicesModules.length > 0" :modules="webServicesModules"></ModuleCategoryCards>
+            <ModuleCategoryCards
+              v-for="category in visibleCategories"
+              :key="category.name"
+              :modules="category.modules"
+              :mdDisplay="category.mdDisplay"
+            ></ModuleCategoryCards>
           </template>
         </div>
 			</div>
@@ -50,6 +52,15 @@ export default {
 	},
 	data: function () {
 		return {
+			// The category groupings and their order mirror the header dropdown menus
+			// in base.html.twig. Keep them in sync when adding/moving apps.
+			categoryOrder: [
+				{ name: 'Campus Safety & Alerts', mdDisplay: 'col-md-6' },
+				{ name: 'Maps & Directories', mdDisplay: 'col-md-6' },
+				{ name: 'Academic Marketing', mdDisplay: 'col-md-4' },
+				{ name: 'Requests & Operations', mdDisplay: 'col-md-12' },
+				{ name: 'Webmaster Tools', mdDisplay: 'col-md-4' }
+			],
 			userModules: {
 				map: {
 					title: "Campus Map",
@@ -58,7 +69,7 @@ export default {
 					buttonText: "Open Application",
 					buttonLink: "/map",
 					display: false,
-          category: 'Map & Directory'
+          category: 'Maps & Directories'
 				},
 				redirect: {
 					title: "Redirect Application",
@@ -67,7 +78,7 @@ export default {
 					buttonText: "Manage Redirects",
 					buttonLink: "/redirects",
 					display: false,
-          category: 'Web Services'
+          category: 'Webmaster Tools'
 				},
 				programs: {
 					title: "Degrees & Programs Manager",
@@ -76,7 +87,7 @@ export default {
 					buttonText: "Manage Programs",
 					buttonLink: "/programs",
 					display: false,
-          category: 'Web Services'
+          category: 'Academic Marketing'
 				},
 				directory: {
 					// Added July 2025
@@ -86,7 +97,7 @@ export default {
 					buttonText: "Manage Departments",
 					buttonLink: "/directory",
 					display: false,
-          category: 'Map & Directory'
+          category: 'Maps & Directories'
 				},
 				photorequests: {
 					// Added July 2025
@@ -96,7 +107,7 @@ export default {
 					buttonText: "See Requests",
 					buttonLink: "/photorequests",
 					display: false,
-          category: 'Photography'
+          category: 'Requests & Operations'
 				},
 				links: {
 					// Added Sept. 2024
@@ -106,7 +117,7 @@ export default {
 					buttonText: "See Apps",
 					buttonLink: "/applinks",
 					display: true, // No permissions required for this module; it's just a list of links
-          category: 'Web Services'
+          category: 'Webmaster Tools'
 				},
         emergency: {
           // Added Sept. 2025
@@ -116,7 +127,7 @@ export default {
           buttonText: "Manage Banner",
           buttonLink: "/emergency",
           display: false,
-          category: 'Campus Safety'
+          category: 'Campus Safety & Alerts'
         },
 				crimelog: {
 					// Added June 2025
@@ -126,7 +137,7 @@ export default {
 					buttonText: "DPS Crime Log Upload",
 					buttonLink: "/crimelog",
 					display: false,
-          category: 'Campus Safety'
+          category: 'Campus Safety & Alerts'
 				},
 				cas: {
 					// Added April 2026
@@ -136,57 +147,42 @@ export default {
 					buttonText: "Manage Links",
 					buttonLink: "/cas",
 					display: false,
-					category: 'Web Services'
+					category: 'Academic Marketing'
+				},
+				social: {
+					// Added July 2026
+					title: "Social Media Links",
+					description:
+						"The social media links application manages Facebook, X, YouTube, Instagram, LinkedIn, and TikTok links for teams, groups, and other entities.",
+					buttonText: "Manage Links",
+					buttonLink: "/social-media",
+					display: false,
+					category: 'Academic Marketing'
 				}
 			}
 		}
 	},
 	computed: {
-    campusSafetyModules: function() {
-      let modules = []
-      for (let module in this.userModules) {
-        if (this.userModules[module].category === 'Campus Safety' && this.userModules[module].display === true) {
-          modules.push(this.userModules[module])
-        }
-      }
-      return modules
-    },
-    webServicesModules: function() {
-      let modules = []
-      for (let module in this.userModules) {
-        if (this.userModules[module].category === 'Web Services' && this.userModules[module].display === true) {
-          modules.push(this.userModules[module])
-        }
-      }
-      return modules
-    },
-    photographyModules: function() {
-      let modules = []
-      for (let module in this.userModules) {
-        if (this.userModules[module].category === 'Photography' && this.userModules[module].display === true) {
-          modules.push(this.userModules[module])
-        }
-      }
-      return modules
-    },
-    mapAndDirectoryModules: function() {
-      let modules = []
-      for (let module in this.userModules) {
-        if (this.userModules[module].category === 'Map & Directory' && this.userModules[module].display === true) {
-          modules.push(this.userModules[module])
-        }
-      }
-      return modules
+    // Groups the displayed modules by category, in header order, dropping empty categories.
+    visibleCategories: function() {
+      let self = this
+      return this.categoryOrder
+        .map(function(category) {
+          let modules = []
+          for (let key in self.userModules) {
+            if (self.userModules[key].category === category.name && self.userModules[key].display === true) {
+              modules.push(self.userModules[key])
+            }
+          }
+          return { name: category.name, mdDisplay: category.mdDisplay, modules: modules }
+        })
+        .filter(function(category) {
+          return category.modules.length > 0
+        })
     },
 		// Does this user have permission to access any applications?
 		userHasModules: function () {
-			let hasModules = false
-			for (let module in this.userModules) {
-				if (this.userModules[module].display === true) {
-					hasModules = true
-				}
-			}
-			return hasModules
+			return this.visibleCategories.length > 0
 		}
 	},
 	methods: {
@@ -242,6 +238,12 @@ export default {
 				role.includes("ROLE_GLOBAL_ADMIN")
 			) {
 				this.userModules.cas.display = true
+			}
+			if (
+				role.includes("ROLE_SOCIAL_") ||
+				role.includes("ROLE_GLOBAL_ADMIN")
+			) {
+				this.userModules.social.display = true
 			}
 		}
 	},

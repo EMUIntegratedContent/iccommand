@@ -83,7 +83,7 @@
                 Webmaster Tools
             </button>
             <div class="dropdown-menu">
-                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PHOTO_VIEW') %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') %}
                 <a class="dropdown-item" href="/redirects">Redirects & Vanities</a>
                 {% endif %}
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_USER') %}
