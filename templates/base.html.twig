@@ -17,53 +17,79 @@
     </button>
 
     <div class="collapse navbar-collapse" id="iccommand-mainnav-container">
-        <ul class="navbar-nav mr-auto">
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_EMERGENCY_EDIT') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/emergency">Emergency Banner</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CRIMELOG_USER') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/crimelog">DPS Crime Log</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/map">Campus Map</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_DEPARTMENTS_USER') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/directory">Dept. Directory</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PHOTO_VIEW') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/photorequests">Photo Requests</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/redirects">Redirects</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/programs">Degrees & Programs</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CAS_VIEW') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/cas">CAS</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_USER') %}
-            <li class="nav-item">
-                <a class="nav-link" href="/applinks">Ext. App Links</a>
-            </li>
-            {% endif %}
-        </ul>
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_EMERGENCY_EDIT') or is_granted('ROLE_CRIMELOG_USER') %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Campus Safety & Alerts
+            </button>
+            <div class="dropdown-menu">
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_EMERGENCY_EDIT') %}
+                <a class="dropdown-item" href="/emergency">Emergency Banner</a>
+                {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CRIMELOG_USER') %}
+                <a class="dropdown-item" href="/crimelog">DPS Crime Log</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') or is_granted('ROLE_DEPARTMENTS_USER') %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Maps & Directories
+            </button>
+            <div class="dropdown-menu">
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') %}
+                <a class="dropdown-item" href="/map">Campus Map</a>
+                {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_DEPARTMENTS_USER') %}
+                <a class="dropdown-item" href="/directory">Department Directory</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') or is_granted('ROLE_CAS_VIEW') %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Academic Marketing
+            </button>
+            <div class="dropdown-menu">
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
+                <a class="dropdown-item" href="/programs">Degrees & Programs</a>
+                {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CAS_VIEW') %}
+                <a class="dropdown-item" href="/cas">CAS App Links</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PHOTO_VIEW') %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Requests & Operations
+            </button>
+            <div class="dropdown-menu">
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PHOTO_VIEW') %}
+                <a class="dropdown-item" href="/photorequests">Photo Requests</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') or is_granted('ROLE_USER') %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Webmaster Tools
+            </button>
+            <div class="dropdown-menu">
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PHOTO_VIEW') %}
+                <a class="dropdown-item" href="/redirects">Redirects & Vanities</a>
+                {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_USER') %}
+                <a class="dropdown-item" href="/applinks">External App Links</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
         <ul class="navbar-nav ml-auto">
             {% if is_granted('ROLE_GLOBAL_ADMIN') %}
                 <li class="nav-item text-nowrap">
