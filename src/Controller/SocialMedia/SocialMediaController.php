@@ -8,6 +8,8 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\ExpressionLanguage\Expression;
 
 /**
  * The controller for the Social Media Links application (page rendering).
@@ -44,6 +46,18 @@ class SocialMediaController extends AbstractController
     {
         $permissions = json_encode($this->service->getUserSocialMediaPermissions());
         return $this->render('socialmedia/create.html.twig', ['permissions' => $permissions]);
+    }
+
+    /**
+     * The management page — lets global admins and app admins grant/revoke user
+     * access to the Social Media Links application. Declared before the /{id}
+     * show route so "manage" isn't captured as an id.
+     */
+    #[Route('/social-media/manage', name: 'social_media_manage')]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN")'))]
+    public function manage(): Response
+    {
+        return $this->render('socialmedia/manage.html.twig', []);
     }
 
     /**

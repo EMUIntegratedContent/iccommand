@@ -9,4 +9,9 @@
   <li class="nav-item">
     <a class="nav-link" href="/social-media/create">Add new entity</a>
   </li>
+  {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_SOCIAL_ADMIN') %}
+  <li class="nav-item">
+    <a class="nav-link" href="/social-media/manage">Manage app</a>
+  </li>
+  {% endif %}
 </ul>
