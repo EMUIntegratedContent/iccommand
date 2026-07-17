@@ -57,3 +57,7 @@ cas:
 cas_external:
   resource: App\Controller\Api\Cas\CasExternalController
   prefix: /api/external/cas/
+
+social_media:
+  resource: App\Controller\Api\SocialMedia\SocialMediaController
+  prefix: /api/social-media/

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add a social media entity.{% endblock %}
+
+{% block modulenav %}
+  {% include 'socialmedia/nav_socialmedia.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<h1 class="display-1">Add Entity</h1>
+<div id="app">
+    <socialmedia-form :item-exists="false" :new-form="true" start-mode="edit" :permissions="[{{ permissions }}]"></socialmedia-form>
+</div>
+{% endblock %}
