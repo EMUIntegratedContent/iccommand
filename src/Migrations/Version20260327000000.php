@@ -48,7 +48,7 @@ final class Version20260327000000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE cas_link');
-        $this->addSql('DROP TABLE cas_cycle');
+        $this->addSql('DROP TABLE IF EXISTS cas_link');
+        $this->addSql('DROP TABLE IF EXISTS cas_cycle');
     }
 }
