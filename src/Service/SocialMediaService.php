@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\SocialMedia;
+use App\Entity\SocialMedia\SocialMedia;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -77,14 +77,14 @@ class SocialMediaService
 
     /**
      * Gets the social media entities with pagination.
-     * @param $currentPage
-     * @param $pageSize
-     * @param $searchTerm
+     * @param int $currentPage
+     * @param int $pageSize
+     * @param string $searchTerm
      * @return array
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getSocialMediaPagination($currentPage, $pageSize, $searchTerm = '')
+    public function getSocialMediaPagination(int $currentPage, int $pageSize, string $searchTerm = '')
     {
         $repository = $this->doctrine->getRepository(SocialMedia::class);
         return $repository->paginatedSocialMedia($currentPage, $pageSize, $searchTerm);
@@ -92,10 +92,10 @@ class SocialMediaService
 
     /**
      * Get social media entities that match the search term (by name).
-     * @param $searchTerm
+     * @param string $searchTerm
      * @return array
      */
-    public function getSocialMediaByName($searchTerm)
+    public function getSocialMediaByName(string $searchTerm)
     {
         $repository = $this->doctrine->getRepository(SocialMedia::class);
         return $repository->searchResultsSocialMedia($searchTerm);

@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api\SocialMedia;
 
-use App\Entity\SocialMedia;
+use App\Entity\SocialMedia\SocialMedia;
 use App\Service\SocialMediaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -39,12 +39,12 @@ class SocialMediaController extends AbstractController
 
     /**
      * Deletes the social media entity for the specified ID.
-     * @param $id The ID of the entity.
+     * @param int $id The ID of the entity.
      * @return Response The message, the status code, and the HTTP headers.
      */
     #[Route('/{id}', methods: ['DELETE'])]
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SOCIAL_USER")'))]
-    public function deleteSocialMediaAction($id): Response
+    public function deleteSocialMediaAction(int $id): Response
     {
         $socialMedia = $this->doctrine->getRepository(SocialMedia::class)->find($id);
 
@@ -97,12 +97,12 @@ class SocialMediaController extends AbstractController
 
     /**
      * Gets the social media entity by the specified ID.
-     * @param $id The ID of the entity.
+     * @param int $id The ID of the entity.
      * @return Response The entity, the status code, and the HTTP headers.
      */
     #[Route('/{id}', methods: ['GET'])]
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SOCIAL_USER")'))]
-    public function getSocialMediaAction($id): Response
+    public function getSocialMediaAction(int $id): Response
     {
         $socialMedia = $this->doctrine->getRepository(SocialMedia::class)->findOneBy(["id" => $id]);
 
@@ -188,6 +188,7 @@ class SocialMediaController extends AbstractController
         $socialMedia->setInstagramUrl($this->nullIfBlank($request->request->get("instagram_url")));
         $socialMedia->setLinkedinUrl($this->nullIfBlank($request->request->get("linkedin_url")));
         $socialMedia->setTiktokUrl($this->nullIfBlank($request->request->get("tiktok_url")));
+        $socialMedia->setSnapchatUrl($this->nullIfBlank($request->request->get("snapchat_url")));
     }
 
     private function nullIfBlank(?string $value): ?string

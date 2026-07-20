@@ -2,7 +2,7 @@
 
 namespace App\Controller\SocialMedia;
 
-use App\Entity\SocialMedia;
+use App\Entity\SocialMedia\SocialMedia;
 use App\Service\SocialMediaService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
@@ -64,7 +64,7 @@ class SocialMediaController extends AbstractController
      * The edit page.
      */
     #[Route('/social-media/{id}/edit', name: 'social_media_edit')]
-    public function edit($id): Response
+    public function edit(int $id): Response
     {
         $socialMedia = $this->doctrine->getRepository(SocialMedia::class)->find($id);
 
@@ -84,7 +84,7 @@ class SocialMediaController extends AbstractController
      * The show (read-only) page.
      */
     #[Route('/social-media/{id}', name: 'social_media_show')]
-    public function show($id): Response
+    public function show(int $id): Response
     {
         $socialMedia = $this->doctrine->getRepository(SocialMedia::class)->find($id);
 

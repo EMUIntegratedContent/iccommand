@@ -28,6 +28,7 @@ final class Version20260717174122 extends AbstractMigration
             instagram_url VARCHAR(500) DEFAULT NULL, 
             linkedin_url VARCHAR(500) DEFAULT NULL, 
             tiktok_url VARCHAR(500) DEFAULT NULL, 
+            snapchat_url VARCHAR(500) DEFAULT NULL,
             created DATETIME NOT NULL,
             created_by VARCHAR(255) NOT NULL,
             updated DATETIME NOT NULL,

@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\SocialMedia;
+use App\Entity\SocialMedia\SocialMedia;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -41,12 +41,12 @@ class SocialMediaRepository extends ServiceEntityRepository
 
     /**
      * Gets the social media entities with pagination, ordered by name.
-     * @param $currentPage
-     * @param $pageSize
-     * @param $searchTerm
+     * @param int $currentPage
+     * @param int $pageSize
+     * @param string $searchTerm
      * @return array
      */
-    public function paginatedSocialMedia($currentPage, $pageSize, $searchTerm = '')
+    public function paginatedSocialMedia(int $currentPage, int $pageSize, string $searchTerm = '')
     {
         $qb = $this->createQueryBuilder('s');
 
@@ -80,10 +80,10 @@ class SocialMediaRepository extends ServiceEntityRepository
 
     /**
      * Get social media entities that match the search term (by name).
-     * @param $searchTerm
+     * @param string $searchTerm
      * @return array
      */
-    public function searchResultsSocialMedia($searchTerm)
+    public function searchResultsSocialMedia(string $searchTerm)
     {
         $qb = $this->createQueryBuilder('s');
         $qb->where('s.name LIKE :searchTerm')

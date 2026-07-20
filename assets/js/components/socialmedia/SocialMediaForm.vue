@@ -71,7 +71,7 @@
 					<fieldset>
 						<legend>Social Media Links</legend>
 						<div class="form-group">
-							<label><i class="fab fa-facebook"></i> Facebook URL</label>
+							<label><img src="/images/social-icons/facebook.svg" alt="Facebook" width="20" height="20" title="Facebook" /> Facebook URL</label>
 							<Field
 								name="facebook_url"
 								type="url"
@@ -91,7 +91,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label><i class="fab fa-x-twitter"></i> X URL</label>
+							<label><img src="/images/social-icons/x.svg" alt="X" width="20" height="20" title="X" /> X URL</label>
 							<Field
 								name="x_url"
 								type="url"
@@ -111,7 +111,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label><i class="fab fa-youtube"></i> YouTube URL</label>
+							<label><img src="/images/social-icons/youtube.svg" alt="YouTube" width="20" height="20" title="YouTube" /> YouTube URL</label>
 							<Field
 								name="youtube_url"
 								type="url"
@@ -131,7 +131,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label><i class="fab fa-instagram"></i> Instagram URL</label>
+							<label><img src="/images/social-icons/instagram.svg" alt="Instagram" width="20" height="20" title="Instagram" /> Instagram URL</label>
 							<Field
 								name="instagram_url"
 								type="url"
@@ -151,7 +151,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label><i class="fab fa-linkedin"></i> LinkedIn URL</label>
+							<label><img src="/images/social-icons/linkedin.svg" alt="LinkedIn" width="20" height="20" title="LinkedIn" /> LinkedIn URL</label>
 							<Field
 								name="linkedin_url"
 								type="url"
@@ -171,7 +171,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label><i class="fab fa-tiktok"></i> TikTok URL</label>
+							<label><img src="/images/social-icons/tiktok.svg" alt="TikTok" width="20" height="20" title="TikTok" /> TikTok URL</label>
 							<Field
 								name="tiktok_url"
 								type="url"
@@ -188,6 +188,26 @@
 							</Field>
 							<div class="invalid-feedback">
 								{{ errors.tiktok_url }}
+							</div>
+						</div>
+						<div class="form-group">
+							<label><img src="/images/social-icons/snapchat.svg" alt="Snapchat" width="20" height="20" title="Snapchat" /> Snapchat URL</label>
+							<Field
+								name="snapchat_url"
+								type="url"
+								class="form-control"
+								:class="{
+									'is-invalid': errors.snapchat_url,
+									'form-control-plaintext': !userCanEdit || !isEditMode
+								}"
+								:readonly="!userCanEdit || !isEditMode"
+								v-model="record.snapchat_url"
+								placeholder="https://snapchat.com/..."
+								@update:modelValue="formDirty = true"
+							>
+							</Field>
+							<div class="invalid-feedback">
+								{{ errors.snapchat_url }}
 							</div>
 						</div>
 					</fieldset>
@@ -370,7 +390,8 @@ export default {
 				youtube_url: "",
 				instagram_url: "",
 				linkedin_url: "",
-				tiktok_url: ""
+				tiktok_url: "",
+				snapchat_url: ""
 			},
 
 			/**
@@ -448,6 +469,10 @@ export default {
 					.max(500, "URL must be 500 characters or less.")
 					.nullable(true),
 				tiktok_url: Yup.string()
+					.url("Please enter a valid URL.")
+					.max(500, "URL must be 500 characters or less.")
+					.nullable(true),
+				snapchat_url: Yup.string()
 					.url("Please enter a valid URL.")
 					.max(500, "URL must be 500 characters or less.")
 					.nullable(true)

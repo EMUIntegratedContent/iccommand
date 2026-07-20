@@ -49,12 +49,69 @@
 								<thead>
 									<tr>
 										<th>Name</th>
-										<th class="text-center">Facebook</th>
-										<th class="text-center">X</th>
-										<th class="text-center">YouTube</th>
-										<th class="text-center">Instagram</th>
-										<th class="text-center">LinkedIn</th>
-										<th class="text-center">TikTok</th>
+										<th class="text-center">
+											<img
+												src="/images/social-icons/facebook.svg"
+												alt="Facebook"
+												width="20"
+												height="20"
+												title="Facebook"
+											/>
+										</th>
+										<th class="text-center">
+											<img
+												src="/images/social-icons/x.svg"
+												alt="X"
+												width="20"
+												height="20"
+												title="X"
+											/>
+										</th>
+										<th class="text-center">
+											<img
+												src="/images/social-icons/youtube.svg"
+												alt="YouTube"
+												width="20"
+												height="20"
+												title="YouTube"
+											/>
+										</th>
+										<th class="text-center">
+											<img
+												src="/images/social-icons/instagram.svg"
+												alt="Instagram"
+												width="20"
+												height="20"
+												title="Instagram"
+											/>
+										</th>
+										<th class="text-center">
+											<img
+												src="/images/social-icons/linkedin.svg"
+												alt="LinkedIn"
+												width="20"
+												height="20"
+												title="LinkedIn"
+											/>
+										</th>
+										<th class="text-center">
+											<img
+												src="/images/social-icons/tiktok.svg"
+												alt="TikTok"
+												width="20"
+												height="20"
+												title="TikTok"
+											/>
+										</th>
+										<th class="text-center">
+											<img
+												src="/images/social-icons/snapchat.svg"
+												alt="Snapchat"
+												width="20"
+												height="20"
+												title="Snapchat"
+											/>
+										</th>
 										<th v-if="userCanEdit">Actions</th>
 									</tr>
 								</thead>
@@ -69,37 +126,78 @@
 											<span v-else>{{ entity.name }}</span>
 										</td>
 										<td class="text-center">
-											<a v-if="entity.facebook_url" :href="entity.facebook_url" target="_blank" rel="noopener">
+											<a
+												v-if="entity.facebook_url"
+												:href="entity.facebook_url"
+												target="_blank"
+												rel="noopener"
+											>
 												<i class="fa fa-check text-success"></i>
 											</a>
 											<span v-else class="text-muted">&mdash;</span>
 										</td>
 										<td class="text-center">
-											<a v-if="entity.x_url" :href="entity.x_url" target="_blank" rel="noopener">
+											<a
+												v-if="entity.x_url"
+												:href="entity.x_url"
+												target="_blank"
+												rel="noopener"
+											>
 												<i class="fa fa-check text-success"></i>
 											</a>
 											<span v-else class="text-muted">&mdash;</span>
 										</td>
 										<td class="text-center">
-											<a v-if="entity.youtube_url" :href="entity.youtube_url" target="_blank" rel="noopener">
+											<a
+												v-if="entity.youtube_url"
+												:href="entity.youtube_url"
+												target="_blank"
+												rel="noopener"
+											>
 												<i class="fa fa-check text-success"></i>
 											</a>
 											<span v-else class="text-muted">&mdash;</span>
 										</td>
 										<td class="text-center">
-											<a v-if="entity.instagram_url" :href="entity.instagram_url" target="_blank" rel="noopener">
+											<a
+												v-if="entity.instagram_url"
+												:href="entity.instagram_url"
+												target="_blank"
+												rel="noopener"
+											>
 												<i class="fa fa-check text-success"></i>
 											</a>
 											<span v-else class="text-muted">&mdash;</span>
 										</td>
 										<td class="text-center">
-											<a v-if="entity.linkedin_url" :href="entity.linkedin_url" target="_blank" rel="noopener">
+											<a
+												v-if="entity.linkedin_url"
+												:href="entity.linkedin_url"
+												target="_blank"
+												rel="noopener"
+											>
 												<i class="fa fa-check text-success"></i>
 											</a>
 											<span v-else class="text-muted">&mdash;</span>
 										</td>
 										<td class="text-center">
-											<a v-if="entity.tiktok_url" :href="entity.tiktok_url" target="_blank" rel="noopener">
+											<a
+												v-if="entity.tiktok_url"
+												:href="entity.tiktok_url"
+												target="_blank"
+												rel="noopener"
+											>
+												<i class="fa fa-check text-success"></i>
+											</a>
+											<span v-else class="text-muted">&mdash;</span>
+										</td>
+										<td class="text-center">
+											<a
+												v-if="entity.snapchat_url"
+												:href="entity.snapchat_url"
+												target="_blank"
+												rel="noopener"
+											>
 												<i class="fa fa-check text-success"></i>
 											</a>
 											<span v-else class="text-muted">&mdash;</span>
@@ -111,7 +209,7 @@
 										</td>
 									</tr>
 									<tr v-if="entities.length === 0">
-										<td colspan="8" class="text-center text-muted">
+										<td colspan="9" class="text-center text-muted">
 											No entities found.
 										</td>
 									</tr>
