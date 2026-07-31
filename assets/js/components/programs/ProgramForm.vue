@@ -446,7 +446,7 @@
 						</template>
 						<template v-else>
 							<ckeditor
-								v-model="record.program_overview"
+								v-model="overviewModel"
 								:editor="editor"
 								:config="ckConfig"
 								name="programOverview"
@@ -710,7 +710,7 @@ export default {
 				duration: null,
 				image_url: null,
 				application_url: null,
-				program_overview: null
+				program_overview: ""
 			},
 			formDirty: false,
 			// The last overview value known to match the server, so that CKEditor's
@@ -722,6 +722,21 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The overview bound to CKEditor. The API returns null for an empty overview,
+		 * and handing null to the editor's watcher makes it call setData(null), which
+		 * throws and aborts Vue's render pass -- leaving the whole form unable to
+		 * repaint. Coercing to a string here guarantees the editor never sees null.
+		 */
+		overviewModel: {
+			get() {
+				return this.record.program_overview || ""
+			},
+			set(value) {
+				this.record.program_overview = value
+			}
+		},
+
 		isStatusInitial() {
 			return this.currentStatus === STATUS_INITIAL
 		},
@@ -993,7 +1008,7 @@ export default {
 						response.data.department_ids
 					)
 					self.record = structuredResponse
-					self.savedOverview = structuredResponse.program_overview
+					self.savedOverview = response.data.program_overview || ""
 					self.isDataLoaded = true
 				})
 				.catch(function (error) {
@@ -1182,7 +1197,7 @@ export default {
 						response.data.department_ids
 					)
 					self.record = structuredResponse // This sets the program's ID.
-					self.savedOverview = structuredResponse.program_overview
+					self.savedOverview = response.data.program_overview || ""
 					self.afterSubmitSucceeds()
 				})
 				.catch(function (error) {
