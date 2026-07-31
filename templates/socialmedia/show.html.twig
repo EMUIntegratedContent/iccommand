@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}View social media entity.{% endblock %}
+
+{% block modulenav %}
+  {% include 'socialmedia/nav_socialmedia.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <socialmedia-form :item-exists="true" start-mode="show" item-id="{{ id }}" :permissions="[{{ permissions }}]"></socialmedia-form>
+</div>
+{% endblock %}

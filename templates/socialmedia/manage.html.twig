@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Social Media Links Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'socialmedia/nav_socialmedia.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-4">Social Media Links App Management</h1>
+  <app-manage role-prefix="ROLE_SOCIAL_" app-slug="social" app-name="Social Media Links App" current-user="{{ app.user.username }}"></app-manage>
+</div>
+{% endblock %}
