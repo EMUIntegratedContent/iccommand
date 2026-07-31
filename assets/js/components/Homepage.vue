@@ -28,7 +28,7 @@
 	</div>
 </template>
 <script>
-import ModuleCategoryCards from './ModuleCategoryCards.vue'
+import ModuleCategoryCards from "./ModuleCategoryCards.vue"
 export default {
 	created() {
 		// If the user has any roles (or if the user accessing the homepage is logged in)
@@ -39,7 +39,7 @@ export default {
 			})
 		}
 	},
-	components: {ModuleCategoryCards},
+	components: { ModuleCategoryCards },
 	props: {
 		username: {
 			type: String,
@@ -65,7 +65,7 @@ export default {
 				map: {
 					title: "Campus Map",
 					description:
-						"The campus map application contains all points of interest at EMU. These items are displayed at <a href=\"https://www.emich.edu/maps\" target=\"_blank\">emich.edu/maps</a>.",
+						'The campus map application contains all points of interest at EMU. These items are displayed at <a href="https://www.emich.edu/maps" target="_blank">emich.edu/maps</a>.',
 					buttonText: "Open Application",
 					buttonLink: "/map",
 					display: false,
@@ -83,7 +83,7 @@ export default {
 				programs: {
 					title: "Degrees & Programs Manager",
 					description:
-						"The degrees and programs manager allows for the editing of program names, marketing website URLs, delivery modes, etc., that display at <a href=\"https://www.emich.edu/degrees\" target=\"_blank\">emich.edu/degrees</a>.",
+						'The degrees and programs manager allows for the editing of program names, marketing website URLs, delivery modes, etc., that display at <a href="https://www.emich.edu/degrees" target="_blank">emich.edu/degrees</a>.',
 					buttonText: "Manage Programs",
 					buttonLink: "/programs",
 					display: false,
@@ -93,7 +93,7 @@ export default {
 					// Added July 2025
 					title: "Department Directory",
 					description:
-						"The department directory application manages all department information for the university directory at <a href=\"https://www.emich.edu/directory\" target=\"_blank\">emich.edu/directory</a>.",
+						'The department directory application manages all department information for the university directory at <a href="https://www.emich.edu/directory" target="_blank">emich.edu/directory</a>.',
 					buttonText: "Manage Departments",
 					buttonLink: "/directory",
 					display: false,
@@ -103,7 +103,7 @@ export default {
 					// Added July 2025
 					title: "Photo Requests",
 					description:
-						"The photo requests application handles photography and headshot requests that are submitted at <a href=\"https://www.emich.edu/photorequest\" target=\"_blank\">emich.edu/photorequest</a>.",
+						'The photo requests application handles photography and headshot requests that are submitted at <a href="https://www.emich.edu/photorequest" target="_blank">emich.edu/photorequest</a>.',
 					buttonText: "See Requests",
 					buttonLink: "/photorequests",
 					display: false,
@@ -221,10 +221,7 @@ export default {
 			) {
 				this.userModules.directory.display = true
 			}
-			if (
-				role.includes("ROLE_PHOTO_") ||
-				role.includes("ROLE_GLOBAL_ADMIN")
-			) {
+			if (role.includes("ROLE_PHOTO_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.photorequests.display = true
 			}
 			if (
@@ -234,7 +231,7 @@ export default {
 				this.userModules.emergency.display = true
 			}
 			if (
-				role.includes("ROLE_CAS_") ||
+				role.includes("ROLE_CAS_") || 
 				role.includes("ROLE_GLOBAL_ADMIN")
 			) {
 				this.userModules.cas.display = true
@@ -246,8 +243,7 @@ export default {
 				this.userModules.social.display = true
 			}
 		}
-	},
+	}
 }
 </script>
-<style lang="scss">
-</style>
+<style lang="scss"></style>
