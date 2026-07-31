@@ -56,7 +56,7 @@ export default {
 			// in base.html.twig. Keep them in sync when adding/moving apps.
 			categoryOrder: [
 				{ name: 'Campus Safety & Alerts', mdDisplay: 'col-md-6' },
-				{ name: 'Maps & Directories', mdDisplay: 'col-md-6' },
+				{ name: 'Maps & Directories', mdDisplay: 'col-md-4' },
 				{ name: 'Academic Marketing', mdDisplay: 'col-md-4' },
 				{ name: 'Requests & Operations', mdDisplay: 'col-md-12' },
 				{ name: 'Webmaster Tools', mdDisplay: 'col-md-4' }
@@ -157,7 +157,7 @@ export default {
 					buttonText: "Manage Links",
 					buttonLink: "/social-media",
 					display: false,
-					category: 'Academic Marketing'
+					category: 'Maps & Directories'
 				}
 			}
 		}

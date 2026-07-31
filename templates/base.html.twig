@@ -44,6 +44,9 @@
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_DEPARTMENTS_USER') %}
                 <a class="dropdown-item" href="/directory">Department Directory</a>
                 {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_SOCIAL_USER') %}
+                <a class="dropdown-item" href="/social-media">Social Media Links</a>
+                {% endif %}
             </div>
         </div>
         {% endif %}
@@ -58,9 +61,6 @@
                 {% endif %}
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CAS_VIEW') %}
                 <a class="dropdown-item" href="/cas">CAS App Links</a>
-                {% endif %}
-                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_SOCIAL_USER') %}
-                <a class="dropdown-item" href="/social-media">Social Media Links</a>
                 {% endif %}
             </div>
         </div>
