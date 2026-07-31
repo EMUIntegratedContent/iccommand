@@ -5,6 +5,7 @@ namespace App\Controller\Api\Programs;
 use App\Entity\Programs\ProgramKeywords;
 use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
+use App\Util\RequestHelper;
 use App\Service\ProgramsService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -267,6 +268,11 @@ class ProgramsController extends AbstractController
 		$program->setTypeId($request->request->get("type_id"));
 		$program->setSlug($this->service->makeProgramSlug($progName));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
+		$program->setCreditHours(RequestHelper::optionalString($request->request->get("credit_hours")));
+		$program->setDuration(RequestHelper::optionalString($request->request->get("duration")));
+		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
+		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
+		$program->setProgramOverview(RequestHelper::optionalString($request->request->get("program_overview")));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -394,6 +400,11 @@ class ProgramsController extends AbstractController
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
+		$program->setCreditHours(RequestHelper::optionalString($request->request->get("credit_hours")));
+		$program->setDuration(RequestHelper::optionalString($request->request->get("duration")));
+		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
+		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
+		$program->setProgramOverview(RequestHelper::optionalString($request->request->get("program_overview")));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
