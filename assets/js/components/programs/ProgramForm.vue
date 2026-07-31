@@ -450,7 +450,7 @@
 								:editor="editor"
 								:config="ckConfig"
 								name="programOverview"
-								@update:modelValue="formDirty = true"
+								@update:modelValue="overviewChanged"
 							>
 							</ckeditor>
 						</template>
@@ -713,6 +713,9 @@ export default {
 				program_overview: null
 			},
 			formDirty: false,
+			// The last overview value known to match the server, so that CKEditor's
+			// debounced echo of that same value isn't mistaken for a user edit.
+			savedOverview: null,
 			success: false,
 			successMessage: ""
 		}
@@ -932,6 +935,21 @@ export default {
 
 	methods: {
 		/**
+		 * Flags the form dirty when CKEditor reports a genuine content change.
+		 * The wrapper debounces its update event by 300ms and also re-emits after a
+		 * programmatic setData(), so a plain "formDirty = true" handler would fire
+		 * after a successful save and leave the form stuck as unsaved. Comparing
+		 * against the last saved value ignores those echoes.
+		 * @param {string} value The current editor contents.
+		 */
+		overviewChanged: function (value) {
+			if ((value || "") === (this.savedOverview || "")) {
+				return
+			}
+			this.formDirty = true
+		},
+
+		/**
 		 * Goes to edit mode after submitting the new program.
 		 */
 		afterSubmitSucceeds: function () {
@@ -975,6 +993,7 @@ export default {
 						response.data.department_ids
 					)
 					self.record = structuredResponse
+					self.savedOverview = structuredResponse.program_overview
 					self.isDataLoaded = true
 				})
 				.catch(function (error) {
@@ -1163,6 +1182,7 @@ export default {
 						response.data.department_ids
 					)
 					self.record = structuredResponse // This sets the program's ID.
+					self.savedOverview = structuredResponse.program_overview
 					self.afterSubmitSucceeds()
 				})
 				.catch(function (error) {
