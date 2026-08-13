@@ -471,7 +471,6 @@ class RedirectController extends AbstractController
         // the whole request. Disabling/resetting them is required for large CSVs in dev.
         $profiler?->disable();
         $debugDataHolder?->reset();
-        ini_set('memory_limit', '256M');
 
         $file = file($request->files->get('csv'));
 
@@ -509,7 +508,25 @@ class RedirectController extends AbstractController
             }
         }
 
-        return new Response(sprintf('%d added.<br>%d rejected or skipped (from_link):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
+        // Free bulk working set before kernel terminate / error handlers run.
+        unset($csv);
+        $this->em->clear();
+        $debugDataHolder?->reset();
+        gc_collect_cycles();
+
+        if ($rejected === 0) {
+            $message = sprintf('%d added.<br>0 rejected or skipped.', $added);
+        } else {
+            $message = sprintf(
+                '%d added.<br>%d rejected or skipped (from_link):<br><ul><li>%s</li></ul>',
+                $added,
+                $rejected,
+                implode('</li><li>', $rejectedArr)
+            );
+        }
+        unset($rejectedArr);
+
+        return new Response($message, 201, array("Content-Type" => "application/json"));
     }
 
     /**
