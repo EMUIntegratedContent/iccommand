@@ -367,6 +367,7 @@ class CasController extends AbstractController
 		$rejectedArr = [];
 		$seenInCsv = [];
 
+		$rowsSinceLastClear = 0;
 		foreach ($csv as $row) {
 			$degreeName = trim($row['degree_name'] ?? '');
 			$linkUrl = trim($row['link'] ?? '');
@@ -399,10 +400,19 @@ class CasController extends AbstractController
 				$this->em->persist($link);
 				$added++;
 				$seenInCsv[$nameKey] = true;
+				
+				$rowsSinceLastClear++;
+				if ($rowsSinceLastClear >= 50) {
+					$this->em->flush(); // flush the entity manager after 50 links to avoid memory issues.
+					$this->em->clear(); // clear the entity manager after 50 links to avoid memory issues.
+					$cycle = $this->em->getReference(CasCycle::class, $cycleId); // clear() detaches everything from Doctrine, so we need to re-attach the cycle.
+					$rowsSinceLastClear = 0;
+				}
 			}
 		}
 
 		$this->em->flush();
+		$this->em->clear(); // clear the entity manager after the last batch to avoid memory issues.
 
 		return new Response(
 			sprintf('%d added. %d rejected: %s', $added, $rejected, implode(', ', $rejectedArr)),
