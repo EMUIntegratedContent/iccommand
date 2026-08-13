@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -450,8 +451,11 @@ class RedirectController extends AbstractController
      * @return Response The redirect, the status code, and the HTTP headers.
      */
     #[Route('upload', methods: ['POST'])]
-    public function postRedirectBulkAction(Request $request): Response
+    public function postRedirectBulkAction(Request $request, ?Profiler $profiler = null): Response
     {
+        // Profiler retains every Doctrine query for the whole request; disable for large CSVs.
+        $profiler?->disable();
+
         $file = file($request->files->get('csv'));
 
         $csvFile = array_map('str_getcsv', $file);
@@ -470,13 +474,13 @@ class RedirectController extends AbstractController
         if (count($csv) > 0) {
             $rowsSinceLastClear = 0;
             foreach ($csv as $redirect) {
-                $newRedirect = $this->_addRedirect($redirect);
+                $statusCode = $this->_addRedirect($redirect);
                 $rowsSinceLastClear++;
                 if ($rowsSinceLastClear >= 50) {
                     $this->em->clear(); // clear the entity manager after 50 redirects to avoid memory issues.
                     $rowsSinceLastClear = 0;
                 }
-                switch ($newRedirect->getStatusCode()) {
+                switch ($statusCode) {
                     case 201:
                         ++$added;
                         break;
@@ -493,12 +497,16 @@ class RedirectController extends AbstractController
         return new Response(sprintf('%d added.<br>%d rejected or skipped (from_link):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
     }
 
-    private function _addRedirect($data): Response
+    /**
+     * Persist one redirect row from a bulk CSV upload.
+     * Returns an HTTP-style status code (201 created, 422 rejected).
+     * Skips remote get_headers() checks — too expensive for bulk imports.
+     */
+    private function _addRedirect(array $data): int
     {
         $from = $data['from_link'];
         $type = $data['item_type'];
         $to = $data['to_link'];
-
 
         $redirect = new Redirect();
 
@@ -551,37 +559,17 @@ class RedirectController extends AbstractController
         $errors = $this->service->validate($redirect); // Validate the redirect.
 
         if (count($errors) > 0) {
-            // Do the following if there is more than one error.
-            $serialized = $this->serializer->serialize($errors, "json", ['groups' => 'redir']);
-
-            return new Response($serialized, 422, array("Content-Type" => "application/json"));
+            return 422;
         }
 
-        /* Validation of toLink */
+        /* Local toLink checks only (no remote get_headers in bulk). */
 
         if (
             $redirect->getItemType() != "invalid redirect of broken link"
             && $redirect->getItemType() != "invalid redirect of shortened link"
         ) {
-            // Check if the toLink is a valid URL if it is supposed to be a valid redirect.
-            $fullToLink = $toLink[0] == "/" ? "https://www.emich.edu$toLink" : $toLink;
-
-            if (get_headers($fullToLink, 1)[0] == "HTTP/1.1 404 Not Found") {
-                $message = $redirect->getItemType() == "redirect of broken link"
-                    ? "The actual link is not valid." : "The full link is not valid.";
-                $response = new Response($message, 422, array("Content-Type" => "application/json"));
-
-                return $response;
-            }
-
             if ($toLink != trim($toLink)) {
-                // Check if the toLink has any spaces.
-                $message = $redirect->getItemType() == "redirect of broken link"
-                    ? "The actual link should not include any spaces." : "The full link should not include any spaces.";
-
-                $response = new Response($message, 422, array("Content-Type" => "application/json"));
-
-                return $response;
+                return 422;
             }
         }
 
@@ -589,8 +577,6 @@ class RedirectController extends AbstractController
         $this->em->flush(); // Commit everything to the database.
         // em->clear() done in batches in the postRedirectBulkAction method.
 
-        $serialized = $this->serializer->serialize($redirect, "json", ['groups' => 'redir']);
-
-        return new Response($serialized, 201, array("Content-Type" => "application/json"));
+        return 201;
     }
 }
