@@ -69,7 +69,7 @@
 					</fieldset>
 
 					<fieldset>
-						<legend>Social Media Links</legend>
+						<legend>Social Media Directory</legend>
 						<div class="form-group">
 							<label><img src="/images/social-icons/facebook.svg" alt="Facebook" width="20" height="20" title="Facebook" /> Facebook URL</label>
 							<Field

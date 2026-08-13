@@ -335,7 +335,7 @@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
               <div class="card card-accent card-accent-green">
-                <div class="card-header">Social Media Links</div>
+                <div class="card-header">Social Media Directory</div>
                 <div class="card-body">
                   <template
                       v-for="role in rolesSocial"

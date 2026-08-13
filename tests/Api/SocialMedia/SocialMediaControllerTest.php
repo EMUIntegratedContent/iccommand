@@ -7,7 +7,7 @@ use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * End-to-end CRUD test for the Social Media Links API.
+ * End-to-end CRUD test for the Social Media Directory API.
  * Uses loginUser() so a security token is present (required for the Gedmo
  * Blameable created_by/updated_by columns, which are NOT NULL).
  */

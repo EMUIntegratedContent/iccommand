@@ -70,7 +70,7 @@ security:
     ROLE_CAS_VIEW: ROLE_USER
     ROLE_CAS_EDIT: ROLE_CAS_VIEW
     ROLE_CAS_ADMIN: ROLE_CAS_EDIT
-    # Social Media Links
+    # Social Media Directory
     ROLE_SOCIAL_USER: ROLE_USER
     ROLE_SOCIAL_ADMIN: ROLE_SOCIAL_USER
 

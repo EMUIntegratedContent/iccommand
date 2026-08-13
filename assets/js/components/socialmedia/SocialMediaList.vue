@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<heading>
-			<span>Social Media Links</span>
+			<span>Social Media Directory</span>
 		</heading>
 
 		<div class="row">

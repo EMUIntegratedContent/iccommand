@@ -12,7 +12,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\ExpressionLanguage\Expression;
 
 /**
- * The controller for the Social Media Links application (page rendering).
+ * The controller for the Social Media Directory application (page rendering).
  */
 class SocialMediaController extends AbstractController
 {
@@ -50,7 +50,7 @@ class SocialMediaController extends AbstractController
 
     /**
      * The management page — lets global admins and app admins grant/revoke user
-     * access to the Social Media Links application. Declared before the /{id}
+     * access to the Social Media Directory application. Declared before the /{id}
      * show route so "manage" isn't captured as an id.
      */
     #[Route('/social-media/manage', name: 'social_media_manage')]

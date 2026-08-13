@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * Verifies the Social Media Links management page + the admin user API accept an
+ * Verifies the Social Media Directory management page + the admin user API accept an
  * app admin (ROLE_SOCIAL_ADMIN), and that a plain app user (ROLE_SOCIAL_USER) is
  * denied the management page. Temp users are persisted (then cleaned up) so the
  * security provider can refresh them by identifier across requests.
@@ -38,7 +38,7 @@ class SocialMediaManageTest extends WebTestCase
 
         $client->request('GET', '/social-media/manage');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h1', 'Social Media Links App Management');
+        $this->assertSelectorTextContains('h1', 'Social Media Directory App Management');
     }
 
     public function testManagePageForbiddenToPlainAppUser(): void
@@ -82,7 +82,7 @@ class SocialMediaManageTest extends WebTestCase
         $target = $this->persistUser($em, 'role_target', ['ROLE_USER']);
         $client->loginUser($admin);
 
-        // Simulates checking the "Social Media Links" role box + saving on the admin user page.
+        // Simulates checking the "Social Media Directory" role box + saving on the admin user page.
         $client->request(
             'PUT',
             '/api/admin/users/' . $target->getUsername(),

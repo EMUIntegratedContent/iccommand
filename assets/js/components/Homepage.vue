@@ -57,7 +57,7 @@ export default {
 			categoryOrder: [
 				{ name: 'Campus Safety & Alerts', mdDisplay: 'col-md-6' },
 				{ name: 'Maps & Directories', mdDisplay: 'col-md-4' },
-				{ name: 'Academic Marketing', mdDisplay: 'col-md-4' },
+				{ name: 'Program Marketing', mdDisplay: 'col-md-4' },
 				{ name: 'Requests & Operations', mdDisplay: 'col-md-12' },
 				{ name: 'Webmaster Tools', mdDisplay: 'col-md-4' }
 			],
@@ -87,7 +87,7 @@ export default {
 					buttonText: "Manage Programs",
 					buttonLink: "/programs",
 					display: false,
-          category: 'Academic Marketing'
+          category: 'Program Marketing'
 				},
 				directory: {
 					// Added July 2025
@@ -147,13 +147,13 @@ export default {
 					buttonText: "Manage Links",
 					buttonLink: "/cas",
 					display: false,
-					category: 'Academic Marketing'
+					category: 'Program Marketing'
 				},
 				social: {
 					// Added July 2026
-					title: "Social Media Links",
+					title: "Social Media Directory",
 					description:
-						"The social media links application manages Facebook, X, YouTube, Instagram, LinkedIn, and TikTok links for teams, groups, and other entities.",
+						"The social media directory application manages Facebook, X, YouTube, Instagram, LinkedIn, and TikTok links for teams, groups, and other entities.",
 					buttonText: "Manage Links",
 					buttonLink: "/social-media",
 					display: false,

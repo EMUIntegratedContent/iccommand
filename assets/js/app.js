@@ -109,7 +109,7 @@ app.component("cas-link-list", require("./components/cas/CasLinkList.vue").defau
 app.component("cas-link-form", require("./components/cas/CasLinkForm.vue").default);
 app.component("cas-link-delete-modal", require("./components/cas/CasLinkDeleteModal.vue").default);
 
-/* Social Media Links Application */
+/* Social Media Directory Application */
 app.component("socialmedia-list", require("./components/socialmedia/SocialMediaList.vue").default);
 app.component("socialmedia-form", require("./components/socialmedia/SocialMediaForm.vue").default);
 app.component("socialmedia-delete-modal", require("./components/socialmedia/SocialMediaDeleteModal.vue").default);
