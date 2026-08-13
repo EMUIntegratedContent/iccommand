@@ -68,6 +68,7 @@ class CrimeLogController extends AbstractController
 			// Truncate the crimelog table before adding new entries.
 			$this->service->truncateCrimeLogTable();
 
+			$rowsSinceLastClear = 0;
 			foreach ($csv as $crimelog) {
 				$newCrimeLog = $this->_addCrimeLog($crimelog);
 				if ($newCrimeLog['success'] === false) {
@@ -78,8 +79,16 @@ class CrimeLogController extends AbstractController
 				}
 				// Only certain codes are considered fire logs. They will be filtered in the method.
 				$this->_addFireLog($crimelog);
+
+				$rowsSinceLastClear++;
+				if ($rowsSinceLastClear >= 50) {
+					$this->em->flush();
+					$this->em->clear();
+					$rowsSinceLastClear = 0;
+				}
 			}
-			$this->em->flush(); // Commit everything to the database.
+			$this->em->flush();
+			$this->em->clear();
 		}
 
 		if ($rejected === 0) {

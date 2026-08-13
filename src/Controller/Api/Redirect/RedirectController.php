@@ -468,8 +468,14 @@ class RedirectController extends AbstractController
         $rejectedArr = [];
 
         if (count($csv) > 0) {
+            $rowsSinceLastClear = 0;
             foreach ($csv as $redirect) {
                 $newRedirect = $this->_addRedirect($redirect);
+                $rowsSinceLastClear++;
+                if ($rowsSinceLastClear >= 50) {
+                    $this->em->clear(); // clear the entity manager after 50 redirects to avoid memory issues.
+                    $rowsSinceLastClear = 0;
+                }
                 switch ($newRedirect->getStatusCode()) {
                     case 201:
                         ++$added;
@@ -481,6 +487,7 @@ class RedirectController extends AbstractController
                         break;
                 }
             }
+            $this->em->clear(); // clear the entity manager after the last batch to avoid memory issues.
         }
 
         return new Response(sprintf('%d added.<br>%d rejected or skipped (from_link):<br><ul><li>%s</li></ul>', $added, $rejected, implode('</li><li>', $rejectedArr)), 201, array("Content-Type" => "application/json"));
@@ -580,6 +587,7 @@ class RedirectController extends AbstractController
 
         $this->em->persist($redirect); // Persist the redirect.
         $this->em->flush(); // Commit everything to the database.
+        // em->clear() done in batches in the postRedirectBulkAction method.
 
         $serialized = $this->serializer->serialize($redirect, "json", ['groups' => 'redir']);
 
