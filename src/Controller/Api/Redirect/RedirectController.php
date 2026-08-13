@@ -6,6 +6,8 @@ use App\Entity\Redirect\Redirect;
 use App\Service\RedirectService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
@@ -459,11 +461,16 @@ class RedirectController extends AbstractController
      * @return Response The redirect, the status code, and the HTTP headers.
      */
     #[Route('upload', methods: ['POST'])]
-    public function postRedirectBulkAction(Request $request, ?Profiler $profiler = null): Response
-    {
-        // Profiler retains every Doctrine query for the whole request; disable for large CSVs.
+    public function postRedirectBulkAction(
+        Request $request,
+        ?Profiler $profiler = null,
+        #[Autowire(service: 'doctrine.debug_data_holder')]
+        ?DebugDataHolder $debugDataHolder = null,
+    ): Response {
+        // Profiler and Doctrine's debug query holder retain every SQL (+ backtrace) for
+        // the whole request. Disabling/resetting them is required for large CSVs in dev.
         $profiler?->disable();
-        // Symfony + per-row UniqueEntity queries exceed the default 128M near ~750 rows.
+        $debugDataHolder?->reset();
         ini_set('memory_limit', '256M');
 
         $file = file($request->files->get('csv'));
@@ -486,8 +493,9 @@ class RedirectController extends AbstractController
         if (count($csv) > 0) {
             foreach ($csv as $redirect) {
                 $statusCode = $this->_addRedirect($redirect);
-                // Clear every row — UniqueEntity lookups also load entities into the EM.
+                // Clear EM + wipe debug query/backtrace buffer every row.
                 $this->em->clear();
+                $debugDataHolder?->reset();
                 switch ($statusCode) {
                     case 201:
                         ++$added;
