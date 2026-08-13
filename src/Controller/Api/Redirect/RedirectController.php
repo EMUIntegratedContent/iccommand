@@ -302,17 +302,21 @@ class RedirectController extends AbstractController
         $toLink = substr($toLink, -1) == "/" ? substr($toLink, 0, -1) : $toLink; // Remove "/" if it is the last character.
         $parsedToLink = parse_url($toLink);
 
-        if (array_key_exists("host", $parsedToLink)
+        if (
+            array_key_exists("host", $parsedToLink)
             && array_key_exists("path", $parsedToLink)
-            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))) {
+            && (($parsedToLink["host"] == "www.emich.edu") || ($parsedToLink["host"] == "emich.edu"))
+        ) {
             if ($parsedToLink["path"][0] != "/") {
                 $toLink = "/" . $parsedToLink["path"];
             } else {
                 $toLink = $parsedToLink["path"];
             }
-        } else if (!array_key_exists("host", $parsedToLink)
+        } else if (
+            !array_key_exists("host", $parsedToLink)
             && array_key_exists("path", $parsedToLink)
-            && $parsedToLink["path"][0] != "/") {
+            && $parsedToLink["path"][0] != "/"
+        ) {
             $toLink = "/" . $parsedToLink["path"];
         }
 
@@ -330,10 +334,12 @@ class RedirectController extends AbstractController
             return new Response($serialized, 422, array("Content-Type" => "application/json"));
         }
 
-        if ($redirect->getItemType() != "invalid redirect of broken link"
+        if (
+            $redirect->getItemType() != "invalid redirect of broken link"
             && $redirect->getItemType() != "invalid redirect of shortened link"
             && $redirect->getItemType() != "expired redirect of broken link"
-            && $redirect->getItemType() != "expired redirect of shortened link") {
+            && $redirect->getItemType() != "expired redirect of shortened link"
+        ) {
             // Check if the toLink is a valid URL if it is supposed to be a valid redirect.
             $fullToLink = $toLink[0] == "/" ? "https://www.emich.edu$toLink" : $toLink;
 
@@ -352,8 +358,10 @@ class RedirectController extends AbstractController
 
                 return new Response($message, 422, array("Content-Type" => "application/json"));
             }
-        } else if ($redirect->getItemType() == "invalid redirect of broken link"
-            || $redirect->getItemType() == "invalid redirect of shortened link") {
+        } else if (
+            $redirect->getItemType() == "invalid redirect of broken link"
+            || $redirect->getItemType() == "invalid redirect of shortened link"
+        ) {
 
             /* Validation of toLink */
 
@@ -456,7 +464,7 @@ class RedirectController extends AbstractController
         // Profiler retains every Doctrine query for the whole request; disable for large CSVs.
         $profiler?->disable();
         // Symfony + per-row UniqueEntity queries exceed the default 128M near ~750 rows.
-        // ini_set('memory_limit', '256M');
+        ini_set('memory_limit', '256M');
 
         $file = file($request->files->get('csv'));
 
