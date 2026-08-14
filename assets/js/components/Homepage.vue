@@ -7,19 +7,19 @@
 				</div>
 			</div>
 			<div class="row">
-        <div class="col-xs-12">
-          <p v-if="!userHasModules">
-            You do not currently belong to any applications.
-          </p>
-          <template v-else>
-            <ModuleCategoryCards
-              v-for="category in visibleCategories"
-              :key="category.name"
-              :modules="category.modules"
-              :mdDisplay="category.mdDisplay"
-            ></ModuleCategoryCards>
-          </template>
-        </div>
+				<div class="col-xs-12">
+					<p v-if="!userHasModules">
+						You do not currently belong to any applications.
+					</p>
+					<template v-else>
+						<ModuleCategoryCards
+							v-for="category in visibleCategories"
+							:key="category.name"
+							:modules="category.modules"
+							:mdDisplay="category.mdDisplay"
+						></ModuleCategoryCards>
+					</template>
+				</div>
 			</div>
 		</template>
 		<template v-else>
@@ -55,11 +55,11 @@ export default {
 			// The category groupings and their order mirror the header dropdown menus
 			// in base.html.twig. Keep them in sync when adding/moving apps.
 			categoryOrder: [
-				{ name: 'Campus Safety & Alerts', mdDisplay: 'col-md-6' },
-				{ name: 'Maps & Directories', mdDisplay: 'col-md-4' },
-				{ name: 'Program Marketing', mdDisplay: 'col-md-4' },
-				{ name: 'Requests & Operations', mdDisplay: 'col-md-12' },
-				{ name: 'Webmaster Tools', mdDisplay: 'col-md-4' }
+				{ name: "Campus Safety & Alerts", mdDisplay: "col-md-6" },
+				{ name: "Maps & Directories", mdDisplay: "col-md-4" },
+				{ name: "Program Marketing", mdDisplay: "col-md-4" },
+				{ name: "Requests & Operations", mdDisplay: "col-md-12" },
+				{ name: "Web & SEO Tools", mdDisplay: "col-md-4" }
 			],
 			userModules: {
 				map: {
@@ -69,16 +69,16 @@ export default {
 					buttonText: "Open Application",
 					buttonLink: "/map",
 					display: false,
-          category: 'Maps & Directories'
+					category: "Maps & Directories"
 				},
 				redirect: {
-					title: "Redirect Application",
+					title: "Redirects & Vanities",
 					description:
 						"The redirect application is responsible for setting up 301 redirects and vanity URLs for all EMU pages.",
 					buttonText: "Manage Redirects",
 					buttonLink: "/redirects",
 					display: false,
-          category: 'Webmaster Tools'
+					category: "Web & SEO Tools"
 				},
 				programs: {
 					title: "Degrees & Programs Manager",
@@ -87,7 +87,7 @@ export default {
 					buttonText: "Manage Programs",
 					buttonLink: "/programs",
 					display: false,
-          category: 'Program Marketing'
+					category: "Program Marketing"
 				},
 				directory: {
 					// Added July 2025
@@ -97,7 +97,7 @@ export default {
 					buttonText: "Manage Departments",
 					buttonLink: "/directory",
 					display: false,
-          category: 'Maps & Directories'
+					category: "Maps & Directories"
 				},
 				photorequests: {
 					// Added July 2025
@@ -107,28 +107,28 @@ export default {
 					buttonText: "See Requests",
 					buttonLink: "/photorequests",
 					display: false,
-          category: 'Requests & Operations'
+					category: "Requests & Operations"
 				},
 				links: {
 					// Added Sept. 2024
-					title: "External Application Links",
+					title: "External App Links",
 					description:
 						"A list of links to admin panels and front-ends for various external applications.",
 					buttonText: "See Apps",
 					buttonLink: "/applinks",
 					display: true, // No permissions required for this module; it's just a list of links
-          category: 'Webmaster Tools'
+					category: "Web & SEO Tools"
 				},
-        emergency: {
-          // Added Sept. 2025
-          title: "Emergency Banner and Notices",
-          description:
-              "The emergency banner application manages the emergency banner that displays above the header across all EMU websites.",
-          buttonText: "Manage Banner",
-          buttonLink: "/emergency",
-          display: false,
-          category: 'Campus Safety & Alerts'
-        },
+				emergency: {
+					// Added Sept. 2025
+					title: "Emergency Banner and Notices",
+					description:
+						"The emergency banner application manages the emergency banner that displays above the header across all EMU websites.",
+					buttonText: "Manage Banner",
+					buttonLink: "/emergency",
+					display: false,
+					category: "Campus Safety & Alerts"
+				},
 				crimelog: {
 					// Added June 2025
 					title: "DPS Crime Log",
@@ -137,7 +137,7 @@ export default {
 					buttonText: "DPS Crime Log Upload",
 					buttonLink: "/crimelog",
 					display: false,
-          category: 'Campus Safety & Alerts'
+					category: "Campus Safety & Alerts"
 				},
 				cas: {
 					// Added April 2026
@@ -147,7 +147,7 @@ export default {
 					buttonText: "Manage Links",
 					buttonLink: "/cas",
 					display: false,
-					category: 'Program Marketing'
+					category: "Program Marketing"
 				},
 				social: {
 					// Added July 2026
@@ -157,29 +157,36 @@ export default {
 					buttonText: "Manage Links",
 					buttonLink: "/social-media",
 					display: false,
-					category: 'Maps & Directories'
+					category: "Maps & Directories"
 				}
 			}
 		}
 	},
 	computed: {
-    // Groups the displayed modules by category, in header order, dropping empty categories.
-    visibleCategories: function() {
-      let self = this
-      return this.categoryOrder
-        .map(function(category) {
-          let modules = []
-          for (let key in self.userModules) {
-            if (self.userModules[key].category === category.name && self.userModules[key].display === true) {
-              modules.push(self.userModules[key])
-            }
-          }
-          return { name: category.name, mdDisplay: category.mdDisplay, modules: modules }
-        })
-        .filter(function(category) {
-          return category.modules.length > 0
-        })
-    },
+		// Groups the displayed modules by category, in header order, dropping empty categories.
+		visibleCategories: function () {
+			let self = this
+			return this.categoryOrder
+				.map(function (category) {
+					let modules = []
+					for (let key in self.userModules) {
+						if (
+							self.userModules[key].category === category.name &&
+							self.userModules[key].display === true
+						) {
+							modules.push(self.userModules[key])
+						}
+					}
+					return {
+						name: category.name,
+						mdDisplay: category.mdDisplay,
+						modules: modules
+					}
+				})
+				.filter(function (category) {
+					return category.modules.length > 0
+				})
+		},
 		// Does this user have permission to access any applications?
 		userHasModules: function () {
 			return this.visibleCategories.length > 0
@@ -230,16 +237,10 @@ export default {
 			) {
 				this.userModules.emergency.display = true
 			}
-			if (
-				role.includes("ROLE_CAS_") || 
-				role.includes("ROLE_GLOBAL_ADMIN")
-			) {
+			if (role.includes("ROLE_CAS_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.cas.display = true
 			}
-			if (
-				role.includes("ROLE_SOCIAL_") ||
-				role.includes("ROLE_GLOBAL_ADMIN")
-			) {
+			if (role.includes("ROLE_SOCIAL_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.social.display = true
 			}
 		}
