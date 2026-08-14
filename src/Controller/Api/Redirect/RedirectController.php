@@ -459,6 +459,10 @@ class RedirectController extends AbstractController
      * Updates the redirect from the specified request.
      * @param Request $request The holder of the information about the updated redirect.
      * @return Response The redirect, the status code, and the HTTP headers.
+     * 
+     * #[Autowire(service: 'doctrine.debug_data_holder')] — Symfony doesn’t type-hint this service by default, so this attribute says “inject that specific service.”
+     * @var DebugDataHolder $debugDataHolder = null — optional. In dev you get the holder and can $debugDataHolder->reset() after each row. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
+     * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
      */
     #[Route('upload', methods: ['POST'])]
     public function postRedirectBulkAction(
@@ -468,21 +472,19 @@ class RedirectController extends AbstractController
         ?DebugDataHolder $debugDataHolder = null,
     ): Response {
         // Profiler and Doctrine's debug query holder retain every SQL (+ backtrace) for
-        // the whole request. Disabling/resetting them is required for large CSVs in dev.
+        // the whole request. Disabling/resetting them is required for large CSVs (DEV only; this does nothing in PROD).
         $profiler?->disable();
         $debugDataHolder?->reset();
 
         $file = file($request->files->get('csv'));
 
         $csvFile = array_map('str_getcsv', $file);
-        unset($file);
         $headers = array_shift($csvFile);
 
         $csv    = array();
         foreach ($csvFile as $row) {
             $csv[] = array_combine($headers, $row);
         }
-        unset($csvFile);
 
         $added = 0;
         $rejected = 0;
@@ -508,11 +510,8 @@ class RedirectController extends AbstractController
             }
         }
 
-        // Free bulk working set before kernel terminate / error handlers run.
-        unset($csv);
         $this->em->clear();
         $debugDataHolder?->reset();
-        gc_collect_cycles();
 
         if ($rejected === 0) {
             $message = sprintf('%d added.<br>0 rejected or skipped.', $added);
@@ -524,7 +523,6 @@ class RedirectController extends AbstractController
                 implode('</li><li>', $rejectedArr)
             );
         }
-        unset($rejectedArr);
 
         return new Response($message, 201, array("Content-Type" => "application/json"));
     }

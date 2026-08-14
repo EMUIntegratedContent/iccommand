@@ -7,9 +7,12 @@ use App\Entity\CrimeLog\FireLog;
 use App\Service\CrimeLogService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -45,10 +48,23 @@ class CrimeLogController extends AbstractController
 	 * Updates the crimelog from the specified request.
 	 * @param Request $request The holder of the information about the updated crimelog.
 	 * @return Response The crimelog, the status code, and the HTTP headers.
+	 *
+	 * #[Autowire(service: 'doctrine.debug_data_holder')] — Symfony doesn’t type-hint this service by default, so this attribute says “inject that specific service.”
+	 * @var DebugDataHolder $debugDataHolder = null — optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
+	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
 	 */
 	#[Route('upload', methods: ['POST'])]
-	public function postCrimeLogBulkAction(Request $request): Response
-	{
+	public function postCrimeLogBulkAction(
+		Request $request,
+		?Profiler $profiler = null,
+		#[Autowire(service: 'doctrine.debug_data_holder')]
+		?DebugDataHolder $debugDataHolder = null,
+	): Response {
+		// Profiler and Doctrine's debug query holder retain every SQL (+ backtrace) for
+		// the whole request. Disabling/resetting them is required for large CSVs (DEV only; this does nothing in PROD).
+		$profiler?->disable();
+		$debugDataHolder?->reset();
+
 		$file = file($request->files->get('csv'));
 
 		$csvFile = array_map('str_getcsv', $file);
@@ -82,13 +98,16 @@ class CrimeLogController extends AbstractController
 
 				$rowsSinceLastClear++;
 				if ($rowsSinceLastClear >= 50) {
+					// Clear EM + wipe debug query/backtrace buffer every 50 rows.
 					$this->em->flush();
 					$this->em->clear();
+					$debugDataHolder?->reset();
 					$rowsSinceLastClear = 0;
 				}
 			}
 			$this->em->flush();
 			$this->em->clear();
+			$debugDataHolder?->reset();
 		}
 
 		if ($rejected === 0) {

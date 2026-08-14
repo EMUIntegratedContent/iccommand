@@ -8,6 +8,7 @@ use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\ProgramKeywords;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -437,9 +438,11 @@ class ProgramsService
 	 * Flushes per created keyword (via createKeyword), and clears the EntityManager every
 	 * 50 processed rows so managed entities do not accumulate for large uploads.
 	 * @param array $rows
+	 * @param DebugDataHolder|null $debugDataHolder optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
+	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
 	 * @return array{created: string[], skipped: string[], rejected: int, linkSkipped: string[]}
 	 */
-	public function bulkCreateKeywords(array $rows): array
+	public function bulkCreateKeywords(array $rows, ?DebugDataHolder $debugDataHolder = null): array
 	{
 		$repository = $this->em->getRepository(ProgramKeywords::class);
 
@@ -465,7 +468,9 @@ class ProgramsService
 				$skipped[] = $keywordName;
 				$rowsSinceLastClear++;
 				if ($rowsSinceLastClear >= 50) {
+					// Clear EM + wipe debug query/backtrace buffer every 50 rows.
 					$this->em->clear();
+					$debugDataHolder?->reset();
 					$rowsSinceLastClear = 0;
 				}
 				continue;
@@ -488,12 +493,15 @@ class ProgramsService
 			$rowsSinceLastClear++;
 			if ($rowsSinceLastClear >= 50) {
 				// createKeyword() already flushes per row; clear to detach managed entities.
+				// Clear EM + wipe debug query/backtrace buffer every 50 rows.
 				$this->em->clear();
+				$debugDataHolder?->reset();
 				$rowsSinceLastClear = 0;
 			}
 		}
 
 		$this->em->clear();
+		$debugDataHolder?->reset();
 
 		return [
 			'created' => $created,
