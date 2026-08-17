@@ -17,6 +17,7 @@ security:
     - { path: ^/map, roles: [ROLE_MAP_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/redirects, roles: [ROLE_REDIRECT_USER, ROLE_GLOBAL_ADMIN] }
     - { path: ^/cas, roles: [ROLE_CAS_VIEW, ROLE_GLOBAL_ADMIN] }
+    - { path: ^/social-media, roles: [ROLE_SOCIAL_USER, ROLE_GLOBAL_ADMIN] }
     - { path: ^/scholarships, roles: [ROLE_SCHOLARSHIP_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/register, role: ROLE_GLOBAL_ADMIN }
     - { path: ^/resetting, role: ROLE_GLOBAL_ADMIN }
@@ -70,6 +71,9 @@ security:
     ROLE_CAS_VIEW: ROLE_USER
     ROLE_CAS_EDIT: ROLE_CAS_VIEW
     ROLE_CAS_ADMIN: ROLE_CAS_EDIT
+    # Social Media Directory
+    ROLE_SOCIAL_USER: ROLE_USER
+    ROLE_SOCIAL_ADMIN: ROLE_SOCIAL_USER
     # Scholarships
     ROLE_SCHOLARSHIP_VIEW: ROLE_USER
     ROLE_SCHOLARSHIP_CREATE: ROLE_SCHOLARSHIP_VIEW

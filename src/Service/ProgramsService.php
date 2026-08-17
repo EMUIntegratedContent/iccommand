@@ -8,6 +8,7 @@ use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\ProgramKeywords;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -607,15 +608,19 @@ class ProgramsService
 	 * Each row is an associative array with a required 'keyword' and an optional
 	 * 'program_id'. Per-row rules:
 	 *  - blank keyword            -> rejected (nothing created)
-	 *  - keyword already exists   -> skipped (nothing created, no link)
+	 *  - keyword already exists   -> skipped (nothing created, no link; includes CSV duplicates)
 	 *  - new keyword, no id       -> keyword created
 	 *  - new keyword, valid id    -> keyword created + linked to program
 	 *  - new keyword, bad id      -> keyword created, link skipped (program not found)
 	 *
+	 * Flushes per created keyword (via createKeyword), and clears the EntityManager every
+	 * 50 processed rows so managed entities do not accumulate for large uploads.
 	 * @param array $rows
+	 * @param DebugDataHolder|null $debugDataHolder optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
+	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
 	 * @return array{created: string[], skipped: string[], rejected: int, linkSkipped: string[]}
 	 */
-	public function bulkCreateKeywords(array $rows): array
+	public function bulkCreateKeywords(array $rows, ?DebugDataHolder $debugDataHolder = null): array
 	{
 		$repository = $this->em->getRepository(ProgramKeywords::class);
 
@@ -623,6 +628,8 @@ class ProgramsService
 		$skipped = [];
 		$linkSkipped = [];
 		$rejected = 0;
+		$seenInCsv = [];
+		$rowsSinceLastClear = 0;
 
 		foreach ($rows as $row) {
 			$keywordName = isset($row['keyword']) ? trim((string) $row['keyword']) : '';
@@ -631,15 +638,25 @@ class ProgramsService
 				continue;
 			}
 
-			// Duplicate check (case-insensitive). Also catches keywords repeated
-			// within the same CSV, since createKeyword() flushes per call.
-			if ($repository->findOneByKeyword($keywordName)) {
+			$nameKey = mb_strtolower($keywordName);
+
+			// In-memory check covers duplicates within the same CSV; DB check covers existing keywords.
+			// findOneByKeyword() can load entities into the EM, so count those toward clear as well.
+			if (isset($seenInCsv[$nameKey]) || $repository->findOneByKeyword($keywordName)) {
 				$skipped[] = $keywordName;
+				$rowsSinceLastClear++;
+				if ($rowsSinceLastClear >= 50) {
+					// Clear EM + wipe debug query/backtrace buffer every 50 rows.
+					$this->em->clear();
+					$debugDataHolder?->reset();
+					$rowsSinceLastClear = 0;
+				}
 				continue;
 			}
 
 			$keyword = $this->createKeyword($keywordName);
 			$created[] = $keywordName;
+			$seenInCsv[$nameKey] = true;
 
 			$programId = isset($row['program_id']) ? trim((string) $row['program_id']) : '';
 			if ($programId !== '') {
@@ -650,7 +667,19 @@ class ProgramsService
 					$linkSkipped[] = $keywordName;
 				}
 			}
+
+			$rowsSinceLastClear++;
+			if ($rowsSinceLastClear >= 50) {
+				// createKeyword() already flushes per row; clear to detach managed entities.
+				// Clear EM + wipe debug query/backtrace buffer every 50 rows.
+				$this->em->clear();
+				$debugDataHolder?->reset();
+				$rowsSinceLastClear = 0;
+			}
 		}
+
+		$this->em->clear();
+		$debugDataHolder?->reset();
 
 		return [
 			'created' => $created,

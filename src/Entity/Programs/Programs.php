@@ -3,6 +3,7 @@
 namespace App\Entity\Programs;
 
 use App\Repository\Programs\ProgramsRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProgramsRepository::class)]
@@ -44,6 +45,20 @@ class Programs
     #[ORM\Column(nullable: true)]
     private ?int $ref_id = null;
 
+    #[ORM\Column(length: 120, nullable: true)]
+    private ?string $credit_hours = null;
+
+    #[ORM\Column(length: 120, nullable: true)]
+    private ?string $duration = null;
+
+    #[ORM\Column(length: 1024, nullable: true)]
+    private ?string $image_url = null;
+
+    #[ORM\Column(length: 1024, nullable: true)]
+    private ?string $application_url = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $program_overview = null;
 
     public function getId(): ?int
     {
@@ -166,6 +181,66 @@ class Programs
     public function setRefId(?int $ref_id): static
     {
         $this->ref_id = $ref_id;
+
+        return $this;
+    }
+
+    public function getCreditHours(): ?string
+    {
+        return $this->credit_hours;
+    }
+
+    public function setCreditHours(?string $credit_hours): static
+    {
+        $this->credit_hours = $credit_hours;
+
+        return $this;
+    }
+
+    public function getDuration(): ?string
+    {
+        return $this->duration;
+    }
+
+    public function setDuration(?string $duration): static
+    {
+        $this->duration = $duration;
+
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->image_url;
+    }
+
+    public function setImageUrl(?string $image_url): static
+    {
+        $this->image_url = $image_url;
+
+        return $this;
+    }
+
+    public function getApplicationUrl(): ?string
+    {
+        return $this->application_url;
+    }
+
+    public function setApplicationUrl(?string $application_url): static
+    {
+        $this->application_url = $application_url;
+
+        return $this;
+    }
+
+    public function getProgramOverview(): ?string
+    {
+        return $this->program_overview;
+    }
+
+    public function setProgramOverview(?string $program_overview): static
+    {
+        $this->program_overview = $program_overview;
 
         return $this;
     }

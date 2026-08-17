@@ -55,7 +55,10 @@ class ProgramsRepository extends ServiceEntityRepository
 				GROUP_CONCAT(DISTINCT pcl.college_id) AS college_ids,
 				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids
 			FROM program_programs p
-			LEFT JOIN program_websites w ON p.program = w.program
+			LEFT JOIN program_websites w ON (
+					(w.program_id IS NOT NULL AND w.program_id = p.id)
+					OR (w.program_id IS NULL AND p.program = w.program)
+			)
 			LEFT JOIN program_delivery pd ON p.id = pd.program_id
 			LEFT JOIN program_keyword_links pkl ON p.id = pkl.program_id
 			LEFT JOIN program_college_link pcl ON p.id = pcl.program_id

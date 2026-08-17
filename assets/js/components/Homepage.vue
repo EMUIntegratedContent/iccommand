@@ -56,10 +56,10 @@ export default {
 			// in base.html.twig. Keep them in sync when adding/moving apps.
 			categoryOrder: [
 				{ name: "Campus Safety & Alerts", mdDisplay: "col-md-6" },
-				{ name: "Maps & Directories", mdDisplay: "col-md-6" },
-				{ name: "Academic Marketing", mdDisplay: "col-md-6" },
+				{ name: "Maps & Directories", mdDisplay: "col-md-4" },
+				{ name: "Program Marketing", mdDisplay: "col-md-4" },
 				{ name: "Requests & Operations", mdDisplay: "col-md-12" },
-				{ name: "Webmaster Tools", mdDisplay: "col-md-6" }
+				{ name: "Web & SEO Tools", mdDisplay: "col-md-4" }
 			],
 			userModules: {
 				map: {
@@ -72,13 +72,13 @@ export default {
 					category: "Maps & Directories"
 				},
 				redirect: {
-					title: "Redirect Application",
+					title: "Redirects & Vanities",
 					description:
 						"The redirect application is responsible for setting up 301 redirects and vanity URLs for all EMU pages.",
 					buttonText: "Manage Redirects",
 					buttonLink: "/redirects",
 					display: false,
-					category: "Webmaster Tools"
+					category: "Web & SEO Tools"
 				},
 				programs: {
 					title: "Degrees & Programs Manager",
@@ -87,7 +87,7 @@ export default {
 					buttonText: "Manage Programs",
 					buttonLink: "/programs",
 					display: false,
-					category: "Academic Marketing"
+					category: "Program Marketing"
 				},
 				directory: {
 					// Added July 2025
@@ -111,13 +111,13 @@ export default {
 				},
 				links: {
 					// Added Sept. 2024
-					title: "External Application Links",
+					title: "External App Links",
 					description:
 						"A list of links to admin panels and front-ends for various external applications.",
 					buttonText: "See Apps",
 					buttonLink: "/applinks",
 					display: true, // No permissions required for this module; it's just a list of links
-					category: "Webmaster Tools"
+					category: "Web & SEO Tools"
 				},
 				emergency: {
 					// Added Sept. 2025
@@ -147,7 +147,17 @@ export default {
 					buttonText: "Manage Links",
 					buttonLink: "/cas",
 					display: false,
-					category: "Academic Marketing"
+					category: "Program Marketing"
+				},
+				social: {
+					// Added July 2026
+					title: "Social Media Directory",
+					description:
+						"The social media directory application manages Facebook, X, YouTube, Instagram, LinkedIn, and TikTok links for teams, groups, and other entities.",
+					buttonText: "Manage Links",
+					buttonLink: "/social-media",
+					display: false,
+					category: "Maps & Directories"
 				}
 			}
 		}
@@ -229,6 +239,9 @@ export default {
 			}
 			if (role.includes("ROLE_CAS_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.cas.display = true
+			}
+			if (role.includes("ROLE_SOCIAL_") || role.includes("ROLE_GLOBAL_ADMIN")) {
+				this.userModules.social.display = true
 			}
 		}
 	}

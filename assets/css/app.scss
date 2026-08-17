@@ -248,6 +248,20 @@ a:not(.btn):not(.nav-link):not(.page-link):not(.navbar-brand) {
 			margin: 0;
 			pointer-events: none;
 
+			> .dropdown-header {
+				color: rgba(255, 255, 255, 0.55);
+				padding: 0.5rem 0.75rem 0.25rem 1.25rem;
+				margin: 0;
+				font-size: 0.75rem;
+				text-transform: uppercase;
+				letter-spacing: 0.04em;
+			}
+
+			> .dropdown-divider {
+				border-top-color: rgba(255, 255, 255, 0.2);
+				margin: 0.5rem 1.25rem;
+			}
+
 			> .dropdown-item {
 				pointer-events: auto;
 				width: calc(100% - 1.25rem);

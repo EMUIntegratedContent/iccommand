@@ -7,8 +7,11 @@ use App\Entity\Cas\CasLink;
 use App\Service\CasService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -313,10 +316,28 @@ class CasController extends AbstractController
 		return new Response(null, 204);
 	}
 
+	/**
+	 * Bulk-create CAS links from an uploaded CSV.
+	 * @param Request $request
+	 * @return Response
+	 *
+	 * #[Autowire(service: 'doctrine.debug_data_holder')] — Symfony doesn’t type-hint this service by default, so this attribute says “inject that specific service.”
+	 * @var DebugDataHolder $debugDataHolder = null — optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
+	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
+	 */
 	#[Route('/links/upload', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN")'))]
-	public function postLinkBulkAction(Request $request): Response
-	{
+	public function postLinkBulkAction(
+		Request $request,
+		?Profiler $profiler = null,
+		#[Autowire(service: 'doctrine.debug_data_holder')]
+		?DebugDataHolder $debugDataHolder = null,
+	): Response {
+		// Profiler and Doctrine's debug query holder retain every SQL (+ backtrace) for
+		// the whole request. Disabling/resetting them is required for large CSVs (DEV only; this does nothing in PROD).
+		$profiler?->disable();
+		$debugDataHolder?->reset();
+
 		$uploadedFile = $request->files->get('csv');
 		if (!$uploadedFile) {
 			return new Response(json_encode("No CSV file provided."), 400, ["Content-Type" => "application/json"]);
@@ -367,6 +388,7 @@ class CasController extends AbstractController
 		$rejectedArr = [];
 		$seenInCsv = [];
 
+		$rowsSinceLastClear = 0;
 		foreach ($csv as $row) {
 			$degreeName = trim($row['degree_name'] ?? '');
 			$linkUrl = trim($row['link'] ?? '');
@@ -399,10 +421,22 @@ class CasController extends AbstractController
 				$this->em->persist($link);
 				$added++;
 				$seenInCsv[$nameKey] = true;
+				
+				$rowsSinceLastClear++;
+				if ($rowsSinceLastClear >= 50) {
+					// Clear EM + wipe debug query/backtrace buffer every 50 rows.
+					$this->em->flush();
+					$this->em->clear();
+					$debugDataHolder?->reset();
+					$cycle = $this->em->getReference(CasCycle::class, $cycleId); // clear() detaches everything, so re-attach the cycle.
+					$rowsSinceLastClear = 0;
+				}
 			}
 		}
 
 		$this->em->flush();
+		$this->em->clear();
+		$debugDataHolder?->reset();
 
 		return new Response(
 			sprintf('%d added. %d rejected: %s', $added, $rejected, implode(', ', $rejectedArr)),

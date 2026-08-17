@@ -44,13 +44,16 @@
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_DEPARTMENTS_USER') %}
                 <a class="dropdown-item" href="/directory">Department Directory</a>
                 {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_SOCIAL_USER') %}
+                <a class="dropdown-item" href="/social-media">Social Media Directory</a>
+                {% endif %}
             </div>
         </div>
         {% endif %}
-        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') or is_granted('ROLE_CAS_VIEW') or is_granted('ROLE_SCHOLARSHIP_VIEW') %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') or is_granted('ROLE_CAS_VIEW') or is_granted('ROLE_SOCIAL_USER') or is_granted('ROLE_SCHOLARSHIP_VIEW') %}
         <div class="btn-group">
             <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Academic Marketing
+                Program Marketing
             </button>
             <div class="dropdown-menu">
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
@@ -80,14 +83,25 @@
         {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') or is_granted('ROLE_USER') %}
         <div class="btn-group">
             <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Webmaster Tools
+                Web & SEO Tools
             </button>
             <div class="dropdown-menu">
+                <h6 class="dropdown-header">Website Operations</h6>
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_REDIRECT_USER') %}
                 <a class="dropdown-item" href="/redirects">Redirects & Vanities</a>
                 {% endif %}
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_USER') %}
                 <a class="dropdown-item" href="/applinks">External App Links</a>
+                {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') %}
+                <a class="dropdown-item" href="https://programmablesearchengine.google.com/controlpanel/all" target="_blank" rel="noopener noreferrer">Campus Search Engine</a>
+                {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') %}
+                <div class="dropdown-divider"></div>
+                <h6 class="dropdown-header">Search & Analytics</h6>
+                <a class="dropdown-item" href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">Google Search Console</a>
+                <a class="dropdown-item" href="https://business.google.com/locations" target="_blank" rel="noopener noreferrer">Google Business Profile</a>
+                <a class="dropdown-item" href="https://lookerstudio.google.com/" target="_blank" rel="noopener noreferrer">Site Analytics</a>
                 {% endif %}
             </div>
         </div>

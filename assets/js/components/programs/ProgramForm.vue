@@ -362,6 +362,99 @@
 							</div>
 						</template>
 					</div>
+					<div>
+						<label class="mt-2">Credit Hours</label>
+						<Field
+							name="progCreditHours"
+							type="text"
+							class="form-control"
+							:class="{
+								'is-invalid': errors.progCreditHours,
+								'form-control-plaintext': !userCanEdit || !isEditMode
+							}"
+							:readonly="!userCanEdit || !isEditMode"
+							v-model="record.credit_hours"
+							@update:modelValue="formDirty = true"
+						>
+						</Field>
+						<div class="invalid-feedback">
+							{{ errors.progCreditHours }}
+						</div>
+					</div>
+					<div>
+						<label class="mt-2">Duration</label>
+						<Field
+							name="progDuration"
+							type="text"
+							class="form-control"
+							:class="{
+								'is-invalid': errors.progDuration,
+								'form-control-plaintext': !userCanEdit || !isEditMode
+							}"
+							:readonly="!userCanEdit || !isEditMode"
+							v-model="record.duration"
+							@update:modelValue="formDirty = true"
+						>
+						</Field>
+						<div class="invalid-feedback">
+							{{ errors.progDuration }}
+						</div>
+					</div>
+					<div>
+						<label class="mt-2">Image URL</label>
+						<Field
+							name="progImageUrl"
+							type="text"
+							class="form-control"
+							:class="{
+								'is-invalid': errors.progImageUrl,
+								'form-control-plaintext': !userCanEdit || !isEditMode
+							}"
+							:readonly="!userCanEdit || !isEditMode"
+							v-model="record.image_url"
+							@update:modelValue="formDirty = true"
+						>
+						</Field>
+						<div class="invalid-feedback">
+							{{ errors.progImageUrl }}
+						</div>
+					</div>
+					<div>
+						<label class="mt-2">Application URL</label>
+						<Field
+							name="progApplicationUrl"
+							type="text"
+							class="form-control"
+							:class="{
+								'is-invalid': errors.progApplicationUrl,
+								'form-control-plaintext': !userCanEdit || !isEditMode
+							}"
+							:readonly="!userCanEdit || !isEditMode"
+							v-model="record.application_url"
+							@update:modelValue="formDirty = true"
+						>
+						</Field>
+						<div class="invalid-feedback">
+							{{ errors.progApplicationUrl }}
+						</div>
+					</div>
+					<div>
+						<label class="mt-2">Program Overview</label>
+						<template v-if="!userCanEdit || !isEditMode">
+							<div v-if="!record.program_overview">---</div>
+							<div v-else v-html="record.program_overview"></div>
+						</template>
+						<template v-else>
+							<ckeditor
+								v-model="overviewModel"
+								:editor="editor"
+								:config="ckConfig"
+								name="programOverview"
+								@update:modelValue="formDirty = true"
+							>
+							</ckeditor>
+						</template>
+					</div>
 					<div class="form-group">
 						<label class="mt-2">Website</label>
 						<Field
@@ -369,7 +462,7 @@
 							type="text"
 							class="form-control"
 							:class="{
-								'is-invalid': errors.url,
+								'is-invalid': errors.programUrl,
 								'form-control-plaintext': !userCanEdit || !isEditMode
 							}"
 							:readonly="!userCanEdit || !isEditMode"
@@ -378,7 +471,7 @@
 						>
 						</Field>
 						<div class="invalid-feedback">
-							{{ errors.url }}
+							{{ errors.programUrl }}
 						</div>
 					</div>
 					<div>
@@ -505,6 +598,7 @@ import NotFound from "../utils/NotFound.vue"
 import ProgramDeleteModal from "./ProgramDeleteModal.vue"
 import { ErrorMessage, Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 
 const STATUS_INITIAL = 0
 const STATUS_SAVE_FAILED = 1
@@ -572,9 +666,21 @@ export default {
 				message: null,
 				status: null
 			},
+			ckConfig: {
+				toolbar: [
+					"Bold",
+					"Italic",
+					"Undo",
+					"Redo",
+					"NumberedList",
+					"BulletedList",
+					"Link"
+				]
+			},
 			colleges: [],
 			degrees: [],
 			departments: [],
+			editor: ClassicEditor,
 			keywords: [],
 			is404: false,
 			isDeleteError: false,
@@ -599,7 +705,12 @@ export default {
 				// store as array of ids for keywords
 				keyword_ids: [],
 				type_id: null,
-				degree_id: null
+				degree_id: null,
+				credit_hours: null,
+				duration: null,
+				image_url: null,
+				application_url: null,
+				program_overview: ""
 			},
 			formDirty: false,
 			success: false,
@@ -608,6 +719,21 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The overview bound to CKEditor. The API returns null for an empty overview,
+		 * and handing null to the editor's watcher makes it call setData(null), which
+		 * throws and aborts Vue's render pass -- leaving the whole form unable to
+		 * repaint. Coercing to a string here guarantees the editor never sees null.
+		 */
+		overviewModel: {
+			get() {
+				return this.record.program_overview || ""
+			},
+			set(value) {
+				this.record.program_overview = value
+			}
+		},
+
 		isStatusInitial() {
 			return this.currentStatus === STATUS_INITIAL
 		},
@@ -631,7 +757,17 @@ export default {
 					.label("Department "),
 				progType: Yup.number().required().label("Program Type "),
 				progDegree: Yup.number().required().label("Degree Classification "),
-				progMode: Yup.array().of(Yup.number()).min(1).required().label("Mode ")
+				progMode: Yup.array().of(Yup.number()).min(1).required().label("Mode "),
+				progImageUrl: Yup.string()
+					.transform((v) => (v === "" ? null : v))
+					.url()
+					.nullable()
+					.label("Image URL "),
+				progApplicationUrl: Yup.string()
+					.transform((v) => (v === "" ? null : v))
+					.url()
+					.nullable()
+					.label("Application URL ")
 			}
 			return Yup.object(yupObj)
 		},

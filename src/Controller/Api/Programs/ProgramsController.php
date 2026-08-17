@@ -5,13 +5,17 @@ namespace App\Controller\Api\Programs;
 use App\Entity\Programs\ProgramKeywords;
 use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
+use App\Util\RequestHelper;
 use App\Service\ProgramsService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -267,6 +271,11 @@ class ProgramsController extends AbstractController
 		$program->setTypeId($request->request->get("type_id"));
 		$program->setSlug($this->service->makeProgramSlug($progName));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
+		$program->setCreditHours(RequestHelper::optionalString($request->request->get("credit_hours")));
+		$program->setDuration(RequestHelper::optionalString($request->request->get("duration")));
+		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
+		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
+		$program->setProgramOverview(RequestHelper::optionalString($request->request->get("program_overview")));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -394,6 +403,11 @@ class ProgramsController extends AbstractController
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));
+		$program->setCreditHours(RequestHelper::optionalString($request->request->get("credit_hours")));
+		$program->setDuration(RequestHelper::optionalString($request->request->get("duration")));
+		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
+		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
+		$program->setProgramOverview(RequestHelper::optionalString($request->request->get("program_overview")));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -483,11 +497,24 @@ class ProgramsController extends AbstractController
 	 * CSV columns: keyword (required), program_id (optional).
 	 * @param Request $request
 	 * @return Response
+	 *
+	 * #[Autowire(service: 'doctrine.debug_data_holder')] — Symfony doesn’t type-hint this service by default, so this attribute says “inject that specific service.”
+	 * @var DebugDataHolder $debugDataHolder = null — optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
+	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
 	 */
 	#[Route('/keywords/upload', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
-	public function postKeywordBulkAction(Request $request): Response
-	{
+	public function postKeywordBulkAction(
+		Request $request,
+		?Profiler $profiler = null,
+		#[Autowire(service: 'doctrine.debug_data_holder')]
+		?DebugDataHolder $debugDataHolder = null,
+	): Response {
+		// Profiler and Doctrine's debug query holder retain every SQL (+ backtrace) for
+		// the whole request. Disabling/resetting them is required for large CSVs (DEV only; this does nothing in PROD).
+		$profiler?->disable();
+		$debugDataHolder?->reset();
+
 		$uploaded = $request->files->get('csv');
 		if (!$uploaded) {
 			return new Response("No CSV file was uploaded.", 422, array("Content-Type" => "application/json"));
@@ -509,7 +536,7 @@ class ProgramsController extends AbstractController
 			$rows[] = array_combine($headers, $row);
 		}
 
-		$result = $this->service->bulkCreateKeywords($rows);
+		$result = $this->service->bulkCreateKeywords($rows, $debugDataHolder);
 
 		// Keyword names originate from the uploaded CSV and are rendered via v-html
 		// on the client, so HTML-encode each before embedding to prevent stored/reflected XSS.
