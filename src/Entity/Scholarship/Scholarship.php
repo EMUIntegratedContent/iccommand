@@ -135,6 +135,23 @@ class Scholarship
     private ?string $ethnicity = null;
 
     /**
+     * The awarding college. Loose FK to program_colleges.id, mirroring how
+     * App\Entity\Programs\Programs references colleges — a plain int with no Doctrine
+     * association and no database FK constraint.
+     */
+    #[ORM\Column(name: 'schlrshp_college_id', type: 'integer', nullable: true)]
+    #[Groups("scholarship")]
+    private ?int $collegeId = null;
+
+    /**
+     * The awarding department. Loose FK to program_departments.id, same convention as
+     * $collegeId above.
+     */
+    #[ORM\Column(name: 'schlrshp_department_id', type: 'integer', nullable: true)]
+    #[Groups("scholarship")]
+    private ?int $departmentId = null;
+
+    /**
      * The FAFSA eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_fafsa', type: 'string', length: 15, nullable: true)]
@@ -168,6 +185,13 @@ class Scholarship
     #[ORM\Column(name: 'schlrshp_keywords', type: 'string', length: 255, nullable: true)]
     #[Groups("scholarship")]
     private ?string $keywords = null;
+
+    /**
+     * Whether this scholarship is available to transfer students: "Yes", "No" or "Both".
+     */
+    #[ORM\Column(name: 'schlrshp_transfer', type: 'string', length: 5, nullable: true)]
+    #[Groups("scholarship")]
+    private ?string $transfer = null;
 
     /**
      * The housing eligibility criterion.
@@ -426,6 +450,28 @@ class Scholarship
         return $this;
     }
 
+    public function getCollegeId(): ?int
+    {
+        return $this->collegeId;
+    }
+
+    public function setCollegeId(?int $collegeId): self
+    {
+        $this->collegeId = $collegeId;
+        return $this;
+    }
+
+    public function getDepartmentId(): ?int
+    {
+        return $this->departmentId;
+    }
+
+    public function setDepartmentId(?int $departmentId): self
+    {
+        $this->departmentId = $departmentId;
+        return $this;
+    }
+
     public function getFafsa(): ?string
     {
         return $this->fafsa;
@@ -478,6 +524,17 @@ class Scholarship
     public function setKeywords(?string $keywords): self
     {
         $this->keywords = $keywords;
+        return $this;
+    }
+
+    public function getTransfer(): ?string
+    {
+        return $this->transfer;
+    }
+
+    public function setTransfer(?string $transfer): self
+    {
+        $this->transfer = $transfer;
         return $this;
     }
 

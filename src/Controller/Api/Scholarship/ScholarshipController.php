@@ -35,10 +35,20 @@ class ScholarshipController extends AbstractController
         'isBilingual' => 'setIsBilingual',
         'organizations' => 'setOrganizations',
         'keywords' => 'setKeywords',
+        'transfer' => 'setTransfer',
         'housing' => 'setHousing',
         'appProc' => 'setAppProc',
         'amount' => 'setAmount',
         'contact' => 'setContact',
+    ];
+
+    /**
+     * Nullable integer fields (payload key => entity setter). Applied when the key is present.
+     */
+    private const INT_FIELDS = [
+        'collegeId' => 'setCollegeId',
+        'departmentId' => 'setDepartmentId',
+        'contactId' => 'setContactId',
     ];
 
     private ScholarshipService $service;
@@ -200,9 +210,11 @@ class ScholarshipController extends AbstractController
             $scholarship->setGpa($val === null || $val === '' ? null : (string)$val);
         }
 
-        if (array_key_exists('contactId', $data)) {
-            $val = $data['contactId'];
-            $scholarship->setContactId($val === null || $val === '' ? null : (int)$val);
+        foreach (self::INT_FIELDS as $key => $setter) {
+            if (array_key_exists($key, $data)) {
+                $val = $data[$key];
+                $scholarship->$setter($val === null || $val === '' ? null : (int)$val);
+            }
         }
 
         foreach (['applyDate' => 'setApplyDate', 'expDate' => 'setExpDate'] as $key => $setter) {
