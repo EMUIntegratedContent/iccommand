@@ -7,6 +7,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -16,6 +17,16 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class ScholarshipExternalController extends AbstractController
 {
+    /**
+     * Serialization context for the public endpoints.
+     * Uses the scholarship group, minus the Gedmo audit fields and contactId.
+     * Excluded here instead of on the entity so the admin API keeps them.
+     */
+    private const PUBLIC_CONTEXT = [
+        'groups' => 'scholarship',
+        AbstractNormalizer::IGNORED_ATTRIBUTES => ['created', 'createdBy', 'updated', 'updatedBy', 'contactId'],
+    ];
+
     private ManagerRegistry $doctrine;
     private SerializerInterface $serializer;
 
@@ -25,17 +36,17 @@ class ScholarshipExternalController extends AbstractController
         $this->serializer = $serializer;
     }
 
-    #[Route('/scholarships', methods: ['GET'])]
+    #[Route('/all', methods: ['GET'])]
     public function getScholarshipsAction(): Response
     {
         $scholarships = $this->doctrine->getRepository(Scholarship::class)
             ->findBy(['active' => true], ['title' => 'ASC']);
 
-        $serialized = $this->serializer->serialize($scholarships, "json", ['groups' => 'scholarship']);
+        $serialized = $this->serializer->serialize($scholarships, "json", self::PUBLIC_CONTEXT);
         return new Response($serialized, 200, ["Content-Type" => "application/json"]);
     }
 
-    #[Route('/scholarships/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function getScholarshipAction(int $id): Response
     {
         $scholarship = $this->doctrine->getRepository(Scholarship::class)
@@ -45,7 +56,7 @@ class ScholarshipExternalController extends AbstractController
             return new Response(json_encode("Scholarship not found."), 404, ["Content-Type" => "application/json"]);
         }
 
-        $serialized = $this->serializer->serialize($scholarship, "json", ['groups' => 'scholarship']);
+        $serialized = $this->serializer->serialize($scholarship, "json", self::PUBLIC_CONTEXT);
         return new Response($serialized, 200, ["Content-Type" => "application/json"]);
     }
 }
