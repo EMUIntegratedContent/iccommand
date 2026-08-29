@@ -98,6 +98,14 @@ class ScholarshipController extends AbstractController
         return new Response(json_encode($programs), 200, ["Content-Type" => "application/json"]);
     }
 
+    #[Route('/options', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
+    public function getOptionsAction(): Response
+    {
+        $options = $this->service->getScholarshipOptions();
+        return new Response(json_encode($options), 200, ["Content-Type" => "application/json"]);
+    }
+
     #[Route('/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
     public function getScholarshipAction(int $id): Response

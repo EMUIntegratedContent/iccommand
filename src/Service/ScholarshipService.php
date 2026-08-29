@@ -25,9 +25,8 @@ class ScholarshipService
     }
 
     /**
-     * Get the current user's scholarship permissions for the Twig pages.
-     * ROLE_GLOBAL_ADMIN only inherits ROLE_USER, so it is checked separately.
-     * @return array
+     * Get the permissions of the user for managing scholarships.
+     * @return array The user's permissions.
      */
     public function getScholarshipPermissions(): array
     {
@@ -167,5 +166,22 @@ class ScholarshipService
         return $conn->executeQuery(
             'SELECT id, full_name FROM program_programs ORDER BY full_name ASC'
         )->fetchAllAssociative();
+    }
+
+    /**
+     * Get the option lists for the constrained scholarship fields.
+     * @return array
+     */
+    public function getScholarshipOptions(): array
+    {
+        return [
+            'gender' => Scholarship::GENDER_OPTIONS,
+            'ethnicity' => Scholarship::ETHNICITY_OPTIONS,
+            'gpa' => Scholarship::GPA_OPTIONS,
+            'classStanding' => Scholarship::CLASS_STANDING_OPTIONS,
+            'housing' => Scholarship::HOUSING_OPTIONS,
+            'transfer' => Scholarship::TRANSFER_OPTIONS,
+            'state' => Scholarship::STATE_OPTIONS,
+        ];
     }
 }

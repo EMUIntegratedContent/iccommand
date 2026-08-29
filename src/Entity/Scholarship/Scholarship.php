@@ -17,6 +17,59 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'scholarships_scholarship')]
 class Scholarship
 {
+    /* ***************************** Option Lists ***************************** */
+
+    /**
+     * Option lists for the constrained fields, taken from the legacy FinAid admin.
+     * The validation constraints use these, and /api/scholarships/options serves them to the form.
+     * The legacy "N/A" choice means "no restriction" and is stored as null, so it is not listed.
+     */
+    public const GENDER_OPTIONS = ['Male', 'Female'];
+
+    public const ETHNICITY_OPTIONS = [
+        'Black/African American',
+        'Hispanic/Latino',
+        'Asian/Pacific Islander',
+        'Native American',
+        'Chaldean/Arabic',
+        'Other',
+    ];
+
+    public const GPA_OPTIONS = [
+        '2.5', '2.6', '2.7', '2.8', '2.9',
+        '3.0', '3.1', '3.2', '3.3', '3.4',
+        '3.5', '3.6', '3.7', '3.8', '3.9',
+        '4.0',
+    ];
+
+    /**
+     * Class standing is multi-select and is stored comma separated.
+     */
+    public const CLASS_STANDING_OPTIONS = [
+        'Entering Freshman',
+        'Freshman',
+        'Sophomore',
+        'Junior',
+        'Senior',
+        'Graduate',
+    ];
+
+    public const HOUSING_OPTIONS = ['Yes', 'No'];
+
+    public const TRANSFER_OPTIONS = ['Yes', 'No', 'Both'];
+
+    /**
+     * The legacy list duplicates PA and omits ME and NV. Corrected here, keeping DC and VI.
+     */
+    public const STATE_OPTIONS = [
+        'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
+        'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+        'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
+        'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
+        'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'VI', 'WA', 'WV',
+        'WI', 'WY',
+    ];
+
     /* *************************** Member Variables *************************** */
 
     /**
