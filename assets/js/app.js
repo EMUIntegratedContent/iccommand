@@ -114,6 +114,9 @@ app.component("socialmedia-list", require("./components/socialmedia/SocialMediaL
 app.component("socialmedia-form", require("./components/socialmedia/SocialMediaForm.vue").default);
 app.component("socialmedia-delete-modal", require("./components/socialmedia/SocialMediaDeleteModal.vue").default);
 
+/* Scholarships Application */
+app.component("scholarship-list", require("./components/scholarship/ScholarshipList.vue").default);
+
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(CKEditor)
