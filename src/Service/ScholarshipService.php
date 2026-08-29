@@ -5,20 +5,72 @@ use App\Entity\Scholarship\Scholarship;
 use App\Entity\Scholarship\ScholarshipProgram;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ScholarshipService
 {
+    private AuthorizationCheckerInterface $authorizationChecker;
     private ValidatorInterface $validator;
     private ManagerRegistry $doctrine;
     private EntityManagerInterface $em;
 
-    public function __construct(ValidatorInterface $validator, ManagerRegistry $doctrine, EntityManagerInterface $em)
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine, EntityManagerInterface $em)
     {
+        $this->authorizationChecker = $authorizationChecker;
         $this->validator = $validator;
         $this->doctrine = $doctrine;
         $this->em = $em;
+    }
+
+    /**
+     * Get the current user's scholarship permissions for the Twig pages.
+     * ROLE_GLOBAL_ADMIN only inherits ROLE_USER, so it is checked separately.
+     * @return array
+     */
+    public function getScholarshipPermissions(): array
+    {
+        // Set all permissions to false as default.
+        $permissions = array(
+            'admin' => false,
+            'create' => false,
+            'edit' => false,
+            'delete' => false,
+            'view' => false,
+        );
+
+        // The admins automatically have all the permissions.
+        if ($this->authorizationChecker->isGranted('ROLE_SCHOLARSHIP_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
+            $permissions['admin'] = true;
+            $permissions['create'] = true;
+            $permissions['edit'] = true;
+            $permissions['delete'] = true;
+            $permissions['view'] = true;
+        }
+
+        if ($this->authorizationChecker->isGranted('ROLE_SCHOLARSHIP_DELETE')) {
+            $permissions['create'] = true;
+            $permissions['edit'] = true;
+            $permissions['delete'] = true;
+            $permissions['view'] = true;
+        }
+
+        if ($this->authorizationChecker->isGranted('ROLE_SCHOLARSHIP_EDIT')) {
+            $permissions['edit'] = true;
+            $permissions['view'] = true;
+        }
+
+        if ($this->authorizationChecker->isGranted('ROLE_SCHOLARSHIP_CREATE')) {
+            $permissions['create'] = true;
+            $permissions['view'] = true;
+        }
+
+        if ($this->authorizationChecker->isGranted('ROLE_SCHOLARSHIP_VIEW')) {
+            $permissions['view'] = true;
+        }
+
+        return $permissions;
     }
 
     public function validate($entity): ConstraintViolationListInterface

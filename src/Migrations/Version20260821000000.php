@@ -10,7 +10,6 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Adds the awarding college, awarding department and transfer-eligibility columns to
  * scholarships_scholarship.
- *
  */
 final class Version20260821000000 extends AbstractMigration
 {

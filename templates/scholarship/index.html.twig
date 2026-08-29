@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Scholarships{% endblock %}
+
+{% block modulenav %}
+  {% include 'scholarship/nav_scholarship.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <scholarship-list :permissions="[{{ permissions }}]"></scholarship-list>
+</div>
+{% endblock %}
