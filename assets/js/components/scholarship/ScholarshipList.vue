@@ -133,89 +133,37 @@ export default {
 
 	data: function () {
 		return {
-			/**
-			 * The scholarships that are fetched.
-			 * @type {Array.<Object>}
-			 */
-			scholarships: [],
-
-			/**
-			 * The search results for scholarships.
-			 * @type {Array.<Object>}
-			 */
-			searchResults: [],
-
-			/**
-			 * The search term for scholarships.
-			 * @type {string}
-			 */
-			searchTerm: "",
-
-			/**
-			 * The current page for pagination.
-			 * @type {number}
-			 */
-			currentPage: 1,
-
-			/**
-			 * The items per page for pagination.
-			 * @type {number}
-			 */
-			itemsPerPage: 50,
-
-			/**
-			 * The total number of scholarships.
-			 * @type {number}
-			 */
-			totalScholarships: 0,
-
-			/**
-			 * Is used to check if the scholarships are loading.
-			 * @type {boolean}
-			 */
-			loadingScholarships: false,
-
-			/**
-			 * The error for the API controller consists of a message and a status.
-			 * @type {Object}
-			 */
 			apiError: {
 				message: null,
 				status: null
-			}
+			},
+			loadingScholarships: false,
+			scholarships: [],
+			// Search data
+			searchResults: [],
+			searchTerm: "",
+			// Pagination data
+			currentPage: 1,
+			itemsPerPage: 50,
+			totalScholarships: 0
 		}
 	},
 
 	computed: {
-		/**
-		 * Checks if the user can create.
-		 * @return {boolean} True if the user can create.
-		 */
 		userCanCreate: function () {
 			return this.permissions[0].create ? true : false
 		},
 
-		/**
-		 * Checks if the user can edit.
-		 * @return {boolean} True if the user can edit.
-		 */
 		userCanEdit: function () {
 			return this.permissions[0].edit ? true : false
 		}
 	},
 
 	methods: {
-		/**
-		 * Navigates to the create page.
-		 */
 		createNewScholarship: function () {
 			window.location.href = "/scholarships/create"
 		},
 
-		/**
-		 * Formats an API date for display, or a dash when there isn't one.
-		 * @param dateString
-		 */
 		formatDate: function (dateString) {
 			if (!dateString) {
 				return "—"
@@ -230,10 +178,6 @@ export default {
 			return date.toLocaleDateString("en-US")
 		},
 
-		/**
-		 * Checks whether a scholarship's expiration date has passed.
-		 * @param scholarship
-		 */
 		isExpired: function (scholarship) {
 			if (!scholarship.expDate) {
 				return false
@@ -244,10 +188,6 @@ export default {
 			return !isNaN(expires.getTime()) && expires < new Date()
 		},
 
-		/**
-		 * When the search input is changed.
-		 * @param evt
-		 */
 		handleSearchInput: function (evt) {
 			this.searchTerm = evt.target.value
 			if (this.searchTerm.length > 2) {
@@ -255,10 +195,6 @@ export default {
 			}
 		},
 
-		/**
-		 * When a scholarship is selected from the search results.
-		 * @param evt
-		 */
 		handleScholarshipSelected: function (evt) {
 			if (this.userCanEdit) {
 				window.location.href = "/scholarships/" + evt.id + "/edit"
@@ -267,45 +203,31 @@ export default {
 			}
 		},
 
-		/**
-		 * When paginator items per page is changed.
-		 * @param itemsPerPage
-		 */
 		handleItemsPerPageChanged: function (itemsPerPage) {
 			this.itemsPerPage = itemsPerPage
 			this.fetchScholarships()
 		},
 
-		/**
-		 * When paginator page is changed.
-		 * @param currentPage
-		 */
 		handlePageChanged: function (currentPage) {
 			this.currentPage = currentPage
 			this.fetchScholarships()
 		},
 
-		/**
-		 * Gets the scholarships.
-		 */
 		fetchScholarships: function () {
 			let self = this // "this" loses scope within Axios.
 
 			this.loadingScholarships = true
 			this.scholarships = []
 
-			/* Ajax (Axios) Submission */
 			axios
 				.get(
 					`/api/scholarships/list?page=${this.currentPage}&limit=${this.itemsPerPage}`
 				)
 				.then(function (response) {
-					// Success.
 					self.totalScholarships = response.data.totalRows
 					self.scholarships = response.data.scholarships
 				})
 				.catch(function (error) {
-					// Failure.
 					self.apiError.status = error.response.status
 
 					switch (error.response.status) {
@@ -329,20 +251,15 @@ export default {
 				})
 		},
 
-		/**
-		 * Searches for scholarships by title or keyword.
-		 */
 		searchScholarships: function () {
 			let self = this
 
 			axios
 				.get(`/api/scholarships/search?searchterm=${this.searchTerm}`)
 				.then(function (response) {
-					// Success.
 					self.searchResults = response.data
 				})
 				.catch(function (error) {
-					// Failure.
 					console.log("Error searching scholarships:", error)
 				})
 		}

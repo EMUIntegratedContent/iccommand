@@ -116,6 +116,7 @@ app.component("socialmedia-delete-modal", require("./components/socialmedia/Soci
 
 /* Scholarships Application */
 app.component("scholarship-list", require("./components/scholarship/ScholarshipList.vue").default);
+app.component("scholarship-form", require("./components/scholarship/ScholarshipForm.vue").default);
 
 
 app.component('font-awesome-icon', FontAwesomeIcon)
