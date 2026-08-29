@@ -13,9 +13,17 @@
 		>
 			{{ apiError.message }}
 		</div>
+		<div
+			v-if="isDeleted === true"
+			class="alert alert-info fade show"
+			role="alert"
+		>
+			"{{ record.title }}" has been deleted. You will now be redirected to the
+			list page.
+		</div>
 
 		<!-- Main Area -->
-		<div v-if="isDataLoaded === true && is404 === false">
+		<div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
 			<heading>
 				<span v-if="!itemExists">Add New Scholarship</span>
 				<span v-else>Scholarship: {{ record.title }}</span>
@@ -165,6 +173,13 @@
 					>
 						{{ successMessage }}
 					</div>
+					<div
+						v-if="isDeleteError === true"
+						class="alert alert-danger fade show"
+						role="alert"
+					>
+						There was an error deleting this scholarship.
+					</div>
 
 					<!-- Action Buttons -->
 					<div
@@ -177,10 +192,27 @@
 						<button class="btn btn-success" type="submit">
 							<i class="fa fa-save fa-2x"></i>
 						</button>
+						<button
+							v-if="itemExists && userCanDelete"
+							type="button"
+							class="btn btn-danger ml-4"
+							data-toggle="modal"
+							data-target="#deleteModal"
+						>
+							<i class="fa fa-trash fa-2x"></i>
+						</button>
 					</div>
 				</VeeForm>
 			</div>
 		</div>
+
+		<!-- Delete Modal -->
+		<scholarship-delete-modal
+			v-if="itemExists"
+			:scholarship="record"
+			@itemDeleted="markItemDeleted"
+			@itemDeleteError="markItemDeleteError"
+		></scholarship-delete-modal>
 	</div>
 </template>
 
@@ -189,6 +221,7 @@
 <script>
 import Heading from "../utils/Heading.vue"
 import NotFound from "../utils/NotFound.vue"
+import ScholarshipDeleteModal from "./ScholarshipDeleteModal.vue"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
@@ -210,6 +243,7 @@ export default {
 	components: {
 		Heading,
 		NotFound,
+		ScholarshipDeleteModal,
 		Field,
 		VeeForm,
 		Yup
@@ -250,6 +284,8 @@ export default {
 			currentStatus: null,
 			is404: false,
 			isDataLoaded: false,
+			isDeleted: false,
+			isDeleteError: false,
 			isEditMode: false,
 			
 			record: {
@@ -278,6 +314,10 @@ export default {
 
 		userCanEdit: function () {
 			return this.permissions[0].edit ? true : false
+		},
+
+		userCanDelete: function () {
+			return this.permissions[0].delete ? true : false
 		},
 
 		scholarshipSchema: function () {
@@ -328,6 +368,18 @@ export default {
 						self.isDataLoaded = true
 					}
 				})
+		},
+
+		markItemDeleted: function () {
+			this.isDeleteError = false
+			this.isDeleted = true
+			setTimeout(function () {
+				window.location.replace("/scholarships")
+			}, 2000)
+		},
+
+		markItemDeleteError: function () {
+			this.isDeleteError = true
 		},
 
 		emptyDateToNull: function (value, originalValue) {
