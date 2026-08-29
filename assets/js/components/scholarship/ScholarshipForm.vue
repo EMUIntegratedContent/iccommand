@@ -415,6 +415,61 @@
 						</div>
 					</fieldset>
 
+					<fieldset>
+						<legend>Details</legend>
+						<div>
+							<label class="mt-2">Contact information</label>
+							<template v-if="!userCanEdit || !isEditMode">
+								<div v-if="!record.contact">---</div>
+								<div v-else v-html="record.contact"></div>
+							</template>
+							<template v-else>
+								<ckeditor
+									v-model="contactModel"
+									:editor="editor"
+									:config="ckConfig"
+									name="scholarshipContact"
+									@update:modelValue="formDirty = true"
+								>
+								</ckeditor>
+							</template>
+						</div>
+						<div>
+							<label class="mt-2">Application procedure</label>
+							<template v-if="!userCanEdit || !isEditMode">
+								<div v-if="!record.appProc">---</div>
+								<div v-else v-html="record.appProc"></div>
+							</template>
+							<template v-else>
+								<ckeditor
+									v-model="appProcModel"
+									:editor="editor"
+									:config="ckConfig"
+									name="scholarshipAppProc"
+									@update:modelValue="formDirty = true"
+								>
+								</ckeditor>
+							</template>
+						</div>
+						<div>
+							<label class="mt-2">Additional information</label>
+							<template v-if="!userCanEdit || !isEditMode">
+								<div v-if="!record.description">---</div>
+								<div v-else v-html="record.description"></div>
+							</template>
+							<template v-else>
+								<ckeditor
+									v-model="descriptionModel"
+									:editor="editor"
+									:config="ckConfig"
+									name="scholarshipDescription"
+									@update:modelValue="formDirty = true"
+								>
+								</ckeditor>
+							</template>
+						</div>
+					</fieldset>
+
 					<div
 						v-if="success === true"
 						class="alert alert-success fade show"
@@ -471,6 +526,7 @@
 import Heading from "../utils/Heading.vue"
 import NotFound from "../utils/NotFound.vue"
 import ScholarshipDeleteModal from "./ScholarshipDeleteModal.vue"
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 import VueMultiselect from "vue-multiselect"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
@@ -541,6 +597,19 @@ export default {
 			isDeleteError: false,
 			isEditMode: false,
 			
+			editor: ClassicEditor,
+			ckConfig: {
+				toolbar: [
+					"Bold",
+					"Italic",
+					"Undo",
+					"Redo",
+					"NumberedList",
+					"BulletedList",
+					"Link"
+				]
+			},
+
 			options: {
 				gender: [],
 				ethnicity: [],
@@ -571,7 +640,10 @@ export default {
 				state: "",
 				highSchool: "",
 				organizations: "",
-				keywords: ""
+				keywords: "",
+				contact: "",
+				appProc: "",
+				description: ""
 			},
 			
 			formDirty: false,
@@ -596,7 +668,35 @@ export default {
 			return this.permissions[0].delete ? true : false
 		},
 
-		// Class standing is multi-select here but stored comma separated on the record.
+		// CKEditor throws on null, so empty rich text has to reach it as a string.
+		contactModel: {
+			get() {
+				return this.record.contact || ""
+			},
+			set(value) {
+				this.record.contact = value
+			}
+		},
+
+		appProcModel: {
+			get() {
+				return this.record.appProc || ""
+			},
+			set(value) {
+				this.record.appProc = value
+			}
+		},
+
+		descriptionModel: {
+			get() {
+				return this.record.description || ""
+			},
+			set(value) {
+				this.record.description = value
+			}
+		},
+
+		// Class standing is multi-select but stored comma separated.
 		standingClassModel: {
 			get() {
 				return this.record.standingClass
