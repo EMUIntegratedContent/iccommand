@@ -125,6 +125,255 @@
 					</fieldset>
 
 					<fieldset>
+						<legend>Eligibility</legend>
+						<div class="form-group">
+							<label for="scholarshipGender">Gender</label>
+							<select
+								id="scholarshipGender"
+								class="form-control"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.gender"
+								@change="formDirty = true"
+							>
+								<option value="">No restriction</option>
+								<option v-for="opt in options.gender" :key="opt" :value="opt">
+									{{ opt }}
+								</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="scholarshipEthnicity">Ethnicity</label>
+							<select
+								id="scholarshipEthnicity"
+								class="form-control"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.ethnicity"
+								@change="formDirty = true"
+							>
+								<option value="">No restriction</option>
+								<option v-for="opt in options.ethnicity" :key="opt" :value="opt">
+									{{ opt }}
+								</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="scholarshipGpa">Minimum GPA</label>
+							<select
+								id="scholarshipGpa"
+								class="form-control"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.gpa"
+								@change="formDirty = true"
+							>
+								<option value="">No restriction</option>
+								<option v-for="opt in options.gpa" :key="opt" :value="opt">
+									{{ opt }}
+								</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="scholarshipStandingClass">Class standing</label>
+							<VueMultiselect
+								id="scholarshipStandingClass"
+								:options="options.classStanding"
+								:multiple="true"
+								:close-on-select="false"
+								:disabled="!userCanEdit || !isEditMode"
+								placeholder="No restriction"
+								v-model="standingClassModel"
+								@update:modelValue="formDirty = true"
+							>
+							</VueMultiselect>
+						</div>
+						<div class="form-group">
+							<label>Enrollment requirement</label>
+							<Field
+								name="enrollment"
+								type="text"
+								class="form-control"
+								:class="{
+									'is-invalid': errors.enrollment,
+									'form-control-plaintext': !userCanEdit || !isEditMode
+								}"
+								:readonly="!userCanEdit || !isEditMode"
+								v-model="record.enrollment"
+								placeholder="e.g. full time"
+								@update:modelValue="formDirty = true"
+							>
+							</Field>
+							<div class="invalid-feedback">
+								{{ errors.enrollment }}
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Available to transfer students</label>
+							<div>
+								<div
+									v-for="opt in options.transfer"
+									:key="opt"
+									class="form-check form-check-inline"
+								>
+									<input
+										:id="'scholarshipTransfer' + opt"
+										type="radio"
+										class="form-check-input"
+										:value="opt"
+										:disabled="!userCanEdit || !isEditMode"
+										v-model="record.transfer"
+										@change="formDirty = true"
+									/>
+									<label class="form-check-label" :for="'scholarshipTransfer' + opt">
+										{{ opt }}
+									</label>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Housing requirement</label>
+							<div>
+								<div
+									v-for="opt in options.housing"
+									:key="opt"
+									class="form-check form-check-inline"
+								>
+									<input
+										:id="'scholarshipHousing' + opt"
+										type="radio"
+										class="form-check-input"
+										:value="opt"
+										:disabled="!userCanEdit || !isEditMode"
+										v-model="record.housing"
+										@change="formDirty = true"
+									/>
+									<label class="form-check-label" :for="'scholarshipHousing' + opt">
+										{{ opt }}
+									</label>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+
+					<fieldset>
+						<legend>Location</legend>
+						<div class="form-group">
+							<label>County</label>
+							<Field
+								name="county"
+								type="text"
+								class="form-control"
+								:class="{
+									'is-invalid': errors.county,
+									'form-control-plaintext': !userCanEdit || !isEditMode
+								}"
+								:readonly="!userCanEdit || !isEditMode"
+								v-model="record.county"
+								@update:modelValue="formDirty = true"
+							>
+							</Field>
+							<div class="invalid-feedback">
+								{{ errors.county }}
+							</div>
+						</div>
+						<div class="form-group">
+							<label>City</label>
+							<Field
+								name="city"
+								type="text"
+								class="form-control"
+								:class="{
+									'is-invalid': errors.city,
+									'form-control-plaintext': !userCanEdit || !isEditMode
+								}"
+								:readonly="!userCanEdit || !isEditMode"
+								v-model="record.city"
+								@update:modelValue="formDirty = true"
+							>
+							</Field>
+							<div class="invalid-feedback">
+								{{ errors.city }}
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="scholarshipState">State</label>
+							<select
+								id="scholarshipState"
+								class="form-control"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.state"
+								@change="formDirty = true"
+							>
+								<option value="">No restriction</option>
+								<option v-for="opt in options.state" :key="opt" :value="opt">
+									{{ opt }}
+								</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>High school</label>
+							<Field
+								name="highSchool"
+								type="text"
+								class="form-control"
+								:class="{
+									'is-invalid': errors.highSchool,
+									'form-control-plaintext': !userCanEdit || !isEditMode
+								}"
+								:readonly="!userCanEdit || !isEditMode"
+								v-model="record.highSchool"
+								@update:modelValue="formDirty = true"
+							>
+							</Field>
+							<div class="invalid-feedback">
+								{{ errors.highSchool }}
+							</div>
+						</div>
+					</fieldset>
+
+					<fieldset>
+						<legend>Affiliations and keywords</legend>
+						<div class="form-group">
+							<label>Organizations, club, fraternity, sorority, etc.</label>
+							<Field
+								name="organizations"
+								type="text"
+								class="form-control"
+								:class="{
+									'is-invalid': errors.organizations,
+									'form-control-plaintext': !userCanEdit || !isEditMode
+								}"
+								:readonly="!userCanEdit || !isEditMode"
+								v-model="record.organizations"
+								@update:modelValue="formDirty = true"
+							>
+							</Field>
+							<div class="invalid-feedback">
+								{{ errors.organizations }}
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Keywords</label>
+							<Field
+								name="keywords"
+								as="textarea"
+								rows="3"
+								class="form-control"
+								:class="{
+									'is-invalid': errors.keywords,
+									'form-control-plaintext': !userCanEdit || !isEditMode
+								}"
+								:readonly="!userCanEdit || !isEditMode"
+								v-model="record.keywords"
+								placeholder="Separate keywords with commas"
+								@update:modelValue="formDirty = true"
+							>
+							</Field>
+							<div class="invalid-feedback">
+								{{ errors.keywords }}
+							</div>
+						</div>
+					</fieldset>
+
+					<fieldset>
 						<legend>Dates</legend>
 						<div class="form-group">
 							<label>Apply by date</label>
@@ -222,6 +471,7 @@
 import Heading from "../utils/Heading.vue"
 import NotFound from "../utils/NotFound.vue"
 import ScholarshipDeleteModal from "./ScholarshipDeleteModal.vue"
+import VueMultiselect from "vue-multiselect"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
@@ -232,6 +482,8 @@ export default {
 		if (this.startMode == "edit") {
 			this.isEditMode = true
 		}
+
+		this.fetchOptions()
 
 		if (this.itemExists === false) {
 			this.isDataLoaded = true
@@ -246,6 +498,7 @@ export default {
 		ScholarshipDeleteModal,
 		Field,
 		VeeForm,
+		VueMultiselect,
 		Yup
 	},
 
@@ -288,6 +541,16 @@ export default {
 			isDeleteError: false,
 			isEditMode: false,
 			
+			options: {
+				gender: [],
+				ethnicity: [],
+				gpa: [],
+				classStanding: [],
+				housing: [],
+				transfer: [],
+				state: []
+			},
+
 			record: {
 				id: "",
 				title: "",
@@ -295,7 +558,20 @@ export default {
 				url: "",
 				amount: "",
 				applyDate: "",
-				expDate: ""
+				expDate: "",
+				gender: "",
+				ethnicity: "",
+				gpa: "",
+				standingClass: "",
+				enrollment: "",
+				transfer: "",
+				housing: "",
+				county: "",
+				city: "",
+				state: "",
+				highSchool: "",
+				organizations: "",
+				keywords: ""
 			},
 			
 			formDirty: false,
@@ -320,6 +596,18 @@ export default {
 			return this.permissions[0].delete ? true : false
 		},
 
+		// Class standing is multi-select here but stored comma separated on the record.
+		standingClassModel: {
+			get() {
+				return this.record.standingClass
+					? this.record.standingClass.split(",").map((s) => s.trim())
+					: []
+			},
+			set(value) {
+				this.record.standingClass = value.length ? value.join(", ") : ""
+			}
+		},
+
 		scholarshipSchema: function () {
 			return Yup.object().shape({
 				title: Yup.string()
@@ -331,6 +619,24 @@ export default {
 					.nullable(true),
 				amount: Yup.string()
 					.max(255, "Amount must be 255 characters or less.")
+					.nullable(true),
+				enrollment: Yup.string()
+					.max(255, "Enrollment requirement must be 255 characters or less.")
+					.nullable(true),
+				county: Yup.string()
+					.max(160, "County must be 160 characters or less.")
+					.nullable(true),
+				city: Yup.string()
+					.max(160, "City must be 160 characters or less.")
+					.nullable(true),
+				highSchool: Yup.string()
+					.max(255, "High school must be 255 characters or less.")
+					.nullable(true),
+				organizations: Yup.string()
+					.max(255, "Organizations must be 255 characters or less.")
+					.nullable(true),
+				keywords: Yup.string()
+					.max(255, "Keywords must be 255 characters or less.")
 					.nullable(true),
 				// An empty date input casts to Invalid Date, so convert it to null.
 				applyDate: Yup.date().transform(this.emptyDateToNull).nullable(true),
@@ -351,6 +657,19 @@ export default {
 				this.success = true
 				this.successMessage = "Update successful."
 			}
+		},
+
+		fetchOptions: function () {
+			let self = this
+
+			axios
+				.get("/api/scholarships/options")
+				.then(function (response) {
+					self.options = response.data
+				})
+				.catch(function (error) {
+					console.log("Error fetching scholarship options:", error)
+				})
 		},
 
 		fetchScholarship: function (itemId) {
