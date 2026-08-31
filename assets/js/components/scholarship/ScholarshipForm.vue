@@ -614,7 +614,19 @@
 						class="mb-4"
 					>
 						<p v-if="formDirty" class="red">You have unsaved changes.</p>
-						<p v-if="isSaveFailed" class="red">Error saving this scholarship.</p>
+						<div v-if="isSaveFailed" class="alert alert-danger" role="alert">
+							<p class="mb-0" v-if="saveErrors.length === 0">
+								Error saving this scholarship.
+							</p>
+							<template v-else>
+								<p class="mb-1">This scholarship could not be saved:</p>
+								<ul class="mb-0">
+									<li v-for="message in saveErrors" :key="message">
+										{{ message }}
+									</li>
+								</ul>
+							</template>
+						</div>
 						<button class="btn btn-success" type="submit">
 							<i class="fa fa-save fa-2x"></i>
 						</button>
@@ -783,6 +795,7 @@ export default {
 			
 			formDirty: false,
 			isSaveFailed: false,
+			saveErrors: [],
 			success: false,
 			successMessage: ""
 		}
@@ -926,6 +939,23 @@ export default {
 				})
 		},
 
+		// A failed save returns Symfony's validation format, so pull the messages out of it.
+		violationMessages: function (error) {
+			let violations = error.response &&
+				error.response.data &&
+				error.response.data.violations
+
+			if (!violations) {
+				return []
+			}
+
+			return violations.map(function (violation) {
+				return violation.propertyPath
+					? violation.propertyPath + ": " + violation.title
+					: violation.title
+			})
+		},
+
 		programName: function (programId) {
 			let program = this.programs.find((p) => Number(p.id) === Number(programId))
 			return program ? program.full_name : "Program " + programId
@@ -1010,11 +1040,13 @@ export default {
 				.then(function (response) {
 					self.record.id = response.data.id
 					self.isSaveFailed = false
+					self.saveErrors = []
 					self.afterSubmitSucceeds()
 				})
 				.catch(function (error) {
 					self.currentStatus = STATUS_SAVE_FAILED
 					self.isSaveFailed = true
+					self.saveErrors = self.violationMessages(error)
 				})
 		},
 

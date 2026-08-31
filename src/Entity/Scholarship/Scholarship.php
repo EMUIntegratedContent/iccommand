@@ -36,11 +36,14 @@ class Scholarship
         'Other',
     ];
 
+    /**
+     * Two decimal places to match the DECIMAL(3,2) column, which reads back as "3.50".
+     */
     public const GPA_OPTIONS = [
-        '2.5', '2.6', '2.7', '2.8', '2.9',
-        '3.0', '3.1', '3.2', '3.3', '3.4',
-        '3.5', '3.6', '3.7', '3.8', '3.9',
-        '4.0',
+        '2.50', '2.60', '2.70', '2.80', '2.90',
+        '3.00', '3.10', '3.20', '3.30', '3.40',
+        '3.50', '3.60', '3.70', '3.80', '3.90',
+        '4.00',
     ];
 
     /**
@@ -383,9 +386,19 @@ class Scholarship
         return $this->gpa;
     }
 
+    /**
+     * Pad the GPA to two decimals so "3.5" and "3.50" are stored the same way.
+     * @param string|null $gpa
+     * @return $this
+     */
     public function setGpa(?string $gpa): self
     {
-        $this->gpa = $gpa;
+        if ($gpa === null || $gpa === '') {
+            $this->gpa = null;
+            return $this;
+        }
+
+        $this->gpa = is_numeric($gpa) ? number_format((float)$gpa, 2, '.', '') : $gpa;
         return $this;
     }
 
