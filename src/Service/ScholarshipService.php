@@ -90,6 +90,18 @@ class ScholarshipService
     }
 
     /**
+     * The public criteria search. Pass includeExpired=1 to keep scholarships whose deadline
+     * has already passed.
+     */
+    public function searchPublicScholarships(array $params): array
+    {
+        $includeExpired = filter_var($params['includeExpired'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        $repository = $this->doctrine->getRepository(Scholarship::class);
+        return $repository->searchPublicScholarships($params, $includeExpired);
+    }
+
+    /**
      * Resyncs a scholarship's program links from a payload of {program_id, notes} objects.
      * Removes links no longer present (orphanRemoval deletes the rows), updates notes on
      * surviving links, and adds new ones. The caller is responsible for flushing.
