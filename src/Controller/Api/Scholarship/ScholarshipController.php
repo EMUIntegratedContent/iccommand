@@ -30,9 +30,6 @@ class ScholarshipController extends AbstractController
         'enrollment' => 'setEnrollment',
         'gender' => 'setGender',
         'ethnicity' => 'setEthnicity',
-        'fafsa' => 'setFafsa',
-        'isParent' => 'setIsParent',
-        'isBilingual' => 'setIsBilingual',
         'organizations' => 'setOrganizations',
         'keywords' => 'setKeywords',
         'transfer' => 'setTransfer',
@@ -40,6 +37,16 @@ class ScholarshipController extends AbstractController
         'appProc' => 'setAppProc',
         'amount' => 'setAmount',
         'contact' => 'setContact',
+    ];
+
+    /**
+     * Boolean fields (payload key => entity setter). Applied when the key is present.
+     */
+    private const BOOL_FIELDS = [
+        'active' => 'setActive',
+        'isFafsa' => 'setIsFafsa',
+        'isParent' => 'setIsParent',
+        'isBilingual' => 'setIsBilingual',
     ];
 
     /**
@@ -96,6 +103,22 @@ class ScholarshipController extends AbstractController
     {
         $programs = $this->service->getAvailablePrograms();
         return new Response(json_encode($programs), 200, ["Content-Type" => "application/json"]);
+    }
+
+    #[Route('/colleges', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
+    public function getCollegesAction(): Response
+    {
+        $colleges = $this->service->getAvailableColleges();
+        return new Response(json_encode($colleges), 200, ["Content-Type" => "application/json"]);
+    }
+
+    #[Route('/departments', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
+    public function getDepartmentsAction(): Response
+    {
+        $departments = $this->service->getAvailableDepartments();
+        return new Response(json_encode($departments), 200, ["Content-Type" => "application/json"]);
     }
 
     #[Route('/options', methods: ['GET'])]
@@ -202,15 +225,19 @@ class ScholarshipController extends AbstractController
             $scholarship->setTitle((string)$data['title']);
         }
 
+        // A cleared field arrives as an empty string. Store null so "no restriction" is
+        // consistent in the database and the public feed.
         foreach (self::STRING_FIELDS as $key => $setter) {
             if (array_key_exists($key, $data)) {
                 $val = $data[$key];
-                $scholarship->$setter($val === null ? null : (string)$val);
+                $scholarship->$setter($val === null || $val === '' ? null : (string)$val);
             }
         }
 
-        if (array_key_exists('active', $data)) {
-            $scholarship->setActive((bool)$data['active']);
+        foreach (self::BOOL_FIELDS as $key => $setter) {
+            if (array_key_exists($key, $data)) {
+                $scholarship->$setter((bool)$data[$key]);
+            }
         }
 
         if (array_key_exists('gpa', $data)) {

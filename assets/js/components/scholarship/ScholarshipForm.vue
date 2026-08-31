@@ -228,6 +228,45 @@
 								</div>
 							</div>
 						</div>
+						<div class="form-group form-check">
+							<input
+								id="scholarshipIsFafsa"
+								type="checkbox"
+								class="form-check-input"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.isFafsa"
+								@change="formDirty = true"
+							/>
+							<label class="form-check-label" for="scholarshipIsFafsa">
+								Requires a FAFSA
+							</label>
+						</div>
+						<div class="form-group form-check">
+							<input
+								id="scholarshipIsParent"
+								type="checkbox"
+								class="form-check-input"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.isParent"
+								@change="formDirty = true"
+							/>
+							<label class="form-check-label" for="scholarshipIsParent">
+								Must be a parent
+							</label>
+						</div>
+						<div class="form-group form-check">
+							<input
+								id="scholarshipIsBilingual"
+								type="checkbox"
+								class="form-check-input"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.isBilingual"
+								@change="formDirty = true"
+							/>
+							<label class="form-check-label" for="scholarshipIsBilingual">
+								Must be bilingual
+							</label>
+						</div>
 						<div class="form-group">
 							<label>Housing requirement</label>
 							<div>
@@ -370,6 +409,89 @@
 							<div class="invalid-feedback">
 								{{ errors.keywords }}
 							</div>
+						</div>
+					</fieldset>
+
+					<fieldset>
+						<legend>Awarding college and programs</legend>
+						<div class="form-group">
+							<label for="scholarshipCollege">Awarding college</label>
+							<select
+								id="scholarshipCollege"
+								class="form-control"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.collegeId"
+								@change="formDirty = true"
+							>
+								<option value="">None</option>
+								<option v-for="c in colleges" :key="c.id" :value="c.id">
+									{{ c.college }}
+								</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="scholarshipDepartment">Awarding department</label>
+							<select
+								id="scholarshipDepartment"
+								class="form-control"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.departmentId"
+								@change="formDirty = true"
+							>
+								<option value="">None</option>
+								<option v-for="d in departments" :key="d.id" :value="d.id">
+									{{ d.department }}
+								</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="scholarshipPrograms">Related programs</label>
+							<VueMultiselect
+								id="scholarshipPrograms"
+								:options="programs"
+								:multiple="true"
+								:close-on-select="false"
+								:disabled="!userCanEdit || !isEditMode"
+								label="full_name"
+								track-by="id"
+								placeholder="Search programs"
+								v-model="selectedProgramsModel"
+								@update:modelValue="formDirty = true"
+							>
+							</VueMultiselect>
+						</div>
+						<div
+							v-if="record.programLinks && record.programLinks.length"
+							class="form-group"
+						>
+							<table class="table table-sm">
+								<thead>
+									<tr>
+										<th>Program</th>
+										<th>Notes</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="link in record.programLinks" :key="link.programId">
+										<td class="align-middle">
+											{{ programName(link.programId) }}
+										</td>
+										<td>
+											<input
+												type="text"
+												class="form-control"
+												:class="{
+													'form-control-plaintext': !userCanEdit || !isEditMode
+												}"
+												:readonly="!userCanEdit || !isEditMode"
+												maxlength="255"
+												v-model="link.notes"
+												@input="formDirty = true"
+											/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</fieldset>
 
@@ -540,6 +662,9 @@ export default {
 		}
 
 		this.fetchOptions()
+		this.fetchLookup("/api/scholarships/colleges", "colleges")
+		this.fetchLookup("/api/scholarships/departments", "departments")
+		this.fetchLookup("/api/scholarships/programs", "programs")
 
 		if (this.itemExists === false) {
 			this.isDataLoaded = true
@@ -610,6 +735,10 @@ export default {
 				]
 			},
 
+			colleges: [],
+			departments: [],
+			programs: [],
+
 			options: {
 				gender: [],
 				ethnicity: [],
@@ -630,6 +759,9 @@ export default {
 				expDate: "",
 				gender: "",
 				ethnicity: "",
+				isFafsa: false,
+				isParent: false,
+				isBilingual: false,
 				gpa: "",
 				standingClass: "",
 				enrollment: "",
@@ -643,7 +775,10 @@ export default {
 				keywords: "",
 				contact: "",
 				appProc: "",
-				description: ""
+				description: "",
+				collegeId: "",
+				departmentId: "",
+				programLinks: []
 			},
 			
 			formDirty: false,
@@ -693,6 +828,25 @@ export default {
 			},
 			set(value) {
 				this.record.description = value
+			}
+		},
+
+		// The API returns links as programLinks/programId but expects program_links/program_id
+		// back, so the picker works off the read shape and submit converts it.
+		selectedProgramsModel: {
+			get() {
+				let ids = (this.record.programLinks || []).map((l) => Number(l.programId))
+				return this.programs.filter((p) => ids.indexOf(Number(p.id)) !== -1)
+			},
+			set(value) {
+				let notes = {}
+				;(this.record.programLinks || []).forEach(function (l) {
+					notes[l.programId] = l.notes
+				})
+				this.record.programLinks = value.map((p) => ({
+					programId: p.id,
+					notes: notes[p.id] || null
+				}))
 			}
 		},
 
@@ -772,6 +926,24 @@ export default {
 				})
 		},
 
+		programName: function (programId) {
+			let program = this.programs.find((p) => Number(p.id) === Number(programId))
+			return program ? program.full_name : "Program " + programId
+		},
+
+		fetchLookup: function (url, target) {
+			let self = this
+
+			axios
+				.get(url)
+				.then(function (response) {
+					self[target] = response.data
+				})
+				.catch(function (error) {
+					console.log("Error fetching " + target + ":", error)
+				})
+		},
+
 		fetchScholarship: function (itemId) {
 			let self = this
 
@@ -823,10 +995,17 @@ export default {
 				? "/api/scholarships/" + this.record.id
 				: "/api/scholarships/"
 
+			let payload = Object.assign({}, self.record, {
+				program_links: (self.record.programLinks || []).map((l) => ({
+					program_id: l.programId,
+					notes: l.notes
+				}))
+			})
+
 			axios({
 				method: method,
 				url: route,
-				data: self.record
+				data: payload
 			})
 				.then(function (response) {
 					self.record.id = response.data.id

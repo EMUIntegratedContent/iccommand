@@ -169,6 +169,28 @@ class ScholarshipService
     }
 
     /**
+     * All colleges (id + college) for the awarding college picker.
+     */
+    public function getAvailableColleges(): array
+    {
+        $conn = $this->doctrine->getManager('programs')->getConnection();
+        return $conn->executeQuery(
+            'SELECT id, college FROM program_colleges ORDER BY college ASC'
+        )->fetchAllAssociative();
+    }
+
+    /**
+     * All departments (id + department) for the awarding department picker.
+     */
+    public function getAvailableDepartments(): array
+    {
+        $conn = $this->doctrine->getManager('programs')->getConnection();
+        return $conn->executeQuery(
+            'SELECT id, department FROM program_departments ORDER BY department ASC'
+        )->fetchAllAssociative();
+    }
+
+    /**
      * Get the option lists for the constrained scholarship fields.
      * @return array
      */

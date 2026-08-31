@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * A scholarship offered at EMU. Column names keep the source system's `schlrshp_*`
@@ -100,6 +101,7 @@ class Scholarship
      * The minimum GPA required for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_gpa', type: 'decimal', precision: 3, scale: 2, nullable: true)]
+    #[Assert\Choice(choices: self::GPA_OPTIONS, message: "Choose a GPA from the list.")]
     #[Groups("scholarship")]
     private ?string $gpa = null;
 
@@ -107,6 +109,8 @@ class Scholarship
      * The URL with more information about this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_url', type: 'string', length: 255, nullable: true)]
+    #[Assert\Url(message: "Provide a valid URL.")]
+    #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
     private ?string $url = null;
 
@@ -128,6 +132,7 @@ class Scholarship
      * The date this scholarship expires / applications close.
      */
     #[ORM\Column(name: 'schlrshp_exp_date', type: 'date', nullable: true)]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'applyDate', message: "The expiration date cannot come before the apply by date.")]
     #[Groups("scholarship")]
     private ?\DateTimeInterface $expDate = null;
 
@@ -135,6 +140,7 @@ class Scholarship
      * The county eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_county', type: 'string', length: 160, nullable: true)]
+    #[Assert\Length(max: 160)]
     #[Groups("scholarship")]
     private ?string $county = null;
 
@@ -142,6 +148,7 @@ class Scholarship
      * The city eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_city', type: 'string', length: 160, nullable: true)]
+    #[Assert\Length(max: 160)]
     #[Groups("scholarship")]
     private ?string $city = null;
 
@@ -149,6 +156,7 @@ class Scholarship
      * The state eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_state', type: 'string', length: 160, nullable: true)]
+    #[Assert\Choice(choices: self::STATE_OPTIONS, message: "Choose a state from the list.")]
     #[Groups("scholarship")]
     private ?string $state = null;
 
@@ -156,6 +164,7 @@ class Scholarship
      * The high school eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_high_school', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
     private ?string $highSchool = null;
 
@@ -163,6 +172,7 @@ class Scholarship
      * The standing / class eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_standing_class', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
     private ?string $standingClass = null;
 
@@ -170,6 +180,7 @@ class Scholarship
      * The enrollment eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_enrollment', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
     private ?string $enrollment = null;
 
@@ -177,6 +188,7 @@ class Scholarship
      * The gender eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_gender', type: 'string', length: 10, nullable: true)]
+    #[Assert\Choice(choices: self::GENDER_OPTIONS, message: "Choose a gender from the list.")]
     #[Groups("scholarship")]
     private ?string $gender = null;
 
@@ -184,6 +196,7 @@ class Scholarship
      * The ethnicity eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_ethnicity', type: 'string', length: 255, nullable: true)]
+    #[Assert\Choice(choices: self::ETHNICITY_OPTIONS, message: "Choose an ethnicity from the list.")]
     #[Groups("scholarship")]
     private ?string $ethnicity = null;
 
@@ -207,28 +220,29 @@ class Scholarship
     /**
      * The FAFSA eligibility criterion.
      */
-    #[ORM\Column(name: 'schlrshp_fafsa', type: 'string', length: 15, nullable: true)]
+    #[ORM\Column(name: 'schlrshp_is_fafsa', type: 'boolean', options: ['default' => 0])]
     #[Groups("scholarship")]
-    private ?string $fafsa = null;
+    private bool $isFafsa = false;
 
     /**
      * The parent-status eligibility criterion.
      */
-    #[ORM\Column(name: 'schlrshp_is_parent', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'schlrshp_is_parent', type: 'boolean', options: ['default' => 0])]
     #[Groups("scholarship")]
-    private ?string $isParent = null;
+    private bool $isParent = false;
 
     /**
      * The bilingual eligibility criterion.
      */
-    #[ORM\Column(name: 'schlrshp_is_bilingual', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'schlrshp_is_bilingual', type: 'boolean', options: ['default' => 0])]
     #[Groups("scholarship")]
-    private ?string $isBilingual = null;
+    private bool $isBilingual = false;
 
     /**
      * The organizations eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_organizations', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
     private ?string $organizations = null;
 
@@ -236,6 +250,7 @@ class Scholarship
      * The keywords associated with this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_keywords', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
     private ?string $keywords = null;
 
@@ -243,6 +258,7 @@ class Scholarship
      * Whether this scholarship is available to transfer students: "Yes", "No" or "Both".
      */
     #[ORM\Column(name: 'schlrshp_transfer', type: 'string', length: 5, nullable: true)]
+    #[Assert\Choice(choices: self::TRANSFER_OPTIONS, message: "Choose a transfer option from the list.")]
     #[Groups("scholarship")]
     private ?string $transfer = null;
 
@@ -250,6 +266,7 @@ class Scholarship
      * The housing eligibility criterion.
      */
     #[ORM\Column(name: 'schlrshp_housing', type: 'string', length: 4, nullable: true)]
+    #[Assert\Choice(choices: self::HOUSING_OPTIONS, message: "Choose a housing option from the list.")]
     #[Groups("scholarship")]
     private ?string $housing = null;
 
@@ -264,6 +281,7 @@ class Scholarship
      * The award amount for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_amount', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
     private ?string $amount = null;
 
@@ -525,34 +543,34 @@ class Scholarship
         return $this;
     }
 
-    public function getFafsa(): ?string
+    public function getIsFafsa(): bool
     {
-        return $this->fafsa;
+        return $this->isFafsa;
     }
 
-    public function setFafsa(?string $fafsa): self
+    public function setIsFafsa(bool $isFafsa): self
     {
-        $this->fafsa = $fafsa;
+        $this->isFafsa = $isFafsa;
         return $this;
     }
 
-    public function getIsParent(): ?string
+    public function getIsParent(): bool
     {
         return $this->isParent;
     }
 
-    public function setIsParent(?string $isParent): self
+    public function setIsParent(bool $isParent): self
     {
         $this->isParent = $isParent;
         return $this;
     }
 
-    public function getIsBilingual(): ?string
+    public function getIsBilingual(): bool
     {
         return $this->isBilingual;
     }
 
-    public function setIsBilingual(?string $isBilingual): self
+    public function setIsBilingual(bool $isBilingual): self
     {
         $this->isBilingual = $isBilingual;
         return $this;
@@ -693,5 +711,31 @@ class Scholarship
     public function getUpdatedBy()
     {
         return $this->updatedBy;
+    }
+
+    /* ****************************** Validation ****************************** */
+
+    /**
+     * Check each class standing, since they are stored as one comma separated string.
+     * @param ExecutionContextInterface $context
+     * @return void
+     */
+    #[Assert\Callback]
+    public function validateStandingClass(ExecutionContextInterface $context): void
+    {
+        if (!$this->standingClass) {
+            return;
+        }
+
+        foreach (explode(',', $this->standingClass) as $standing) {
+            $standing = trim($standing);
+
+            if ($standing !== '' && !in_array($standing, self::CLASS_STANDING_OPTIONS, true)) {
+                $context->buildViolation('"{{ standing }}" is not a valid class standing.')
+                    ->setParameter('{{ standing }}', $standing)
+                    ->atPath('standingClass')
+                    ->addViolation();
+            }
+        }
     }
 }
