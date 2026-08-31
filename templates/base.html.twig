@@ -32,7 +32,7 @@
             </div>
         </div>
         {% endif %}
-        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') or is_granted('ROLE_DEPARTMENTS_USER') %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') or is_granted('ROLE_DEPARTMENTS_VIEW') %}
         <div class="btn-group">
             <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Maps & Directories
@@ -41,7 +41,7 @@
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') %}
                 <a class="dropdown-item" href="/map">Campus Map</a>
                 {% endif %}
-                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_DEPARTMENTS_USER') %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_DEPARTMENTS_VIEW') %}
                 <a class="dropdown-item" href="/directory">Department Directory</a>
                 {% endif %}
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_SOCIAL_USER') %}
@@ -50,13 +50,13 @@
             </div>
         </div>
         {% endif %}
-        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') or is_granted('ROLE_CAS_VIEW') or is_granted('ROLE_SOCIAL_USER') or is_granted('ROLE_SCHOLARSHIP_VIEW') %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_VIEW') or is_granted('ROLE_CAS_VIEW') or is_granted('ROLE_SCHOLARSHIP_VIEW') %}
         <div class="btn-group">
             <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Program Marketing
             </button>
             <div class="dropdown-menu">
-                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_USER') %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_VIEW') %}
                 <a class="dropdown-item" href="/programs">Degrees & Programs</a>
                 {% endif %}
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CAS_VIEW') %}
