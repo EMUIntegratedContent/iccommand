@@ -22,7 +22,14 @@
       "Bash(curl -s -o /dev/null -w \"keyword filter: HTTP %{http_code}\\\\n\" \"http://localhost:8080/api/external/scholarships/search?keyword=STEM,Art\")",
       "Bash(curl -s -o /dev/null -w \"organization filter: HTTP %{http_code}\\\\n\" \"http://localhost:8080/api/external/scholarships/search?organization=Rotary\")",
       "Bash(curl -s \"http://localhost:8080/api/external/scholarships/search?keyword=STEM\" -H \"Accept: application/json\")",
-      "Bash(git status *)"
+      "Bash(git status *)",
+      "Bash(php -l /Users/cpuzzuol/emu/iccommand/src/Repository/Scholarship/ScholarshipRepository.php)",
+      "Read(//Users/cpuzzuol/.claude/plugins/cache/claude-plugins-official/superpowers/6.3.0/skills/requesting-code-review/**)",
+      "Bash(sed 's/[Oo]rganization/Keyword/g; s/KEYWORD/KEYWORD/g' assets/js/components/scholarship/ScholarshipOrganizationsList.vue)",
+      "Bash(sed 's/[Kk]eyword/Keyword/g' assets/js/components/scholarship/ScholarshipKeywordsList.vue)",
+      "Bash(php -v)",
+      "Bash(php -d error_reporting=E_ALL -r 'str_getcsv\\(\"a,b\"\\);')",
+      "Bash(echo \"exit=$?\")"
     ]
   }
 }

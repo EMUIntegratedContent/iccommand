@@ -300,18 +300,27 @@ class ScholarshipController extends AbstractController
      */
     private function invalidProgramIds(array $data): ?Response
     {
-        $links = $data['program_links'] ?? [];
-        if (!is_array($links) || count($links) === 0) {
+        if (!array_key_exists('program_links', $data)) {
             return null;
+        }
+        $links = $data['program_links'];
+        // A malformed payload (e.g. a string instead of a list) must 422, not fatal on
+        // the typed sync method.
+        if (!is_array($links)) {
+            return $this->invalidIdsResponse('invalid_program_ids', []);
+        }
+        if (count($links) === 0) {
+            return null;
+        }
+        foreach ($links as $link) {
+            if (!is_array($link)) {
+                return $this->invalidIdsResponse('invalid_program_ids', []);
+            }
         }
         $programIds = array_map(static fn($l) => (int)($l['program_id'] ?? 0), $links);
         $invalid = $this->service->validateProgramIds($programIds);
         if (count($invalid) > 0) {
-            return new Response(
-                json_encode(['error' => 'invalid_program_ids', 'ids' => array_values($invalid)]),
-                422,
-                ["Content-Type" => "application/json"]
-            );
+            return $this->invalidIdsResponse('invalid_program_ids', $invalid);
         }
         return null;
     }
@@ -322,19 +331,7 @@ class ScholarshipController extends AbstractController
      */
     private function invalidKeywordIds(array $data): ?Response
     {
-        $ids = $data['keyword_ids'] ?? [];
-        if (!is_array($ids) || count($ids) === 0) {
-            return null;
-        }
-        $invalid = $this->service->validateKeywordIds(array_map('intval', $ids));
-        if (count($invalid) > 0) {
-            return new Response(
-                json_encode(['error' => 'invalid_keyword_ids', 'ids' => array_values($invalid)]),
-                422,
-                ["Content-Type" => "application/json"]
-            );
-        }
-        return null;
+        return $this->invalidScalarIds($data, 'keyword_ids', 'invalid_keyword_ids', [$this->service, 'validateKeywordIds']);
     }
 
     /**
@@ -343,19 +340,45 @@ class ScholarshipController extends AbstractController
      */
     private function invalidOrganizationIds(array $data): ?Response
     {
-        $ids = $data['organization_ids'] ?? [];
-        if (!is_array($ids) || count($ids) === 0) {
+        return $this->invalidScalarIds($data, 'organization_ids', 'invalid_organization_ids', [$this->service, 'validateOrganizationIds']);
+    }
+
+    /**
+     * Shared validation for the flat id-array payload keys: the key may be absent or an
+     * empty list, but a present value must be a list of scalar ids, and every id must
+     * exist (checked by $validator). Returns a 422 Response on failure, otherwise null.
+     */
+    private function invalidScalarIds(array $data, string $key, string $error, callable $validator): ?Response
+    {
+        if (!array_key_exists($key, $data)) {
             return null;
         }
-        $invalid = $this->service->validateOrganizationIds(array_map('intval', $ids));
+        $ids = $data[$key];
+        if (!is_array($ids)) {
+            return $this->invalidIdsResponse($error, []);
+        }
+        if (count($ids) === 0) {
+            return null;
+        }
+        foreach ($ids as $id) {
+            if (!is_scalar($id)) {
+                return $this->invalidIdsResponse($error, []);
+            }
+        }
+        $invalid = $validator(array_map('intval', $ids));
         if (count($invalid) > 0) {
-            return new Response(
-                json_encode(['error' => 'invalid_organization_ids', 'ids' => array_values($invalid)]),
-                422,
-                ["Content-Type" => "application/json"]
-            );
+            return $this->invalidIdsResponse($error, $invalid);
         }
         return null;
+    }
+
+    private function invalidIdsResponse(string $error, array $ids): Response
+    {
+        return new Response(
+            json_encode(['error' => $error, 'ids' => array_values($ids)]),
+            422,
+            ["Content-Type" => "application/json"]
+        );
     }
 
     private function serialize($data): string

@@ -13,7 +13,7 @@
       </p>
     </div>
     <div class="row">
-      <div class="col-md-6 mb-3">
+      <div v-if="userCanCreate" class="col-md-6 mb-3">
         <div class="card h-100">
           <div class="card-body">
             <h5 class="card-title">Create New Keyword</h5>
@@ -33,11 +33,11 @@
         <div class="card h-100">
           <div class="card-body">
             <h5 class="card-title">Bulk Upload Keywords</h5>
-            <p class="text-muted mb-2">
+            <div class="text-muted mb-2">
               Upload a CSV with columns <code>keyword</code> (required) and
               <code>scholarship_id</code> (optional). Existing keywords are skipped. <br><br>
               <p><a href="/bulk_scholarship_keyword_template.csv" download>Download Sample Template [CSV]</a>.</p>
-            </p>
+            </div>
             <div v-if="uploadStatus === 1" style="text-align: center">
               <img src="/images/loading.gif" alt="Uploading..." />
             </div>
@@ -227,9 +227,6 @@ export default {
     this.fetchKeywords();
   },
   computed: {
-    headingIcon: function () {
-      return "<i class='fa fa-tags'></i>";
-    },
     userCanDelete: function () {
       return !!(this.permissions && this.permissions[0] && this.permissions[0].delete);
     },

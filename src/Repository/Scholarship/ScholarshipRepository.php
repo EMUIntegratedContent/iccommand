@@ -42,7 +42,7 @@ class ScholarshipRepository extends ServiceEntityRepository
         $totalRows = $countQb->getQuery()->getSingleScalarResult();
 
         return [
-            'scholarships' => $scholarships,
+            'scholarships' => $this->warmLinkCollections($scholarships),
             'totalRows' => $totalRows
         ];
     }
@@ -52,7 +52,7 @@ class ScholarshipRepository extends ServiceEntityRepository
      */
     public function searchScholarships(string $searchTerm): array
     {
-        return $this->createQueryBuilder('s')
+        $scholarships = $this->createQueryBuilder('s')
             ->where('s.title LIKE :searchTerm')
             ->orWhere('EXISTS (SELECT 1 FROM App\Entity\Scholarship\ScholarshipKeywordLink kl JOIN kl.keyword k WHERE kl.scholarship = s AND k.keyword LIKE :searchTerm)')
             ->orderBy('s.title', 'ASC')
@@ -60,6 +60,35 @@ class ScholarshipRepository extends ServiceEntityRepository
             ->setParameter('searchTerm', '%' . $searchTerm . '%')
             ->getQuery()
             ->getResult();
+
+        return $this->warmLinkCollections($scholarships);
+    }
+
+    /**
+     * Bulk-initializes the keyword, organization and program link collections (and their
+     * target entities) for the given scholarships — one query per collection type — so
+     * serializing a list doesn't lazy-load per row (N+1).
+     *
+     * @param Scholarship[] $scholarships
+     * @return Scholarship[] The same list, with collections initialized.
+     */
+    private function warmLinkCollections(array $scholarships): array
+    {
+        if (count($scholarships) === 0) {
+            return $scholarships;
+        }
+
+        $em = $this->getEntityManager();
+        $warmups = [
+            'SELECT s, kl, k FROM App\Entity\Scholarship\Scholarship s LEFT JOIN s.keywordLinks kl LEFT JOIN kl.keyword k WHERE s IN (:scholarships)',
+            'SELECT s, ol, o FROM App\Entity\Scholarship\Scholarship s LEFT JOIN s.organizationLinks ol LEFT JOIN ol.organization o WHERE s IN (:scholarships)',
+            'SELECT s, pl, p FROM App\Entity\Scholarship\Scholarship s LEFT JOIN s.programLinks pl LEFT JOIN pl.program p WHERE s IN (:scholarships)',
+        ];
+        foreach ($warmups as $dql) {
+            $em->createQuery($dql)->setParameter('scholarships', $scholarships)->getResult();
+        }
+
+        return $scholarships;
     }
 
     /**
@@ -79,11 +108,17 @@ class ScholarshipRepository extends ServiceEntityRepository
                 ->setParameter('today', new \DateTime('today'));
         }
 
+        // Every criterion is collected here rather than applied directly, so a catch-all
+        // scholarship can ignore the whole group (see the OR wrap at the end). Parameters
+        // are still bound on $qb.
+        $criteria = $qb->expr()->andX();
+
         // Dropdown values, so they have to match exactly.
         foreach (['gender' => 'gender', 'ethnicity' => 'ethnicity', 'state' => 'state'] as $key => $field) {
             $value = $this->cleanParam($params[$key] ?? null);
             if ($value !== null) {
-                $qb->andWhere('s.' . $field . ' = :' . $key)->setParameter($key, $value);
+                $criteria->add('s.' . $field . ' = :' . $key);
+                $qb->setParameter($key, $value);
             }
         }
 
@@ -91,21 +126,23 @@ class ScholarshipRepository extends ServiceEntityRepository
         foreach (['city' => 'city', 'county' => 'county', 'highSchool' => 'highSchool'] as $key => $field) {
             $value = $this->cleanParam($params[$key] ?? null);
             if ($value !== null) {
-                $qb->andWhere('s.' . $field . ' LIKE :' . $key)->setParameter($key, '%' . $value . '%');
+                $criteria->add('s.' . $field . ' LIKE :' . $key);
+                $qb->setParameter($key, '%' . $value . '%');
             }
         }
 
         // Organizations are now a managed M2M — match any linked organization by substring.
         $organization = $this->cleanParam($params['organization'] ?? null);
         if ($organization !== null) {
-            $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\Scholarship\ScholarshipOrganizationLink ol JOIN ol.organization o WHERE ol.scholarship = s AND o.organization LIKE :organization)')
-                ->setParameter('organization', '%' . $organization . '%');
+            $criteria->add('EXISTS (SELECT 1 FROM App\Entity\Scholarship\ScholarshipOrganizationLink ol JOIN ol.organization o WHERE ol.scholarship = s AND o.organization LIKE :organization)');
+            $qb->setParameter('organization', '%' . $organization . '%');
         }
 
         foreach (['college' => 'collegeId', 'department' => 'departmentId'] as $key => $field) {
             $value = (int)($params[$key] ?? 0);
             if ($value > 0) {
-                $qb->andWhere('s.' . $field . ' = :' . $key)->setParameter($key, $value);
+                $criteria->add('s.' . $field . ' = :' . $key);
+                $qb->setParameter($key, $value);
             }
         }
 
@@ -113,31 +150,31 @@ class ScholarshipRepository extends ServiceEntityRepository
         // stored zero padded to two decimals, so a string compare is also a numeric one.
         $gpa = $this->cleanParam($params['gpa'] ?? null);
         if ($gpa !== null) {
-            $qb->andWhere('(s.gpa IS NULL OR s.gpa <= :gpa)')
-                ->setParameter('gpa', $gpa);
+            $criteria->add('(s.gpa IS NULL OR s.gpa <= :gpa)');
+            $qb->setParameter('gpa', $gpa);
         }
 
         // "Both" means open to transfer and non-transfer students, so it matches either answer.
         $transfer = $this->cleanParam($params['transfer'] ?? null);
         if ($transfer !== null) {
-            $qb->andWhere("(s.transfer = :transfer OR s.transfer = 'Both')")
-                ->setParameter('transfer', $transfer);
+            $criteria->add("(s.transfer = :transfer OR s.transfer = 'Both')");
+            $qb->setParameter('transfer', $transfer);
         }
 
         // Stored comma joined. Pad the ends so "Freshman" can't match "Entering Freshman",
         // and allow both separators since legacy rows may not have the space.
         $standing = $this->cleanParam($params['classStanding'] ?? null);
         if ($standing !== null) {
-            $qb->andWhere("(CONCAT(',', s.standingClass, ',') LIKE :standingTight OR CONCAT(',', s.standingClass, ',') LIKE :standingLoose)")
-                ->setParameter('standingTight', '%,' . $standing . ',%')
+            $criteria->add("(CONCAT(',', s.standingClass, ',') LIKE :standingTight OR CONCAT(',', s.standingClass, ',') LIKE :standingLoose)");
+            $qb->setParameter('standingTight', '%,' . $standing . ',%')
                 ->setParameter('standingLoose', '%, ' . $standing . ',%');
         }
 
         // Replaces the legacy free-text Major field.
         $programId = (int)($params['major'] ?? 0);
         if ($programId > 0) {
-            $qb->andWhere('EXISTS (SELECT IDENTITY(sp.program) FROM App\Entity\Scholarship\ScholarshipProgram sp WHERE sp.scholarship = s AND IDENTITY(sp.program) = :programId)')
-                ->setParameter('programId', $programId);
+            $criteria->add('EXISTS (SELECT IDENTITY(sp.program) FROM App\Entity\Scholarship\ScholarshipProgram sp WHERE sp.scholarship = s AND IDENTITY(sp.program) = :programId)');
+            $qb->setParameter('programId', $programId);
         }
 
         // The keyword tab accepts a comma separated list and matches any of them against
@@ -149,10 +186,17 @@ class ScholarshipRepository extends ServiceEntityRepository
                 $orX->add("EXISTS (SELECT 1 FROM App\Entity\Scholarship\ScholarshipKeywordLink kl$i JOIN kl$i.keyword k$i WHERE kl$i.scholarship = s AND k$i.keyword LIKE :keyword$i)");
                 $qb->setParameter('keyword' . $i, '%' . $keyword . '%');
             }
-            $qb->andWhere($orX);
+            $criteria->add($orX);
         }
 
-        return $qb->getQuery()->getResult();
+        // Catch-all scholarships always come back regardless of the criteria, but still
+        // respect the active + expiration gate above. With no criteria supplied the group
+        // is empty and the query returns everything active, exactly as before.
+        if ($criteria->count() > 0) {
+            $qb->andWhere($qb->expr()->orX('s.catchAll = true', $criteria));
+        }
+
+        return $this->warmLinkCollections($qb->getQuery()->getResult());
     }
 
     /**

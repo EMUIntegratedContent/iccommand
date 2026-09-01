@@ -88,8 +88,12 @@ class ScholarshipKeywordController extends AbstractController
         }
 
         $file = file($uploaded);
-        $csvFile = array_map('str_getcsv', $file);
+        $csvFile = array_map(static fn($line) => str_getcsv($line, ',', '"', '\\'), $file);
         $headers = array_shift($csvFile);
+        // Excel's "CSV UTF-8" prepends a BOM; strip it so the first header key matches.
+        if (isset($headers[0])) {
+            $headers[0] = preg_replace('/^\xEF\xBB\xBF/', '', $headers[0]);
+        }
 
         $rows = [];
         foreach ($csvFile as $row) {

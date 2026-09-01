@@ -33,6 +33,7 @@ class ScholarshipOrganizationRepository extends ServiceEntityRepository
             ->select('o.id AS id', 'o.organization AS organization', 'COUNT(ol.organization) AS scholarship_count')
             ->leftJoin('o.scholarshipLinks', 'ol')
             ->groupBy('o.id')
+            ->addGroupBy('o.organization')
             ->orderBy('o.organization', 'ASC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);

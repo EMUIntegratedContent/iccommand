@@ -33,6 +33,7 @@ class ScholarshipKeywordRepository extends ServiceEntityRepository
             ->select('k.id AS id', 'k.keyword AS keyword', 'COUNT(kl.keyword) AS scholarship_count')
             ->leftJoin('k.scholarshipLinks', 'kl')
             ->groupBy('k.id')
+            ->addGroupBy('k.keyword')
             ->orderBy('k.keyword', 'ASC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
