@@ -5,7 +5,12 @@
       "Bash(php -l src/Controller/Api/Cas/CasController.php)",
       "Bash(php -l src/Service/ProgramsService.php)",
       "Bash(php -l src/Controller/Api/Programs/ProgramsController.php)",
-      "Bash(php -l src/Repository/Programs/ProgramKeywordsRepository.php)"
+      "Bash(php -l src/Repository/Programs/ProgramKeywordsRepository.php)",
+      "Bash(php -l /Users/cpuzzuol/emu/iccommand/src/Entity/Scholarship/Scholarship.php)",
+      "Bash(php -l /Users/cpuzzuol/emu/iccommand/src/Migrations/Version20260901000000.php)",
+      "Bash(php -l src/Migrations/Version20260901120000.php)",
+      "Bash(php -l src/Entity/Scholarship/Scholarship.php)",
+      "Bash(php -l src/Controller/Api/Scholarship/ScholarshipController.php)"
     ]
   }
 }

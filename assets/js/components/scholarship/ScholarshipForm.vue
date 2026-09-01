@@ -66,6 +66,23 @@
 								{{ errors.title }}
 							</div>
 						</div>
+						<div class="form-group">
+							<label class="mt-2">Overview</label>
+							<template v-if="!userCanEdit || !isEditMode">
+								<div v-if="!record.overview">---</div>
+								<div v-else v-html="record.overview"></div>
+							</template>
+							<template v-else>
+								<ckeditor
+									v-model="overviewModel"
+									:editor="editor"
+									:config="ckConfig"
+									name="scholarshipOverview"
+									@update:modelValue="formDirty = true"
+								>
+								</ckeditor>
+							</template>
+						</div>
 						<div class="form-group form-check">
 							<input
 								id="scholarshipActive"
@@ -80,6 +97,22 @@
 							</label>
 							<small class="form-text text-muted">
 								Only active scholarships are published to the public feed.
+							</small>
+						</div>
+						<div class="form-group form-check">
+							<input
+								id="scholarshipCatchAll"
+								type="checkbox"
+								class="form-check-input"
+								:disabled="!userCanEdit || !isEditMode"
+								v-model="record.catchAll"
+								@change="formDirty = true"
+							/>
+							<label class="form-check-label" for="scholarshipCatchAll">
+								Catch-all scholarship
+							</label>
+							<small class="form-text text-muted">
+								Flags this as a general scholarship not tied to specific eligibility criteria.
 							</small>
 						</div>
 						<div class="form-group">
@@ -764,7 +797,9 @@ export default {
 			record: {
 				id: "",
 				title: "",
+				overview: "",
 				active: false,
+				catchAll: false,
 				url: "",
 				amount: "",
 				applyDate: "",
@@ -817,6 +852,15 @@ export default {
 		},
 
 		// CKEditor throws on null, so empty rich text has to reach it as a string.
+		overviewModel: {
+			get() {
+				return this.record.overview || ""
+			},
+			set(value) {
+				this.record.overview = value
+			}
+		},
+
 		contactModel: {
 			get() {
 				return this.record.contact || ""

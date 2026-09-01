@@ -101,6 +101,20 @@ class Scholarship
     private bool $active = false;
 
     /**
+     * A short overview of this scholarship.
+     */
+    #[ORM\Column(name: 'schlrshp_overview', type: 'text', nullable: true)]
+    #[Groups("scholarship")]
+    private ?string $overview = null;
+
+    /**
+     * Whether this scholarship is a catch-all.
+     */
+    #[ORM\Column(name: 'schlrshp_catch_all', type: 'boolean', options: ['default' => 0])]
+    #[Groups("scholarship")]
+    private bool $catchAll = false;
+
+    /**
      * The minimum GPA required for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_gpa', type: 'decimal', precision: 3, scale: 2, nullable: true)]
@@ -378,6 +392,28 @@ class Scholarship
     public function setActive(bool $active): self
     {
         $this->active = $active;
+        return $this;
+    }
+
+    public function getOverview(): ?string
+    {
+        return $this->overview;
+    }
+
+    public function setOverview(?string $overview): self
+    {
+        $this->overview = $overview;
+        return $this;
+    }
+
+    public function isCatchAll(): bool
+    {
+        return $this->catchAll;
+    }
+
+    public function setCatchAll(bool $catchAll): self
+    {
+        $this->catchAll = $catchAll;
         return $this;
     }
 

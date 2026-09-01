@@ -37,6 +37,7 @@ class ScholarshipController extends AbstractController
         'appProc' => 'setAppProc',
         'amount' => 'setAmount',
         'contact' => 'setContact',
+        'overview' => 'setOverview',
     ];
 
     /**
@@ -47,6 +48,7 @@ class ScholarshipController extends AbstractController
         'isFafsa' => 'setIsFafsa',
         'isParent' => 'setIsParent',
         'isBilingual' => 'setIsBilingual',
+        'catchAll' => 'setCatchAll',
     ];
 
     /**
