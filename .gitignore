@@ -49,3 +49,29 @@ yarn-error.log
 ic_*.sql
 programs*.sql
 /private/
+/sql_seed/
+
+
+create table programs.program_programs
+(
+    id                   int(11) unsigned auto_increment
+        primary key,
+    catalog              varchar(15) charset latin1  default '' not null,
+    college_id           int(11) unsigned                       not null,
+    department_id        int(11) unsigned                       not null,
+    program              varchar(255) charset latin1 default '' not null,
+    slug                 varchar(255) charset latin1            null,
+    full_name            varchar(255) charset latin1            not null,
+    type_id              int(11) unsigned                       null,
+    degree_id            int(11) unsigned                       not null,
+    catalog_id           int(11) unsigned                       not null,
+    ref_id               int(11) unsigned                       null,
+    multi_department_ids varchar(255)                           null comment 'list as 1,2,3,4',
+    credit_hours         varchar(120)                           null,
+    duration             varchar(120)                           null,
+    image_url            varchar(1024)                          null,
+    application_url      varchar(1024)                          null,
+    program_overview     text                                   null
+)
+    collate = latin1_general_ci;
+
