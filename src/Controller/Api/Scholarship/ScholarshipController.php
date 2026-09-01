@@ -30,8 +30,6 @@ class ScholarshipController extends AbstractController
         'enrollment' => 'setEnrollment',
         'gender' => 'setGender',
         'ethnicity' => 'setEthnicity',
-        'organizations' => 'setOrganizations',
-        'keywords' => 'setKeywords',
         'transfer' => 'setTransfer',
         'housing' => 'setHousing',
         'appProc' => 'setAppProc',
@@ -123,6 +121,22 @@ class ScholarshipController extends AbstractController
         return new Response(json_encode($departments), 200, ["Content-Type" => "application/json"]);
     }
 
+    #[Route('/keyword-options', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
+    public function getKeywordOptionsAction(): Response
+    {
+        $keywords = $this->service->getAvailableKeywords();
+        return new Response(json_encode($keywords), 200, ["Content-Type" => "application/json"]);
+    }
+
+    #[Route('/organization-options', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
+    public function getOrganizationOptionsAction(): Response
+    {
+        $organizations = $this->service->getAvailableOrganizations();
+        return new Response(json_encode($organizations), 200, ["Content-Type" => "application/json"]);
+    }
+
     #[Route('/options', methods: ['GET'])]
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
     public function getOptionsAction(): Response
@@ -157,11 +171,18 @@ class ScholarshipController extends AbstractController
             return new Response($this->serializer->serialize($errors, "json"), 422, ["Content-Type" => "application/json"]);
         }
 
-        $invalid = $this->invalidProgramIds($data);
-        if ($invalid !== null) {
+        if (($invalid = $this->invalidProgramIds($data)) !== null) {
+            return $invalid;
+        }
+        if (($invalid = $this->invalidKeywordIds($data)) !== null) {
+            return $invalid;
+        }
+        if (($invalid = $this->invalidOrganizationIds($data)) !== null) {
             return $invalid;
         }
         $this->service->syncProgramLinks($scholarship, $data['program_links'] ?? []);
+        $this->service->syncKeywordLinks($scholarship, $data['keyword_ids'] ?? []);
+        $this->service->syncOrganizationLinks($scholarship, $data['organization_ids'] ?? []);
 
         $this->em->persist($scholarship);
         $this->em->flush();
@@ -188,11 +209,22 @@ class ScholarshipController extends AbstractController
 
         // Only touch links when the payload includes them (supports partial updates).
         if (array_key_exists('program_links', $data)) {
-            $invalid = $this->invalidProgramIds($data);
-            if ($invalid !== null) {
+            if (($invalid = $this->invalidProgramIds($data)) !== null) {
                 return $invalid;
             }
             $this->service->syncProgramLinks($scholarship, $data['program_links'] ?? []);
+        }
+        if (array_key_exists('keyword_ids', $data)) {
+            if (($invalid = $this->invalidKeywordIds($data)) !== null) {
+                return $invalid;
+            }
+            $this->service->syncKeywordLinks($scholarship, $data['keyword_ids'] ?? []);
+        }
+        if (array_key_exists('organization_ids', $data)) {
+            if (($invalid = $this->invalidOrganizationIds($data)) !== null) {
+                return $invalid;
+            }
+            $this->service->syncOrganizationLinks($scholarship, $data['organization_ids'] ?? []);
         }
 
         $this->em->flush();
@@ -277,6 +309,48 @@ class ScholarshipController extends AbstractController
         if (count($invalid) > 0) {
             return new Response(
                 json_encode(['error' => 'invalid_program_ids', 'ids' => array_values($invalid)]),
+                422,
+                ["Content-Type" => "application/json"]
+            );
+        }
+        return null;
+    }
+
+    /**
+     * Validates the keyword ids in a payload. Returns a 422 Response if any are invalid,
+     * otherwise null.
+     */
+    private function invalidKeywordIds(array $data): ?Response
+    {
+        $ids = $data['keyword_ids'] ?? [];
+        if (!is_array($ids) || count($ids) === 0) {
+            return null;
+        }
+        $invalid = $this->service->validateKeywordIds(array_map('intval', $ids));
+        if (count($invalid) > 0) {
+            return new Response(
+                json_encode(['error' => 'invalid_keyword_ids', 'ids' => array_values($invalid)]),
+                422,
+                ["Content-Type" => "application/json"]
+            );
+        }
+        return null;
+    }
+
+    /**
+     * Validates the organization ids in a payload. Returns a 422 Response if any are invalid,
+     * otherwise null.
+     */
+    private function invalidOrganizationIds(array $data): ?Response
+    {
+        $ids = $data['organization_ids'] ?? [];
+        if (!is_array($ids) || count($ids) === 0) {
+            return null;
+        }
+        $invalid = $this->service->validateOrganizationIds(array_map('intval', $ids));
+        if (count($invalid) > 0) {
+            return new Response(
+                json_encode(['error' => 'invalid_organization_ids', 'ids' => array_values($invalid)]),
                 422,
                 ["Content-Type" => "application/json"]
             );

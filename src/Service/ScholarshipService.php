@@ -1,9 +1,16 @@
 <?php
 namespace App\Service;
 
+use App\Entity\Programs\Programs;
 use App\Entity\Scholarship\Scholarship;
+use App\Entity\Scholarship\ScholarshipKeyword;
+use App\Entity\Scholarship\ScholarshipKeywordLink;
+use App\Entity\Scholarship\ScholarshipOrganization;
+use App\Entity\Scholarship\ScholarshipOrganizationLink;
 use App\Entity\Scholarship\ScholarshipProgram;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -137,8 +144,13 @@ class ScholarshipService
             if (isset($seen[$programId])) {
                 continue;
             }
+            // $this->em is the default EM, which holds the Programs metadata now that
+            // program_programs lives in the ic database. getReference avoids a DB hit;
+            // the ids were already existence-checked by validateProgramIds upstream.
             $scholarship->addProgramLink(
-                (new ScholarshipProgram())->setProgramId($programId)->setNotes($notes)
+                (new ScholarshipProgram())
+                    ->setProgram($this->em->getReference(Programs::class, $programId))
+                    ->setNotes($notes)
             );
         }
     }
@@ -200,6 +212,354 @@ class ScholarshipService
         return $conn->executeQuery(
             'SELECT id, department FROM program_departments ORDER BY department ASC'
         )->fetchAllAssociative();
+    }
+
+    /* ****************************** Keywords ******************************* */
+
+    /**
+     * Paginated keyword list with per-keyword scholarship counts.
+     */
+    public function getKeywordsPagination(int $page, int $limit, ?string $searchTerm = null): array
+    {
+        return $this->em->getRepository(ScholarshipKeyword::class)
+            ->paginatedWithScholarshipCount($page, $limit, $searchTerm);
+    }
+
+    /**
+     * All keywords (id + keyword) for the form picker.
+     */
+    public function getAvailableKeywords(): array
+    {
+        return $this->em->createQuery(
+            'SELECT k.id, k.keyword FROM App\Entity\Scholarship\ScholarshipKeyword k ORDER BY k.keyword ASC'
+        )->getArrayResult();
+    }
+
+    public function getKeyword(int $id): ?ScholarshipKeyword
+    {
+        return $this->em->find(ScholarshipKeyword::class, $id);
+    }
+
+    public function findKeywordByNameCI(string $name): ?ScholarshipKeyword
+    {
+        return $this->em->getRepository(ScholarshipKeyword::class)->findOneByNameCI($name);
+    }
+
+    public function createKeyword(string $name): ScholarshipKeyword
+    {
+        $keyword = (new ScholarshipKeyword())->setKeyword(trim($name));
+        $this->em->persist($keyword);
+        $this->em->flush();
+        return $keyword;
+    }
+
+    public function deleteKeyword(int $id): void
+    {
+        $keyword = $this->getKeyword($id);
+        if ($keyword !== null) {
+            // orphanRemoval + FK ON DELETE CASCADE remove the link rows automatically.
+            $this->em->remove($keyword);
+            $this->em->flush();
+        }
+    }
+
+    /**
+     * Scholarships (id + title) linked to a keyword.
+     */
+    public function getScholarshipsForKeyword(int $keywordId): array
+    {
+        return $this->em->createQuery(
+            'SELECT s.id, s.title FROM App\Entity\Scholarship\Scholarship s
+             JOIN s.keywordLinks kl WHERE IDENTITY(kl.keyword) = :id ORDER BY s.title ASC'
+        )->setParameter('id', $keywordId)->getArrayResult();
+    }
+
+    public function linkScholarshipToKeyword(int $keywordId, int $scholarshipId): void
+    {
+        $existing = $this->em->find(ScholarshipKeywordLink::class, ['scholarship' => $scholarshipId, 'keyword' => $keywordId]);
+        if ($existing !== null) {
+            return;
+        }
+        $link = (new ScholarshipKeywordLink())
+            ->setScholarship($this->em->getReference(Scholarship::class, $scholarshipId))
+            ->setKeyword($this->em->getReference(ScholarshipKeyword::class, $keywordId));
+        $this->em->persist($link);
+        $this->em->flush();
+    }
+
+    public function unlinkScholarshipFromKeyword(int $keywordId, int $scholarshipId): void
+    {
+        $link = $this->em->find(ScholarshipKeywordLink::class, ['scholarship' => $scholarshipId, 'keyword' => $keywordId]);
+        if ($link !== null) {
+            $this->em->remove($link);
+            $this->em->flush();
+        }
+    }
+
+    /**
+     * Resyncs a scholarship's keyword links from a flat list of ids (set semantics). The
+     * caller flushes. Ids must have been validated by validateKeywordIds() upstream.
+     *
+     * @param int[] $ids
+     */
+    public function syncKeywordLinks(Scholarship $scholarship, array $ids): void
+    {
+        $desired = array_values(array_unique(array_filter(array_map('intval', $ids), fn($i) => $i > 0)));
+
+        $seen = [];
+        foreach ($scholarship->getKeywordLinks() as $existing) {
+            $keywordId = $existing->getKeyword()->getId();
+            if (in_array($keywordId, $desired, true)) {
+                $seen[$keywordId] = true;
+            } else {
+                $scholarship->removeKeywordLink($existing);
+            }
+        }
+
+        foreach ($desired as $keywordId) {
+            if (!isset($seen[$keywordId])) {
+                $scholarship->addKeywordLink(
+                    (new ScholarshipKeywordLink())->setKeyword($this->em->getReference(ScholarshipKeyword::class, $keywordId))
+                );
+            }
+        }
+    }
+
+    /**
+     * @param int[] $ids
+     * @return int[] Ids that do not exist.
+     */
+    public function validateKeywordIds(array $ids): array
+    {
+        $ids = array_values(array_filter(array_unique(array_map('intval', $ids)), fn($i) => $i > 0));
+        if (count($ids) === 0) {
+            return [];
+        }
+        $found = array_map('intval', array_column($this->em->createQuery(
+            'SELECT k.id FROM App\Entity\Scholarship\ScholarshipKeyword k WHERE k.id IN (:ids)'
+        )->setParameter('ids', $ids)->getScalarResult(), 'id'));
+        return array_values(array_diff($ids, $found));
+    }
+
+    /**
+     * Bulk create keywords from parsed CSV rows (['keyword' => string, 'scholarship_id' => ?int]).
+     * Case-insensitive + in-batch dedupe; optionally links to a scholarship.
+     *
+     * @param array<int, array{keyword?: string, scholarship_id?: mixed}> $rows
+     * @return array{created:int, skipped:int, rejected:int, linkSkipped:int}
+     */
+    public function bulkCreateKeywords(array $rows, ?DebugDataHolder $debug = null): array
+    {
+        $created = $skipped = $rejected = $linkSkipped = 0;
+        $seenInCsv = [];
+        $i = 0;
+
+        foreach ($rows as $row) {
+            $name = trim((string)($row['keyword'] ?? ''));
+            if ($name === '') {
+                $rejected++;
+                continue;
+            }
+            $key = mb_strtolower($name);
+
+            $keyword = $seenInCsv[$key] ?? $this->findKeywordByNameCI($name);
+            if ($keyword !== null) {
+                $skipped++;
+            } else {
+                try {
+                    $keyword = $this->createKeyword($name);
+                    $created++;
+                } catch (UniqueConstraintViolationException) {
+                    $keyword = $this->findKeywordByNameCI($name);
+                    $skipped++;
+                }
+            }
+            if ($keyword !== null) {
+                $seenInCsv[$key] = $keyword;
+            }
+
+            $scholarshipId = (int)($row['scholarship_id'] ?? 0);
+            if ($scholarshipId > 0 && $keyword !== null) {
+                if ($this->em->find(Scholarship::class, $scholarshipId) !== null) {
+                    $this->linkScholarshipToKeyword($keyword->getId(), $scholarshipId);
+                } else {
+                    $linkSkipped++;
+                }
+            }
+
+            if (++$i % 50 === 0) {
+                $seenInCsv = [];
+                $debug?->reset();
+            }
+        }
+
+        return ['created' => $created, 'skipped' => $skipped, 'rejected' => $rejected, 'linkSkipped' => $linkSkipped];
+    }
+
+    /* **************************** Organizations **************************** */
+
+    public function getOrganizationsPagination(int $page, int $limit, ?string $searchTerm = null): array
+    {
+        return $this->em->getRepository(ScholarshipOrganization::class)
+            ->paginatedWithScholarshipCount($page, $limit, $searchTerm);
+    }
+
+    public function getAvailableOrganizations(): array
+    {
+        return $this->em->createQuery(
+            'SELECT o.id, o.organization FROM App\Entity\Scholarship\ScholarshipOrganization o ORDER BY o.organization ASC'
+        )->getArrayResult();
+    }
+
+    public function getOrganization(int $id): ?ScholarshipOrganization
+    {
+        return $this->em->find(ScholarshipOrganization::class, $id);
+    }
+
+    public function findOrganizationByNameCI(string $name): ?ScholarshipOrganization
+    {
+        return $this->em->getRepository(ScholarshipOrganization::class)->findOneByNameCI($name);
+    }
+
+    public function createOrganization(string $name): ScholarshipOrganization
+    {
+        $organization = (new ScholarshipOrganization())->setOrganization(trim($name));
+        $this->em->persist($organization);
+        $this->em->flush();
+        return $organization;
+    }
+
+    public function deleteOrganization(int $id): void
+    {
+        $organization = $this->getOrganization($id);
+        if ($organization !== null) {
+            $this->em->remove($organization);
+            $this->em->flush();
+        }
+    }
+
+    public function getScholarshipsForOrganization(int $organizationId): array
+    {
+        return $this->em->createQuery(
+            'SELECT s.id, s.title FROM App\Entity\Scholarship\Scholarship s
+             JOIN s.organizationLinks ol WHERE IDENTITY(ol.organization) = :id ORDER BY s.title ASC'
+        )->setParameter('id', $organizationId)->getArrayResult();
+    }
+
+    public function linkScholarshipToOrganization(int $organizationId, int $scholarshipId): void
+    {
+        $existing = $this->em->find(ScholarshipOrganizationLink::class, ['scholarship' => $scholarshipId, 'organization' => $organizationId]);
+        if ($existing !== null) {
+            return;
+        }
+        $link = (new ScholarshipOrganizationLink())
+            ->setScholarship($this->em->getReference(Scholarship::class, $scholarshipId))
+            ->setOrganization($this->em->getReference(ScholarshipOrganization::class, $organizationId));
+        $this->em->persist($link);
+        $this->em->flush();
+    }
+
+    public function unlinkScholarshipFromOrganization(int $organizationId, int $scholarshipId): void
+    {
+        $link = $this->em->find(ScholarshipOrganizationLink::class, ['scholarship' => $scholarshipId, 'organization' => $organizationId]);
+        if ($link !== null) {
+            $this->em->remove($link);
+            $this->em->flush();
+        }
+    }
+
+    /**
+     * @param int[] $ids
+     */
+    public function syncOrganizationLinks(Scholarship $scholarship, array $ids): void
+    {
+        $desired = array_values(array_unique(array_filter(array_map('intval', $ids), fn($i) => $i > 0)));
+
+        $seen = [];
+        foreach ($scholarship->getOrganizationLinks() as $existing) {
+            $organizationId = $existing->getOrganization()->getId();
+            if (in_array($organizationId, $desired, true)) {
+                $seen[$organizationId] = true;
+            } else {
+                $scholarship->removeOrganizationLink($existing);
+            }
+        }
+
+        foreach ($desired as $organizationId) {
+            if (!isset($seen[$organizationId])) {
+                $scholarship->addOrganizationLink(
+                    (new ScholarshipOrganizationLink())->setOrganization($this->em->getReference(ScholarshipOrganization::class, $organizationId))
+                );
+            }
+        }
+    }
+
+    /**
+     * @param int[] $ids
+     * @return int[] Ids that do not exist.
+     */
+    public function validateOrganizationIds(array $ids): array
+    {
+        $ids = array_values(array_filter(array_unique(array_map('intval', $ids)), fn($i) => $i > 0));
+        if (count($ids) === 0) {
+            return [];
+        }
+        $found = array_map('intval', array_column($this->em->createQuery(
+            'SELECT o.id FROM App\Entity\Scholarship\ScholarshipOrganization o WHERE o.id IN (:ids)'
+        )->setParameter('ids', $ids)->getScalarResult(), 'id'));
+        return array_values(array_diff($ids, $found));
+    }
+
+    /**
+     * @param array<int, array{organization?: string, scholarship_id?: mixed}> $rows
+     * @return array{created:int, skipped:int, rejected:int, linkSkipped:int}
+     */
+    public function bulkCreateOrganizations(array $rows, ?DebugDataHolder $debug = null): array
+    {
+        $created = $skipped = $rejected = $linkSkipped = 0;
+        $seenInCsv = [];
+        $i = 0;
+
+        foreach ($rows as $row) {
+            $name = trim((string)($row['organization'] ?? ''));
+            if ($name === '') {
+                $rejected++;
+                continue;
+            }
+            $key = mb_strtolower($name);
+
+            $organization = $seenInCsv[$key] ?? $this->findOrganizationByNameCI($name);
+            if ($organization !== null) {
+                $skipped++;
+            } else {
+                try {
+                    $organization = $this->createOrganization($name);
+                    $created++;
+                } catch (UniqueConstraintViolationException) {
+                    $organization = $this->findOrganizationByNameCI($name);
+                    $skipped++;
+                }
+            }
+            if ($organization !== null) {
+                $seenInCsv[$key] = $organization;
+            }
+
+            $scholarshipId = (int)($row['scholarship_id'] ?? 0);
+            if ($scholarshipId > 0 && $organization !== null) {
+                if ($this->em->find(Scholarship::class, $scholarshipId) !== null) {
+                    $this->linkScholarshipToOrganization($organization->getId(), $scholarshipId);
+                } else {
+                    $linkSkipped++;
+                }
+            }
+
+            if (++$i % 50 === 0) {
+                $seenInCsv = [];
+                $debug?->reset();
+            }
+        }
+
+        return ['created' => $created, 'skipped' => $skipped, 'rejected' => $rejected, 'linkSkipped' => $linkSkipped];
     }
 
     /**

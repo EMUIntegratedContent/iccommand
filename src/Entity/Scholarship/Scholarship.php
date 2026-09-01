@@ -256,20 +256,20 @@ class Scholarship
     private bool $isBilingual = false;
 
     /**
-     * The organizations eligibility criterion.
+     * The managed organizations linked to this scholarship (M2M). No serialization group
+     * on the collection — the arrays-only shape is exposed via getOrganizations().
+     * @var Collection<int, ScholarshipOrganizationLink>
      */
-    #[ORM\Column(name: 'schlrshp_organizations', type: 'string', length: 255, nullable: true)]
-    #[Assert\Length(max: 255)]
-    #[Groups("scholarship")]
-    private ?string $organizations = null;
+    #[ORM\OneToMany(targetEntity: ScholarshipOrganizationLink::class, mappedBy: 'scholarship', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $organizationLinks;
 
     /**
-     * The keywords associated with this scholarship.
+     * The managed keywords linked to this scholarship (M2M). No serialization group
+     * on the collection — the arrays-only shape is exposed via getKeywords().
+     * @var Collection<int, ScholarshipKeywordLink>
      */
-    #[ORM\Column(name: 'schlrshp_keywords', type: 'string', length: 255, nullable: true)]
-    #[Assert\Length(max: 255)]
-    #[Groups("scholarship")]
-    private ?string $keywords = null;
+    #[ORM\OneToMany(targetEntity: ScholarshipKeywordLink::class, mappedBy: 'scholarship', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $keywordLinks;
 
     /**
      * Whether this scholarship is available to transfer students: "Yes", "No" or "Both".
@@ -364,6 +364,8 @@ class Scholarship
     public function __construct()
     {
         $this->programLinks = new ArrayCollection();
+        $this->keywordLinks = new ArrayCollection();
+        $this->organizationLinks = new ArrayCollection();
     }
 
     /* ************************** Getters and Setters ************************* */
@@ -625,26 +627,90 @@ class Scholarship
         return $this;
     }
 
-    public function getOrganizations(): ?string
+    /**
+     * @return Collection<int, ScholarshipOrganizationLink>
+     */
+    public function getOrganizationLinks(): Collection
     {
-        return $this->organizations;
+        return $this->organizationLinks;
     }
 
-    public function setOrganizations(?string $organizations): self
+    public function addOrganizationLink(ScholarshipOrganizationLink $organizationLink): self
     {
-        $this->organizations = $organizations;
+        if (!$this->organizationLinks->contains($organizationLink)) {
+            $this->organizationLinks->add($organizationLink);
+            $organizationLink->setScholarship($this);
+        }
         return $this;
     }
 
-    public function getKeywords(): ?string
+    public function removeOrganizationLink(ScholarshipOrganizationLink $organizationLink): self
     {
-        return $this->keywords;
+        if ($this->organizationLinks->removeElement($organizationLink)) {
+            if ($organizationLink->getScholarship() === $this) {
+                $organizationLink->setScholarship(null);
+            }
+        }
+        return $this;
     }
 
-    public function setKeywords(?string $keywords): self
+    /**
+     * @return Collection<int, ScholarshipKeywordLink>
+     */
+    public function getKeywordLinks(): Collection
     {
-        $this->keywords = $keywords;
+        return $this->keywordLinks;
+    }
+
+    public function addKeywordLink(ScholarshipKeywordLink $keywordLink): self
+    {
+        if (!$this->keywordLinks->contains($keywordLink)) {
+            $this->keywordLinks->add($keywordLink);
+            $keywordLink->setScholarship($this);
+        }
         return $this;
+    }
+
+    public function removeKeywordLink(ScholarshipKeywordLink $keywordLink): self
+    {
+        if ($this->keywordLinks->removeElement($keywordLink)) {
+            if ($keywordLink->getScholarship() === $this) {
+                $keywordLink->setScholarship(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * The linked organizations as an arrays-only shape for serialization.
+     * @return array<int, array{id:int, organization:string}>
+     */
+    #[Groups("scholarship")]
+    public function getOrganizations(): array
+    {
+        return array_map(
+            static fn (ScholarshipOrganizationLink $link) => [
+                'id' => $link->getOrganization()->getId(),
+                'organization' => $link->getOrganization()->getOrganization(),
+            ],
+            $this->organizationLinks->toArray()
+        );
+    }
+
+    /**
+     * The linked keywords as an arrays-only shape for serialization.
+     * @return array<int, array{id:int, keyword:string}>
+     */
+    #[Groups("scholarship")]
+    public function getKeywords(): array
+    {
+        return array_map(
+            static fn (ScholarshipKeywordLink $link) => [
+                'id' => $link->getKeyword()->getId(),
+                'keyword' => $link->getKeyword()->getKeyword(),
+            ],
+            $this->keywordLinks->toArray()
+        );
     }
 
     public function getTransfer(): ?string

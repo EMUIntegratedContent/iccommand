@@ -1,6 +1,7 @@
 <?php
 namespace App\Entity\Scholarship;
 
+use App\Entity\Programs\Programs;
 use App\Repository\Scholarship\ScholarshipProgramRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -8,11 +9,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
 /**
  * Join table linking a scholarship to an academic program (program_programs.id).
  *
- * Composite primary key of (scholarship_id, program_id). The scholarship side is a
- * real Doctrine association used as part of the identifier; the program side is a
- * plain int — program_programs is mapped by the separate `programs` entity manager,
- * so (per the codebase convention) it is referenced as a loose int FK and the
- * relationship is enforced at the database level by the migration.
+ * Composite primary key of (scholarship_id, program_id). Both sides are real Doctrine
+ * associations used as part of the identifier: program_programs now lives in the same
+ * (ic) database and its Programs entity is mapped on the default entity manager, so the
+ * program side is a proper ManyToOne with a database-level FK, not a loose int.
  */
 #[ORM\Entity(repositoryClass: ScholarshipProgramRepository::class)]
 #[ORM\Table(name: 'scholarships_scholarship_program')]
@@ -27,13 +27,12 @@ class ScholarshipProgram
     private ?Scholarship $scholarship = null;
 
     /**
-     * The linked program's ID (program_programs.id). Loose int FK.
-     * Unsigned to match program_programs.id (int unsigned).
+     * The linked program (identifier via `program_id`).
      */
     #[ORM\Id]
-    #[ORM\Column(name: 'program_id', type: 'integer', options: ['unsigned' => true])]
-    #[Groups("scholarship")]
-    private ?int $programId = null;
+    #[ORM\ManyToOne(targetEntity: Programs::class)]
+    #[ORM\JoinColumn(name: 'program_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Programs $program = null;
 
     /**
      * Optional notes about this scholarship-program link.
@@ -62,15 +61,25 @@ class ScholarshipProgram
         return $this->scholarship?->getId();
     }
 
-    public function getProgramId(): ?int
+    public function getProgram(): ?Programs
     {
-        return $this->programId;
+        return $this->program;
     }
 
-    public function setProgramId(int $programId): self
+    public function setProgram(?Programs $program): self
     {
-        $this->programId = $programId;
+        $this->program = $program;
         return $this;
+    }
+
+    /**
+     * Convenience accessor for the linked program's ID. Preserves the `programId` JSON
+     * key the API and frontend consume.
+     */
+    #[Groups("scholarship")]
+    public function getProgramId(): ?int
+    {
+        return $this->program?->getId();
     }
 
     public function getNotes(): ?string

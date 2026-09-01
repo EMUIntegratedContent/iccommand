@@ -54,7 +54,7 @@ class ScholarshipRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('s')
             ->where('s.title LIKE :searchTerm')
-            ->orWhere('s.keywords LIKE :searchTerm')
+            ->orWhere('EXISTS (SELECT 1 FROM App\Entity\Scholarship\ScholarshipKeywordLink kl JOIN kl.keyword k WHERE kl.scholarship = s AND k.keyword LIKE :searchTerm)')
             ->orderBy('s.title', 'ASC')
             ->setMaxResults(30)
             ->setParameter('searchTerm', '%' . $searchTerm . '%')
@@ -88,11 +88,18 @@ class ScholarshipRepository extends ServiceEntityRepository
         }
 
         // Free text in the admin form, so match on a substring.
-        foreach (['city' => 'city', 'county' => 'county', 'highSchool' => 'highSchool', 'organization' => 'organizations'] as $key => $field) {
+        foreach (['city' => 'city', 'county' => 'county', 'highSchool' => 'highSchool'] as $key => $field) {
             $value = $this->cleanParam($params[$key] ?? null);
             if ($value !== null) {
                 $qb->andWhere('s.' . $field . ' LIKE :' . $key)->setParameter($key, '%' . $value . '%');
             }
+        }
+
+        // Organizations are now a managed M2M — match any linked organization by substring.
+        $organization = $this->cleanParam($params['organization'] ?? null);
+        if ($organization !== null) {
+            $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\Scholarship\ScholarshipOrganizationLink ol JOIN ol.organization o WHERE ol.scholarship = s AND o.organization LIKE :organization)')
+                ->setParameter('organization', '%' . $organization . '%');
         }
 
         foreach (['college' => 'collegeId', 'department' => 'departmentId'] as $key => $field) {
@@ -129,16 +136,17 @@ class ScholarshipRepository extends ServiceEntityRepository
         // Replaces the legacy free-text Major field.
         $programId = (int)($params['major'] ?? 0);
         if ($programId > 0) {
-            $qb->andWhere('EXISTS (SELECT sp.programId FROM App\Entity\Scholarship\ScholarshipProgram sp WHERE sp.scholarship = s AND sp.programId = :programId)')
+            $qb->andWhere('EXISTS (SELECT IDENTITY(sp.program) FROM App\Entity\Scholarship\ScholarshipProgram sp WHERE sp.scholarship = s AND IDENTITY(sp.program) = :programId)')
                 ->setParameter('programId', $programId);
         }
 
-        // The legacy keyword tab accepts a comma separated list and matches any of them.
+        // The keyword tab accepts a comma separated list and matches any of them against
+        // the managed keyword links.
         $keywords = array_filter(array_map('trim', explode(',', (string)($params['keyword'] ?? ''))));
         if ($keywords !== []) {
             $orX = $qb->expr()->orX();
             foreach (array_values($keywords) as $i => $keyword) {
-                $orX->add('s.keywords LIKE :keyword' . $i);
+                $orX->add("EXISTS (SELECT 1 FROM App\Entity\Scholarship\ScholarshipKeywordLink kl$i JOIN kl$i.keyword k$i WHERE kl$i.scholarship = s AND k$i.keyword LIKE :keyword$i)");
                 $qb->setParameter('keyword' . $i, '%' . $keyword . '%');
             }
             $qb->andWhere($orX);

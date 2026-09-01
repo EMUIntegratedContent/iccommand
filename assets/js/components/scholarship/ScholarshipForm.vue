@@ -404,44 +404,42 @@
 					<fieldset>
 						<legend>Affiliations and keywords</legend>
 						<div class="form-group">
-							<label>Organizations, club, fraternity, sorority, etc.</label>
-							<Field
-								name="organizations"
-								type="text"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.organizations,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.organizations"
+							<label for="scholarshipOrganizations">Organizations, club, fraternity, sorority, etc.</label>
+							<VueMultiselect
+								id="scholarshipOrganizations"
+								:options="organizationOptions"
+								:multiple="true"
+								:close-on-select="false"
+								:disabled="!userCanEdit || !isEditMode"
+								label="organization"
+								track-by="id"
+								placeholder="Search organizations"
+								v-model="selectedOrganizationsModel"
 								@update:modelValue="formDirty = true"
 							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.organizations }}
-							</div>
+							</VueMultiselect>
+							<small class="form-text text-muted">
+								Manage the list of organizations under Manage Organizations.
+							</small>
 						</div>
 						<div class="form-group">
-							<label>Keywords</label>
-							<Field
-								name="keywords"
-								as="textarea"
-								rows="3"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.keywords,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.keywords"
-								placeholder="Separate keywords with commas"
+							<label for="scholarshipKeywords">Keywords</label>
+							<VueMultiselect
+								id="scholarshipKeywords"
+								:options="keywordOptions"
+								:multiple="true"
+								:close-on-select="false"
+								:disabled="!userCanEdit || !isEditMode"
+								label="keyword"
+								track-by="id"
+								placeholder="Search keywords"
+								v-model="selectedKeywordsModel"
 								@update:modelValue="formDirty = true"
 							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.keywords }}
-							</div>
+							</VueMultiselect>
+							<small class="form-text text-muted">
+								Manage the list of keywords under Manage Keywords.
+							</small>
 						</div>
 					</fieldset>
 
@@ -710,6 +708,8 @@ export default {
 		this.fetchLookup("/api/scholarships/colleges", "colleges")
 		this.fetchLookup("/api/scholarships/departments", "departments")
 		this.fetchLookup("/api/scholarships/programs", "programs")
+		this.fetchLookup("/api/scholarships/keyword-options", "keywordOptions")
+		this.fetchLookup("/api/scholarships/organization-options", "organizationOptions")
 
 		if (this.itemExists === false) {
 			this.isDataLoaded = true
@@ -783,6 +783,8 @@ export default {
 			colleges: [],
 			departments: [],
 			programs: [],
+			keywordOptions: [],
+			organizationOptions: [],
 
 			options: {
 				gender: [],
@@ -818,8 +820,8 @@ export default {
 				city: "",
 				state: "",
 				highSchool: "",
-				organizations: "",
-				keywords: "",
+				keyword_ids: [],
+				organization_ids: [],
 				contact: "",
 				appProc: "",
 				description: "",
@@ -907,6 +909,25 @@ export default {
 			}
 		},
 
+		// Keywords/organizations are managed entities; the picker works off id arrays.
+		selectedKeywordsModel: {
+			get() {
+				return this.keywordOptions.filter((o) => this.record.keyword_ids.includes(o.id))
+			},
+			set(value) {
+				this.record.keyword_ids = value.map((o) => o.id)
+			}
+		},
+
+		selectedOrganizationsModel: {
+			get() {
+				return this.organizationOptions.filter((o) => this.record.organization_ids.includes(o.id))
+			},
+			set(value) {
+				this.record.organization_ids = value.map((o) => o.id)
+			}
+		},
+
 		// Class standing is multi-select but stored comma separated.
 		standingClassModel: {
 			get() {
@@ -942,12 +963,6 @@ export default {
 					.nullable(true),
 				highSchool: Yup.string()
 					.max(255, "High school must be 255 characters or less.")
-					.nullable(true),
-				organizations: Yup.string()
-					.max(255, "Organizations must be 255 characters or less.")
-					.nullable(true),
-				keywords: Yup.string()
-					.max(255, "Keywords must be 255 characters or less.")
 					.nullable(true),
 				// An empty date input casts to Invalid Date, so convert it to null.
 				applyDate: Yup.date().transform(this.emptyDateToNull).nullable(true),
@@ -1058,6 +1073,10 @@ export default {
 				record[field] = record[field] ? record[field].substring(0, 10) : ""
 			})
 
+			// The API returns keywords/organizations as [{id, name}]; the pickers work off id arrays.
+			record.keyword_ids = Array.isArray(record.keywords) ? record.keywords.map((k) => k.id) : []
+			record.organization_ids = Array.isArray(record.organizations) ? record.organizations.map((o) => o.id) : []
+
 			return record
 		},
 
@@ -1073,8 +1092,14 @@ export default {
 				program_links: (self.record.programLinks || []).map((l) => ({
 					program_id: l.programId,
 					notes: l.notes
-				}))
+				})),
+				keyword_ids: self.record.keyword_ids || [],
+				organization_ids: self.record.organization_ids || []
 			})
+			// The API reads keywords/organizations back as arrays of objects; only the id
+			// arrays are writable, so drop the read-shape keys from the payload.
+			delete payload.keywords
+			delete payload.organizations
 
 			axios({
 				method: method,

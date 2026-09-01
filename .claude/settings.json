@@ -10,7 +10,19 @@
       "Bash(php -l /Users/cpuzzuol/emu/iccommand/src/Migrations/Version20260901000000.php)",
       "Bash(php -l src/Migrations/Version20260901120000.php)",
       "Bash(php -l src/Entity/Scholarship/Scholarship.php)",
-      "Bash(php -l src/Controller/Api/Scholarship/ScholarshipController.php)"
+      "Bash(php -l src/Controller/Api/Scholarship/ScholarshipController.php)",
+      "Bash(php -l src/Migrations/Version20260901130000.php)",
+      "Bash(curl -s \"http://localhost:8080/api/external/scholarships/all\" -H \"Accept: application/json\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" \"http://localhost:8080/api/external/scholarships/search?major=1\")",
+      "Bash(php -l src/Migrations/Version20260902000000.php)",
+      "Bash(php -l src/Service/ScholarshipService.php)",
+      "Bash(php -l src/Controller/Api/Scholarship/ScholarshipKeywordController.php)",
+      "Bash(php -l src/Controller/Api/Scholarship/ScholarshipOrganizationController.php)",
+      "Bash(php -l src/Repository/Scholarship/ScholarshipRepository.php)",
+      "Bash(curl -s -o /dev/null -w \"keyword filter: HTTP %{http_code}\\\\n\" \"http://localhost:8080/api/external/scholarships/search?keyword=STEM,Art\")",
+      "Bash(curl -s -o /dev/null -w \"organization filter: HTTP %{http_code}\\\\n\" \"http://localhost:8080/api/external/scholarships/search?organization=Rotary\")",
+      "Bash(curl -s \"http://localhost:8080/api/external/scholarships/search?keyword=STEM\" -H \"Accept: application/json\")",
+      "Bash(git status *)"
     ]
   }
 }

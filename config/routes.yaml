@@ -70,6 +70,14 @@ social_media_external:
   resource: App\Controller\Api\SocialMedia\SocialMediaExternalController
   prefix: /api/external/social-media/
 
+scholarship_keywords:
+  resource: App\Controller\Api\Scholarship\ScholarshipKeywordController
+  prefix: /api/scholarships/
+
+scholarship_organizations:
+  resource: App\Controller\Api\Scholarship\ScholarshipOrganizationController
+  prefix: /api/scholarships/
+
 scholarships:
   resource: App\Controller\Api\Scholarship\ScholarshipController
   prefix: /api/scholarships/

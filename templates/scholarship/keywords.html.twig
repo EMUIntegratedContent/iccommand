@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Keywords{% endblock %}
+
+{% block modulenav %}
+  {% include 'scholarship/nav_scholarship.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <scholarship-keywords-list :permissions="[{{ permissions }}]"></scholarship-keywords-list>
+</div>
+{% endblock %}

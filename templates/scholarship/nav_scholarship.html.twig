@@ -9,6 +9,12 @@
   <li class="nav-item">
     <a class="nav-link" href="/scholarships/create">Add new scholarship</a>
   </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/scholarships/keywords">Manage Keywords</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/scholarships/organizations">Manage Organizations</a>
+  </li>
   {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_SCHOLARSHIP_ADMIN') %}
   <li class="nav-item">
     <a class="nav-link" href="/scholarships/manage">Manage app</a>

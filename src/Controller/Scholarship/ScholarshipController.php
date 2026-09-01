@@ -61,6 +61,28 @@ class ScholarshipController extends AbstractController
     }
 
     /**
+     * The manage-keywords page. Declared before the /{id} show route so "keywords" isn't
+     * captured as an id.
+     */
+    #[Route('/scholarships/keywords', name: 'scholarship_keywords')]
+    public function keywords(): Response
+    {
+        $permissions = json_encode($this->service->getScholarshipPermissions());
+        return $this->render('scholarship/keywords.html.twig', ['permissions' => $permissions]);
+    }
+
+    /**
+     * The manage-organizations page. Declared before the /{id} show route so
+     * "organizations" isn't captured as an id.
+     */
+    #[Route('/scholarships/organizations', name: 'scholarship_organizations')]
+    public function organizations(): Response
+    {
+        $permissions = json_encode($this->service->getScholarshipPermissions());
+        return $this->render('scholarship/organizations.html.twig', ['permissions' => $permissions]);
+    }
+
+    /**
      * The edit page.
      */
     #[Route('/scholarships/{id}/edit', name: 'scholarship_edit', requirements: ['id' => '\d+'])]
