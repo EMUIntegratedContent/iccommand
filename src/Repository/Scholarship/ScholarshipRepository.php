@@ -3,6 +3,8 @@ namespace App\Repository\Scholarship;
 
 use App\Entity\Scholarship\Scholarship;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Andx;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -96,6 +98,11 @@ class ScholarshipRepository extends ServiceEntityRepository
      * are left out unless $includeExpired is set.
      *
      * Unknown or empty parameters are ignored, so no criteria returns everything active.
+     *
+     * Parameters fall into two kinds. Eligibility criteria describe the searcher ("I am a
+     * junior from Michigan") and can be waived by a catch-all scholarship. Filters describe
+     * the scholarship itself (title, dates, catch-all status) and always narrow the result,
+     * so a text or date search cannot drag in unrelated catch-alls.
      */
     public function searchPublicScholarships(array $params, bool $includeExpired = false): array
     {
@@ -108,26 +115,61 @@ class ScholarshipRepository extends ServiceEntityRepository
                 ->setParameter('today', new \DateTime('today'));
         }
 
-        // Every criterion is collected here rather than applied directly, so a catch-all
-        // scholarship can ignore the whole group (see the OR wrap at the end). Parameters
-        // are still bound on $qb.
+        $this->applyContentFilters($qb, $params);
+        $this->applyDateFilters($qb, $params);
+
+        // A searcher who does not want generic awards can filter them out, which also
+        // defeats the escape hatch below since its branch can then never be satisfied.
+        $catchAll = $this->cleanBool($params['catchAll'] ?? null);
+        if ($catchAll !== null) {
+            $qb->andWhere('s.catchAll = :catchAll')
+                ->setParameter('catchAll', $catchAll);
+        }
+
+        $criteria = $this->buildEligibilityCriteria($qb, $params);
+
+        // Catch-all scholarships always come back regardless of the eligibility criteria, but
+        // still respect the active + expiration gate and the filters above. With no criteria
+        // supplied the group is empty and the query returns everything active, as before.
+        if ($criteria->count() > 0) {
+            $qb->andWhere($qb->expr()->orX('s.catchAll = true', $criteria));
+        }
+
+        return $this->warmLinkCollections($qb->getQuery()->getResult());
+    }
+
+    /**
+     * Builds the eligibility half of the public search. The criteria are collected into an
+     * AND group rather than applied to the builder, so the caller can OR the whole group
+     * against the catch-all flag. Parameters are still bound on $qb.
+     */
+    private function buildEligibilityCriteria(QueryBuilder $qb, array $params): Andx
+    {
         $criteria = $qb->expr()->andX();
 
         // Dropdown values, so they have to match exactly.
-        foreach (['gender' => 'gender', 'ethnicity' => 'ethnicity', 'state' => 'state'] as $key => $field) {
-            $value = $this->cleanParam($params[$key] ?? null);
+        foreach (['gender', 'ethnicity', 'state', 'housing'] as $field) {
+            $value = $this->cleanParam($params[$field] ?? null);
             if ($value !== null) {
-                $criteria->add('s.' . $field . ' = :' . $key);
-                $qb->setParameter($key, $value);
+                $criteria->add("s.$field = :$field");
+                $qb->setParameter($field, $value);
             }
         }
 
         // Free text in the admin form, so match on a substring.
-        foreach (['city' => 'city', 'county' => 'county', 'highSchool' => 'highSchool'] as $key => $field) {
-            $value = $this->cleanParam($params[$key] ?? null);
+        foreach (['city', 'county', 'highSchool', 'enrollment'] as $field) {
+            $value = $this->cleanParam($params[$field] ?? null);
             if ($value !== null) {
-                $criteria->add('s.' . $field . ' LIKE :' . $key);
-                $qb->setParameter($key, '%' . $value . '%');
+                $criteria->add("s.$field LIKE :$field");
+                $qb->setParameter($field, '%' . $value . '%');
+            }
+        }
+
+        // The searcher answers these about themselves. A "no" rules out the scholarships that
+        // require it; a "yes" is no restriction at all, so no clause is emitted.
+        foreach (['isFafsa', 'isParent', 'isBilingual'] as $field) {
+            if ($this->cleanBool($params[$field] ?? null) === false) {
+                $criteria->add("s.$field = false");
             }
         }
 
@@ -179,7 +221,8 @@ class ScholarshipRepository extends ServiceEntityRepository
 
         // The keyword tab accepts a comma separated list and matches any of them against
         // the managed keyword links.
-        $keywords = array_filter(array_map('trim', explode(',', (string)($params['keyword'] ?? ''))));
+        $rawKeywords = $params['keyword'] ?? null;
+        $keywords = is_string($rawKeywords) ? array_filter(array_map('trim', explode(',', $rawKeywords))) : [];
         if ($keywords !== []) {
             $orX = $qb->expr()->orX();
             foreach (array_values($keywords) as $i => $keyword) {
@@ -189,14 +232,51 @@ class ScholarshipRepository extends ServiceEntityRepository
             $criteria->add($orX);
         }
 
-        // Catch-all scholarships always come back regardless of the criteria, but still
-        // respect the active + expiration gate above. With no criteria supplied the group
-        // is empty and the query returns everything active, exactly as before.
-        if ($criteria->count() > 0) {
-            $qb->andWhere($qb->expr()->orX('s.catchAll = true', $criteria));
+        return $criteria;
+    }
+
+    /**
+     * Substring filters over the descriptive fields. These narrow the result on their own,
+     * so they are applied to the builder rather than added to the eligibility group.
+     */
+    private function applyContentFilters(QueryBuilder $qb, array $params): void
+    {
+        foreach (['title', 'overview', 'description', 'appProc', 'amount', 'url', 'contact'] as $field) {
+            $value = $this->cleanParam($params[$field] ?? null);
+            if ($value !== null) {
+                $qb->andWhere("s.$field LIKE :$field")
+                    ->setParameter($field, '%' . $value . '%');
+            }
+        }
+    }
+
+    /**
+     * Inclusive date ranges over the apply and expiration dates, plus the openNow shortcut.
+     * A range excludes rows whose date is null, since a missing date cannot fall inside one.
+     */
+    private function applyDateFilters(QueryBuilder $qb, array $params): void
+    {
+        $ranges = [
+            'applyDateFrom' => ['applyDate', '>='],
+            'applyDateTo' => ['applyDate', '<='],
+            'expDateFrom' => ['expDate', '>='],
+            'expDateTo' => ['expDate', '<='],
+        ];
+
+        foreach ($ranges as $key => [$field, $operator]) {
+            $date = $this->cleanDate($params[$key] ?? null);
+            if ($date !== null) {
+                $qb->andWhere("s.$field $operator :$key")
+                    ->setParameter($key, $date);
+            }
         }
 
-        return $this->warmLinkCollections($qb->getQuery()->getResult());
+        // Only expDate gates the feed, so a scholarship whose applications have not opened yet
+        // is otherwise indistinguishable from an open one.
+        if ($this->cleanBool($params['openNow'] ?? null) === true) {
+            $qb->andWhere('(s.applyDate IS NULL OR s.applyDate <= :openNowToday)')
+                ->setParameter('openNowToday', new \DateTime('today'));
+        }
     }
 
     /**
@@ -212,5 +292,41 @@ class ScholarshipRepository extends ServiceEntityRepository
             return null;
         }
         return $value;
+    }
+
+    /**
+     * Reads a tri-state boolean parameter. Blanks, the "any" sentinel and anything that is
+     * not a recognizable boolean mean no filter, so garbage never silently reads as false.
+     */
+    private function cleanBool($value): ?bool
+    {
+        if (!is_scalar($value)) {
+            return null;
+        }
+        $value = trim((string)$value);
+        if ($value === '' || strcasecmp($value, 'any') === 0) {
+            return null;
+        }
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    }
+
+    /**
+     * Parses a Y-m-d date parameter. Anything unparseable is ignored rather than fatal, so a
+     * malformed query string cannot 500 a public endpoint.
+     */
+    private function cleanDate($value): ?\DateTimeInterface
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        // The "!" resets the time to midnight; the round trip rejects values like 2026-13-45,
+        // which createFromFormat would otherwise roll over into a real date.
+        $date = \DateTime::createFromFormat('!Y-m-d', $value);
+        return $date !== false && $date->format('Y-m-d') === $value ? $date : null;
     }
 }
