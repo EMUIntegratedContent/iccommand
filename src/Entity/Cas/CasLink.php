@@ -24,7 +24,7 @@ class CasLink {
 	private ?CasCycle $cycle = null;
 
 	/**
-	 * Logical FK to programs.program_programs.id (cross-database, no DB constraint).
+	 * Logical FK to program_programs.id (cross-database, no DB constraint).
 	 * Nullable for non-program entries (Guest Student, Non-Degree Admission, etc.)
 	 */
 	#[ORM\Column(type: "integer", nullable: true)]

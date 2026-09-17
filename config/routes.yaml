@@ -34,6 +34,10 @@ programs:
   resource: App\Controller\Api\Programs\ProgramsController
   prefix: /api/programs/
 
+programs_external:
+  resource: App\Controller\Api\Programs\ProgramsExternalController
+  prefix: /api/external/programs/
+
 crimelog:
   resource: App\Controller\Api\CrimeLog\CrimeLogController
   prefix: /api/crimelog/
@@ -65,3 +69,19 @@ social_media:
 social_media_external:
   resource: App\Controller\Api\SocialMedia\SocialMediaExternalController
   prefix: /api/external/social-media/
+
+scholarship_keywords:
+  resource: App\Controller\Api\Scholarship\ScholarshipKeywordController
+  prefix: /api/scholarships/
+
+scholarship_organizations:
+  resource: App\Controller\Api\Scholarship\ScholarshipOrganizationController
+  prefix: /api/scholarships/
+
+scholarships:
+  resource: App\Controller\Api\Scholarship\ScholarshipController
+  prefix: /api/scholarships/
+
+scholarships_external:
+  resource: App\Controller\Api\Scholarship\ScholarshipExternalController
+  prefix: /api/external/scholarships/

@@ -158,6 +158,16 @@ export default {
 					buttonLink: "/social-media",
 					display: false,
 					category: "Maps & Directories"
+				},
+				scholarships: {
+					// Added Aug. 2026
+					title: "Scholarships",
+					description:
+						'The scholarships application manages scholarship listings and their criteria for display at <a href="https://www.emich.edu/finaid/types/scholarships" target="_blank">emich.edu/finaid</a>.',
+					buttonText: "Manage Scholarships",
+					buttonLink: "/scholarships",
+					display: false,
+					category: "Program Marketing"
 				}
 			}
 		}
@@ -242,6 +252,12 @@ export default {
 			}
 			if (role.includes("ROLE_SOCIAL_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.social.display = true
+			}
+			if (
+				role.includes("ROLE_SCHOLARSHIP_") ||
+				role.includes("ROLE_GLOBAL_ADMIN")
+			) {
+				this.userModules.scholarships.display = true
 			}
 		}
 	}

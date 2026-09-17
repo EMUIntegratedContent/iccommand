@@ -17,16 +17,20 @@ doctrine:
                 port: '%env(resolve:DATABASE_PORT)%'
                 user: '%env(resolve:DATABASE_USER)%'
                 password: '%env(resolve:DATABASE_PASSWORD)%'
-            # Acalog Programs (godzilla/kingkong)
+            # Programs — PART OF THE DEFAULT (ic) DATABASE AS OF JUNE 2026.
+            # Previously a separate godzilla/kingkong schema. The connection is kept as a
+            # distinct entity manager (see orm.entity_managers.programs below) so the
+            # Programs entities keep their own mapping, but it now points at the ic database.
+            # The DATABASE_*_PROGRAMS env vars in .env are consequently unused.
             programs:
                 # configure these for your database server
                 driver: 'pdo_mysql'
                 charset: utf8mb4
-                dbname: '%env(resolve:DATABASE_NAME_PROGRAMS)%'
-                host: '%env(resolve:DATABASE_HOST_PROGRAMS)%'
-                port: '%env(resolve:DATABASE_PORT_PROGRAMS)%'
-                user: '%env(resolve:DATABASE_USER_PROGRAMS)%'
-                password: '%env(resolve:DATABASE_PASSWORD_PROGRAMS)%'
+                dbname: '%env(resolve:DATABASE_NAME)%'
+                host: '%env(resolve:DATABASE_HOST)%'
+                port: '%env(resolve:DATABASE_PORT)%'
+                user: '%env(resolve:DATABASE_USER)%'
+                password: '%env(resolve:DATABASE_PASSWORD)%'
             # DPS (godzilla/dps)
             dps:
                 # configure these for your database server

@@ -55,8 +55,8 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine
 		$websitesSql = "
 			SELECT w.*, p.id AS prog_id
-			FROM programs.program_websites w
-			LEFT JOIN programs.program_programs p ON p.program = w.program
+			FROM program_websites w
+			LEFT JOIN program_programs p ON p.program = w.program
 			ORDER BY w.url, w.program ASC
 			LIMIT $offset, $pageSize
 		";
@@ -78,8 +78,8 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 	public function searchResults($searchTerm): array{
 		$websitesSql = "
 			SELECT DISTINCT w.id, w.url, p.id AS prog_id, CONCAT(w.url,' -> ', p.full_name) AS display
-			FROM programs.program_websites w
-			LEFT JOIN programs.program_programs p ON p.full_name = w.program
+			FROM program_websites w
+			LEFT JOIN program_programs p ON p.full_name = w.program
 				OR p.program = w.program
 			WHERE w.program LIKE :searchTerm OR w.url LIKE :searchTerm
 			ORDER BY w.url, w.program ASC

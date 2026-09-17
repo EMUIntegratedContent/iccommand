@@ -114,6 +114,12 @@ app.component("socialmedia-list", require("./components/socialmedia/SocialMediaL
 app.component("socialmedia-form", require("./components/socialmedia/SocialMediaForm.vue").default);
 app.component("socialmedia-delete-modal", require("./components/socialmedia/SocialMediaDeleteModal.vue").default);
 
+/* Scholarships Application */
+app.component("scholarship-list", require("./components/scholarship/ScholarshipList.vue").default);
+app.component("scholarship-form", require("./components/scholarship/ScholarshipForm.vue").default);
+app.component("scholarship-keywords-list", require("./components/scholarship/ScholarshipKeywordsList.vue").default);
+app.component("scholarship-organizations-list", require("./components/scholarship/ScholarshipOrganizationsList.vue").default);
+
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(CKEditor)

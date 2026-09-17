@@ -29,7 +29,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['photos'])]
     private ?string $username;
 
+    // Never serialize the hash into API responses.
     #[ORM\Column(type: "string")]
+    #[Serializer\Ignore]
     private string $password;
 
     #[ORM\Column(type: "boolean")]
