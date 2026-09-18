@@ -1,5 +1,7 @@
 // https://symfony.com/doc/current/frontend/encore/simple-example.html
-const Encore = require('@symfony/webpack-encore')
+// @symfony/webpack-encore v7+ is an ES module; under CommonJS require() the
+// Encore instance is exposed on the interop `default` export.
+const Encore = require('@symfony/webpack-encore').default
 const path = require('path')
 const webpack = require('webpack')
 
@@ -18,6 +20,11 @@ Encore
     // allow legacy applications to use $/jQuery as a global variable
     .autoProvidejQuery()
     .enableSourceMaps(!Encore.isProduction())
+    // encore 7 no longer minifies CSS by default and ships no bundled
+    // minifier; opt in explicitly and use cssnano (encore 6's old default)
+    .configureCssMinimizerPlugin((options, MinimizerPlugin) => {
+        options.minify = MinimizerPlugin.cssnanoMinify
+    })
     // empty the outputPath dir before each build
     .cleanupOutputBeforeBuild()
     // show OS notifications when builds finish/fail
