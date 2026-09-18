@@ -215,7 +215,11 @@ class ProgramsService
 			static fn($m) => in_array($m, [0, 1, 2], true)
 		));
 		if ($modes !== []) {
-			$where .= ' AND pd.delivery_id IN (' . implode(',', $modes) . ')';
+			// Filter which PROGRAMS match by mode via EXISTS, so the outer program_delivery
+			// join stays unfiltered and GROUP_CONCAT(pd.delivery_id) still returns ALL of a
+			// program's modes (e.g. filtering Online still yields "0:1" for a hybrid+online program).
+			$where .= ' AND EXISTS (SELECT 1 FROM program_delivery pdf'
+				. ' WHERE pdf.program_id = p.id AND pdf.delivery_id IN (' . implode(',', $modes) . '))';
 		}
 
 		// --- Sort (whitelisted field + direction) ---------------------------------

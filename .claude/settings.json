@@ -31,7 +31,8 @@
       "Bash(php -d error_reporting=E_ALL -r 'str_getcsv\\(\"a,b\"\\);')",
       "Bash(echo \"exit=$?\")",
       "Bash(php /private/tmp/claude-502/-Users-cpuzzuol-emu-iccommand/5a5a6118-d786-4fe4-9199-93765ba2a2fb/scratchpad/gen_program.php)",
-      "Bash(docker rm *)"
+      "Bash(docker rm *)",
+      "Bash(php -l /Users/cpuzzuol/emu/iccommand/src/Service/ProgramsService.php)"
     ]
   }
 }
