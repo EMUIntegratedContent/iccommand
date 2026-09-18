@@ -14,7 +14,13 @@ Encore
     // will create public/build/app.js and public/build/app.css
     .addEntry('app', './assets/js/app.js')
     // allow sass/scss files to be processed
-    .enableSassLoader(function(sassOptions) {}, {
+    .enableSassLoader(function(options) {
+        // Bootstrap 4 and Font Awesome 4 SCSS trip Dart Sass 2.0 deprecations
+        // (mixed-decls, / division, abs() percent). quietDeps silences warnings
+        // originating from @imported dependencies (node_modules) while keeping
+        // warnings for our own SCSS.
+        options.sassOptions = { quietDeps: true }
+    }, {
        resolveUrlLoader: false
     })
     // allow legacy applications to use $/jQuery as a global variable
