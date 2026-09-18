@@ -549,7 +549,9 @@ class ProgramsController extends AbstractController
 
 		$message = sprintf('%d created.', count($result['created']));
 
-		$message .= sprintf('<br>%d skipped (already exists):', count($skipped));
+		$message .= sprintf('<br>%d program link(s) applied.', $result['linked']);
+
+		$message .= sprintf('<br>%d skipped (keyword already exists, not re-created):', count($skipped));
 		if (count($skipped) > 0) {
 			$message .= sprintf('<ul><li>%s</li></ul>', implode('</li><li>', $skipped));
 		}

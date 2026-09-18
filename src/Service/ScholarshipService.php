@@ -346,11 +346,11 @@ class ScholarshipService
      * Case-insensitive + in-batch dedupe; optionally links to a scholarship.
      *
      * @param array<int, array{keyword?: string, scholarship_id?: mixed}> $rows
-     * @return array{created:int, skipped:int, rejected:int, linkSkipped:int}
+     * @return array{created:int, skipped:int, rejected:int, linked:int, linkSkipped:int}
      */
     public function bulkCreateKeywords(array $rows, ?DebugDataHolder $debug = null): array
     {
-        $created = $skipped = $rejected = $linkSkipped = 0;
+        $created = $skipped = $rejected = $linked = $linkSkipped = 0;
         $seenInCsv = [];
         $i = 0;
 
@@ -382,6 +382,7 @@ class ScholarshipService
             if ($scholarshipId > 0 && $keyword !== null) {
                 if ($this->em->find(Scholarship::class, $scholarshipId) !== null) {
                     $this->linkScholarshipToKeyword($keyword->getId(), $scholarshipId);
+                    $linked++;
                 } else {
                     $linkSkipped++;
                 }
@@ -393,7 +394,7 @@ class ScholarshipService
             }
         }
 
-        return ['created' => $created, 'skipped' => $skipped, 'rejected' => $rejected, 'linkSkipped' => $linkSkipped];
+        return ['created' => $created, 'skipped' => $skipped, 'rejected' => $rejected, 'linked' => $linked, 'linkSkipped' => $linkSkipped];
     }
 
     /* **************************** Organizations **************************** */
