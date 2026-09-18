@@ -108,7 +108,8 @@ class ScholarshipKeywordController extends AbstractController
 
         // Counts only — no user-supplied names echoed, so nothing to HTML-escape.
         $message = sprintf('%d created.', $result['created']);
-        $message .= sprintf('<br>%d skipped (already exists).', $result['skipped']);
+        $message .= sprintf('<br>%d scholarship link(s) applied.', $result['linked']);
+        $message .= sprintf('<br>%d skipped (keyword already exists, not re-created).', $result['skipped']);
         $message .= sprintf('<br>%d rejected (blank keyword).', $result['rejected']);
         if ($result['linkSkipped'] > 0) {
             $message .= sprintf('<br>%d created but scholarship link skipped (scholarship not found).', $result['linkSkipped']);

@@ -607,18 +607,21 @@ class ProgramsService
 	 *
 	 * Each row is an associative array with a required 'keyword' and an optional
 	 * 'program_id'. Per-row rules:
-	 *  - blank keyword            -> rejected (nothing created)
-	 *  - keyword already exists   -> skipped (nothing created, no link; includes CSV duplicates)
-	 *  - new keyword, no id       -> keyword created
-	 *  - new keyword, valid id    -> keyword created + linked to program
-	 *  - new keyword, bad id      -> keyword created, link skipped (program not found)
+	 *  - blank keyword                        -> rejected (nothing created)
+	 *  - keyword already exists               -> not re-created (counted as skipped), but the
+	 *                                            row's program_id is still linked. A keyword may
+	 *                                            appear on many rows, one per program it links to
+	 *                                            (includes CSV duplicates).
+	 *  - new keyword, no id                   -> keyword created
+	 *  - keyword (new or existing) + valid id -> linked to program
+	 *  - keyword (new or existing) + bad id   -> link skipped (program not found)
 	 *
 	 * Flushes per created keyword (via createKeyword), and clears the EntityManager every
 	 * 50 processed rows so managed entities do not accumulate for large uploads.
 	 * @param array $rows
 	 * @param DebugDataHolder|null $debugDataHolder optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
 	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
-	 * @return array{created: string[], skipped: string[], rejected: int, linkSkipped: string[]}
+	 * @return array{created: string[], skipped: string[], rejected: int, linked: int, linkSkipped: string[]}
 	 */
 	public function bulkCreateKeywords(array $rows, ?DebugDataHolder $debugDataHolder = null): array
 	{
@@ -627,6 +630,7 @@ class ProgramsService
 		$created = [];
 		$skipped = [];
 		$linkSkipped = [];
+		$linked = 0;
 		$rejected = 0;
 		$seenInCsv = [];
 		$rowsSinceLastClear = 0;
@@ -640,29 +644,33 @@ class ProgramsService
 
 			$nameKey = mb_strtolower($keywordName);
 
-			// In-memory check covers duplicates within the same CSV; DB check covers existing keywords.
-			// findOneByKeyword() can load entities into the EM, so count those toward clear as well.
-			if (isset($seenInCsv[$nameKey]) || $repository->findOneByKeyword($keywordName)) {
+			// Resolve the keyword id for this row. A keyword may legitimately appear on several
+			// rows -- one per program it should be linked to -- so a repeat is NOT skipped
+			// outright: we reuse the existing keyword and still process this row's link below.
+			// $seenInCsv covers repeats within this CSV; findOneByKeyword() covers keywords
+			// already in the DB. The id (not a managed entity) is stored so it stays valid
+			// across the periodic em->clear() further down.
+			if (isset($seenInCsv[$nameKey])) {
+				$keywordId = $seenInCsv[$nameKey];
 				$skipped[] = $keywordName;
-				$rowsSinceLastClear++;
-				if ($rowsSinceLastClear >= 50) {
-					// Clear EM + wipe debug query/backtrace buffer every 50 rows.
-					$this->em->clear();
-					$debugDataHolder?->reset();
-					$rowsSinceLastClear = 0;
-				}
-				continue;
+			} elseif ($existing = $repository->findOneByKeyword($keywordName)) {
+				$keywordId = $existing->getId();
+				$seenInCsv[$nameKey] = $keywordId;
+				$skipped[] = $keywordName;
+			} else {
+				$keywordId = $this->createKeyword($keywordName)->getId();
+				$seenInCsv[$nameKey] = $keywordId;
+				$created[] = $keywordName;
 			}
 
-			$keyword = $this->createKeyword($keywordName);
-			$created[] = $keywordName;
-			$seenInCsv[$nameKey] = true;
-
+			// linkProgramToKeyword() works by id via raw SQL and already skips a link that
+			// exists, so re-processing the same keyword/program pair is harmless.
 			$programId = isset($row['program_id']) ? trim((string) $row['program_id']) : '';
 			if ($programId !== '') {
 				$program = $this->getProgramEntity(intval($programId));
 				if ($program) {
-					$this->linkProgramToKeyword($keyword->getId(), intval($programId));
+					$this->linkProgramToKeyword($keywordId, intval($programId));
+					$linked++;
 				} else {
 					$linkSkipped[] = $keywordName;
 				}
@@ -685,6 +693,7 @@ class ProgramsService
 			'created' => $created,
 			'skipped' => $skipped,
 			'rejected' => $rejected,
+			'linked' => $linked,
 			'linkSkipped' => $linkSkipped,
 		];
 	}
