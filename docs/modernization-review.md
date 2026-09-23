@@ -21,7 +21,7 @@ Section 6 proposes three roadmap options and a recommended sequence. Everything 
 
 | # | Finding | Who can exploit it |
 |---|---|---|
-| S1 | The 10 admin routes of the Redirect and Uncaught-URL APIs (incl. DELETE, PUT, CSV upload) have no authorization at all. The 5 `external/*` routes that emich.edu's server calls are also unauthenticated. | Anonymous |
+| S1 | The 10 admin routes of the Redirect and Uncaught-URL APIs (incl. DELETE, PUT, CSV upload) have no authorization at all. The 3 write routes the emich.edu 404 page uses to count visits and log bad links are open to anyone, not just the 404 page. | Anonymous |
 | S2 | `POST /api/crimelog/upload` truncates the public Daily Crime Log table and has no authorization | Anonymous |
 | S3 | `PUT /api/admin/users/{username}` lets any logged-in user set anyone's roles (including `ROLE_GLOBAL_ADMIN_SUPER`) and enabled flag | Any user |
 | S4 | Photo request creation and directory search skip auth when *any* `X-API-Key` header is present or the User-Agent contains "API" (the key is never validated) | Anonymous |
@@ -56,35 +56,49 @@ Rough total effort to reach all four goals: **8 to 12 developer-weeks** dependin
 
 | ID | Finding | Evidence | Fix |
 |---|---|---|---|
-| S1 | Redirect and Uncaught-URL APIs are anonymous | `src/Controller/Api/Redirect/RedirectController.php` (9 routes, zero `IsGranted`), `src/Controller/Api/Redirect/UncaughtController.php` (6 routes, zero `IsGranted`). The routes split into two groups (see 2.1a). **Admin routes (10)**, called only by the ICCommand Vue UI: `DELETE /api/redirects/{id}` (:101), list, search, get, `POST/PUT /api/redirects/` (:173, :274), `POST /api/redirects/upload` (:468), and the uncaught DELETE/GET/PUT. **Server-to-server routes (5)**, called by emich.edu's server: `GET|PUT /api/redirects/external/redirect` and `GET|POST|PUT /api/uncaughts/external/uncaught`. Redirects feed the public emich.edu site. | Admin routes: add `IsGranted` with `ROLE_REDIRECT_USER`/`ROLE_REDIRECT_ADMIN`; no emich.edu change needed. Server-to-server routes: stay login-free but require a shared secret (see 2.1a). Add a catch-all `access_control` floor for `^/api` that lists these five paths explicitly as exceptions, so an unguarded route cannot recur. |
+| S1 | Redirect and Uncaught-URL APIs are anonymous | `src/Controller/Api/Redirect/RedirectController.php` (9 routes, zero `IsGranted`), `src/Controller/Api/Redirect/UncaughtController.php` (6 routes, zero `IsGranted`). The routes split into two groups (see 2.1a). **Admin routes (10)**, called only by the ICCommand Vue UI: `DELETE /api/redirects/{id}` (:101), list, search, get, `POST/PUT /api/redirects/` (:173, :274), `POST /api/redirects/upload` (:468), and the uncaught DELETE/GET/PUT. **emich.edu 404-page routes (5)**, called by the script on emich.edu's PHP 404 page: `GET|PUT /api/redirects/external/redirect` and `GET|POST|PUT /api/uncaughts/external/uncaught`. Redirects feed the public emich.edu site. | Admin routes: add `IsGranted` with `ROLE_REDIRECT_USER`/`ROLE_REDIRECT_ADMIN`; no emich.edu change needed. The five emich.edu 404-page routes stay login-free: the two GETs fully public, the three writes rate-limited and validated or token-protected depending on where the 404 script runs (see 2.1a). Add a catch-all `access_control` floor for `^/api` that lists these five paths explicitly as exceptions, so an unguarded route cannot recur. |
 | S2 | Anonymous truncation and replacement of the Daily Crime Log | `src/Controller/Api/CrimeLog/CrimeLogController.php:56` has no guard; line 85 calls `truncateCrimeLogTable()` which runs `TRUNCATE TABLE dailylog` (`src/Repository/CrimeLog/CrimeLogRepository.php:31`) before any row is validated. This is a Clery-related public record. | Guard with `ROLE_CRIMELOG_USER`; validate the whole CSV before truncating; wrap in a transaction. |
 | S3 | Privilege escalation via profile update | `src/Controller/Api/Admin/UserController.php:74-99`: `PUT /api/admin/users/{username}` is `#[IsGranted('ROLE_USER')]`, takes any `{username}`, and calls `setRoles($data['roles'])` and `setEnabled($data['enabled'])` from the raw JSON body. `assets/js/components/Profile.vue` posts the whole user object to this endpoint. | Split into a self-service `/api/profile` endpoint that cannot touch roles or enabled, and an admin endpoint requiring `ROLE_GLOBAL_ADMIN` with an allow-list of grantable roles. |
 | S4 | Fake API-key bypass | `src/Controller/Api/PhotoRequest/PhotoRequestController.php:198-210` and `src/Controller/Api/Directory/DirectoryController.php:94-107`: auth is skipped if `X-API-Key` is present (value never checked) or the User-Agent matches `/API/i`. | Validate a real secret from env with `hash_equals`, or move the public parts under `/api/external` deliberately. |
 | S5 | Authenticated remote code execution via image upload | `src/Controller/Api/UserImageController.php:121` and `src/Controller/Api/Map/MapItemImageController.php:196` check only the sniffed MIME type and size. `src/Entity/Document.php:150-153` keeps the client filename (extension included) and line 165 moves it under `public/`. `public/.htaccess` serves existing files directly; `docker_vhost.conf` has `AllowOverride All`; `docker_postscript.sh:11` makes `public/` writable. Any `ROLE_USER` can reach the profile upload. | Generate random server-side filenames with an extension derived from the sniffed type; store uploads outside the web root or deny PHP execution under `public/uploads`; validate with `getimagesize()`. **Needs confirmation** whether the production Apache config behaves like the Docker one. |
 
-### 2.1a The emich.edu server-to-server routes
+### 2.1a The emich.edu 404-page routes
 
-Five routes exist so that emich.edu's web server can look up a redirect, count a visit, and log a 404:
+When a visitor requests a bad URL such as `emich.edu/badlink`, emich.edu's server renders its PHP 404 page, and a script on that page calls ICCommand to look up a redirect, count a visit, or log the 404. Five routes serve this:
 
-| Route | What it does | Harm if anyone can call it |
+| Route | What it does | Decision / harm if anyone can call it |
 |---|---|---|
-| `GET /api/redirects/external/redirect?url=` | returns the redirect target | Low. The mapping is effectively public already, since emich.edu performs the redirect for anyone. |
-| `PUT /api/redirects/external/redirect` | increments visit count, sets last-visit date | Medium. Anyone can inflate or fake usage analytics that staff use to decide which redirects to keep. |
-| `GET /api/uncaughts/external/uncaught?url=` | checks whether a 404 URL is already logged | Low. |
-| `POST /api/uncaughts/external/uncaught` | inserts a new 404 row | Medium. Unlimited anonymous inserts with no length or dedupe check (S18) can flood the table and the admin UI's suggestions list. |
+| `GET /api/redirects/external/redirect?url=` | returns the redirect target | **Stays fully public** so developers can test it from a browser or Postman. Low harm: emich.edu already performs the redirect for anyone. |
+| `GET /api/uncaughts/external/uncaught?url=` | checks whether a 404 URL is already logged | **Stays fully public**, same reason. Low harm. |
+| `PUT /api/redirects/external/redirect` | increments visit count, sets last-visit date | Medium. Anyone can inflate usage analytics that staff use to decide which redirects to keep. |
+| `POST /api/uncaughts/external/uncaught` | inserts a new 404 row | Medium. Unlimited inserts with no length or dedupe check (S18) can flood the table and the admin suggestions list. |
 | `PUT /api/uncaughts/external/uncaught` | increments a 404's visit count | Medium. Same analytics-poisoning risk. |
 
-These must not get `IsGranted`, because emich.edu's server has no ICCommand login. The fix is a **shared secret** instead:
+Note that the paths are `/api/redirects/external/...` and `/api/uncaughts/external/...`, not `/api/external/...`. They are outside the existing `^/api/external` public rule, so the new `^/api` floor needs explicit exceptions for these five paths (or the routes can move under `/api/external`, which requires changing the emich.edu 404 page).
 
-- Generate a random token, store it as an env var on both servers (for example `EMICH_API_TOKEN`), and have emich.edu send it in a header such as `X-ICCommand-Token`.
-- In ICCommand, check it with `hash_equals()` in a small request subscriber or a custom Symfony authenticator scoped to those five paths. The existing fake `X-API-Key` check (S4) shows the shape; this one compares the value.
-- Optionally also allow-list emich.edu's server IP(s) at the Apache or firewall level, which blocks traffic before PHP runs.
-- **Keep the current URLs.** Moving them under `/api/external` would be tidier but requires a coordinated change on emich.edu. Instead, add explicit `access_control` entries for these five paths.
-- Rollout order: deploy ICCommand accepting the token but not yet requiring it and logging when it is missing; update emich.edu to send it; then switch to rejecting requests without it. That avoids a window where redirects stop working.
+The right protection for the three write routes depends on **where the 404 page's script runs**, which needs confirmation:
 
-> **Ops note: why a secret works here but not in the browser.** A token embedded in JavaScript is visible to every visitor, so it protects nothing. A token held in emich.edu's server configuration never reaches the browser, so only that server can present it. This is also why CORS settings are irrelevant for these routes: CORS is enforced by browsers, and a server-to-server call ignores it entirely.
+**Case 1: JavaScript that runs in the visitor's browser (likely).** The CORS config allows `www.emich.edu`, `webstage`, `wwwtmp` and `wwwcache` origins to send PUT and POST to `/api/`, which only matters for browser calls.
 
-**Needs confirmation:** whether emich.edu calls these routes from its server on every page view, or only on 404 and redirect paths, and whether it forwards the visitor's User-Agent. Both affect the rate-limiter design below.
+- A shared secret **cannot work**. Anything in the page's JavaScript is visible in view-source.
+- CORS is not protection. It stops *other websites'* JavaScript from calling the API in a visitor's browser, but curl, Postman or a script ignore it.
+- These write routes are therefore public by nature, like any client-side analytics beacon. The goal is to limit damage, not to block access:
+  - **Per-IP rate limiting on the three write routes**, which works in this case because the client IP is the real visitor's. Keep GETs unlimited for developer testing.
+  - Configure `trusted_proxies` if a load balancer sits in front of ICCommand; otherwise every visitor shares the proxy's IP.
+  - Validate input: cap the URL length, require a path on an emich.edu host, dedupe on `link`.
+  - Count at most one visit per IP per URL per time window, so replaying requests cannot inflate counts.
+  - Accept that the counts are approximate and say so in the admin UI.
+
+**Case 2: PHP code on emich.edu's server (for example `curl` or `file_get_contents`).** Then only emich.edu's server ever calls ICCommand:
+
+- A shared secret works. Store a random token in both servers' config, send it in a header such as `X-ICCommand-Token`, and check it with `hash_equals()`. Require it on the three write routes only; GETs stay open.
+- Optionally allow-list emich.edu's server IPs at the Apache or firewall level for the write routes.
+- CORS is irrelevant, and per-IP rate limiting must **not** be applied, because every visitor arrives from emich.edu's one server IP (see S10).
+- Roll out in log-only mode first: accept but don't require the token, update emich.edu, then enforce.
+
+**If it is Case 1, consider moving to Case 2.** Having the 404 page's PHP call ICCommand server-side, instead of emitting JavaScript, is a small change on emich.edu. It makes the write routes properly protectable and hides ICCommand's API from visitors.
+
+> **Ops note: CORS in one sentence.** CORS is a rule the *browser* enforces about which websites' JavaScript may read responses from another site; it has no effect on requests from servers, curl or Postman, so it is never an access control on its own.
 
 ### 2.2 High
 
@@ -94,7 +108,7 @@ These must not get `IsGranted`, because emich.edu's server has no ICCommand logi
 | S7 | No login throttling | No `login_throttling` on any firewall. Online brute force against AD accounts is possible. | `login_throttling: { max_attempts: 5 }` on `main`. |
 | S8 | Disabled accounts still log in on staging and prod | `App\Security\UserChecker` is wired only on the `dev` firewall (`security.yaml:93`). | Add `user_checker` to staging and prod firewalls. |
 | S9 | CKEditor HTML is stored and served unsanitized to public emich.edu consumers | No `symfony/html-sanitizer` in `composer.json`, no sanitizer calls in `src`. Affected: emergency banner/notices (`GET /api/emergency/banner`), scholarship text fields (`/api/external/scholarships/*`), program overview, map hours (`/api/external/mapitems`). Also rendered in-app via `v-html`. `npm audit` reports the pinned CKEditor 5 v37 has a known XSS (GHSA-jrqm-vmqc-gm93, fixed in 47.6). | Sanitize on write with `symfony/html-sanitizer` allow-list; DOMPurify on render; upgrade CKEditor (licence review needed, see 3.3). |
-| S10 | Rate limiter is effectively dead code, runs twice, and is keyed on the wrong thing | `src/EventSubscriber/RateLimitSubscriber.php:43` uses `in_array($userAgent, [...])` (exact match; a real Googlebot UA never matches) and only for one route. It keys the limit on `getClientIp()`. Because emich.edu's server makes these calls, the client IP is always emich.edu's server and the User-Agent is that server's HTTP client, not the visitor's browser or a bot. So the bot check cannot match, and **if it did match, every visitor to emich.edu would share one 50-per-hour bucket**. `config/services.yaml:43` registers the subscriber a second time on top of autoconfiguration. | Delete the manual service definition. **Do not** simply drop the UA gate and apply the limit to these routes; that would throttle the whole emich.edu site to 50 redirects per hour. Once the shared secret (2.1a) is in place, rate-limit only requests *without* a valid token. Bot throttling belongs on emich.edu, which sees the real visitor. If emich.edu forwards the visitor's UA and IP in headers, ICCommand could key on those instead, but only for token-bearing requests. |
+| S10 | Rate limiter is effectively dead code, runs twice, and its design depends on how emich.edu calls it | `src/EventSubscriber/RateLimitSubscriber.php:43` uses `in_array($userAgent, [...])` (exact match; a real Googlebot UA such as `Mozilla/5.0 (compatible; Googlebot/2.1; ...)` never matches) and only for the GET redirect lookup. It keys the limit on `getClientIp()`. `config/services.yaml:43` registers the subscriber a second time on top of autoconfiguration, so each request would consume two tokens. | Delete the manual service definition. Then follow 2.1a: in Case 1 (browser script) apply a per-IP limit to the three write routes and set `trusted_proxies`; in Case 2 (server-side PHP) never rate-limit by IP, because every visitor arrives from emich.edu's server, and rely on the shared token instead. In both cases leave the GET routes unlimited so developers can test them. |
 | S11 | Anonymous SSRF via redirect validation | `RedirectController.php:241, :348, :373` call `get_headers($fullToLink)` on a caller-supplied URL: arbitrary outbound requests from the server, no timeout, follows redirects, 404-or-not oracle. | After S1, use `HttpClientInterface` with allow-listed hosts, timeout, no redirects, ideally off the request path. |
 
 > **Ops note: trusted proxies.** When the app sits behind a load balancer or reverse proxy, PHP sees the proxy's IP as the client. Symfony only reads the real client IP from `X-Forwarded-For` if `framework.trusted_proxies` names that proxy. Without it, any per-IP rate limit counts every user as one client. **Needs confirmation** of the production topology.
@@ -107,7 +121,7 @@ These must not get `IsGranted`, because emich.edu's server has no ICCommand logi
 - **S15 Login and logout without CSRF.** `form_login`/`form_login_ldap` lack `enable_csrf: true`; logout has none, so a cross-site `GET /logout` works.
 - **S16 API relies on SameSite=Lax alone.** `assets/js/bootstrap.js:39-45` looks for a `csrf-token` meta tag that no template emits, and no API controller validates one. Modern browsers block cross-site POST via Lax; legacy or embedded clients are not covered.
 - **S17 No security headers anywhere** (no CSP, `X-Frame-Options`, HSTS, `X-Content-Type-Options`, `Referrer-Policy`) in Apache config, Nelmio, or a subscriber.
-- **S18 Unbounded anonymous DB writes.** `POST /api/uncaughts/external/uncaught` inserts a row per request with no validation, dedupe, length cap, or limit. The shared secret in 2.1a closes the anonymous part. Add a length cap and dedupe on `link` regardless, since emich.edu itself can send junk URLs from scanners probing its site.
+- **S18 Unbounded anonymous DB writes.** `POST /api/uncaughts/external/uncaught` inserts a row per request with no validation, dedupe, length cap, or limit. Add a length cap, a host check and dedupe on `link` in every case, since even legitimate traffic includes junk URLs from scanners probing emich.edu. Rate limiting or a token (2.1a) limits who can write.
 - **S19 Stray scripts in the web root.** `public/check.php` (requirements checker, exposes php.ini details) and `public/tile.php` (raw PHP outside the kernel building a path from `$_GET`).
 - **S20 Bulk-upload result messages are HTML built from CSV values** and rendered with `v-html` (`RedirectController.php:519-524`, `CrimeLogController.php:116`).
 
@@ -371,14 +385,14 @@ All options start with the same **Phase 0: security hotfix** because S1 to S5 ar
 
 ### Phase 0 (all options): security hotfix — 3 to 5 days
 
-- Add `IsGranted` to the 10 Redirect/Uncaught admin routes and the CrimeLog upload; add the `^/api` catch-all `access_control` floor with explicit exceptions for the five emich.edu server-to-server routes.
-- Add the shared-secret check to those five routes, rolled out in log-only mode first (2.1a). Requires a small change on emich.edu.
+- Add `IsGranted` to the 10 Redirect/Uncaught admin routes and the CrimeLog upload; add the `^/api` catch-all `access_control` floor with explicit exceptions for the five emich.edu 404-page routes.
+- Protect the three emich.edu write routes per 2.1a: rate limit and validate if the 404 script runs in the browser, or add a shared token (log-only first) if it runs in PHP on the server. Keep the two GETs public.
 - Split the user PUT into self-service and admin endpoints; allow-list grantable roles.
 - Remove the `X-API-Key`/User-Agent bypass.
 - Random upload filenames with sniffed-type extensions; deny PHP execution under `public/uploads`.
 - Wire `UserChecker` on staging/prod; `login_throttling`; login/logout CSRF; LDAP StartTLS (needs an AD-side check that 389+StartTLS or 636 is offered).
 - Disable the profiler on staging; delete `public/check.php` and `tile.php`; add basic security headers.
-- Fix the rate limiter: remove the duplicate registration, and limit only requests that lack the emich.edu token. Do not apply a per-IP limit to emich.edu's own traffic.
+- Fix the rate limiter: remove the duplicate registration and apply it per 2.1a.
 - Sanitize CKEditor HTML on write with `symfony/html-sanitizer`.
 
 Each item is a candidate for its own small PR. Without a working test suite these ship on manual verification, which is acceptable for guards this simple; the regression tests come in the next phase.
@@ -435,7 +449,7 @@ Phase 0 first, then three workstreams in parallel: (1) test harness + backend re
 4. **Production web server:** confirm whether the upload directory can execute PHP (S5) and whether a reverse proxy sits in front (trusted proxies).
 5. **`programs` entity manager:** retire it now that it points at the same database, or keep it and add the `exclude`.
 6. **Bootstrap 5 and Composition API:** in scope for this effort or deferred.
-7. **emich.edu integration:** who owns the emich.edu code that calls the redirect and uncaught routes, so the shared-secret header can be added; and whether it forwards the visitor's User-Agent and IP.
+7. **emich.edu 404 page:** does its script call ICCommand from the visitor's browser (JavaScript) or from emich.edu's server (PHP)? Who owns that code, and could it move server-side? This decides how the three write routes are protected (2.1a).
 
 ---
 
@@ -445,9 +459,9 @@ Under `/api/external/*` and intentionally public (10): Cas, Programs, Scholarshi
 
 Not under `/api/external` and therefore anonymous today (20):
 
-- `RedirectController`, called by emich.edu's server (need a shared secret, not a login): `GET|PUT /api/redirects/external/redirect`
+- `RedirectController`, called by the emich.edu 404 page (GET stays public; PUT needs rate limiting or a token, not a login): `GET|PUT /api/redirects/external/redirect`
 - `RedirectController`, called by the ICCommand UI (need `IsGranted`): `DELETE /api/redirects/{id}`, `GET /api/redirects/list`, `GET /api/redirects/search`, `GET /api/redirects/{id}`, `POST /api/redirects/`, `PUT /api/redirects/`, `POST /api/redirects/upload`
-- `UncaughtController`, called by emich.edu's server: `GET|POST|PUT /api/uncaughts/external/uncaught`
+- `UncaughtController`, called by the emich.edu 404 page (GET stays public): `GET|POST|PUT /api/uncaughts/external/uncaught`
 - `UncaughtController`, called by the ICCommand UI: `DELETE /api/uncaughts/{id}`, `GET /api/uncaughts/`, `PUT /api/uncaughts/`
 - `POST /api/crimelog/upload`
 - `POST /api/photorequests/` (create; header bypass)
