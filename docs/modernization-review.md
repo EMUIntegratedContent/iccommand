@@ -460,6 +460,31 @@ Prerequisite refactors, by payoff:
 
 All options start with the same **Phase 0: security hotfix** because S1 to S5 are exploitable today and their fixes are small, local, and independent of everything else. Estimates are developer-days for one experienced Symfony/Vue developer and should be treated as ±50%.
 
+### Branching and release strategy (team decision 2026-09-23)
+
+Modernization work collects on a long-lived integration branch, **`feature/modernization`**, created from `master` on 2026-09-23. It merges into `master` when ready. This review document is merged into that branch rather than `master`.
+
+> **Ops note: why urgent fixes cannot wait on the feature branch.** Production updates itself by pulling `master`. Anything merged only into `feature/modernization` does not reach production until that whole branch is merged. A security fix sitting there for weeks is a security fix that is not deployed.
+
+**Where each kind of change goes:**
+
+| Change | Branch from | Pull request into | Why |
+|---|---|---|---|
+| Phase 0 security fixes (S1 to S5, S21, the other Phase 0 items) | `master` | `master` | Live vulnerabilities; must reach production on the next pull. |
+| Production frontend rebuild with versioning and devtools off | `master` | `master` | Production is serving a development build today. |
+| Phase 0a ICCommand steps (shared token, atomic counters, rate limiter removal) | `master` | `master` | They must be live before emich.edu starts sending the token. |
+| Any other fix for a bug users are hitting | `master` | `master` | Same reason. |
+| Phase 1 (test harness and CI), Phase 2 (hygiene), Phase 3 (Vite), Phases 4 and 5 (refactors), and later work | `feature/modernization` | `feature/modernization` | Larger changes that are only safe to ship together once tested. |
+
+**Keeping the two branches in step:**
+
+1. After each fix merges into `master`, merge `master` into `feature/modernization` the same day. Use a merge, not a rebase, so everyone's checkout stays valid.
+2. When the merge conflicts on `public/build`, do not resolve those files by hand. Accept either side, then run the production build on `feature/modernization` and commit the result. Once Vite lands on the feature branch, always keep the feature branch's build and rebuild.
+3. Before the final merge into `master`, deploy `feature/modernization` to staging and click through every module. **Needs confirmation:** whether staging always pulls `master`; if so, check out `feature/modernization` on staging for the test period, then switch staging back.
+4. Merge `feature/modernization` into `master` in stages if it grows large: for example, once after Phase 2, once after Vite, then after the refactors. Smaller merges are easier to test and to roll back.
+
+**Rolling back.** With manual `git pull` deploys, rolling back means checking out the previous `master` commit on the server and running the deploy steps (7.8). Tag `master` before each merge from the feature branch, for example `pre-modernization-1`, so the rollback target is easy to find.
+
 ### Phase 0 (all options): security hotfix — 4 to 6 days
 
 - Add `IsGranted` to the 10 Redirect/Uncaught admin routes and the CrimeLog upload; add the `^/api` catch-all `access_control` floor with explicit exceptions for the five emich.edu 404-page routes.
@@ -479,7 +504,7 @@ All options start with the same **Phase 0: security hotfix** because S1 to S5 ar
   - Enabling versioning while the build is committed is still worth it: it fixes stale caches today and matches what Vite does by default. Until Vite and a scripted deploy land, add a guard that rejects a non-production `public/build/app.js` (a size or `NODE_ENV` check in a pre-commit hook or CI) (7.6, 3.1).
 - Sanitize CKEditor HTML on write with `symfony/html-sanitizer`.
 
-Each item is a candidate for its own small PR. Without a working test suite these ship on manual verification, which is acceptable for guards this simple; the regression tests come in the next phase.
+Each item is a candidate for its own small PR **into `master`** (see the branching strategy above). Without a working test suite these ship on manual verification, which is acceptable for guards this simple; the regression tests come in the next phase.
 
 ### Phase 0a (all options): emich.edu 404-page integration — about 1 day plus coordination
 
