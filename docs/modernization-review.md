@@ -160,44 +160,121 @@ Note that the paths are `/api/redirects/external/...` and `/api/uncaughts/extern
 - `package-lock.bkp.json` (488 KB) is a tracked snapshot of the pre-Encore-7 tree.
 - No `.nvmrc`, ESLint, Prettier, JS test runner, or CI workflow.
 
-### 3.2 Package audit
+### 3.2 Dependency review (npm and Composer)
 
-Live registry check on 2026-09-19. **Bold** = action recommended.
+Every direct dependency was checked on 2026-09-23 against the npm and Packagist registries: installed version, latest version, the release date of that version, deprecation or abandonment flags, licence, and whether the code actually uses it.
 
-| Package | Installed | Used? | Verdict |
+**The headline:** the Composer side is healthy. Symfony 8.1, Doctrine ORM 3.7 and the bundles are current, and only one package is abandoned. The age is on the npm side. The UI layer (Bootstrap 4, jQuery, Popper 1, Font Awesome 4) dates from 2016 to 2020, and several packages were never removed when the code stopped using them.
+
+| | Direct deps today | Remove | Replace | Upgrade | Keep | After cleanup |
+|---|---|---|---|---|---|---|
+| npm | 39 | 23 (13 unused, 10 build tools replaced by Vite) | 10 packages, replaced by about 6 | 3 | 3 | about 12 runtime + 10 dev, including new test and lint tools |
+| Composer | 47 | 10 | 1 | 0 | 36 | 37, plus a few security and test additions |
+
+#### npm: remove (unused or dead)
+
+| Package | Installed (released) | Why remove |
+|---|---|---|
+| `vue-router` ^3.6 | 3.6.5 | Never imported; the app is multi-page Twig. v3 is the Vue 2 line anyway. |
+| `vue-template-compiler` ^2.7 | 2.7.16 (2023) | Vue 2 compiler, does nothing here; carries an XSS advisory. |
+| `@vue/compiler-sfc` | 3.4.35 | Bundled inside `vue` since 3.2.13. |
+| `momentjs` ^2.0 | 2.0.0 | Registry-deprecated squatted name, not Moment.js. Never imported. |
+| `moment` ^2.29 | 2.30.1 | Only used by `CalendarEventPicker.vue`, which nothing imports. Delete both. |
+| `@fortawesome/fontawesome` ^1.1 | 1.1.8 | Registry-deprecated FA5-era core, never imported. |
+| `ajv` ^8 | 8.20.0 | Never imported; Dependabot promoted a transitive dependency. |
+| `bootstrap-sass` ^3.3 | 3.4.3 | Bootstrap 3; only a commented `require` and one dead SCSS variable. |
+| `es6-promise` | 4.2.8 | IE polyfill; every supported browser has native Promise. Delete the IE polyfills in `app.js` with it. |
+| `load-google-maps-api` | 1.3.3 (last release 2020) | Never imported; maps load through a `<script>` tag. |
+| `vue-axios` | 2.1.5 | Never imported. |
+| `vue-flatpickr-component` | 11.0.5 | Never imported; the 5 date and time fields use native `<input type="date|time">`. |
+| `vue-slicksort` | 1.2.0 | Never imported; superseded by `vuedraggable`. |
+
+#### npm: remove with the Vite migration
+
+`@symfony/webpack-encore`, `webpack`, `webpack-cli`, `webpack-notifier`, `vue-loader`, `sass-loader`, `babel-loader`, `@babel/core`, `@babel/preset-env`, `cssnano`. Replaced by `vite`, `@vitejs/plugin-vue` and `vite-plugin-symfony` (all released in 2026). Vite transpiles and minifies itself, so Babel and cssnano are not needed.
+
+#### npm: replace
+
+| Today | Released | Problem | Replace with | Effort |
+|---|---|---|---|---|
+| `@ckeditor/ckeditor5-build-classic` 37.1 + `@ckeditor/ckeditor5-vue` 4.0 | 2023 | Registry-deprecated ("predefined builds are no longer maintained"). Moderate XSS advisory fixed only in 47.6. Upgrading means the new `ckeditor5` package, which from v44 requires a licence key: `'GPL'` or a paid commercial key, which needs a legal review for a proprietary app. Large bundle. | **TipTap 3** (`@tiptap/vue-3`, `@tiptap/starter-kit`, plus the Link extension if not included; MIT, Vue 3 native, 3.31 released 2026-09). Every editor in the app uses the same 7-button toolbar (bold, italic, undo, redo, numbered list, bulleted list, link), which TipTap covers out of the box. One shared `RichTextEditor.vue` of about 100 lines replaces 9 `<ckeditor>` instances in 4 forms. It removes the licence question and the advisory, and shrinks the bundle. The stored HTML stays the same simple tags, so existing content keeps working, and the server-side sanitizer allow-list (S9) becomes tiny: `p`, `br`, `strong`, `em`, `ul`, `ol`, `li`, `a[href]`. | 1 to 2 days |
+| `vuedraggable` 4.1.0 | 2021-08-22, no release since | Unmaintained for five years; npm's `latest` tag still points to the Vue 2 build. Currently misconfigured (7.6). | **`vue-draggable-plus`** (MIT, SortableJS-based, Vue 3, 0.6.1 released 2026-01) or SortableJS directly. One usage, in `MapItemForm.vue`. | 0.5 day |
+| `font-awesome` 4.7 + `@fortawesome/fontawesome-svg-core`, `free-solid-svg-icons`, `vue-fontawesome` 6.x | FA4: 2016 | Two icon systems. FA4 is from 2016 and missing years of icons. The four SVG packages exist for one icon, `fa-pen-to-square`, in 11 files. | **`@fortawesome/fontawesome-free` 7** (CSS). It ships v4 shim classes, so the 129 `fa fa-*` usages keep working and can be migrated gradually. Replace the 11 `<font-awesome-icon>` tags with `<i class="fa-solid fa-pen-to-square">`. Four packages become one. | 0.5 day |
+| Google Maps via a raw `<script>` tag on every page, using `google.maps.Marker` | — | `Marker` is deprecated in favour of `AdvancedMarkerElement`. The script loads synchronously on every page, including ones without a map. | **`@googlemaps/js-api-loader`** (official, Apache-2.0, 2.1.3 released 2026-09-22), loaded only by `GoogleMap.vue`, and migrate to `AdvancedMarkerElement`. | 0.5 to 1 day |
+| `bootstrap` 4.6.2 + `popper.js` 1.16.1 + `jquery` 3.7.1 | 2022, 2020, 2023 | Bootstrap 4 is end-of-life. `popper.js` 1.x is registry-deprecated. jQuery exists only to drive Bootstrap 4's modals, dropdowns and collapse. jQuery 4.0 is out, but Bootstrap 4 is not tested against it. | **Bootstrap 5.3** (MIT, 5.3.8 released 2025-08), which needs no jQuery and bundles Popper 2. Removes jQuery and Popper entirely. Stay on jQuery 3.7.1 until then. | 1 to 2 weeks (markup changes across all Vue and Twig files, see below) |
+
+#### npm: upgrade
+
+| Package | Today | Target | Notes |
 |---|---|---|---|
-| `@babel/core`, `@babel/preset-env`, `babel-loader` | 8.0.6 / 10.1.1 | build only, listed under `dependencies` | **Remove with Vite** (esbuild replaces them) |
-| `@symfony/webpack-encore`, `webpack`, `webpack-cli`, `webpack-notifier`, `sass-loader`, `vue-loader`, `cssnano` | current | build only | **Remove with Vite** |
-| `vue-template-compiler` ^2.7 | 2.7.16 | **No** (Vue 2 compiler) | **Remove** (also clears one npm advisory) |
-| `@vue/compiler-sfc` | 3.x | bundled inside `vue` since 3.2.13 | Remove |
-| `vue` ^3.2 | 3.4.35 | yes | **Move to `dependencies`**, bump to ^3.5 |
-| `jquery` ^3.3 | 3.7.1 | yes (BS4 modals, navbar) | Move to `dependencies` while Bootstrap 4 remains |
-| `bootstrap` ^4.6 | 4.6.2 (EOL) | yes | Keep for this migration. **Bootstrap 5 is a separate 1 to 2 week job**: 174 `form-group`, 43 `badge-*`, 29+ `data-toggle`, 28 `data-dismiss`, 16 hand-rolled modals, `twig.yaml` form theme. BS5 would also remove jQuery and Popper 1. |
-| `bootstrap-sass` ^3.3 | 3.4.3 | **No** (one commented require, one dead SCSS variable) | **Remove** |
-| `popper.js` 1.x | 1.16.1 (EOL) | required by BS4 | Keep until BS5 |
-| `@ckeditor/ckeditor5-build-classic` ^37 | 37.1.0 | yes (4 forms) | **Decide separately.** Prebuilt bundles are discontinued; the `ckeditor5` package is at 48.x. From v44 an explicit `licenseKey` (`'GPL'` or commercial) is required at construction. The app is `UNLICENSED`/proprietary, so shipping under GPL terms needs a licence review with EMU. Staying on v37 means no security fixes (see S9). |
-| `@ckeditor/ckeditor5-vue` ^4 | 4.0.1 | yes | Pair with the CKEditor decision (v8 needs the new package) |
-| `@fortawesome/fontawesome` ^1.1 | 1.1.8 | **No** (abandoned FA5-era core) | **Remove** |
-| `@fortawesome/fontawesome-svg-core`, `free-solid-svg-icons`, `vue-fontawesome` | 6.7 / 3.3 | one icon (`faPenToSquare`) in 11 files | Keep or consolidate |
-| `font-awesome` 4.7 | 4.7.0 | yes: 129 `fa fa-*` usages in Vue, 12 in Twig | **Two icon systems.** Either drop the four `@fortawesome/*` packages by swapping the one icon to `fa fa-pencil-square-o`, or replace FA4 with `@fortawesome/fontawesome-free` (ships v4 shims). Not both. |
-| `ajv` ^8 | 8.20.0 | **No** (Dependabot promoted a transitive dep) | **Remove** |
-| `axios` ^1.15 | 1.20.0 | yes (global) | Keep |
-| `es6-promise` | 4.2.8 | polyfill | **Remove** with the IE polyfills |
-| `load-google-maps-api` | 1.3.3 | **No** (maps loaded via `<script>`) | **Remove** |
-| `moment` ^2.29 | 2.30.1 | only in `CalendarEventPicker.vue`, which nothing imports | **Remove** with the dead component |
-| `momentjs` ^2.0 | 2.0.0 | **No** (unrelated squatted package, not Moment.js) | **Remove** |
-| `vee-validate` ^4.7 | 4.13.2 | yes (13 forms) | Keep, bump to 4.15 |
-| `vue-axios` | 2.1.5 | **No** | **Remove** |
-| `vue-flatpickr-component` | 11.0.5 | **No** | **Remove** |
-| `vue-multiselect` `"next"` | 3.0.0-beta.3 | yes (19 files) | **Re-pin to ^3.5.0**; the `next` tag still points at a 2-year-old beta |
-| `vue-router` ^3.6 | 3.6.5 | **No** (multi-page app, no router; v3 is the Vue 2 line anyway) | **Remove** |
-| `vue-slicksort` | 1.2.0 | **No** (superseded by vuedraggable) | **Remove** |
-| `vuedraggable` ^4.1 | 4.1.0 | yes | Keep the explicit `^4.1.0` (npm `latest` is the Vue 2 build) |
-| `yup` 0.32 | 0.32.11 | yes (13 forms) | Optional bump to ^1.7 (small API change, but touches 13 forms) |
-| `sass` ^1.77 | 1.77.8 | yes | Keep on 1.x with `quietDeps`; Bootstrap 4 SCSS will break on Dart Sass 3 |
-| `lodash` | transitive | `bootstrap.js:4` only, never used | Delete the line |
+| `vue` | 3.4.35 (in `devDependencies`) | ^3.5, in `dependencies` | Routine. |
+| `vue-multiselect` | `"next"` → 3.0.0-beta.3 | ^3.5.0 (released 2026-03) | The `next` tag still points to a two-year-old beta. Used in 19 files. |
+| `yup` | 0.32.11 (2021) | ^1.7 | Used in 13 forms with vee-validate. Small API changes, mainly `.nullable()` semantics. When vee-validate 5 is stable (in beta now), consider moving schemas to `zod` 4 via `@vee-validate/zod`. |
 
-Composer side: `jms/serializer` (**zero usages**; CLAUDE.md is wrong on this point), `willdurand/hateoas` (one inert attribute on `MapItem`), `composer/package-versions-deprecated` (abandoned), `symfony/web-link`, `nesbot/carbon`, `symfony/process`, `symfony/lock` (unused but `lock.yaml` demands a `LOCK_DSN`), `phpdocumentor/reflection-docblock` (misused as an attribute in `CrimeLogService.php:9`). `symfony/webpack-encore-bundle` goes with the migration.
+#### npm: keep
+
+- `axios` 1.20 (maintained, released 2026-08). Wrap it in one `http.js` module (5.4).
+- `vee-validate` 4.15.1 (last release 2025-06). v5 is in beta; revisit when it is stable.
+- `sass` 1.x. Move own partials from `@import` to `@use` before Dart Sass 3.
+
+#### npm: add
+
+- **Build:** `vite`, `@vitejs/plugin-vue`, `vite-plugin-symfony`.
+- **Test:** `vitest`, `@vue/test-utils`, `happy-dom`.
+- **Lint:** `eslint`, `eslint-plugin-vue`, `prettier`.
+- **Editor:** the TipTap packages.
+
+#### Composer: remove
+
+| Package | Why |
+|---|---|
+| `composer/package-versions-deprecated` | Abandoned on Packagist; obsolete on Composer 2. |
+| `jms/serializer` | Zero usages; the Symfony Serializer is used everywhere. CLAUDE.md is wrong on this point. |
+| `willdurand/hateoas` | One inert attribute on `MapItem`, ignored by the serializer that actually renders responses. |
+| `nesbot/carbon` | Zero usages. |
+| `symfony/process` | Zero usages. |
+| `symfony/lock` | Zero usages, yet `lock.yaml` requires a `LOCK_DSN` env var. Delete the config too. |
+| `symfony/web-link` | Zero usages. |
+| `symfony/requirements-checker` | Recreates the public `check.php` on every Composer install (S19). |
+| `symfony/mailer` | Only the dead `EmailController` references it. Remove with mailhog and the mailcatcher override, unless the team plans to send email. |
+| `phpdocumentor/reflection-docblock` | Misused as an attribute in `CrimeLogService.php:9`. Symfony uses it only to read docblock types during deserialization, which the app does not do. Remove once the test suite runs, to confirm no serializer output changes. |
+
+#### Composer: replace
+
+- `symfony/webpack-encore-bundle` → `pentatrion/vite-bundle` with the Vite migration (3.4).
+
+#### Composer: keep, with notes
+
+- **`stof/doctrine-extensions-bundle`** (Gedmo, 1.15.3, 2026-01): maintained, and used for Timestampable (about 20 fields), Blameable (7) and Slug (1). Keep it, but fix the Blameable misuse on `Redirect` (7.1). Stof's `softdeleteable` is enabled but unused; turn it off.
+- **`liip/imagine-bundle`** (2.17.2, 2026-08): maintained. Used through `/media/cache/resolve/...` URLs rather than code. Add cache invalidation (7.4).
+- **`nelmio/cors-bundle`**: the emich.edu 404 page calls server-side and does not need CORS. Keep it only if a browser script on another origin calls the API, such as an emergency-banner embed on emich.edu pages (**needs confirmation**). Otherwise remove it and its config.
+- **`symfony/rate-limiter`**: keep even after the dead rate-limit subscriber is removed (S10), because `login_throttling` (S7) depends on it.
+- **`symfony/apache-pack`**: its last release is from 2017, but it only ships a `public/.htaccess` recipe. Keep while Apache serves the app.
+- **`symfony/form` and `symfony/security-csrf`**: used by `/register`, and CSRF is needed for the login and logout fixes (S15).
+- All other Symfony components and Doctrine packages are current and in use.
+
+#### Composer: add
+
+- **Security fixes:** `symfony/html-sanitizer` (S9) and `symfony/http-client` (replaces `get_headers()`, S11).
+- **Dev:** `phpunit/phpunit` ^11, `dama/doctrine-test-bundle`, `zenstruck/foundry` with `fakerphp/faker`, `phpstan/phpstan` with `phpstan-symfony` and `phpstan-doctrine`, `friendsofphp/php-cs-fixer`, and optionally `rector/rector`.
+- **`composer.json` hygiene:** declare `ext-ldap`, `ext-gd` and `ext-pdo_mysql` under `require`, remove `platform-check: false`, and drop the `replace` block for PHP 5 and 7 polyfills.
+
+#### What "10 years old" means here
+
+The backend libraries are not the old part: 45 of 47 direct Composer packages are on their latest version, and for 44 of them that version was released in 2026. The age shows in two other places:
+
+1. **The frontend UI stack.** Bootstrap 4 with jQuery and Popper 1, and Font Awesome 4, date from 2016 to 2020. The Bootstrap 5 move is the largest single dependency change: 174 `form-group`, 43 `badge-*`, 29+ `data-toggle`, 28 `data-dismiss`, 16 modals, and the Twig form theme. It is also what removes jQuery, which in turn removes most frontend testability blockers (5.4). Keep it a separate phase after Vite.
+2. **How the code uses its libraries.** Fat controllers, manual JSON building and FOSRest-era route patterns (section 4) are 2017-era Symfony habits running on 2026 packages. That is a refactor, not a dependency change.
+
+#### Suggested order
+
+| When | Changes |
+|---|---|
+| Phase 0 | Nothing, unless the S9 fix is combined with the TipTap swap. That swap removes the CKEditor advisory and the licence decision at the same time. |
+| Phase 2 (hygiene) | All removals. Re-pin `vue-multiselect`. Move `vue` and `jquery` to `dependencies`. Upgrade `yup`. Composer removals and `composer.json` hygiene. |
+| Phase 3 (Vite) | Swap the build tools, the Encore bundle and the Twig helpers. Consolidate on `@fortawesome/fontawesome-free`. |
+| Phase 5 (frontend refactor) | TipTap, if not done earlier; `vue-draggable-plus`; `@googlemaps/js-api-loader`; the test and lint tools. |
+| Later phase | Bootstrap 5, which removes jQuery and Popper. |
 
 ### 3.3 Frontend code health
 
@@ -217,14 +294,14 @@ Composer side: `jms/serializer` (**zero usages**; CLAUDE.md is wrong on this poi
 
 Steps:
 
-1. **Hygiene first (independent of Vite, ~0.5 day):** remove the 11 unused/duplicate packages, delete `package-lock.bkp.json`, dead assets and `.DS_Store` files, move `vue`/`jquery` to `dependencies`, re-pin `vue-multiselect`, drop the `lodash` line, remove the Vue 1/2 fossils, add `emits:` declarations, add `.nvmrc`.
+1. **Hygiene first (independent of Vite, ~0.5 day):** remove the 13 unused npm packages listed in 3.2, delete `package-lock.bkp.json`, dead assets and `.DS_Store` files, move `vue`/`jquery` to `dependencies`, re-pin `vue-multiselect`, drop the `lodash` line, remove the Vue 1/2 fossils, add `emits:` declarations, add `.nvmrc`.
 2. **Swap (~1 to 1.5 days):** `composer remove symfony/webpack-encore-bundle && composer require pentatrion/vite-bundle`; delete `webpack.config.js`, `.babelrc`, `config/packages/webpack_encore.yaml`, the `WebpackEncoreBundle` line in `bundles.php`, and `framework.assets.json_manifest_path`; write `vite.config.js` (vue plugin, `vue` alias to `vue.esm-bundler.js`, `@` alias, `build.outDir: 'public/build'`, `manifest: true`, single `app` input, `scss.quietDeps`, `__VUE_PROD_DEVTOOLS__: 'false'`); rewrite `app.js` to static imports; split `bootstrap.js` into a `globals.js` (jQuery/Popper on `window`) that is imported *before* `import 'bootstrap'` (ESM import hoisting otherwise breaks Bootstrap 4's UMD wrapper); strip the `~` prefix and the triple Bootstrap import from SCSS; fix `Heading.vue` to import only variables; replace the four Twig helper calls with one link and one script call.
 3. **Verify (~1 day):** click through the 57 mount pages: navbar dropdowns and collapse (jQuery load order), 16 modals, CKEditor in 4 forms, Google map in `MapItemForm`, image uploads, vee-validate forms, FA4 fonts from hashed paths.
 4. **Decide on `public/build` (~0.5 day + ops):** hashed filenames make committed builds change on every build, so conflicts get worse. Recommended: untrack `public/build`, add a Node build stage to the `Dockerfile` (or a deploy-pipeline step). If the deploy cannot run Node yet, keep committing the build with hashed filenames; do not pin stable names, because versioning is a team decision (Phase 0).
 
 Do not add `@vitejs/plugin-legacy` unless there is a documented old-browser requirement; this is an internal staff app and legacy mode doubles output and reintroduces Babel.
 
-Separate, later decisions: Bootstrap 4→5 (1 to 2 weeks, removes jQuery), icon-system consolidation, CKEditor ≥44 (needs a licence decision).
+Separate, later changes (see 3.2): Bootstrap 4→5 (1 to 2 weeks, removes jQuery), icon-system consolidation on `@fortawesome/fontawesome-free`, and replacing CKEditor with TipTap.
 
 ---
 
@@ -432,7 +509,7 @@ Steps 3, 5 and 6 can ship in one emich.edu deploy. Uncaught rows logged before 2
 | 3 | Vite migration (section 3.4) including the `public/build` decision | 3 to 4 d |
 | 4 | Backend refactor, one module at a time, tests first: inject repositories, DTOs with `MapRequestPayload`, handlers, shared CSV importer, response factory + exception listener, transactions. Order: Programs, Scholarships, Redirects, then the rest | 15 to 20 d |
 | 5 | Frontend refactor: `http.js`, state-driven modals, `useListPage`/`useResourceForm`, single paginator and delete modal, Vitest coverage of the composables and one list/form per module | 8 to 12 d |
-| Later | Bootstrap 5 (removes jQuery), CKEditor ≥44 licence decision, Composition API migration, SINGLE_TABLE or DTO feed for the map | separate |
+| Later | Bootstrap 5 (removes jQuery and Popper), Composition API migration, SINGLE_TABLE or DTO feed for the map | separate |
 
 Total: roughly **40 to 56 days** including the section 7 items. Every phase leaves `master` deployable. Risk is low because each phase is independently reviewable and the test suite exists before the big refactors.
 
@@ -470,7 +547,7 @@ Phase 0 first, then three workstreams in parallel: (1) test harness + backend re
 ### Decisions needed from the team before starting
 
 1. **`public/build`:** production deploys by `git pull`, so today the committed build *is* the production frontend. Versioning (hashed filenames) is decided and applies to both options. Options: (a) keep committing the build, with a check that enforces production builds, and accept that every rebuild renames files and causes conflicts on `entrypoints.json`/`manifest.json` between branches; or (b) untrack it and add a build step to the deploy script (Node on the server) or to CI with a release archive. (b) removes the merge conflicts and the dev-build risk; (a) needs no server change.
-2. **CKEditor licence:** stay on v37 with a known XSS, or move to ≥44 under GPL terms or a commercial key.
+2. **Rich-text editor:** replace CKEditor with TipTap (MIT, recommended; every editor uses the same 7-button toolbar, see 3.2), or upgrade to `ckeditor5` ≥47.6 under a GPL or commercial licence key. Staying on v37 keeps a known XSS advisory.
 3. **LDAP transport:** confirm AD offers StartTLS on 389 or LDAPS on 636.
 4. **Production web server:** confirm whether the upload directory can execute PHP (S5) and whether a reverse proxy sits in front (trusted proxies).
 5. **`programs` entity manager:** retire it now that it points at the same database. The alternative (keep it and `exclude` Programs from the default EM) is not viable: `ScholarshipProgram.php:33` maps a `ManyToOne` to `Programs`, and Doctrine cannot map associations across entity managers.
