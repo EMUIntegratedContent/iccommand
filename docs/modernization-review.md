@@ -480,7 +480,7 @@ Modernization work collects on a long-lived integration branch, **`feature/moder
 
 1. After each fix merges into `master`, merge `master` into `feature/modernization` the same day. Use a merge, not a rebase, so everyone's checkout stays valid.
 2. When the merge conflicts on `public/build`, do not resolve those files by hand. Accept either side, then run the production build on `feature/modernization` and commit the result. Once Vite lands on the feature branch, always keep the feature branch's build and rebuild.
-3. Before the final merge into `master`, deploy `feature/modernization` to staging and click through every module. **Needs confirmation:** whether staging always pulls `master`; if so, check out `feature/modernization` on staging for the test period, then switch staging back.
+3. Before the final merge into `master`, deploy `feature/modernization` to staging and click through every module. Staging can pull either `master` or a feature branch as needed (confirmed 2026-09-23): check out `feature/modernization` on staging for each test period, then switch back to `master`. Remember to run the deploy steps after each switch, because the two branches may differ in Composer packages, migrations and the frontend build.
 4. Merge `feature/modernization` into `master` in stages if it grows large: for example, once after Phase 2, once after Vite, then after the refactors. Smaller merges are easier to test and to roll back.
 
 **Rolling back.** With manual `git pull` deploys, rolling back means checking out the previous `master` commit on the server and running the deploy steps (7.8). Tag `master` before each merge from the feature branch, for example `pre-modernization-1`, so the rollback target is easy to find.
