@@ -29,6 +29,8 @@ Section 6 proposes three roadmap options and a recommended sequence. Everything 
 
 These are one-line to one-day fixes and should ship before any refactoring or build-tool work.
 
+**The emich.edu 404 page needs a coordinated fix.** Its PHP calls five ICCommand routes server-side. The two lookups stay public. The three write routes need a shared token that emich.edu sends. The same review found that emich.edu's 404-visit counter has never worked, because it calls a URL that does not exist. It also found that an ICCommand outage can hang every emich.edu 404 page, and that each lookup is requested twice. All of this ships as one small coordinated change (Phase 0a).
+
 **The test suite cannot run.** Four independent blockers (PHPUnit 6-era runner, a config file for an uninstalled bundle, a removed framework option, a missing log channel in the test env) mean `php bin/phpunit` fails before any test executes. The existing tests also depend on a live production-like database.
 
 **The Vite migration is moderate in size (about 3 to 4 days) and mostly mechanical**, but it forces a decision about the committed `public/build` directory, which already causes merge conflicts.
@@ -381,7 +383,7 @@ All options start with the same **Phase 0: security hotfix** because S1 to S5 ar
 ### Phase 0 (all options): security hotfix — 3 to 5 days
 
 - Add `IsGranted` to the 10 Redirect/Uncaught admin routes and the CrimeLog upload; add the `^/api` catch-all `access_control` floor with explicit exceptions for the five emich.edu 404-page routes.
-- Protect the three emich.edu write routes with a shared token, log-only first (2.1a). Keep the two GETs public. Needs a one-line change per call on emich.edu, which can ship together with the `uncaughtincrement` URL fix and a timeout.
+- Protect the three emich.edu write routes with a shared token and keep the two GETs public. This needs coordinated changes on both servers; see Phase 0a.
 - Split the user PUT into self-service and admin endpoints; allow-list grantable roles.
 - Remove the `X-API-Key`/User-Agent bypass.
 - Random upload filenames with sniffed-type extensions; deny PHP execution under `public/uploads`.
@@ -391,6 +393,24 @@ All options start with the same **Phase 0: security hotfix** because S1 to S5 ar
 - Sanitize CKEditor HTML on write with `symfony/html-sanitizer`.
 
 Each item is a candidate for its own small PR. Without a working test suite these ship on manual verification, which is acceptable for guards this simple; the regression tests come in the next phase.
+
+### Phase 0a (all options): emich.edu 404-page integration — about 1 day plus coordination
+
+These changes span two codebases, so they need to go out in a fixed order. Details and evidence are in section 2.1a.
+
+| Step | Where | Change |
+|---|---|---|
+| 1 | ICCommand | Generate a random token and store it as an env var. Add a request subscriber that checks `X-ICCommand-Token` with `hash_equals()` on the three write routes (redirect PUT, uncaught POST, uncaught PUT). Start in **log-only** mode: accept requests without the token and log a warning. Add explicit `access_control` exceptions for all five routes, with the two GETs fully public. |
+| 2 | ICCommand | Add a length cap and dedupe on `link` to the uncaught POST (S18). Remove the rate limiter subscriber, its `rate_limiter.yaml` entry and its manual service definition (S10). |
+| 3 | emich.edu | Store the same token in emich.edu's config and send it as a header on the three write calls (`updateRedirectCount`, `addUncaughtRedirect`, `updateUncaughtCount`). |
+| 4 | emich.edu | Fix `updateUncaughtCount` to call `PUT /api/uncaughts/external/uncaught` instead of the non-existent `.../uncaughtincrement`. 404 visit counts start working from this point. |
+| 5 | emich.edu | Add a 2 to 3 second timeout to every ICCommand call, falling through to the normal 404 page on failure, so an ICCommand outage cannot hang emich.edu 404 pages. |
+| 6 | emich.edu | Replace the `__testFor404` + `file_get_contents` pair in `fetchRedirect` and `fetchUncaughtRedirect` with a single `curl` call that reads both status and body. This halves the requests per 404. Optionally set `Content-Type: application/x-www-form-urlencoded` explicitly on the write calls. |
+| 7 | ICCommand | Once the warning log shows no token-less requests for a few days, switch the subscriber to **enforce** (return 401 without a valid token). |
+
+Steps 3 to 6 can ship in one emich.edu deploy. Existing uncaught rows will all show 1 visit; consider noting the date counting started in the admin UI, or resetting counts after step 4.
+
+> **Ops note: why log-only first.** If ICCommand started rejecting token-less requests before emich.edu was sending the token, every visit count and 404 log would fail silently. Deploying the check in log-only mode first means nothing breaks at any step, and the log tells you when it is safe to enforce.
 
 ### Option A: Security, then foundations, then incremental refactor (recommended)
 
@@ -428,6 +448,7 @@ Phase 0 first, then three workstreams in parallel: (1) test harness + backend re
 | | A: Incremental | B: Foundations first | C: Parallel |
 |---|---|---|---|
 | Time until S1 to S5 are closed | days | 1 to 2 weeks | days |
+| emich.edu 404 integration (Phase 0a) | first week | after the test harness | first week |
 | Total effort | 36 to 51 d | 36 to 51 d | 45 to 60 d |
 | Calendar time (1 dev) | 8 to 10 wk | 8 to 10 wk | n/a |
 | Calendar time (2 to 3 devs) | 5 to 6 wk | 5 to 6 wk | 4 to 5 wk |
