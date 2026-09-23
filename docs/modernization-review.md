@@ -1,6 +1,6 @@
 # ICCommand Modernization Review
 
-**Date:** 2026-09-19, revised 2026-09-23 (final technical-debt audit added as section 7) · **Branch reviewed:** `master` at `ef081e5` · **Status:** planning document, no code changed
+**Date:** 2026-09-19, revised 2026-09-23 (final technical-debt audit added as section 7; production facts confirmed by the team) · **Branch reviewed:** `master` at `ef081e5` · **Status:** planning document, no code changed
 
 This document covers the four goals set for the review:
 
@@ -29,9 +29,9 @@ Section 6 proposes three roadmap options and a recommended sequence. Everything 
 
 These are one-line to one-day fixes and should ship before any refactoring or build-tool work.
 
-**The emich.edu 404 page needs a coordinated fix.** Its PHP calls five ICCommand routes server-side. The two lookups stay public. The three write routes need a shared token that emich.edu sends. The same review found that emich.edu's 404-visit counter has never worked, because it calls a URL that does not exist. It also found that an ICCommand outage can hang every emich.edu 404 page, and that each lookup is requested twice. All of this ships as one small coordinated change (Phase 0a).
+**The emich.edu 404 page needs a coordinated fix.** Its PHP calls five ICCommand routes server-side. The two lookups stay public. The three write routes need a shared token that emich.edu sends. The review also found that emich.edu's 404-visit counter had never worked because it called a URL that does not exist; this was fixed on emich.edu on 2026-09-23. An ICCommand outage can still hang every emich.edu 404 page, and each lookup is requested twice. The remaining changes ship as one small coordinated change (Phase 0a).
 
-**The final audit (section 7) found one more High security issue and two High bugs.** An authenticated SQL injection exists in the Programs list endpoints (S21). An expired session makes every API save report success while silently saving nothing. The redirect visit counter may be failing on every call because of a Blameable listener. It also found that `master` currently ships a 15.7 MB development build of the frontend, that production error pages render blank, and that no timezone is configured, so scholarships expire at 8 pm the day before.
+**The final audit (section 7) found one more High security issue and two High bugs.** An authenticated SQL injection exists in the Programs list endpoints (S21). An expired session makes every API save report success while silently saving nothing. The redirect visit counter may be failing on every call because of a Blameable listener. It also found that **production is serving a 15.7 MB development build of the frontend today**, because production deploys by pulling `master` and `master` has a dev build committed. Production error pages render blank, and staging runs in debug mode.
 
 **The test suite cannot run.** Four independent blockers (PHPUnit 6-era runner, a config file for an uninstalled bundle, a removed framework option, a missing log channel in the test env) mean `php bin/phpunit` fails before any test executes. The existing tests also depend on a live production-like database.
 
@@ -94,7 +94,7 @@ Note that the paths are `/api/redirects/external/...` and `/api/uncaughts/extern
 
 **Problems found in the emich.edu helper code** (not in this repository, but they affect ICCommand data):
 
-- **The uncaught visit counter has never incremented.** `updateUncaughtCount` sends `PUT /api/uncaughts/external/uncaughtincrement`. That route does not exist (`router:match` returns "None of the routes match"); the real route is `PUT /api/uncaughts/external/uncaught`. Every uncaught URL stays at the 1 visit set when it was first logged, so the admin UI cannot rank 404s by traffic. A commented log line in `UncaughtController.php:99` mentions `/api/external/uncaughtincrement`, which suggests the URL changed during an earlier migration and the caller was not updated. Fix on the emich.edu side by changing the URL.
+- **The uncaught visit counter had never incremented. Fixed on emich.edu on 2026-09-23.** `updateUncaughtCount` sends `PUT /api/uncaughts/external/uncaughtincrement`. That route does not exist (`router:match` returns "None of the routes match"); the real route is `PUT /api/uncaughts/external/uncaught`. Every uncaught URL stays at the 1 visit set when it was first logged, so the admin UI cannot rank 404s by traffic. A commented log line in `UncaughtController.php:99` mentions `/api/external/uncaughtincrement`, which suggests the URL changed during an earlier migration and the caller was not updated. Fix on the emich.edu side by changing the URL. All rows logged before that date show 1 visit. The fixed PUT is safe: the `Uncaught` entity has no Gedmo listeners, unlike `Redirect` (7.1).
 - **No timeout on the lookup.** `__testFor404` uses `curl` with no `CURLOPT_TIMEOUT`, and `fetchRedirect` relies on PHP's default socket timeout (60 s unless changed). If ICCommand is slow or down, every emich.edu 404 page hangs. Set a short timeout (2 to 3 s) and fall through to the normal 404 page on failure.
 - **Two requests per lookup.** `fetchRedirect` and `fetchUncaughtRedirect` call the same URL twice: once via `curl` to check for 404, then via `file_get_contents` to read the body. One `curl` call that reads both the status and the body halves the load on ICCommand and the latency of every 404 page.
 - The write calls send form-encoded bodies without a `Content-Type` header. PHP adds `application/x-www-form-urlencoded` automatically (with a notice), and Symfony parses that for PUT, so it works today. Setting the header explicitly removes the notice.
@@ -396,7 +396,7 @@ All options start with the same **Phase 0: security hotfix** because S1 to S5 ar
 - Cast and clamp `limit`/`page` in the Programs list endpoints (S21).
 - Add `IsGranted(ROLE_GLOBAL_ADMIN or ROLE_X_ADMIN)` to the six unguarded "Manage app" pages (7.5).
 - Make unauthenticated `/api` requests return a JSON 401 instead of redirecting to the login page, and add an axios interceptor that sends the user to `/login` (7.5). Today an expired session makes saves report success while nothing is saved.
-- Set `__VUE_PROD_DEVTOOLS__: false` and rebuild in production mode (7.6, 3.1).
+- **Production is serving a development build today** (production pulls `master`, and `master` has the 15.7 MB dev build committed). Set `__VUE_PROD_DEVTOOLS__: false`, run `npm run build`, and commit the production build to `master`. Until Vite and a scripted deploy land, add a guard that rejects a non-production `public/build/app.js` (a size or `NODE_ENV` check in a pre-commit hook or CI) (7.6, 3.1).
 - Sanitize CKEditor HTML on write with `symfony/html-sanitizer`.
 
 Each item is a candidate for its own small PR. Without a working test suite these ship on manual verification, which is acceptable for guards this simple; the regression tests come in the next phase.
@@ -410,12 +410,12 @@ These changes span two codebases, so they need to go out in a fixed order. Detai
 | 1 | ICCommand | Generate a random token and store it as an env var. Add a request subscriber that checks `X-ICCommand-Token` with `hash_equals()` on the three write routes (redirect PUT, uncaught POST, uncaught PUT). Start in **log-only** mode: accept requests without the token and log a warning. Add explicit `access_control` exceptions for all five routes, with the two GETs fully public. |
 | 2 | ICCommand | Make both counters atomic and listener-free: `UPDATE ... SET visits = visits + 1` through DBAL, and `INSERT ... ON DUPLICATE KEY UPDATE` for the uncaught POST with a length cap (S18). This also sidesteps the Gedmo Blameable problem that may be breaking the redirect counter today (7.1). Remove the rate limiter subscriber, its `rate_limiter.yaml` entry, its manual service definition and its `bind` (S10). |
 | 3 | emich.edu | Store the same token in emich.edu's config and send it as a header on the three write calls (`updateRedirectCount`, `addUncaughtRedirect`, `updateUncaughtCount`). |
-| 4 | emich.edu | Fix `updateUncaughtCount` to call `PUT /api/uncaughts/external/uncaught` instead of the non-existent `.../uncaughtincrement`. 404 visit counts start working from this point. |
+| 4 | emich.edu | ~~Fix `updateUncaughtCount` to call `PUT /api/uncaughts/external/uncaught` instead of the non-existent `.../uncaughtincrement`.~~ **Done 2026-09-23.** 404 visit counts are accurate from that date. |
 | 5 | emich.edu | Add a 2 to 3 second timeout to every ICCommand call, falling through to the normal 404 page on failure, so an ICCommand outage cannot hang emich.edu 404 pages. |
 | 6 | emich.edu | Replace the `__testFor404` + `file_get_contents` pair in `fetchRedirect` and `fetchUncaughtRedirect` with a single `curl` call that reads both status and body. This halves the requests per 404. Optionally set `Content-Type: application/x-www-form-urlencoded` explicitly on the write calls. |
 | 7 | ICCommand | Once the warning log shows no token-less requests for a few days, switch the subscriber to **enforce** (return 401 without a valid token). |
 
-Steps 3 to 6 can ship in one emich.edu deploy. Existing uncaught rows will all show 1 visit; consider noting the date counting started in the admin UI, or resetting counts after step 4.
+Steps 3, 5 and 6 can ship in one emich.edu deploy. Uncaught rows logged before 2026-09-23 show 1 visit; consider noting the date counting started in the admin UI, or resetting counts.
 
 > **Ops note: why log-only first.** If ICCommand started rejecting token-less requests before emich.edu was sending the token, every visit count and 404 log would fail silently. Deploying the check in log-only mode first means nothing breaks at any step, and the log tells you when it is safe to enforce.
 
@@ -466,14 +466,14 @@ Phase 0 first, then three workstreams in parallel: (1) test harness + backend re
 
 ### Decisions needed from the team before starting
 
-1. **`public/build`:** untrack and build in the deploy pipeline (needs Node on the build host or a Docker build stage), or keep committing with stable filenames.
+1. **`public/build`:** production deploys by `git pull`, so today the committed build *is* the production frontend. Options: (a) keep committing, but enforce production builds with a check and use stable filenames under Vite; or (b) untrack it and add a build step to the deploy script (Node on the server) or to CI with a release archive. (b) removes the merge conflicts and the dev-build risk; (a) needs no server change.
 2. **CKEditor licence:** stay on v37 with a known XSS, or move to ≥44 under GPL terms or a commercial key.
 3. **LDAP transport:** confirm AD offers StartTLS on 389 or LDAPS on 636.
 4. **Production web server:** confirm whether the upload directory can execute PHP (S5) and whether a reverse proxy sits in front (trusted proxies).
 5. **`programs` entity manager:** retire it now that it points at the same database. The alternative (keep it and `exclude` Programs from the default EM) is not viable: `ScholarshipProgram.php:33` maps a `ManyToOne` to `Programs`, and Doctrine cannot map associations across entity managers.
 6. **Bootstrap 5 and Composition API:** in scope for this effort or deferred.
 7. **emich.edu 404 page:** who owns the PHP helper code, so the token header, the `uncaughtincrement` URL fix and a request timeout can be deployed together (2.1a); and which browser-side callers, if any, still need the `^/api/` CORS rule.
-8. **Operations:** document the deploy process, database and upload backups, log rotation, session storage and secrets handling (7.8). Confirm the production timezone, staging's `APP_DEBUG`, and whether production deploys `master`'s committed dev build.
+8. **Operations:** adopt the deploy script, scheduled backups of both databases and the uploads directories, and a runbook (7.8). Confirm whether a restore has been tested, how logs are rotated, and whether staging should keep a debug mode behind access control. Resolved 2026-09-23: production timezone is `America/Detroit`; staging runs `APP_ENV=staging` in debug; production deploys `master` via `git pull`; deploys and backups are manual; the uncaught counter URL is fixed.
 
 ---
 
@@ -511,8 +511,8 @@ A second pass compared the whole codebase against sections 2 to 6 and recorded o
 
 ### 7.4 Environment, logging and CLI *hygiene*
 
-- **Med: no timezone is configured anywhere** (no php.ini in the image, no `date.timezone`). PHP runs in UTC, so `new \DateTime('today')` (`ScholarshipRepository.php:115,278`, `ScholarshipExternalController.php:84`) expires scholarships at about 8 pm Eastern the day before, and DATE columns serialized as UTC midnight display as the previous day in the browser (`PhotoRequestList.vue:247`, `ScholarshipList.vue:172-188`). The show and edit pages for photo requests format times differently. Set `date.timezone=America/Detroit`, serialize DATE as `Y-m-d` and TIME as `H:i`, and use one shared date formatter in the frontend. **Needs confirmation** of production php.ini.
-- **Med: staging runs with `APP_DEBUG=1` unless set explicitly.** Symfony treats only `prod` as a production environment and `composer.json` sets no `extra.runtime.prod_envs`, so staging shows stack traces and renders with `strict_variables`. Add `"runtime": {"prod_envs": ["prod","staging"]}` or set `APP_DEBUG=0`. **Needs confirmation** of staging's env.
+- **Low: the timezone is set only on the production server.** Production php.ini sets `America/Detroit` (confirmed 2026-09-23), so scholarship expiry and date display are correct there. The repository configures no timezone: the Docker image has no php.ini, so local development runs in UTC, where `new \DateTime('today')` (`ScholarshipRepository.php:115,278`, `ScholarshipExternalController.php:84`) expires scholarships at about 8 pm the day before and DATE columns can display as the previous day. Tests will hit the same drift. Add `date.timezone=America/Detroit` to a php.ini in the Docker image and to `phpunit.xml.dist`. Independently, serialize DATE columns as `Y-m-d` and TIME as `H:i`, and use one shared date formatter in the frontend, so display does not depend on server or browser timezone.
+- **Med: staging runs in debug mode (confirmed 2026-09-23, `APP_ENV=staging`).** Symfony treats only `prod` as a production environment and `composer.json` sets no `extra.runtime.prod_envs`, so staging defaults to `APP_DEBUG=1`: it shows stack traces to anyone who reaches it, logs SQL, and renders with `strict_variables`, so it behaves differently from production. Together with the profiler (S14), staging leaks request data. Add `"runtime": {"prod_envs": ["prod","staging"]}` to `composer.json` or set `APP_DEBUG=0` in staging's env. Keep a separate debug-enabled environment only if the team needs one, behind a login or IP allow-list.
 - **Med: `bin/console` is a Symfony 4 file.** It loads only `.env` (`bin/console:22`), unlike the web front controller, so migrations can run with different credentials than the site; it references the removed `Symfony\Component\Debug\Debug`; and `umask(0000)` in debug makes cache files world-writable. Restore the runtime-based file from the console recipe.
 - **Med: prod and staging log every request at debug level with no rotation.** `prod/monolog.yaml` uses `fingers_crossed` with `action_level: info`, and route matching logs at info on every request, so the whole debug buffer (including SQL) is flushed each time to one unrotated file. `crime_log` records are written twice. Use `action_level: error`, `buffer_size: 50`, rotation or stderr, and exclude `crime_log` from the main handler.
 - **Med: every production error page renders an empty body.** `templates/bundles/TwigBundle/Exception/error.html.twig` was copied from the Symfony demo: it fills `main`/`sidebar` blocks that `base.html.twig` never renders and calls `path('blog_index')`, a route that does not exist. Verified: a 404 renders the title "Welcome!" and an empty `<main>`. Same for 403 and 500. Rewrite with `{% block body %}`.
@@ -578,7 +578,23 @@ UX and hygiene:
 - **Low: no health-check endpoint.** `/unittest` returns "Hello World"; confirm no uptime monitor uses it before deleting it (section 2.4), and add a `/healthz` that pings the database.
 - **Low: history weight.** After untracking `public/build`, plan a `git filter-repo` purge with the team; untracking alone does not shrink clones.
 
-**Operational unknowns (all need confirmation, none are documented in the repo):** the deploy process (no script, CI or runbook); backups of the database and `public/uploads` (uploads live inside the checkout, so a deploy that replaces the checkout loses them unless the folder is symlinked or on a volume); log rotation; session storage (native file sessions break with more than one web node); secrets management (the Symfony secrets vault is unused). Add these to the decisions list below and write a short runbook in `docs/`.
+**Deploys and backups are manual (confirmed 2026-09-23).** Production and staging are updated with `git pull` of `master`, and the database is backed up with `mysqldump` by hand. Consequences:
+
+- **Whatever is committed to `master` is what runs**, including `public/build`. That is how the dev build reached production (Phase 0). It also means the Vite decision below needs a build step somewhere.
+- **Steps are easy to skip.** After a pull, `composer install --no-dev`, `doctrine:migrations:migrate` and `cache:clear` must be run by hand; forgetting any of them breaks the site in ways that look like code bugs (for example "Field does not exist", which `notes.txt` says to fix by deleting `var/cache`).
+- **Backups depend on someone remembering.** `mysqldump` covers the database only. Uploaded images live in `public/uploads` and `public/media` (git-ignored, so `git pull` leaves them alone), but nothing backs them up. The `dps` database needs its own dump.
+- **Restores have never been tested** (**needs confirmation**).
+
+Recommended, in order of payoff:
+
+1. **A deploy script in the repo** (`bin/deploy.sh`) that runs the same steps every time: `git pull --ff-only`, `composer install --no-dev --optimize-autoloader`, `doctrine:migrations:migrate --no-interaction`, `cache:clear`, and a smoke check against `/healthz`. It is still run by hand, but it cannot skip a step. *hygiene*
+2. **Scheduled backups** via cron on the server: nightly `mysqldump --single-transaction` of both the `ic` and `dps` databases plus an `rsync`/`tar` of `public/uploads`, copied off the server and kept for a set period. Test a restore once to a scratch database.
+3. **A short runbook** in `docs/` covering deploy, rollback (`git checkout <previous commit>` then the deploy script), backup, and restore.
+4. Later, with Vite: either install Node on the servers and have the deploy script run `npm ci && npm run build`, or build in GitHub Actions and publish a release archive that the deploy script downloads.
+
+> **Ops note: what `--single-transaction` does.** A plain `mysqldump` of a live database can capture tables at slightly different moments, so related rows may not match. `--single-transaction` takes a consistent snapshot of InnoDB tables without locking the site.
+
+Still unknown: log rotation on the servers, session storage if there is ever more than one web node (native file sessions do not share across servers), and secrets handling (the Symfony secrets vault is unused).
 
 ### 7.9 Deprecations *hygiene*
 
@@ -597,7 +613,7 @@ Not under `/api/external` and therefore anonymous today (20):
 
 - `RedirectController`, called by the emich.edu 404 page (GET stays public; PUT needs the shared token, not a login): `GET|PUT /api/redirects/external/redirect`
 - `RedirectController`, called by the ICCommand UI (need `IsGranted`): `DELETE /api/redirects/{id}`, `GET /api/redirects/list`, `GET /api/redirects/search`, `GET /api/redirects/{id}`, `POST /api/redirects/`, `PUT /api/redirects/`, `POST /api/redirects/upload`
-- `UncaughtController`, called by the emich.edu 404 page (GET stays public; POST and PUT need the shared token): `GET|POST|PUT /api/uncaughts/external/uncaught`. The PUT is currently never reached because emich.edu calls a non-existent `uncaughtincrement` path.
+- `UncaughtController`, called by the emich.edu 404 page (GET stays public; POST and PUT need the shared token): `GET|POST|PUT /api/uncaughts/external/uncaught`. The PUT was never reached until emich.edu's call was fixed on 2026-09-23.
 - `UncaughtController`, called by the ICCommand UI: `DELETE /api/uncaughts/{id}`, `GET /api/uncaughts/`, `PUT /api/uncaughts/`
 - `POST /api/crimelog/upload`
 - `POST /api/photorequests/` (create; header bypass)
