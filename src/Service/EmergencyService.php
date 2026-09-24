@@ -25,7 +25,7 @@ class EmergencyService
 	/**
 	 * The constructor of the service of the emergency banners and notices.
 	 */
-	public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine)
+	public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine, private RichTextSanitizer $richText)
 	{
 		$this->authorizationChecker = $authorizationChecker;
 		$this->validator = $validator;
@@ -125,7 +125,7 @@ class EmergencyService
 
 			// Always update banner fields with the provided data, regardless of displayBanner state
 			$banner->setSeverity($data['severity'] ? EmergencySeverity::from($data['severity']) : null);
-			$banner->setBannerMessage($data['bannerMessage'] ?? null);
+			$banner->setBannerMessage($this->richText->sanitize($data['bannerMessage'] ?? null));
 			$banner->setBannerTitle($data['bannerTitle'] ?? null);
 
 			// Set updated by user (you'll need to get current user from security context)

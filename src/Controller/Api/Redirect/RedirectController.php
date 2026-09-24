@@ -520,7 +520,7 @@ class RedirectController extends AbstractController
                 '%d added.<br>%d rejected or skipped (from_link):<br><ul><li>%s</li></ul>',
                 $added,
                 $rejected,
-                implode('</li><li>', $rejectedArr)
+                implode('</li><li>', array_map(fn ($link) => htmlspecialchars((string) $link, ENT_QUOTES), $rejectedArr))
             );
         }
 
