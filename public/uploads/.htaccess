@@ -1,0 +1,21 @@
+# Uploaded files are data, never code. Nothing in this directory may execute.
+# (Uploads are stored under random names with an image extension, see
+# App\Entity\Document::preUpload; this is a second layer of defence.)
+
+# Never run PHP here (mod_php).
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+# Refuse to serve anything that looks like a script, whatever the handler.
+<FilesMatch "\.(?i:php\d?|phtml|phar|pht|phps|cgi|pl|py|sh|asp|aspx|jsp|htaccess)$">
+    Require all denied
+</FilesMatch>
+
+# No directory listings.
+Options -Indexes
+
+# Browsers must not guess a different content type for an upload.
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
