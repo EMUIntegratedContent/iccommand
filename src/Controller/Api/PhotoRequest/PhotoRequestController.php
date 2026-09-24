@@ -9,6 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
+use App\Security\ExternalApiToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -193,18 +194,20 @@ class PhotoRequestController extends AbstractController
    * @return Response The photo request, the status code, and the HTTP headers.
    */
   #[Route('/', methods: ['POST'])]
-  public function postPhotoRequestAction(Request $request): Response
+  public function postPhotoRequestAction(Request $request, ExternalApiToken $apiToken): Response
   {
-    // Check if this is an API request (has API key or API user agent)
-    $hasApiKey = $request->headers->get('X-API-Key');
-    $userAgent = $request->headers->get('User-Agent');
-    $isApiRequest = $hasApiKey || ($userAgent && preg_match('/.*API.*/i', $userAgent));
-
-    // If not an API request, check for proper authentication and roles
-    if (!$isApiRequest) {
-      if (!($this->isGranted('ROLE_GLOBAL_ADMIN') ||
-        $this->isGranted('ROLE_PHOTO_ADMIN') ||
-        $this->isGranted('ROLE_PHOTO_CREATE'))) {
+    // Logged-in users need the module role. Server-to-server callers
+    // (emich.edu) authenticate with the shared API token instead.
+    $hasRole = $this->isGranted('ROLE_GLOBAL_ADMIN')
+      || $this->isGranted('ROLE_PHOTO_ADMIN')
+      || $this->isGranted('ROLE_PHOTO_CREATE');
+    if (!$hasRole) {
+      // Before the token existed, any X-API-Key header or an "API" user agent
+      // was accepted. That is still honoured in EXTERNAL_API_TOKEN_MODE=log
+      // (and logged) so emich.edu keeps working until it sends the token.
+      $userAgent = (string) $request->headers->get('User-Agent');
+      $legacyCaller = $request->headers->has(ExternalApiToken::HEADER) || preg_match('/API/i', $userAgent) === 1;
+      if (!$apiToken->allows($request, $legacyCaller)) {
         throw $this->createAccessDeniedException('Access denied.');
       }
     }
