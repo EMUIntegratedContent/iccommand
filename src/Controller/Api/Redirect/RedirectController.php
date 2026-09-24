@@ -9,6 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
+use App\Security\ExternalApiToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Psr\Log\LoggerInterface;
@@ -67,27 +68,19 @@ class RedirectController extends AbstractController
      * @return Response
      */
     #[Route('external/redirect', methods: ['PUT'])]
-    public function putExternalRedirectincrementAction(Request $request): Response
+    public function putExternalRedirectincrementAction(Request $request, ExternalApiToken $apiToken): Response
     {
-        $url = $request->request->get('url');
-
-        $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(['fromLink' => $url]);
-
-        // $this->logger->info('!!! PUT /api/external/redirectincrement is running !!! URL: ' . $url);
-        //
-        // $memstart = memory_get_peak_usage(true);
-        // $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
-
-        if (!$redirect) {
-            return new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
+        if (!$apiToken->allows($request, true)) {
+            return new Response(json_encode('Missing or invalid API token.'), 401, array('Content-Type' => 'application/json'));
         }
 
-        // Increment the number of visits for the redirect.
-        $redirect->setVisits($redirect->getVisits() + 1);
-        $redirect->setLastVisit(new \DateTime());
+        $url = (string) $request->request->get('url');
 
-        $this->em->persist($redirect);
-        $this->em->flush();
+        // Atomic increment that bypasses the ORM, so the Blameable listener no
+        // longer blanks the redirect's "changed by" value on every visit.
+        if ($url === '' || !$this->doctrine->getRepository(Redirect::class)->incrementVisits($url)) {
+            return new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
+        }
 
         return new Response('Incremented visits to URL ' . $url . '.', 201, array("Content-Type" => "application/json"));
     }
