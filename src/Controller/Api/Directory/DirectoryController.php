@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Directory;
 
+use App\Util\RequestHelper;
 use App\Entity\Directory\Department;
 use App\Service\DirectoryService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,8 +73,7 @@ class DirectoryController extends AbstractController
   #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function getDepartmentsAction(Request $request): Response
   {
-    $page = $request->query->get('page') ?? 1;
-    $pageSize = $request->query->get('limit') ?? 10;
+    [$page, $pageSize] = RequestHelper::pagination($request, 10);
     $searchTerm = $request->query->get('search') ?? '';
 
     $departments = $this->service->getDepartmentsPagination($page, $pageSize, $searchTerm);
