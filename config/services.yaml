@@ -7,6 +7,14 @@ parameters:
   locale: "en"
   user_images_subdirectory: "/uploads/profile"
   mapitem_images_subdirectory: "/uploads/map"
+  # Active Directory connection. Defaults match the previous hard-coded values.
+  # Switch LDAP_ENCRYPTION to "tls" (StartTLS on 389) or "ssl" (with LDAP_PORT=636)
+  # once AD confirms which it offers; the AD CA must be trusted on the server.
+  env(LDAP_HOST): 'ad.emich.edu'
+  env(LDAP_PORT): '389'
+  env(LDAP_ENCRYPTION): 'none'
+  # Comma-separated IPs/CIDRs of reverse proxies in front of the app (empty = none).
+  env(TRUSTED_PROXIES): ''
 
 services:
   # default configuration for services in *this* file
@@ -32,9 +40,9 @@ services:
       - ldap
   Symfony\Component\Ldap\Adapter\ExtLdap\Adapter:
     arguments:
-      - host: ad.emich.edu
-        port: 389
-        encryption: none
+      - host: '%env(LDAP_HOST)%'
+        port: '%env(int:LDAP_PORT)%'
+        encryption: '%env(LDAP_ENCRYPTION)%'
         options:
           protocol_version: 3
           referrals: false
