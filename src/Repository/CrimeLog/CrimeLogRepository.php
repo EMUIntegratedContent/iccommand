@@ -24,10 +24,4 @@ class CrimeLogRepository extends ServiceEntityRepository
     {
         return $this->em;
     }
-
-    public function truncate(): void
-		{
-			// Truncate the dailylog table.
-			$this->em->getConnection()->executeStatement('TRUNCATE TABLE dailylog');
-		}
 }

@@ -105,7 +105,7 @@ class FireLog
 	#[ORM\Column(type: "string", length: 10)]
 	#[SerializedName("status")]
 	#[Groups("crimelog")]
-	#[Assert\Length(max: 30, maxMessage: "Status cannot be longer than {{ limit }} characters")]
+	#[Assert\Length(max: 10, maxMessage: "Status cannot be longer than {{ limit }} characters")]
 	private $status;
 
 	/**
