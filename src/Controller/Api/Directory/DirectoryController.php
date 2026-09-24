@@ -105,10 +105,10 @@ class DirectoryController extends AbstractController
       }
     }
 
-    $searchTerm = $request->query->get('searchterm');
+    $searchTerm = (string) $request->query->get('searchterm', '');
 
-		// Special case: if the search term is "it" (case-insensitive), change it to "information tech"
-		if(strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $searchTerm == 'it'))) {
+		// Special case: if the search term is "it" (case-insensitive, punctuation ignored, so "IT" and "i.t."), change it to "information tech"
+		if (strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $searchTerm)) === 'it') {
 			$searchTerm = 'information tech';
 		}
 
