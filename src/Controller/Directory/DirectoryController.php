@@ -6,6 +6,8 @@ use App\Entity\Directory\Department;
 use App\Service\DirectoryService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -74,6 +76,7 @@ class DirectoryController extends AbstractController
    * The management page of the department directory app.
    */
   #[Route('/directory/manage', name: 'directory_manage')]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN")'))]
   public function manage(): Response
   {
     return $this->render('directory/manage.html.twig', []);

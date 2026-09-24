@@ -6,6 +6,8 @@ use App\Entity\Programs\ProgramWebsites;
 use App\Service\ProgramsService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,6 +55,7 @@ class ProgramsController extends AbstractController {
 	 * The management page of the programs.
 	 */
 	#[Route('/programs/manage', name: 'programs_manage')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN")'))]
 	public function manage(): Response
 	{
 		return $this->render('programs/manage.html.twig', []);

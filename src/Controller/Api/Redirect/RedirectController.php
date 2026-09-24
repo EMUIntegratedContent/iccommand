@@ -14,6 +14,8 @@ use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
@@ -98,6 +100,7 @@ class RedirectController extends AbstractController
      * @return Response The message of the deleted redirect, the status code, and the HTTP headers.
      */
     #[Route('/{id}', methods: ['DELETE'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function deleteRedirectAction($id): Response
     {
         $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
@@ -113,6 +116,7 @@ class RedirectController extends AbstractController
      * @return Response Broken redirects, the status code, and the HTTP headers.
      */
     #[Route('/list', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function getRedirectsAction(Request $request): Response
     {
         $page = $request->query->get('page') ?? 1;
@@ -132,6 +136,7 @@ class RedirectController extends AbstractController
      * @return Response
      */
     #[Route('/search', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function searchRedirectsAction(Request $request): Response
     {
         $searchTerm = $request->query->get('searchterm');
@@ -150,6 +155,7 @@ class RedirectController extends AbstractController
      * @return Response The redirect, the status code, and the HTTP headers.
      */
     #[Route('/{id}', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function getRedirectAction($id): Response
     {
         $redirect = $this->doctrine->getRepository(Redirect::class)->findOneBy(["id" => $id]);
@@ -170,6 +176,7 @@ class RedirectController extends AbstractController
      * @return Response The redirect, the status code, and the HTTP headers.
      */
     #[Route('/', methods: ['POST'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function postRedirectAction(Request $request): Response
     {
         $redirect = new Redirect();
@@ -271,6 +278,7 @@ class RedirectController extends AbstractController
      * @return Response The redirect, the status code, and the HTTP headers.
      */
     #[Route('/', methods: ['PUT'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function putRedirectAction(Request $request): Response
     {
         $id = $request->request->get("id");
@@ -465,6 +473,7 @@ class RedirectController extends AbstractController
      * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
      */
     #[Route('upload', methods: ['POST'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function postRedirectBulkAction(
         Request $request,
         ?Profiler $profiler = null,

@@ -16,6 +16,8 @@ use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * API CrimeLog Controller
@@ -54,6 +56,7 @@ class CrimeLogController extends AbstractController
 	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
 	 */
 	#[Route('upload', methods: ['POST'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CRIMELOG_USER")'))]
 	public function postCrimeLogBulkAction(
 		Request $request,
 		?Profiler $profiler = null,

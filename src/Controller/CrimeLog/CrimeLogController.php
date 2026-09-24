@@ -7,6 +7,8 @@ use App\Service\CrimeLogService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -44,6 +46,7 @@ class CrimeLogController extends AbstractController
 	 * The management page of the crime log app.
 	 */
 	#[Route('/crimelog/manage', name: 'crimelog_manage')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CRIMELOG_ADMIN")'))]
 	public function manage(): Response
 	{
 		return $this->render('crimelog/manage.html.twig', []);

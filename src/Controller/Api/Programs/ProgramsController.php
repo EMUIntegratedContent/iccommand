@@ -211,7 +211,7 @@ class ProgramsController extends AbstractController
 	 * @return Response
 	 */
 	#[Route('/keywords', methods: ['GET'])]
-	// #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getKeywordsAction(Request $request): Response
 	{
 		$page = $request->query->get('page') ?? 1;

@@ -5,6 +5,8 @@ namespace App\Controller\Emergency;
 use App\Service\EmergencyService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,6 +45,7 @@ class EmergencyController extends AbstractController
    * The management page of the emergency banner app.
    */
   #[Route('/emergency/manage', name: 'emergency_manage')]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN")'))]
   public function manage(): Response
   {
     return $this->render('emergency/manage.html.twig', []);

@@ -5,6 +5,8 @@ namespace App\Controller\PhotoRequest;
 use App\Service\PhotoRequestService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,6 +55,7 @@ class PhotoRequestController extends AbstractController
    * The management page of the photo requests.
    */
   #[Route('/photorequests/manage', name: 'photorequests_manage')]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN")'))]
   public function manage(): Response
   {
     $permissions = json_encode($this->service->getPhotoRequestPermissions());

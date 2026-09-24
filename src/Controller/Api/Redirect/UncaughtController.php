@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
@@ -119,6 +121,7 @@ class UncaughtController extends AbstractController {
      * @return Response The message of the deleted uncaught item, the status code, and the HTTP headers.
      */
 		#[Route('/{id}', methods: ['DELETE'])]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function deleteUncaughtAction($id): Response {
         $uncaught = $this->doctrine->getRepository(Uncaught::class)->find($id);
 
@@ -133,6 +136,7 @@ class UncaughtController extends AbstractController {
      * @return Response All uncaught items, the status code, and the HTTP headers.
      */
 		#[Route('/', methods: ['GET'])]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function getUncaughtsAction(): Response {
         $uncaughts = $this->doctrine->getRepository(Uncaught::class)->findBy(["isRecommended" => true], ["visits" => "desc"]);
         $serialized = $this->serializer->serialize($uncaughts, "json", ['groups' => 'redir']);
@@ -145,6 +149,7 @@ class UncaughtController extends AbstractController {
      * @return Response The uncaught item, the status code, and the HTTP headers.
      */
 		#[Route('/', methods: ['PUT'])]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
     public function putUncaughtAction(Request $request): Response {
         $uncaught = $this->doctrine->getRepository(Uncaught::class)->find($request->request->get("id"));
 
