@@ -32,10 +32,4 @@ class DefaultController extends AbstractController
   {
     return $this->render('profile.html.twig', []);
   }
-
-	#[Route('/unittest', name: 'unit_test')]
-  public function unitTest(): Response
-  {
-    return new Response('Hello World', 201, array('Content-Type' => 'application/json; charset=UTF-8'));
-  }
 }

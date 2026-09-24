@@ -31,7 +31,6 @@
         "symfony/property-access": "^8.0",
         "symfony/property-info": "^8.0",
         "symfony/rate-limiter": "^8.0",
-        "symfony/requirements-checker": "^2.0",
         "symfony/runtime": "^8.0",
         "symfony/security-bundle": "^8.0",
         "symfony/security-csrf": "^8.0",
@@ -87,7 +86,6 @@
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd",
-            "requirements-checker": "script",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
@@ -104,6 +102,12 @@
         "symfony": {
             "id": "01C6ZMDTZYHN7CSWAEMWXD67J8",
             "allow-contrib": true
+        },
+        "runtime": {
+            "prod_envs": [
+                "prod",
+                "staging"
+            ]
         }
     }
 }

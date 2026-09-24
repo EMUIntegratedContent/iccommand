@@ -1683,8 +1683,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *         liip_imagine?: LiipImagineConfig,
  *         webpack_encore?: WebpackEncoreConfig,
- *         web_profiler?: WebProfilerConfig,
- *         debug?: DebugConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
