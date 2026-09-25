@@ -13,7 +13,7 @@ if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
 }
 
 // Same runtime as public/index.php: loads .env, .env.local, .env.$APP_ENV and
-// .env.local.php, and derives APP_DEBUG from composer.json extra.runtime.prod_envs.
+// .env.local.php, so commands use the same settings as the site.
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 return function (array $context) {

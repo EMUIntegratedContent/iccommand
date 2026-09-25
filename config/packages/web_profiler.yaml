@@ -6,6 +6,14 @@ when@dev:
         profiler:
             collect_serializer_data: true
 
+when@staging:
+    web_profiler:
+        toolbar: true
+
+    framework:
+        profiler:
+            collect_serializer_data: true
+
 when@test:
     framework:
         profiler:

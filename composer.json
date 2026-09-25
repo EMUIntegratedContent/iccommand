@@ -102,12 +102,6 @@
         "symfony": {
             "id": "01C6ZMDTZYHN7CSWAEMWXD67J8",
             "allow-contrib": true
-        },
-        "runtime": {
-            "prod_envs": [
-                "prod",
-                "staging"
-            ]
         }
     }
 }
