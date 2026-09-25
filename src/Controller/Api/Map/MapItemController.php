@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Map;
 
+use App\Service\RichTextSanitizer;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -32,12 +33,14 @@ class MapItemController extends AbstractController
 	private MapItemService $service;
 	private ManagerRegistry $doctrine;
 	private SerializerInterface $serializer;
+	private RichTextSanitizer $richText;
 
-	public function __construct(MapItemService $service, ManagerRegistry $doctrine, SerializerInterface $serializer)
+	public function __construct(MapItemService $service, ManagerRegistry $doctrine, SerializerInterface $serializer, RichTextSanitizer $richText)
 	{
 		$this->service = $service;
 		$this->doctrine = $doctrine;
 		$this->serializer = $serializer;
+		$this->richText = $richText;
 	}
 
 	/**
@@ -183,7 +186,7 @@ class MapItemController extends AbstractController
 				break;
 			case "building":
 				$mapItem = new MapBuilding();
-				$mapItem->setHours($data['hours']);
+				$mapItem->setHours($this->richText->sanitize($data['hours'] ?? null));
 				$mapItem->setAddress($data['address']);
 
 				// Building Type
@@ -204,7 +207,7 @@ class MapItemController extends AbstractController
 			case "parking":
 				$mapItem = new MapParking();
 				$mapItem->setSpaces($data['spaces']);
-				$mapItem->setHours($data['hours']);
+				$mapItem->setHours($this->richText->sanitize($data['hours'] ?? null));
 				$mapItem->setHasHandicapSpaces($data['hasHandicapSpaces']);
 				break;
 			case "service":
@@ -407,7 +410,7 @@ class MapItemController extends AbstractController
 				$mapItem->setIsGenderNeutral($data['isGenderNeutral']);
 				break;
 			case "building":
-				$mapItem->setHours($data['hours']);
+				$mapItem->setHours($this->richText->sanitize($data['hours'] ?? null));
 				$mapItem->setAddress($data['address']);
 				// Building Type
 				$buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($data['buildingType']['id']);
@@ -597,7 +600,7 @@ class MapItemController extends AbstractController
 				break;
 			case "parking":
 				$mapItem->setSpaces($data['spaces']);
-				$mapItem->setHours($data['hours']);
+				$mapItem->setHours($this->richText->sanitize($data['hours'] ?? null));
 				$mapItem->setHasHandicapSpaces($data['hasHandicapSpaces']);
 				// Compare and delete any parking lot types not in the updated list
 				$this->service->mapParkingLotTypeCompare($mapItem->getParkingTypes(), $data['parkingTypes'], $mapItem);

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Programs;
 
+use App\Service\RichTextSanitizer;
 use App\Entity\Programs\ProgramKeywords;
 use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
@@ -260,7 +261,7 @@ class ProgramsController extends AbstractController
 	 */
 	#[Route('/', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
-	public function postProgramAction(Request $request): Response
+	public function postProgramAction(Request $request, RichTextSanitizer $richText): Response
 	{
 		$catalog = strtolower($request->request->get("catalog"));
 		$progFullName = $request->request->get("full_name");
@@ -285,7 +286,7 @@ class ProgramsController extends AbstractController
 		$program->setDuration(RequestHelper::optionalString($request->request->get("duration")));
 		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
-		$program->setProgramOverview(RequestHelper::optionalString($request->request->get("program_overview")));
+		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -394,7 +395,7 @@ class ProgramsController extends AbstractController
 	 */
 	#[Route('/', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
-	public function putProgramAction(Request $request): Response
+	public function putProgramAction(Request $request, RichTextSanitizer $richText): Response
 	{
 		$id = $request->request->get("id");
 		$progFullName = $request->request->get("full_name");
@@ -418,7 +419,7 @@ class ProgramsController extends AbstractController
 		$program->setDuration(RequestHelper::optionalString($request->request->get("duration")));
 		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
-		$program->setProgramOverview(RequestHelper::optionalString($request->request->get("program_overview")));
+		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
 
 		$errors = $this->service->validate($program); // Validate the program.
 
