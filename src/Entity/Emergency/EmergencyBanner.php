@@ -46,7 +46,8 @@ class EmergencyBanner
     private int $updatedBy;
 
     // Return the username, not the user ID.
-    #[Groups("banner")]
+    // Admin responses only; the public GET must not reveal who edited the banner.
+    #[Groups("banner_admin")]
     private ?string $updatedByUsername = null;
 
     // Emergency notices (not persisted, populated by repository)

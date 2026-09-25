@@ -7,11 +7,13 @@ use App\Entity\Emergency\EmergencyNotice;
 use App\Entity\Emergency\EmergencySeverity;
 use App\Repository\Emergency\EmergencyRepository;
 use App\Repository\Emergency\EmergencyNoticeRepository;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Doctrine\Persistence\ObjectManager;
 
 /**
  * The emergency service is used primarily for CRUD actions on Emergency Banners and Notices
@@ -20,12 +22,12 @@ class EmergencyService
 {
 	private AuthorizationCheckerInterface $authorizationChecker;
 	private ValidatorInterface $validator;
-	private ObjectManager $em;
+	private EntityManagerInterface $em;
 
 	/**
 	 * The constructor of the service of the emergency banners and notices.
 	 */
-	public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine)
+	public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine, private Security $security)
 	{
 		$this->authorizationChecker = $authorizationChecker;
 		$this->validator = $validator;
@@ -104,12 +106,32 @@ class EmergencyService
 	}
 
 	/**
-	 * Updates the emergency banner.
+	 * Updates the emergency banner, and the notices when the request includes them.
+	 * Everything is saved in one transaction, so a failure leaves the old banner and notices intact.
 	 * @param array $data The banner data to update.
-	 * @return array Result with success status, banner, and message.
+	 * @return array Result with success status, banner, message, and an HTTP status for failures.
 	 */
 	public function updateBanner(array $data): array
 	{
+		$severity = null;
+		if (($data['severity'] ?? '') !== '' && $data['severity'] !== null) {
+			$severity = EmergencySeverity::tryFrom((string) $data['severity']);
+			if ($severity === null) {
+				return [
+					'success' => false,
+					'status' => 422,
+					'message' => 'Invalid severity. Use one of: ' . implode(', ', array_column(EmergencySeverity::cases(), 'value')) . '.'
+				];
+			}
+		}
+
+		$notices = $data['notices'] ?? null;
+		if ($notices !== null && !is_array($notices)) {
+			return ['success' => false, 'status' => 422, 'message' => 'Notices must be a list.'];
+		}
+
+		$userId = $this->currentUserId();
+
 		try {
 			// Get existing banner or create new one
 			$banner = $this->getBanner();
@@ -124,35 +146,34 @@ class EmergencyService
 			$banner->setForceEmergencyPage($data['forceEmergencyPage'] ?? false);
 
 			// Always update banner fields with the provided data, regardless of displayBanner state
-			$banner->setSeverity($data['severity'] ? EmergencySeverity::from($data['severity']) : null);
+			$banner->setSeverity($severity);
 			$banner->setBannerMessage($data['bannerMessage'] ?? null);
 			$banner->setBannerTitle($data['bannerTitle'] ?? null);
+			$banner->setUpdatedBy($userId);
 
-			// Set updated by user (you'll need to get current user from security context)
-			// For now, using a placeholder - you may need to inject Security service
-			$banner->setUpdatedBy(1); // TODO: Get actual current user ID
-
-			// Validate the banner
-			$errors = $this->validateBanner($banner);
-			if (count($errors) > 0) {
-				$errorMessages = [];
-				foreach ($errors as $error) {
-					$errorMessages[] = $error->getMessage();
-				}
+			$errorMessages = [];
+			foreach ($this->validateBanner($banner) as $error) {
+				$errorMessages[] = $error->getMessage();
+			}
+			if ($errorMessages) {
+				$this->em->clear();
 				return [
 					'success' => false,
+					'status' => 422,
 					'message' => 'Validation failed: ' . implode(', ', $errorMessages)
 				];
 			}
 
-			// Handle emergency notices
-			$this->handleEmergencyNotices($data['notices'] ?? []);
-
-			// Save the banner
-			$this->em->persist($banner);
-			$this->em->flush();
+			$this->em->wrapInTransaction(function () use ($banner, $notices, $userId) {
+				// A request without a "notices" key leaves the notices alone. An empty list clears them.
+				if ($notices !== null) {
+					$this->reconcileNotices($notices, $userId);
+				}
+				$this->em->persist($banner);
+			});
 
 			// Return updated banner with username
+			$this->em->clear();
 			/** @var EmergencyRepository $repository */
 			$repository = $this->em->getRepository(EmergencyBanner::class);
 			$updatedBanner = $repository->findOneBannerWithUsername();
@@ -162,57 +183,53 @@ class EmergencyService
 				'banner' => $updatedBanner,
 				'message' => 'Emergency banner updated successfully'
 			];
-		} catch (\Exception $e) {
-			return [
-				'success' => false,
-				'message' => 'Failed to update emergency banner: ' . $e->getMessage()
-			];
+		} catch (\InvalidArgumentException $e) {
+			// A notice failed validation; the transaction was rolled back.
+			return ['success' => false, 'status' => 422, 'message' => $e->getMessage()];
 		}
 	}
 
 	/**
-	 * Handles emergency notices creation, update, and deletion.
+	 * Creates, updates, and deletes notices to match the submitted list. Must run inside a transaction.
 	 * @param array $noticesData Array of notice data from the form
+	 * @throws \InvalidArgumentException when a notice fails validation
 	 */
-	private function handleEmergencyNotices(array $noticesData): void
+	private function reconcileNotices(array $noticesData, int $userId): void
 	{
 		/** @var EmergencyNoticeRepository $noticeRepository */
 		$noticeRepository = $this->em->getRepository(EmergencyNotice::class);
 
-		$existingNotices = $noticeRepository->findAll();
-		$existingIds = array_map(fn($notice) => $notice->getId(), $existingNotices);
-		$submittedIds = array_filter(array_map(fn($notice) => $notice['id'] ?? null, $noticesData));
-
-		// Delete notices that are no longer in the submitted data
-		$idsToKeep = array_filter($submittedIds);
-		$noticeRepository->removeNotInList($idsToKeep);
-
-		// Create or update notices
+		$keep = [];
 		foreach ($noticesData as $noticeData) {
-			if (empty($noticeData['notice'])) {
+			if (!is_array($noticeData) || trim((string) ($noticeData['notice'] ?? '')) === '') {
 				continue; // Skip empty notices
 			}
 
-			$notice = null;
-			if (!empty($noticeData['id'])) {
-				// Update existing notice
-				$notice = $noticeRepository->find($noticeData['id']);
-			}
-
+			$notice = !empty($noticeData['id']) ? $noticeRepository->find((int) $noticeData['id']) : null;
 			if (!$notice) {
-				// Create new notice
 				$notice = new EmergencyNotice();
-				$notice->setCreatedBy(1); // TODO: Get actual current user ID
+				$notice->setCreatedBy($userId);
 			}
+			$notice->setNotice((string) $noticeData['notice']);
+			$notice->setUpdatedBy($userId);
 
-			$notice->setNotice($noticeData['notice']);
-			$notice->setUpdatedBy(1); // TODO: Get actual current user ID
-
-			// Validate the notice
 			$errors = $this->validateNotice($notice);
-			if (count($errors) === 0) {
-				$this->em->persist($notice);
+			if (count($errors) > 0) {
+				throw new \InvalidArgumentException('Invalid notice: ' . $errors[0]->getMessage());
 			}
+			$this->em->persist($notice);
+			$keep[] = $notice;
 		}
+
+		// Flush first so new notices have ids, then delete the ones that were removed.
+		$this->em->flush();
+		$noticeRepository->removeNotInList(array_map(fn (EmergencyNotice $n) => $n->getId(), $keep));
+	}
+
+	private function currentUserId(): int
+	{
+		$user = $this->security->getUser();
+
+		return $user instanceof User ? (int) $user->getId() : 0;
 	}
 }
