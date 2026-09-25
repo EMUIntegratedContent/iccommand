@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Cas;
 
+use App\Util\RequestHelper;
 use App\Entity\Cas\CasCycle;
 use App\Entity\Cas\CasLink;
 use App\Service\CasService;
@@ -181,8 +182,7 @@ class CasController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_CAS_VIEW")'))]
 	public function getLinksAction(int $cycleId, Request $request): Response
 	{
-		$page = $request->query->get('page') ?? 1;
-		$pageSize = $request->query->get('limit') ?? 20;
+		[$page, $pageSize] = RequestHelper::pagination($request, 20);
 
 		$links = $this->service->getLinksPagination($cycleId, $page, $pageSize);
 

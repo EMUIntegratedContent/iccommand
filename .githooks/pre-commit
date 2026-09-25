@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Opt in with: git config core.hooksPath .githooks
+# Blocks commits that include a development build in public/build.
+if git diff --cached --name-only | grep -q '^public/build/'; then
+  if ! bin/check-frontend-build; then
+    echo "Commit blocked: public/build is not a production build. Run npm run build, then commit again." >&2
+    exit 1
+  fi
+fi
