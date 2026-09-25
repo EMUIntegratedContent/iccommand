@@ -59,8 +59,7 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getProgramsAction(Request $request): Response
 	{
-		$page = $request->query->get('page') ?? 1;
-		$pageSize = $request->query->get('limit') ?? 25;
+		[$page, $pageSize] = RequestHelper::pagination($request, 25);
 		$catalog = $request->query->get('catalog') ?? 'undergraduate';
 
 		$programs = $this->service->getProgramsPagination($page, $pageSize, $catalog);
@@ -100,8 +99,7 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getWebsitesAction(Request $request): Response
 	{
-		$page = $request->query->get('page') ?? 1;
-		$pageSize = $request->query->get('limit') ?? 25;
+		[$page, $pageSize] = RequestHelper::pagination($request, 25);
 
 		$websites = $this->service->getWebsitesPagination($page, $pageSize);
 
@@ -226,8 +224,7 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getKeywordsAction(Request $request): Response
 	{
-		$page = $request->query->get('page') ?? 1;
-		$limit = $request->query->get('limit') ?? 50;
+		[$page, $limit] = RequestHelper::pagination($request, 50);
 		$searchTerm = $request->query->get('searchterm');
 
 		$result = $this->service->getKeywordsPagination($page, $limit, $searchTerm);

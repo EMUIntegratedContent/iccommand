@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\PhotoRequest;
 
+use App\Util\RequestHelper;
 use App\Entity\PhotoRequest\PhotoRequest;
 use App\Entity\User;
 use App\Service\PhotoRequestService;
@@ -49,8 +50,7 @@ class PhotoRequestController extends AbstractController
   #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_VIEW")'))]
   public function getPhotoRequestsAction(Request $request): Response
   {
-    $page = $request->query->get('page') ?? 1;
-    $pageSize = $request->query->get('limit') ?? 25;
+    [$page, $pageSize] = RequestHelper::pagination($request, 25);
 
     // Get all query parameters
     $queryParams = $request->query->all();

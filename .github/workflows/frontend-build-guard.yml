@@ -1,0 +1,26 @@
+name: Frontend build guard
+
+# Production deploys by pulling master, so the committed public/build must be
+# a versioned production build. See bin/check-frontend-build.
+on:
+  pull_request:
+    branches: [master, feature/modernization]
+    paths:
+      - 'public/build/**'
+      - 'bin/check-frontend-build'
+      - 'webpack.config.js'
+  push:
+    branches: [master]
+    paths:
+      - 'public/build/**'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check public/build is a production build
+        run: bin/check-frontend-build
