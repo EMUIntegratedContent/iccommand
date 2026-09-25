@@ -35,8 +35,8 @@ Encore
     .cleanupOutputBeforeBuild()
     // show OS notifications when builds finish/fail
     .enableBuildNotifications()
-    // create hashed filenames (e.g. app.abc123.css)
-    // .enableVersioning()
+    // create hashed filenames (e.g. app.abc123.css) so browsers pick up every deploy
+    .enableVersioning()
     // enable vuejs
     .enableVueLoader(() => {}, {
         version: 3,
@@ -49,7 +49,7 @@ Encore
     .addPlugin(
         new webpack.DefinePlugin({
                 __VUE_OPTIONS_API__: true, // Allows the old Vue2 style (options API)
-                __VUE_PROD_DEVTOOLS__: true,
+                __VUE_PROD_DEVTOOLS__: false, // never expose Vue devtools in production
             })
     )
 

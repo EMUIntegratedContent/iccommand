@@ -136,3 +136,20 @@ npm run build                                      # Production asset build
 php bin/phpunit                                     # Run all tests
 php bin/phpunit tests/path/to/TestFile.php          # Run a single test file
 ```
+
+### Committing frontend builds
+
+Production deploys by pulling `master`, so the committed `public/build` is what users download. Before committing it:
+
+```bash
+npm run build                      # Production build: minified, hashed filenames
+bin/check-frontend-build           # Fails on a development build (npm run dev/watch output)
+```
+
+Never commit the output of `npm run watch` or `npm run dev`. To have git check this automatically on every commit, enable the repository's hooks once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The same check runs on pull requests that change `public/build`.
