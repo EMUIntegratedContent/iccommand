@@ -18,8 +18,6 @@ parameters:
   env(LDAP_HOST): 'ad.emich.edu'
   env(LDAP_PORT): '389'
   env(LDAP_ENCRYPTION): 'none'
-  # Comma-separated IPs/CIDRs of reverse proxies in front of the app (empty = none).
-  env(TRUSTED_PROXIES): ''
 
 services:
   # default configuration for services in *this* file
