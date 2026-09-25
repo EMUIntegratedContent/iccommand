@@ -65,7 +65,8 @@ class MapItemImageController extends AbstractController
 			$this->linkImageToMapItem($newImage, $mapItemId); // associate the new image with the map item
 			$processedImages[] = $newImage;
 		}
-		$serialized = $this->serializer->serialize(['errors' => $errors, 'processedImages' => $processedImages], 'json');
+		// Same group as the map item GET, so new images have the same keys (e.g. "subdir") as loaded ones.
+		$serialized = $this->serializer->serialize(['errors' => $errors, 'processedImages' => $processedImages], 'json', ['groups' => 'bldgs']);
 		return new Response($serialized, 200, ['Content-Type' => 'application/json']);
 	}
 
