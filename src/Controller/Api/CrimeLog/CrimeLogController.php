@@ -16,6 +16,8 @@ use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * API CrimeLog Controller
@@ -47,13 +49,14 @@ class CrimeLogController extends AbstractController
 	/**
 	 * Updates the crimelog from the specified request.
 	 * @param Request $request The holder of the information about the updated crimelog.
+	 * @param Profiler|null $profiler
+	 * @param DebugDataHolder|null $debugDataHolder
 	 * @return Response The crimelog, the status code, and the HTTP headers.
 	 *
 	 * #[Autowire(service: 'doctrine.debug_data_holder')] — Symfony doesn’t type-hint this service by default, so this attribute says “inject that specific service.”
-	 * @var DebugDataHolder $debugDataHolder = null — optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
-	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
 	 */
 	#[Route('upload', methods: ['POST'])]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CRIMELOG_USER")'))]
 	public function postCrimeLogBulkAction(
 		Request $request,
 		?Profiler $profiler = null,
