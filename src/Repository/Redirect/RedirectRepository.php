@@ -80,4 +80,20 @@ class RedirectRepository extends ServiceEntityRepository {
 			->getQuery()
 			->getResult();
 	}
+
+	/**
+	 * Count a visit to a redirect. A single atomic UPDATE that bypasses the ORM,
+	 * so concurrent visits are not lost and the Gedmo Timestampable/Blameable
+	 * listeners do not touch "updated" or "contentChanged" (the emich.edu
+	 * 404 page has no logged-in user, so Blameable used to blank the
+	 * "changed by" value on every visit).
+	 * @return bool false if no redirect matches
+	 */
+	public function incrementVisits(string $fromLink): bool
+	{
+		return $this->getEntityManager()->getConnection()->executeStatement(
+			'UPDATE redirect SET visits = visits + 1, last_visit = NOW() WHERE from_link = :fromLink',
+			['fromLink' => $fromLink]
+		) > 0;
+	}
 }

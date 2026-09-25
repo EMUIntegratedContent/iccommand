@@ -7,15 +7,17 @@ parameters:
   locale: "en"
   user_images_subdirectory: "/uploads/profile"
   mapitem_images_subdirectory: "/uploads/map"
+  # Shared secret for emich.edu server-to-server calls (see App\Security\ExternalApiToken).
+  # Set EXTERNAL_API_TOKEN on each server; empty means no request has a valid token.
+  env(EXTERNAL_API_TOKEN): ''
+  # "log" accepts legacy callers and logs a warning; "enforce" requires the token.
+  env(EXTERNAL_API_TOKEN_MODE): 'log'
 
 services:
   # default configuration for services in *this* file
   _defaults:
     autowire: true # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-    bind:
-      # This links your variable name directly to the service ID
-      $externalRedirectsLimiter: '@limiter.external_redirects'
 
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
@@ -38,12 +40,6 @@ services:
         options:
           protocol_version: 3
           referrals: false
-
-  # Rate limiting for API calls
-  ratelimit_subscriber:
-    class: App\EventSubscriber\RateLimitSubscriber
-    tags:
-      - { name: kernel.request, connection: default }
 
   App\Controller\Api\CrimeLog\CrimeLogController:
     arguments:
