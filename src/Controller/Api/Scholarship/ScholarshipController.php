@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Scholarship;
 
+use App\Util\RequestHelper;
 use App\Entity\Scholarship\Scholarship;
 use App\Service\ScholarshipService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -75,8 +76,7 @@ class ScholarshipController extends AbstractController
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
     public function getScholarshipsAction(Request $request): Response
     {
-        $page = (int)($request->query->get('page') ?? 1);
-        $pageSize = (int)($request->query->get('limit') ?? 20);
+        [$page, $pageSize] = RequestHelper::pagination($request, 20);
 
         $result = $this->service->getScholarshipsPagination($page, $pageSize);
 

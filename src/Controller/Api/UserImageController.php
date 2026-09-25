@@ -1,127 +1,120 @@
 <?php
 namespace App\Controller\Api;
 
+use App\Entity\User;
+use App\Entity\UserImage;
+use App\Service\ImageUploadValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\Entity\UserImage;
-use App\Entity\User;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+/**
+ * Profile images. Users manage only their own image; global admins may
+ * delete anyone's.
+ */
 class UserImageController extends AbstractController{
+    /** Liip filter sets that render profile images. */
+    private const CACHE_FILTERS = ['profile', 'navbar_profile'];
+
     private EntityManagerInterface $em;
     private SerializerInterface $serializer;
     private ManagerRegistry $doctrine;
+    private ImageUploadValidator $validator;
+    private CacheManager $imageCache;
 
-    public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, ManagerRegistry $doctrine){
+    public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, ManagerRegistry $doctrine, ImageUploadValidator $validator, CacheManager $imageCache){
         $this->serializer = $serializer;
         $this->em = $em;
         $this->doctrine = $doctrine;
+        $this->validator = $validator;
+        $this->imageCache = $imageCache;
     }
 
   /**
-   * Process new image uploads
+   * Upload a new profile image for the current user, replacing any existing one.
    */
-	#[Route('/uploads', name: 'user_image_upload')]
+	#[Route('/uploads', name: 'user_image_upload', methods: ['POST'])]
 	#[IsGranted('ROLE_USER')]
   public function postUserimageUploadAction(Request $request) : Response
   {
+    /** @var User $user */
+    $user = $this->getUser();
     $image = $request->files->get('uploadProfileImage');
-    $processedImage = null;
-    $errors = array();
 
-    $newImage = $this->storeImage($image, $request->request->get('user_id')); // store the image to the database
-    if($newImage){
-      $this->linkImageToUser($newImage, $request->request->get('user_id')); // associate the new image with the map item
-      $processedImage = $newImage;
-    } else {
-      $errors[] = "The file " . $image->getClientOriginalName() . " was not uploaded because it either already exists or is not a JPG, PNG, or GIF.";
+    $error = $this->validator->validate($image);
+    if ($error !== null) {
+      return $this->jsonResult([$error], null);
     }
 
-    $serialized = $this->serializer->serialize(array('errors' => $errors, 'processedImage' => $processedImage), 'json');
-    return new Response($serialized, 200, array('Content-Type' => 'application/json'));
+    $previous = $user->getImage();
+
+    $newImage = new UserImage();
+    $newImage->setName($user->getUsername());
+    $newImage->setFile($image);
+    $newImage->setSubDir($this->getParameter('user_images_subdirectory'));
+    $this->em->persist($newImage);
+    $this->em->flush();
+
+    $user->setImage($newImage);
+    $this->em->persist($user);
+    $this->em->flush();
+
+    // Remove the replaced image and its cached thumbnails.
+    if ($previous !== null) {
+      $this->removeImage($previous);
+    }
+
+    return $this->jsonResult([], $newImage);
   }
 
   /**
-   * Delete a user's profile image
-	 */
+   * Delete a profile image. Only its owner or a global admin may do this.
+   */
 	#[Route('/{id}', methods: ['DELETE'])]
 	#[IsGranted('ROLE_USER')]
   public function deleteUserimageAction($id) : Response
   {
-    $image = $this->doctrine->getRepository(UserImage::class)->findOneBy(['id' => $id]); // find the matching image
+    $image = $this->doctrine->getRepository(UserImage::class)->find($id);
 
     if(!$image){
-        return new Response("That image was not found. Deletion not executed.", 404, array('Content-Type' => 'application/json'));
+      return new Response("That image was not found. Deletion not executed.", 404, array('Content-Type' => 'application/json'));
     }
-    // delete the image
-    $this->em->remove($image);
-    $this->em->flush();
+
+    $owner = $this->doctrine->getRepository(User::class)->findOneBy(['image' => $image]);
+    $isOwner = $owner !== null && $owner->getUserIdentifier() === $this->getUser()?->getUserIdentifier();
+    if (!$isOwner && !$this->isGranted('ROLE_GLOBAL_ADMIN')) {
+      throw $this->createAccessDeniedException('You may only delete your own profile image.');
+    }
+
+    $this->removeImage($image);
 
     return new Response("Image deleted successfully.", 204, array('Content-Type' => 'application/json'));
   }
 
   /**
-   * PROTECTED: Store a user's image
+   * Delete the image record (its file is unlinked by Document::removeUpload)
+   * and any cached thumbnails.
    */
-  protected function storeImage(UploadedFile $image, $user_id) : ?UserImage
+  private function removeImage(UserImage $image): void
   {
-    // Make sure user is uploading a JPG, PNG, or GIF and not
-    if($this->isValidImage($image)){
-      // fetch the user's name. It will be the name of the image.
-      $user = $this->doctrine->getRepository(User::class)->find($user_id);
-      if(!$user){
-        return null;
-      }
-      $existingImage = $this->doctrine->getRepository(UserImage::class)->findOneBy(['name' => $image->getClientOriginalName()]);
-
-      // only process images that don't match an existing image name
-      if(!$existingImage){
-        // save the image
-        $newImage = new UserImage();
-        $newImage->setName($user->getUsername());
-        $newImage->setFile($image);
-        $newImage->setSubDir($this->getParameter('user_images_subdirectory'));
-
-        $this->em->persist($newImage);
-        $this->em->flush();
-
-        return $newImage;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * PROTECTED: associate a new image with the appropriate user
-   */
-  protected function linkImageToUser(UserImage $image, $userId) : bool
-  {
-    $user = $this->doctrine->getRepository(User::class)->find($userId);
-    if(!$user){
-      return false;
-    }
-    $user->setImage($image);
-
-    $this->em->persist($user);
+    $path = $image->getPath();
+    $subDir = trim((string) $image->getSubDir(), '/');
+    $this->em->remove($image);
     $this->em->flush();
-
-    return true;
+    if ($path) {
+      $this->imageCache->remove($subDir . '/' . $path, self::CACHE_FILTERS);
+    }
   }
 
-  /**
-   * Ensure image meets criteria for uploading
-   */
-  protected function isValidImage(UploadedFile $image) : bool {
-    $mimeType = $image->getMimeType();
-    $fileSize = $image->getSize();
-
-    // 2MB = 2097152 bytes
-    return (($mimeType == 'image/jpeg' || $mimeType == 'image/png' || $mimeType == 'image/gif') && $fileSize <= 2097152);
+  private function jsonResult(array $errors, ?UserImage $processedImage): Response
+  {
+    $serialized = $this->serializer->serialize(array('errors' => $errors, 'processedImage' => $processedImage), 'json');
+    return new Response($serialized, 200, array('Content-Type' => 'application/json'));
   }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\PhotoRequest;
 
+use App\Util\RequestHelper;
 use App\Entity\PhotoRequest\PhotoRequest;
 use App\Entity\User;
 use App\Service\PhotoRequestService;
@@ -9,7 +10,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
-use App\Security\ExternalApiToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -50,8 +50,7 @@ class PhotoRequestController extends AbstractController
   #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_VIEW")'))]
   public function getPhotoRequestsAction(Request $request): Response
   {
-    $page = $request->query->get('page') ?? 1;
-    $pageSize = $request->query->get('limit') ?? 25;
+    [$page, $pageSize] = RequestHelper::pagination($request, 25);
 
     // Get all query parameters
     $queryParams = $request->query->all();
@@ -194,52 +193,11 @@ class PhotoRequestController extends AbstractController
    * @return Response The photo request, the status code, and the HTTP headers.
    */
   #[Route('/', methods: ['POST'])]
-  public function postPhotoRequestAction(Request $request, ExternalApiToken $apiToken): Response
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_CREATE")'))]
+  public function postPhotoRequestAction(Request $request): Response
   {
-    // Logged-in users need the module role. Server-to-server callers
-    // (emich.edu) authenticate with the shared API token instead.
-    $hasRole = $this->isGranted('ROLE_GLOBAL_ADMIN')
-      || $this->isGranted('ROLE_PHOTO_ADMIN')
-      || $this->isGranted('ROLE_PHOTO_CREATE');
-    if (!$hasRole) {
-      // Before the token existed, any X-API-Key header or an "API" user agent
-      // was accepted. That is still honoured in EXTERNAL_API_TOKEN_MODE=log
-      // (and logged) so emich.edu keeps working until it sends the token.
-      $userAgent = (string) $request->headers->get('User-Agent');
-      $legacyCaller = $request->headers->has(ExternalApiToken::HEADER) || preg_match('/API/i', $userAgent) === 1;
-      if (!$apiToken->allows($request, $legacyCaller)) {
-        throw $this->createAccessDeniedException('Access denied.');
-      }
-    }
-
-    $shootType = $request->request->get("shootType");
-    $firstName = $request->request->get("firstName");
-    $lastName = $request->request->get("lastName");
-    $email = $request->request->get("email");
-    $phone = $request->request->get("phone");
-    $department = $request->request->get("department");
-
-    $photoRequest = new PhotoRequest();
-    $photoRequest->setShootType($shootType ?? 'photoshoot');
-    $photoRequest->setFirstName($firstName ?? '');
-    $photoRequest->setLastName($lastName ?? '');
-    $photoRequest->setEmail($email ?? '');
-    $photoRequest->setPhone($phone ?? '');
-    $photoRequest->setDepartment($department ?? '');
-    $photoRequest->setShootName($request->request->get("shootName") ?? '');
-    $photoRequest->setPhotoType($request->request->get("photoType") ?? '');
-    $photoRequest->setShootDate($request->request->get("shootDate") ? new \DateTime($request->request->get("shootDate")) : null);
-    $photoRequest->setStartTime($request->request->get("startTime") ? new \DateTime($request->request->get("startTime")) : null);
-    $photoRequest->setEndTime($request->request->get("endTime") ? new \DateTime($request->request->get("endTime")) : null);
-    $photoRequest->setLocation($request->request->get("location") ?? '');
-    $photoRequest->setDescription($request->request->get("description") ?? '');
-    $photoRequest->setPhotoExplaination($request->request->get("photoExplaination") ?? '');
-    $photoRequest->setIntendedUse($request->request->get("intendedUse") ?? '');
-    $photoRequest->setForUse($request->request->get("forUse") ?? '');
-    $photoRequest->setUrl($request->request->get("url") ?? '');
-    $photoRequest->setDesigner($request->request->get("designer") ?? '');
-    $photoRequest->setCategory($request->request->get("category") ?? '');
-    $photoRequest->setEventDesc($request->request->get("eventDesc") ?? '');
+    // Internal form only. emich.edu submits to POST /api/external/photorequests/ with the API key.
+    $photoRequest = $this->service->createFromData($request->request->all());
 
     $errors = $this->service->validate($photoRequest); // Validate the photo request.
 

@@ -2,12 +2,12 @@
 
 namespace App\Controller\Api\Directory;
 
+use App\Util\RequestHelper;
 use App\Entity\Directory\Department;
 use App\Service\DirectoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
-use App\Security\ExternalApiToken;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -73,8 +73,7 @@ class DirectoryController extends AbstractController
   #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function getDepartmentsAction(Request $request): Response
   {
-    $page = $request->query->get('page') ?? 1;
-    $pageSize = $request->query->get('limit') ?? 10;
+    [$page, $pageSize] = RequestHelper::pagination($request, 10);
     $searchTerm = $request->query->get('search') ?? '';
 
     $departments = $this->service->getDepartmentsPagination($page, $pageSize, $searchTerm);
@@ -85,45 +84,16 @@ class DirectoryController extends AbstractController
   }
 
   /**
-   * Search departments by name or search terms. Also used for the public website search (emich.edu/search + /search/php/department-api-iccommand.php).
+   * Search departments by name or search terms, for the internal app.
+   * The public emich.edu search uses GET /api/external/directory/search instead.
    * @param Request $request
    * @return Response
    */
   #[Route('/search', methods: ['GET'])]
-  public function searchDepartmentsAction(Request $request, ExternalApiToken $apiToken): Response
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
+  public function searchDepartmentsAction(Request $request): Response
   {
-    // Logged-in users need the module role. Server-to-server callers
-    // (emich.edu) authenticate with the shared API token instead.
-    $hasRole = $this->isGranted('ROLE_GLOBAL_ADMIN')
-      || $this->isGranted('ROLE_DEPARTMENTS_ADMIN')
-      || $this->isGranted('ROLE_DEPARTMENTS_VIEW');
-    if (!$hasRole) {
-      // Before the token existed, any X-API-Key header or an "API" user agent
-      // was accepted. That is still honoured in EXTERNAL_API_TOKEN_MODE=log
-      // (and logged) so emich.edu keeps working until it sends the token.
-      $userAgent = (string) $request->headers->get('User-Agent');
-      $legacyCaller = $request->headers->has(ExternalApiToken::HEADER) || preg_match('/API/i', $userAgent) === 1;
-      if (!$apiToken->allows($request, $legacyCaller)) {
-        throw $this->createAccessDeniedException('Access denied.');
-      }
-    }
-
-    $searchTerm = $request->query->get('searchterm');
-
-		// Special case: if the search term is "it" (case-insensitive), change it to "information tech"
-		if(strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $searchTerm == 'it'))) {
-			$searchTerm = 'information tech';
-		}
-
-		// If the search term is numeric, search by phone number
-		if (is_numeric($searchTerm)){
-			$departments = $this->service->getDepartmentsByPhone($searchTerm);
-		} else if(strlen($searchTerm) === 1) {
-			// If the search term is a single character, search where dept name starts with that character
-			$departments = $this->service->getDepartmentsStartWithLetter($searchTerm);
-		} else {
-			$departments = $this->service->getDepartmentsByName($searchTerm);
-		}
+    $departments = $this->service->searchDepartments($request->query->get('searchterm'));
 
     $serialized = $this->serializer->serialize($departments, "json", ['groups' => 'department']);
 

@@ -3,6 +3,7 @@
 namespace App\Controller\Api\Redirect;
 
 use App\Entity\Redirect\Uncaught;
+use App\Util\RequestHelper;
 use App\Service\RedirectService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -133,8 +134,10 @@ class UncaughtController extends AbstractController{
 	 */
 	#[Route('/', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
-	public function getUncaughtsAction(): Response{
-		$uncaughts = $this->doctrine->getRepository(Uncaught::class)->findBy(["isRecommended" => true], ["visits" => "desc"]);
+	public function getUncaughtsAction(Request $request): Response{
+		// Most-visited first; capped so the table cannot be dumped in one request.
+		[, $limit] = RequestHelper::pagination($request, 500, 500);
+		$uncaughts = $this->doctrine->getRepository(Uncaught::class)->findBy(["isRecommended" => true], ["visits" => "desc"], $limit);
 		$serialized = $this->serializer->serialize($uncaughts, "json", ['groups' => 'redir']);
 		return new Response($serialized, 200, array("Content-Type" => "application/json"));
 	}
