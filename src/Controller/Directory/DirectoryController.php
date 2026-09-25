@@ -6,6 +6,8 @@ use App\Entity\Directory\Department;
 use App\Service\DirectoryService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,6 +33,7 @@ class DirectoryController extends AbstractController
    * The index page of the directory.
    */
   #[Route('/directory', name: 'directory_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function index(): Response
   {
     $permissions = json_encode($this->service->getUserDepartmentPermissions());
@@ -44,6 +47,7 @@ class DirectoryController extends AbstractController
    * The create page of the directory.
    */
   #[Route('/directory/create', name: 'directory_create')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_CREATE")'))]
   public function add(): Response
   {
     $permissions = json_encode($this->service->getUserDepartmentPermissions());
@@ -54,6 +58,7 @@ class DirectoryController extends AbstractController
    * The edit page of the directory.
    */
   #[Route('/directory/{id}/edit', name: 'directory_edit')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_EDIT")'))]
   public function edit($id): Response
   {
     $department = $this->doctrine->getRepository(Department::class)->find($id);
@@ -74,6 +79,7 @@ class DirectoryController extends AbstractController
    * The management page of the department directory app.
    */
   #[Route('/directory/manage', name: 'directory_manage')]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN")'))]
   public function manage(): Response
   {
     return $this->render('directory/manage.html.twig', []);
@@ -83,6 +89,7 @@ class DirectoryController extends AbstractController
    * The show page of the directory.
    */
   #[Route('/directory/{id}', name: 'directory_show')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function show($id): Response
   {
     $department = $this->doctrine->getRepository(Department::class)->find($id);
