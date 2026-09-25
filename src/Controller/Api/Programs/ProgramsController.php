@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -52,6 +53,7 @@ class ProgramsController extends AbstractController
 	 * Get all programs
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/list', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -72,6 +74,7 @@ class ProgramsController extends AbstractController
 	 * Filter out programs by name
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/search', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -91,6 +94,7 @@ class ProgramsController extends AbstractController
 	 * Get all program websites
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/websites', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -110,6 +114,7 @@ class ProgramsController extends AbstractController
 	 * Filter out program websites by name
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/searchwebsites', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -128,6 +133,7 @@ class ProgramsController extends AbstractController
 	 * Get all colleges
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/colleges', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -144,6 +150,7 @@ class ProgramsController extends AbstractController
 	 * Get all departments
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/departments', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -160,6 +167,7 @@ class ProgramsController extends AbstractController
 	 * Get all program types
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/types', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -176,6 +184,7 @@ class ProgramsController extends AbstractController
 	 * Get all degrees
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/degrees', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -192,6 +201,7 @@ class ProgramsController extends AbstractController
 	 * Gets the program website by the specified ID.
 	 * @param $id // The ID of the website.
 	 * @return Response The program, the status code, and the HTTP headers.
+	 * @throws ExceptionInterface
 	 */
 	#[Route('websites/{id}', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -210,9 +220,10 @@ class ProgramsController extends AbstractController
 	 * Get all keywords
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/keywords', methods: ['GET'])]
-	// #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getKeywordsAction(Request $request): Response
 	{
 		$page = $request->query->get('page') ?? 1;
@@ -230,6 +241,7 @@ class ProgramsController extends AbstractController
 	 * Gets the program by the specified ID.
 	 * @param $id // The ID of the program.
 	 * @return Response The program, the status code, and the HTTP headers.
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/{id}', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
@@ -248,6 +260,7 @@ class ProgramsController extends AbstractController
 	 * Posts the new program from the specified request.
 	 * @param Request $request The holder of the information about the new program.
 	 * @return Response The program, the status code, and the HTTP headers.
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
@@ -331,6 +344,7 @@ class ProgramsController extends AbstractController
 	 * Updates the website from the specified request.
 	 * @param Request $request The holder of the information about the updated website.
 	 * @return Response The website, the status code, and the HTTP headers.
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/websites/', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
@@ -345,7 +359,6 @@ class ProgramsController extends AbstractController
 			return new Response("Program name is required.", 422, array("Content-Type" => "application/json"));
 		}
 
-		$program = null;
 		if ($programId) {
 			$program = $this->service->getProgramEntity(intval($programId));
 		} else {
@@ -381,6 +394,7 @@ class ProgramsController extends AbstractController
 	 * Updates the program from the specified request.
 	 * @param Request $request The holder of the information about the updated program.
 	 * @return Response The program, the status code, and the HTTP headers.
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
@@ -497,11 +511,11 @@ class ProgramsController extends AbstractController
 	 * Bulk-create keywords from an uploaded CSV file.
 	 * CSV columns: keyword (required), program_id (optional).
 	 * @param Request $request
+	 * @param Profiler|null $profiler
+	 * @param DebugDataHolder|null $debugDataHolder
 	 * @return Response
 	 *
 	 * #[Autowire(service: 'doctrine.debug_data_holder')] — Symfony doesn’t type-hint this service by default, so this attribute says “inject that specific service.”
-	 * @var DebugDataHolder $debugDataHolder = null — optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
-	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
 	 */
 	#[Route('/keywords/upload', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
@@ -571,6 +585,7 @@ class ProgramsController extends AbstractController
 	 * Create a new keyword
 	 * @param Request $request
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/keywords', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
@@ -607,6 +622,7 @@ class ProgramsController extends AbstractController
 	 * Get all programs linked to a keyword
 	 * @param $id The keyword ID
 	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/keywords/{id}/programs', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
