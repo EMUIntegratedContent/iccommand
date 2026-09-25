@@ -29,6 +29,42 @@ class PhotoRequestService
 	}
 
 	/**
+	 * Builds a new photo request from submitted form data. Used by the internal form and the
+	 * emich.edu submission route. Only the public form fields are read; status, assignment and
+	 * completion are never taken from the request.
+	 */
+	public function createFromData(array $data): PhotoRequest
+	{
+		// Non-scalar values (arrays from a malformed body) are treated as empty.
+		$str = fn (string $key, string $default = '') => isset($data[$key]) && is_scalar($data[$key]) ? (string) $data[$key] : $default;
+		$date = fn (string $key) => $str($key) !== '' ? new \DateTime($str($key)) : null;
+
+		$photoRequest = new PhotoRequest();
+		$photoRequest->setShootType($str('shootType', 'photoshoot'));
+		$photoRequest->setFirstName($str('firstName'));
+		$photoRequest->setLastName($str('lastName'));
+		$photoRequest->setEmail($str('email'));
+		$photoRequest->setPhone($str('phone'));
+		$photoRequest->setDepartment($str('department'));
+		$photoRequest->setShootName($str('shootName'));
+		$photoRequest->setPhotoType($str('photoType'));
+		$photoRequest->setShootDate($date('shootDate'));
+		$photoRequest->setStartTime($date('startTime'));
+		$photoRequest->setEndTime($date('endTime'));
+		$photoRequest->setLocation($str('location'));
+		$photoRequest->setDescription($str('description'));
+		$photoRequest->setPhotoExplaination($str('photoExplaination'));
+		$photoRequest->setIntendedUse($str('intendedUse'));
+		$photoRequest->setForUse($str('forUse'));
+		$photoRequest->setUrl($str('url'));
+		$photoRequest->setDesigner($str('designer'));
+		$photoRequest->setCategory($str('category'));
+		$photoRequest->setEventDesc($str('eventDesc'));
+
+		return $photoRequest;
+	}
+
+	/**
 	 * Uses the Symfony container's validator to validate fields for a photo request.
 	 * @param PhotoRequest $photoRequest
 	 * @return ConstraintViolationList A list of errors.

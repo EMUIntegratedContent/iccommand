@@ -54,6 +54,10 @@ photorequests:
   resource: App\Controller\Api\PhotoRequest\PhotoRequestController
   prefix: /api/photorequests/
 
+photorequests_external:
+  resource: App\Controller\Api\PhotoRequest\PhotoRequestExternalController
+  prefix: /api/external/photorequests/
+
 emergency:
   resource: App\Controller\Api\Emergency\EmergencyController
   prefix: /api/emergency/

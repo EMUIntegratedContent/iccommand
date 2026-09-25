@@ -25,9 +25,6 @@ security:
     - { path: ^/api/directory/bldgnames$, methods: [GET], roles: PUBLIC_ACCESS }
     # Emergency banner shown on emich.edu pages.
     - { path: ^/api/emergency/banner$, methods: [GET], roles: PUBLIC_ACCESS }
-    # Photo request submission from emich.edu (checked in the controller:
-    # module role or shared API token).
-    - { path: ^/api/photorequests/$, methods: [POST], roles: PUBLIC_ACCESS }
     # Everything else under /api requires login.
     - { path: ^/api, roles: ROLE_USER }
     # --- Pages -------------------------------------------------------------
