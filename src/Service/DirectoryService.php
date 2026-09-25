@@ -114,6 +114,33 @@ class DirectoryService
   }
 
 	/**
+	 * Department search used by both the internal app and the public emich.edu search.
+	 * Numbers search by phone, a single character lists names starting with it, anything else searches by name.
+	 * @return array
+	 */
+	public function searchDepartments(?string $searchTerm): array
+	{
+		$searchTerm = trim((string) $searchTerm);
+		if ($searchTerm === '') {
+			return [];
+		}
+
+		// Special case: "it" (any case, punctuation ignored, so "IT" and "i.t.") means "information tech"
+		if (strtolower(preg_replace('/[^A-Za-z0-9 ]/', '', $searchTerm)) === 'it') {
+			$searchTerm = 'information tech';
+		}
+
+		if (is_numeric($searchTerm)) {
+			return $this->getDepartmentsByPhone($searchTerm);
+		}
+		if (strlen($searchTerm) === 1) {
+			return $this->getDepartmentsStartWithLetter($searchTerm);
+		}
+
+		return $this->getDepartmentsByName($searchTerm);
+	}
+
+	/**
 	 * Get departments that match the phone number (used on emich.edu/directory).
 	 * @param $phoneNumber
 	 * @return array

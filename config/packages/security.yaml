@@ -20,9 +20,9 @@ security:
     # The write routes are protected by the shared API token instead of a login.
     - { path: ^/api/redirects/external/, roles: PUBLIC_ACCESS }
     - { path: ^/api/uncaughts/external/, roles: PUBLIC_ACCESS }
-    # emich.edu server-side callers: directory search (checked in the
-    # controller: module role or shared API token) and building names.
-    - { path: ^/api/directory/(search|bldgnames)$, methods: [GET], roles: PUBLIC_ACCESS }
+    # Building names are read by emich.edu. Directory search for emich.edu is
+    # the public /api/external/directory/search; /api/directory/search is internal.
+    - { path: ^/api/directory/bldgnames$, methods: [GET], roles: PUBLIC_ACCESS }
     # Emergency banner shown on emich.edu pages.
     - { path: ^/api/emergency/banner$, methods: [GET], roles: PUBLIC_ACCESS }
     # Photo request submission from emich.edu (checked in the controller:
