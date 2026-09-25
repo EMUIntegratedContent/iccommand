@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Fails unless public/build holds a versioned production build.
+#
+# Production deploys by `git pull` of master, so whatever is committed in
+# public/build is what users download. A development build (npm run dev or
+# watch) is several times larger and enables Vue devtools.
+#
+# Usage: bin/check-frontend-build [build-dir]   (default: public/build)
+set -uo pipefail
+
+dir="${1:-public/build}"
+entry="$dir/entrypoints.json"
+max_js=$((5 * 1024 * 1024))   # production app bundle is ~2.4 MB
+max_css=$((1024 * 1024))      # production app.css is ~0.2 MB
+fail=0
+
+if [ ! -f "$entry" ]; then
+  echo "check-frontend-build: $entry is missing. Run npm run build." >&2
+  exit 1
+fi
+
+if grep -qE 'https?://|localhost' "$entry"; then
+  echo "check-frontend-build: $entry points at a dev server." >&2
+  fail=1
+fi
+
+files=$(grep -oE '"/build/[^"]+\.(js|css)"' "$entry" | tr -d '"' | sort -u)
+if [ -z "$files" ]; then
+  echo "check-frontend-build: $entry lists no JS or CSS files." >&2
+  fail=1
+fi
+
+for f in $files; do
+  name=$(basename "$f")
+  path="$dir/${f#/build/}"
+  if ! [[ "$name" =~ \.[0-9a-f]{8,}\.(js|css)$ ]]; then
+    echo "check-frontend-build: $name has no content hash (versioning is off)." >&2
+    fail=1
+  fi
+  if [ ! -f "$path" ]; then
+    echo "check-frontend-build: $path is listed but missing." >&2
+    fail=1
+    continue
+  fi
+  size=$(wc -c < "$path" | tr -d ' ')
+  limit=$max_js
+  [[ "$name" == *.css ]] && limit=$max_css
+  if [ "$size" -gt "$limit" ]; then
+    echo "check-frontend-build: $name is $size bytes, over the $limit-byte limit. This looks like a development build; run npm run build." >&2
+    fail=1
+  fi
+done
+
+if [ "$fail" -ne 0 ]; then
+  exit 1
+fi
+echo "check-frontend-build: OK ($(echo "$files" | wc -l | tr -d ' ') files checked)"

@@ -15,8 +15,6 @@ if (!isset($_SERVER['HTTP_HOST'])) {
     exit("This script cannot be run from the CLI. Run it from a browser.\n");
 }
 
-
-
 if (file_exists($autoloader = __DIR__.'/../../../autoload.php')) {
     require_once $autoloader;
 } elseif (file_exists($autoloader = __DIR__.'/../vendor/autoload.php')) {

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Redirect;
 
+use App\Util\RequestHelper;
 use App\Entity\Redirect\Redirect;
 use App\Service\LinkChecker;
 use App\Service\RedirectService;
@@ -125,8 +126,7 @@ class RedirectController extends AbstractController{
 	#[Route('/list', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
 	public function getRedirectsAction(Request $request): Response{
-		$page = $request->query->get('page') ?? 1;
-		$pageSize = $request->query->get('limit') ?? 10;
+		[$page, $pageSize] = RequestHelper::pagination($request, 10);
 		$itemType = $request->query->get('type') ?? 'broken';
 
 		$redirects = $this->service->getRedirectsPagination($page, $pageSize, $itemType);

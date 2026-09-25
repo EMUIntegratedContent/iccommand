@@ -11,7 +11,6 @@
 
 ###> symfony/webpack-encore-pack ###
 /node_modules/
-#/public/build/
 ###< symfony/webpack-encore-pack ###
 
 ###> symfony/phpunit-bridge ###
@@ -31,12 +30,14 @@ composer
 ic_2018-11-18.sqlZ
 .DS_Store
 /public/media/
-/public/uploads/
+/public/uploads/*
+!/public/uploads/.htaccess
 ###< Homestead ###
 
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
-/public/build/
+# public/build is committed: production deploys by git pull.
+# Build with `npm run build` and run bin/check-frontend-build before committing.
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Directory;
 
+use App\Util\RequestHelper;
 use App\Entity\Directory\Department;
 use App\Service\DirectoryService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,8 +73,7 @@ class DirectoryController extends AbstractController
   #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function getDepartmentsAction(Request $request): Response
   {
-    $page = $request->query->get('page') ?? 1;
-    $pageSize = $request->query->get('limit') ?? 10;
+    [$page, $pageSize] = RequestHelper::pagination($request, 10);
     $searchTerm = $request->query->get('search') ?? '';
 
     $departments = $this->service->getDepartmentsPagination($page, $pageSize, $searchTerm);
@@ -84,43 +84,16 @@ class DirectoryController extends AbstractController
   }
 
   /**
-   * Search departments by name or search terms. Also used for the public website search (emich.edu/search + /search/php/department-api-iccommand.php).
+   * Search departments by name or search terms, for the internal app.
+   * The public emich.edu search uses GET /api/external/directory/search instead.
    * @param Request $request
    * @return Response
    */
   #[Route('/search', methods: ['GET'])]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function searchDepartmentsAction(Request $request): Response
   {
-    // Check if this is an API request (has API key or API user agent)
-    $hasApiKey = $request->headers->get('X-API-Key');
-    $userAgent = $request->headers->get('User-Agent');
-    $isApiRequest = $hasApiKey || ($userAgent && preg_match('/.*API.*/i', $userAgent));
-
-    // If not an API request, check for proper authentication and roles
-    if (!$isApiRequest) {
-      if (!($this->isGranted('ROLE_GLOBAL_ADMIN') ||
-          $this->isGranted('ROLE_DEPARTMENTS_ADMIN') ||
-          $this->isGranted('ROLE_DEPARTMENTS_VIEW'))) {
-        throw $this->createAccessDeniedException('Access denied.');
-      }
-    }
-
-    $searchTerm = (string) $request->query->get('searchterm', '');
-
-		// Special case: if the search term is "it" (case-insensitive, punctuation ignored, so "IT" and "i.t."), change it to "information tech"
-		if (strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $searchTerm)) === 'it') {
-			$searchTerm = 'information tech';
-		}
-
-		// If the search term is numeric, search by phone number
-		if (is_numeric($searchTerm)){
-			$departments = $this->service->getDepartmentsByPhone($searchTerm);
-		} else if(strlen($searchTerm) === 1) {
-			// If the search term is a single character, search where dept name starts with that character
-			$departments = $this->service->getDepartmentsStartWithLetter($searchTerm);
-		} else {
-			$departments = $this->service->getDepartmentsByName($searchTerm);
-		}
+    $departments = $this->service->searchDepartments($request->query->get('searchterm'));
 
     $serialized = $this->serializer->serialize($departments, "json", ['groups' => 'department']);
 
