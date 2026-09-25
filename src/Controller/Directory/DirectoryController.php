@@ -33,6 +33,7 @@ class DirectoryController extends AbstractController
    * The index page of the directory.
    */
   #[Route('/directory', name: 'directory_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function index(): Response
   {
     $permissions = json_encode($this->service->getUserDepartmentPermissions());
@@ -46,6 +47,7 @@ class DirectoryController extends AbstractController
    * The create page of the directory.
    */
   #[Route('/directory/create', name: 'directory_create')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_CREATE")'))]
   public function add(): Response
   {
     $permissions = json_encode($this->service->getUserDepartmentPermissions());
@@ -56,6 +58,7 @@ class DirectoryController extends AbstractController
    * The edit page of the directory.
    */
   #[Route('/directory/{id}/edit', name: 'directory_edit')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_EDIT")'))]
   public function edit($id): Response
   {
     $department = $this->doctrine->getRepository(Department::class)->find($id);
@@ -86,6 +89,7 @@ class DirectoryController extends AbstractController
    * The show page of the directory.
    */
   #[Route('/directory/{id}', name: 'directory_show')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_DEPARTMENTS_VIEW")'))]
   public function show($id): Response
   {
     $department = $this->doctrine->getRepository(Department::class)->find($id);

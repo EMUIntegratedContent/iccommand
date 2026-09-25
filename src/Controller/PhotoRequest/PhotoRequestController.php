@@ -32,6 +32,7 @@ class PhotoRequestController extends AbstractController
    * The index page of the photo requests.
    */
   #[Route('/photorequests', name: 'photorequests_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_VIEW")'))]
   public function index(): Response
   {
     $permissions = json_encode($this->service->getPhotoRequestPermissions());
@@ -45,6 +46,7 @@ class PhotoRequestController extends AbstractController
    * The create page of the photo request.
    */
   #[Route('/photorequests/create', name: 'photorequests_create')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_CREATE")'))]
   public function add(): Response
   {
     $permissions = json_encode($this->service->getPhotoRequestPermissions());
@@ -66,6 +68,7 @@ class PhotoRequestController extends AbstractController
    * The edit page of the photo request.
    */
   #[Route('/photorequests/{id}/edit', name: 'photorequests_edit')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_EDIT")'))]
   public function edit($id): Response
   {
     $permissions = json_encode($this->service->getPhotoRequestPermissions());
@@ -80,6 +83,7 @@ class PhotoRequestController extends AbstractController
    * The show page of the photo request.
    */
   #[Route('/photorequests/{id}', name: 'photorequests_show')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_VIEW")'))]
   public function show($id): Response
   {
     $permissions = json_encode($this->service->getPhotoRequestPermissions());

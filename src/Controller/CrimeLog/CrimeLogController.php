@@ -33,6 +33,7 @@ class CrimeLogController extends AbstractController
 	 * The index page of the crimelog.
 	 */
 	#[Route('/crimelog', name: 'crimelog_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CRIMELOG_USER")'))]
 	public function index(): Response
 	{
 		$permissions = json_encode($this->service->getUserCrimeLogPermissions());

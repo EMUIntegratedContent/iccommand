@@ -32,6 +32,7 @@ class EmergencyController extends AbstractController
    * The index page of the emergency banners and notices.
    */
   #[Route('/emergency', name: 'emergency_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_EMERGENCY_EDIT")'))]
   public function index(): Response
   {
     $permissions = json_encode($this->service->getEmergencyAppPermissions());

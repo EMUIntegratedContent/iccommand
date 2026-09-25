@@ -31,6 +31,7 @@ class RedirectController extends AbstractController {
    * The index page of the redirects.
    */
 	#[Route('/redirects', name: 'redirect_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
   public function index(): Response
   {
     $permissions = json_encode($this->service->getUserRedirectPermissions());
@@ -44,6 +45,7 @@ class RedirectController extends AbstractController {
    * The create page of the redirects.
    */
 	#[Route('/redirects/create', name: 'redirects_create')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
   public function add(): Response
   {
     $permissions = json_encode($this->service->getUserRedirectPermissions());
@@ -54,6 +56,7 @@ class RedirectController extends AbstractController {
    * The edit page of the redirects.
    */
 	#[Route('/redirects/{id}/edit', name: 'redirects_edit')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
   public function edit($id): Response
   {
     $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
@@ -86,6 +89,7 @@ class RedirectController extends AbstractController {
    * The show page of the redirects.
    */
 	#[Route('/redirects/{id}', name: 'redirects_show')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
   public function show($id): Response
   {
     $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);

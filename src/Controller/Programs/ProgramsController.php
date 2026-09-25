@@ -32,6 +32,7 @@ class ProgramsController extends AbstractController {
    * The index page of the catalog programs.
    */
 	#[Route('/programs', name: 'programs_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
   public function index(): Response
   {
     $permissions = json_encode($this->service->getProgramsPermissions());
@@ -45,6 +46,7 @@ class ProgramsController extends AbstractController {
    * The create page of the program.
    */
 	#[Route('/programs/create', name: 'programs_create')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
   public function add(): Response
   {
     $permissions = json_encode($this->service->getProgramsPermissions());
@@ -65,6 +67,7 @@ class ProgramsController extends AbstractController {
 	 * The programs websites list (needs to be managed separately because of lack of FK constraints year-to-year).
 	 */
 	#[Route('/programs/websites', name: 'websites')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function websites(): Response
 	{
 		$permissions = json_encode($this->service->getProgramsPermissions());
@@ -75,6 +78,7 @@ class ProgramsController extends AbstractController {
 	 * The keywords management page.
 	 */
 	#[Route('/programs/keywords', name: 'programs_keywords')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
 	public function keywords(): Response
 	{
 		$permissions = json_encode($this->service->getProgramsPermissions());
@@ -85,6 +89,7 @@ class ProgramsController extends AbstractController {
 	 * The view page of the website.
 	 */
 	#[Route('/programs/websites/{id}', name: 'website_show')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function websitesShow($id): Response
 	{
 		$permissions = json_encode($this->service->getProgramsPermissions());
@@ -99,6 +104,7 @@ class ProgramsController extends AbstractController {
 	 * The edit page of the website.
 	 */
 	#[Route('/programs/websites/{id}/edit', name: 'website_edit')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
 	public function websitesEdit($id): Response
 	{
 		$permissions = json_encode($this->service->getProgramsPermissions());
@@ -115,6 +121,7 @@ class ProgramsController extends AbstractController {
    * The edit page of the programs.
    */
 	#[Route('/programs/{id}/edit', name: 'programs_edit')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
   public function edit($id): Response
   {
     $permissions = json_encode($this->service->getProgramsPermissions());
@@ -129,6 +136,7 @@ class ProgramsController extends AbstractController {
    * The show page of the program.
    */
 	#[Route('/programs/{id}', name: 'programs_show')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
   public function show($id): Response
   {
     $permissions = json_encode($this->service->getProgramsPermissions());
