@@ -28,7 +28,7 @@ final class RequestHelper
 	}
 
 	/** Largest page size a list endpoint will return (the UI offers up to 200). */
-	public const MAX_PAGE_SIZE = 200;
+	public const int MAX_PAGE_SIZE = 200;
 
 	/**
 	 * Reads ?page= and ?limit= as integers and clamps them to safe ranges.
