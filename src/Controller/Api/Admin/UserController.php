@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +26,7 @@ class UserController extends AbstractController
 	private RoleAssignmentPolicy $policy;
 
 	/** Profile fields a user may edit on their own account. */
-	private const PROFILE_FIELDS = [
+	private const array PROFILE_FIELDS = [
 		'firstName' => ['getFirstName', 'setFirstName'],
 		'lastName' => ['getLastName', 'setLastName'],
 		'jobTitle' => ['getJobTitle', 'setJobTitle'],
@@ -56,6 +57,9 @@ class UserController extends AbstractController
 
 	/**
 	 * Return an individual user (by username)
+	 * @param $username
+	 * @return Response
+	 * @throws ExceptionInterface
 	 */
 	#[Route('/users/{username}', methods: ['GET'])]
 	#[IsGranted('ROLE_USER')]
@@ -102,7 +106,7 @@ class UserController extends AbstractController
 		}
 
 		// Decode JSON body directly — $request->get() was removed in Symfony 8,
-		// and $request->request->get() rejects non-scalar values like the roles array.
+		// and $request->request->get() rejects non-scalar values like the role array.
 		$data = json_decode($request->getContent(), true);
 		if (!is_array($data)) {
 			return new Response('The request body must be a JSON object.', 400, array('Content-Type' => 'application/json'));
@@ -111,13 +115,13 @@ class UserController extends AbstractController
 		$isSelf = $this->isSelf($username);
 		$isGlobalAdmin = $this->policy->isGlobalAdmin();
 
-		// Only the user themself, a global admin, or a module admin (managing
+		// Only the user themselves, a global admin, or a module admin (managing
 		// their module's roles) may update another user's record.
 		if (!$isSelf && !$isGlobalAdmin && !$this->policy->isAnyAdmin()) {
 			throw $this->createAccessDeniedException('You may only update your own profile.');
 		}
 
-		// Profile fields: only the user themself or a global admin may change them.
+		// Profile fields: only the user themselves or a global admin may change them.
 		// Module admins send the unchanged values back from the Manage page.
 		foreach (self::PROFILE_FIELDS as $field => [$getter, $setter]) {
 			if (!array_key_exists($field, $data)) {
