@@ -29,10 +29,13 @@ class CrimeLogController extends AbstractController
 	/**
 	 * Replaces the Daily Crime Log with the uploaded CSV. If any row is invalid, nothing changes
 	 * and the response lists the rows to fix (422).
+	 * @param Request $request The holder of the uploaded CSV.
+	 * @param CrimeLogImporter $importer
+	 * @param Profiler|null $profiler
+	 * @param DebugDataHolder|null $debugDataHolder
+	 * @return Response The import summary, the status code, and the HTTP headers.
 	 *
 	 * #[Autowire(service: 'doctrine.debug_data_holder')] — Symfony doesn’t type-hint this service by default, so this attribute says “inject that specific service.”
-	 * @var DebugDataHolder $debugDataHolder = null — optional. In dev you get the holder and can $debugDataHolder->reset() after each batch. In prod the service often isn’t wired the same way, so $debugDataHolder is null and the ?->reset() calls no-op.
-	 * Without that, every SQL query (plus backtrace) would pile up in memory for the whole upload request in dev.
 	 */
 	#[Route('upload', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CRIMELOG_USER")'))]
