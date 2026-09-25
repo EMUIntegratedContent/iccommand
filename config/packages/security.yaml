@@ -9,6 +9,28 @@ security:
     Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
 
   access_control:
+    # --- API ---------------------------------------------------------------
+    # First match wins. Public API routes are listed explicitly, then every
+    # other /api route requires a logged-in user as a floor. Individual
+    # actions still check their module role with #[IsGranted].
+    #
+    # External API: read-only feeds that must be publicly accessible.
+    - { path: ^/api/external, roles: PUBLIC_ACCESS }
+    # emich.edu 404 page (server-side): redirect lookup and visit counters.
+    # The write routes are protected by the shared API token instead of a login.
+    - { path: ^/api/redirects/external/, roles: PUBLIC_ACCESS }
+    - { path: ^/api/uncaughts/external/, roles: PUBLIC_ACCESS }
+    # emich.edu server-side callers: directory search (checked in the
+    # controller: module role or shared API token) and building names.
+    - { path: ^/api/directory/(search|bldgnames)$, methods: [GET], roles: PUBLIC_ACCESS }
+    # Emergency banner shown on emich.edu pages.
+    - { path: ^/api/emergency/banner$, methods: [GET], roles: PUBLIC_ACCESS }
+    # Photo request submission from emich.edu (checked in the controller:
+    # module role or shared API token).
+    - { path: ^/api/photorequests/$, methods: [POST], roles: PUBLIC_ACCESS }
+    # Everything else under /api requires login.
+    - { path: ^/api, roles: ROLE_USER }
+    # --- Pages -------------------------------------------------------------
     - { path: ^/directory, roles: [ROLE_DEPARTMENTS_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/photorequests, roles: [ROLE_PHOTO_VIEW, ROLE_GLOBAL_ADMIN] }
     - { path: ^/emergency, roles: [ROLE_EMERGENCY_EDIT, ROLE_GLOBAL_ADMIN] }
@@ -25,8 +47,6 @@ security:
     - { path: ^/applinks, role: ROLE_USER }
     - { path: ^/profile, role: ROLE_USER }
     - { path: ^/$, role: ROLE_USER }
-    # EXTERNAL API - Routes that must be publicly accessible!
-    - { path: ^/api/external, role: PUBLIC_ACCESS }
 
   role_hierarchy:
     # Global
