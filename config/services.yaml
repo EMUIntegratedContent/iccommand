@@ -7,6 +7,11 @@ parameters:
   locale: "en"
   user_images_subdirectory: "/uploads/profile"
   mapitem_images_subdirectory: "/uploads/map"
+  # Shared secret for emich.edu server-to-server calls (see App\Security\ExternalApiToken).
+  # Set EXTERNAL_API_TOKEN on each server; empty means no request has a valid token.
+  env(EXTERNAL_API_TOKEN): ''
+  # "log" accepts legacy callers and logs a warning; "enforce" requires the token.
+  env(EXTERNAL_API_TOKEN_MODE): 'log'
 
 services:
   # default configuration for services in *this* file
