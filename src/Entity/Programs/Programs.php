@@ -60,6 +60,9 @@ class Programs
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $program_overview = null;
 
+    #[ORM\Column(name: 'is_active', type: 'boolean', options: ['default' => 1])]
+    private bool $is_active = true;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -241,6 +244,18 @@ class Programs
     public function setProgramOverview(?string $program_overview): static
     {
         $this->program_overview = $program_overview;
+
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active;
+    }
+
+    public function setIsActive(bool $is_active): static
+    {
+        $this->is_active = $is_active;
 
         return $this;
     }

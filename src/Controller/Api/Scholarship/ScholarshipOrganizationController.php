@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Scholarship;
 
+use App\Util\RequestHelper;
 use App\Entity\Scholarship\Scholarship;
 use App\Service\ScholarshipService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -39,8 +40,7 @@ class ScholarshipOrganizationController extends AbstractController
     #[IsGranted(new Expression(self::VIEW))]
     public function listAction(Request $request): Response
     {
-        $page = (int)($request->query->get('page') ?? 1);
-        $limit = (int)($request->query->get('limit') ?? 50);
+        [$page, $limit] = RequestHelper::pagination($request, 50);
         $searchTerm = $request->query->get('searchterm');
 
         $result = $this->service->getOrganizationsPagination($page, $limit, $searchTerm);

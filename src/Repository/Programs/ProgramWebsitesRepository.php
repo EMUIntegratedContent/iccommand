@@ -50,7 +50,7 @@ class ProgramWebsitesRepository extends ServiceEntityRepository{
 			->getOneOrNullResult();
 	}
 
-	public function paginatedWebsites($currentPage, $pageSize): array{
+	public function paginatedWebsites(int $currentPage, int $pageSize): array{
 		$offset = ($currentPage - 1) * $pageSize;
 		// Do raw SQL because the JOIN on program_websites doesn't use FK relationship and thus confuses doctrine
 		$websitesSql = "

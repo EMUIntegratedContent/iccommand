@@ -24,7 +24,12 @@
 
 		<!-- Main Area -->
 		<div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
-			<heading> Program Information </heading>
+			<heading>
+				Program Information
+				<span v-if="progExists && !record.is_active" class="badge badge-danger ml-2"
+					>Inactive</span
+				>
+			</heading>
 			<div class="btn-group" role="group" aria-label="form navigation buttons">
 				<button
 					v-if="progExists && userCanEdit"
@@ -513,6 +518,22 @@
 							</div>
 						</template>
 					</div>
+					<div class="form-group form-check mt-4">
+						<input
+							id="programActive"
+							type="checkbox"
+							class="form-check-input"
+							:disabled="!userCanEdit || !isEditMode"
+							v-model="record.is_active"
+							@change="formDirty = true"
+						/>
+						<label class="form-check-label" for="programActive">Active</label>
+						<small class="form-text text-muted"
+							>Uncheck to put the program on hold. On-hold programs are hidden from
+							the public Degrees & Programs search and feeds, and from the
+							Scholarship and CAS program pickers.</small
+						>
+					</div>
 					<div
 						v-if="Object.keys(errors).length && isEditMode"
 						class="alert alert-danger fade show"
@@ -710,7 +731,8 @@ export default {
 				duration: null,
 				image_url: null,
 				application_url: null,
-				program_overview: ""
+				program_overview: "",
+				is_active: true
 			},
 			formDirty: false,
 			success: false,
@@ -989,6 +1011,8 @@ export default {
 					structuredResponse.department_ids = self.formatDepartmentIds(
 						response.data.department_ids
 					)
+					// Raw SQL row: 1/0 or "1"/"0"; the checkbox needs a real boolean.
+					structuredResponse.is_active = Number(response.data.is_active) === 1
 					self.record = structuredResponse
 					self.isDataLoaded = true
 				})
@@ -1177,6 +1201,8 @@ export default {
 					structuredResponse.department_ids = self.formatDepartmentIds(
 						response.data.department_ids
 					)
+					// Raw SQL row: 1/0 or "1"/"0"; the checkbox needs a real boolean.
+					structuredResponse.is_active = Number(response.data.is_active) === 1
 					self.record = structuredResponse // This sets the program's ID.
 					self.afterSubmitSucceeds()
 				})

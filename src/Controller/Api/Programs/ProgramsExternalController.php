@@ -27,7 +27,7 @@ class ProgramsExternalController extends AbstractController
 	#[Route('/programs', methods: ['GET'])]
 	public function getProgramsAction(): Response
 	{
-		$programs = $this->doctrine->getRepository(Programs::class)->findAll();
+		$programs = $this->doctrine->getRepository(Programs::class)->findBy(['is_active' => true]);
 
 		$serialized = $this->serializer->serialize($programs, "json");
 		return new Response($serialized, 200, ["Content-Type" => "application/json"]);

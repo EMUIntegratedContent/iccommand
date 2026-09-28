@@ -21,4 +21,29 @@ class UncaughtRepository extends ServiceEntityRepository {
   public function __construct(ManagerRegistry $registry) {
     parent::__construct($registry, Uncaught::class);
   }
+
+  /**
+   * Record a visit to an uncaught (404) URL: insert it with one visit, or add
+   * a visit if it is already logged. A single atomic statement, so concurrent
+   * requests for the same URL neither fail on the unique index nor lose counts.
+   * Relies on the unique index on uncaught.link.
+   */
+  public function recordVisit(string $link): void {
+    $this->getEntityManager()->getConnection()->executeStatement(
+      'INSERT INTO uncaught (link, visits, is_recommended) VALUES (:link, 1, 1)
+       ON DUPLICATE KEY UPDATE visits = visits + 1',
+      ['link' => $link]
+    );
+  }
+
+  /**
+   * Add a visit to an already-logged uncaught URL.
+   * @return bool false if the URL is not logged
+   */
+  public function incrementVisits(string $link): bool {
+    return $this->getEntityManager()->getConnection()->executeStatement(
+      'UPDATE uncaught SET visits = visits + 1 WHERE link = :link',
+      ['link' => $link]
+    ) > 0;
+  }
 }

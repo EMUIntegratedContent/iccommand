@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Programs;
 
+use App\Service\RichTextSanitizer;
 use App\Entity\Programs\ProgramKeywords;
 use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
@@ -58,8 +59,7 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getProgramsAction(Request $request): Response
 	{
-		$page = $request->query->get('page') ?? 1;
-		$pageSize = $request->query->get('limit') ?? 25;
+		[$page, $pageSize] = RequestHelper::pagination($request, 25);
 		$catalog = $request->query->get('catalog') ?? 'undergraduate';
 
 		$programs = $this->service->getProgramsPagination($page, $pageSize, $catalog);
@@ -99,8 +99,7 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getWebsitesAction(Request $request): Response
 	{
-		$page = $request->query->get('page') ?? 1;
-		$pageSize = $request->query->get('limit') ?? 25;
+		[$page, $pageSize] = RequestHelper::pagination($request, 25);
 
 		$websites = $this->service->getWebsitesPagination($page, $pageSize);
 
@@ -225,8 +224,7 @@ class ProgramsController extends AbstractController
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW")'))]
 	public function getKeywordsAction(Request $request): Response
 	{
-		$page = $request->query->get('page') ?? 1;
-		$limit = $request->query->get('limit') ?? 50;
+		[$page, $limit] = RequestHelper::pagination($request, 50);
 		$searchTerm = $request->query->get('searchterm');
 
 		$result = $this->service->getKeywordsPagination($page, $limit, $searchTerm);
@@ -263,7 +261,7 @@ class ProgramsController extends AbstractController
 	 */
 	#[Route('/', methods: ['POST'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE")'))]
-	public function postProgramAction(Request $request): Response
+	public function postProgramAction(Request $request, RichTextSanitizer $richText): Response
 	{
 		$catalog = strtolower($request->request->get("catalog"));
 		$progFullName = $request->request->get("full_name");
@@ -288,7 +286,8 @@ class ProgramsController extends AbstractController
 		$program->setDuration(RequestHelper::optionalString($request->request->get("duration")));
 		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
-		$program->setProgramOverview(RequestHelper::optionalString($request->request->get("program_overview")));
+		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
+		$program->setIsActive($request->request->getBoolean("is_active", true)); // New programs default to active.
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -397,7 +396,7 @@ class ProgramsController extends AbstractController
 	 */
 	#[Route('/', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_PROGRAMS_EDIT")'))]
-	public function putProgramAction(Request $request): Response
+	public function putProgramAction(Request $request, RichTextSanitizer $richText): Response
 	{
 		$id = $request->request->get("id");
 		$progFullName = $request->request->get("full_name");
@@ -421,7 +420,8 @@ class ProgramsController extends AbstractController
 		$program->setDuration(RequestHelper::optionalString($request->request->get("duration")));
 		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
-		$program->setProgramOverview(RequestHelper::optionalString($request->request->get("program_overview")));
+		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
+		$program->setIsActive($request->request->getBoolean("is_active", $program->isActive())); // Omitted key leaves it unchanged.
 
 		$errors = $this->service->validate($program); // Validate the program.
 

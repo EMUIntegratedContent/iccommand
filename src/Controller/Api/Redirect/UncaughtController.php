@@ -3,10 +3,12 @@
 namespace App\Controller\Api\Redirect;
 
 use App\Entity\Redirect\Uncaught;
+use App\Util\RequestHelper;
 use App\Service\RedirectService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
+use App\Security\ExternalApiToken;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -68,22 +70,24 @@ class UncaughtController extends AbstractController{
 	 * @return Response
 	 */
 	#[Route('external/uncaught', methods: ['POST'])]
-	public function postExternalUncaughtAction(Request $request): Response{
-		if(!$request->request->get('url')){
-			return new Response(json_encode("No URL was specified. Exiting."), 400, array('Content-Type' => 'application/json'));
+	public function postExternalUncaughtAction(Request $request, ExternalApiToken $apiToken): Response{
+		if(!$apiToken->allows($request, true)){
+			return new Response(json_encode('Missing or invalid API token.'), 401, array('Content-Type' => 'application/json'));
 		}
 
-		$uncaught = new Uncaught();
-		$uncaught->setLink($request->request->get('url'));
-		$uncaught->setVisits(1);
+		$url = trim((string) $request->request->get('url'));
+		if($url === ''){
+			return new Response(json_encode("No URL was specified. Exiting."), 400, array('Content-Type' => 'application/json'));
+		}
+		// uncaught.link is VARCHAR(191) with a unique index.
+		if(mb_strlen($url) > 191){
+			return new Response(json_encode("The URL is longer than 191 characters."), 422, array('Content-Type' => 'application/json'));
+		}
 
-		// $this->logger->info('!!! POST /api/external/uncaught is running !!! URL: ' . $request->request->get('url'));
-		// $memstart = memory_get_peak_usage(true);
-		// $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
+		// Insert, or add a visit if it is already logged (no duplicate-key 500).
+		$this->doctrine->getRepository(Uncaught::class)->recordVisit($url);
 
-		$this->em->persist($uncaught);
-		$this->em->flush();
-		return new Response(json_encode('The uncaught URL '.$request->request->get('url').' was added to the database.'), 201, array("Content-Type" => "application/json"));
+		return new Response(json_encode('The uncaught URL '.$url.' was added to the database.'), 201, array("Content-Type" => "application/json"));
 	}
 
 	/**
@@ -92,24 +96,17 @@ class UncaughtController extends AbstractController{
 	 * @return Response
 	 */
 	#[Route('external/uncaught', methods: ['PUT'])]
-	public function putExternalUncaughtincrementAction(Request $request): Response{
-		$url = $request->request->get('url');
-
-		$uncaught = $this->doctrine->getRepository(Uncaught::class)->findOneBy(['link' => $url]);
-
-		// $this->logger->info('!!! PUT /api/external/uncaughtincrement is running !!! URL: ' . $url);
-		// $memstart = memory_get_peak_usage(true);
-		// $this->logger->info("PEAK MEMORY: " . $memstart . " bytes.");
-
-		if(!$uncaught){
-			return new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
+	public function putExternalUncaughtincrementAction(Request $request, ExternalApiToken $apiToken): Response{
+		if(!$apiToken->allows($request, true)){
+			return new Response(json_encode('Missing or invalid API token.'), 401, array('Content-Type' => 'application/json'));
 		}
 
-		// Increment the number of visits for the redirect.
-		$uncaught->setVisits($uncaught->getVisits() + 1);
+		$url = (string) $request->request->get('url');
 
-		$this->em->persist($uncaught);
-		$this->em->flush();
+		// Atomic increment; concurrent visits are no longer lost.
+		if($url === '' || !$this->doctrine->getRepository(Uncaught::class)->incrementVisits($url)){
+			return new Response(json_encode("The redirect you requested was not found."), 404, array('Content-Type' => 'application/json'));
+		}
 
 		return new Response(json_encode('Incremented visits to uncaught URL '.$url.'.'), 201, array("Content-Type" => "application/json"));
 	}
@@ -137,8 +134,10 @@ class UncaughtController extends AbstractController{
 	 */
 	#[Route('/', methods: ['GET'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
-	public function getUncaughtsAction(): Response{
-		$uncaughts = $this->doctrine->getRepository(Uncaught::class)->findBy(["isRecommended" => true], ["visits" => "desc"]);
+	public function getUncaughtsAction(Request $request): Response{
+		// Most-visited first; capped so the table cannot be dumped in one request.
+		[, $limit] = RequestHelper::pagination($request, 500, 500);
+		$uncaughts = $this->doctrine->getRepository(Uncaught::class)->findBy(["isRecommended" => true], ["visits" => "desc"], $limit);
 		$serialized = $this->serializer->serialize($uncaughts, "json", ['groups' => 'redir']);
 		return new Response($serialized, 200, array("Content-Type" => "application/json"));
 	}

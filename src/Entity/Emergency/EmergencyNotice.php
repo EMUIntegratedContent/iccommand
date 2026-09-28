@@ -14,6 +14,8 @@ class EmergencyNotice
     #[ORM\Id]
     #[ORM\Column(type: "integer")]
     #[ORM\GeneratedValue(strategy: "AUTO")]
+    // The admin form sends ids back so saved notices are updated, not recreated.
+    #[Groups(['banner'])]
     private ?int $id = null;
 
     #[ORM\Column(name: "notice", type: "text")]

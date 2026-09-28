@@ -43,3 +43,19 @@ if (token) {
 } else {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
+
+/**
+ * When the session has expired, the API answers 401 instead of redirecting to the login page
+ * (see src/Security/ApiAwareEntryPoint.php). Send the user to log in rather than letting the
+ * form treat the response as a successful save. After login they come back to this page.
+ */
+window.axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response && error.response.status === 401 && !window.__icLoginRedirect) {
+            window.__icLoginRedirect = true;
+            window.location.href = '/login?expired=1';
+        }
+        return Promise.reject(error);
+    }
+);

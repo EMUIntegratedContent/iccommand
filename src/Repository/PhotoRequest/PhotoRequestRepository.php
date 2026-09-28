@@ -5,6 +5,7 @@ namespace App\Repository\PhotoRequest;
 use App\Entity\PhotoRequest\PhotoRequest;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 
@@ -36,32 +37,7 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			->leftJoin('p.assignedTo', 'u');
 
 		// Add status filter for multiple statuses
-		if ($statuses && is_array($statuses) && count($statuses) > 0) {
-			$statusConditions = [];
-
-			foreach ($statuses as $status) {
-				if ($status === 'declined') {
-					$statusConditions[] = 'p.declined = 1';
-				} elseif ($status === 'complete') {
-					$statusConditions[] = 'p.completed = 1 AND p.declined = 0';
-				} elseif ($status === 'pending') {
-					$statusConditions[] = '(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0';
-				} elseif ($status === 'WC') {
-					$statusConditions[] = '(p.status = \'WC\') AND p.completed = 0 AND p.declined = 0';
-				} elseif ($status === 'IP') {
-					$statusConditions[] = '(p.status = \'IP\') AND p.completed = 0 AND p.declined = 0';
-				} elseif ($status === 'DG') {
-					$statusConditions[] = '(p.status = \'DG\') AND p.completed = 0 AND p.declined = 0';
-				} else {
-					$statusConditions[] = 'p.status = :status_' . $status . ' AND p.completed = 0 AND p.declined = 0';
-					$qb->setParameter('status_' . $status, $status);
-				}
-			}
-
-			if (!empty($statusConditions)) {
-				$qb->andWhere('(' . implode(' OR ', $statusConditions) . ')');
-			}
-		}
+		$this->applyStatusFilter($qb, $statuses);
 
 		// Add category filter
 		if ($category) {
@@ -82,32 +58,7 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			->from(PhotoRequest::class, 'p');
 
 		// Add same status filter to count query
-		if ($statuses && is_array($statuses) && count($statuses) > 0) {
-			$statusConditions = [];
-
-			foreach ($statuses as $status) {
-				if ($status === 'declined') {
-					$statusConditions[] = 'p.declined = 1';
-				} elseif ($status === 'complete') {
-					$statusConditions[] = 'p.completed = 1 AND p.declined = 0';
-				} elseif ($status === 'pending') {
-					$statusConditions[] = '(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0';
-				} elseif ($status === 'WC') {
-					$statusConditions[] = '(p.status = \'WC\') AND p.completed = 0 AND p.declined = 0';
-				} elseif ($status === 'IP') {
-					$statusConditions[] = '(p.status = \'IP\') AND p.completed = 0 AND p.declined = 0';
-				} elseif ($status === 'DG') {
-					$statusConditions[] = '(p.status = \'DG\') AND p.completed = 0 AND p.declined = 0';
-				} else {
-					$statusConditions[] = 'p.status = :count_status_' . $status . ' AND p.completed = 0 AND p.declined = 0';
-					$countQb->setParameter('count_status_' . $status, $status);
-				}
-			}
-
-			if (!empty($statusConditions)) {
-				$countQb->andWhere('(' . implode(' OR ', $statusConditions) . ')');
-			}
-		}
+		$this->applyStatusFilter($countQb, $statuses);
 
 		// Add same category filter to count query
 		if ($category) {
@@ -135,26 +86,7 @@ class PhotoRequestRepository extends ServiceEntityRepository
 			->orderBy('p.category', 'ASC');
 
 		// Add status filter if provided
-		if ($statuses && is_array($statuses) && count($statuses) > 0) {
-			$statusConditions = [];
-
-			foreach ($statuses as $status) {
-				if ($status === 'declined') {
-					$statusConditions[] = 'p.declined = 1';
-				} elseif ($status === 'complete') {
-					$statusConditions[] = 'p.completed = 1';
-				} elseif ($status === 'pending') {
-					$statusConditions[] = '(p.status IS NULL OR p.status = \'\') AND p.completed = 0 AND p.declined = 0';
-				} else {
-					$statusConditions[] = 'p.status = :cat_status_' . $status . ' AND p.completed = 0 AND p.declined = 0';
-					$qb->setParameter('cat_status_' . $status, $status);
-				}
-			}
-
-			if (!empty($statusConditions)) {
-				$qb->andWhere('(' . implode(' OR ', $statusConditions) . ')');
-			}
-		}
+		$this->applyStatusFilter($qb, $statuses);
 
 		$results = $qb->getQuery()->getResult();
 
@@ -202,5 +134,34 @@ class PhotoRequestRepository extends ServiceEntityRepository
 	public function getPhotoRequestEntity($id)
 	{
 		return $this->find($id);
+	}
+
+	/**
+	 * DQL condition for each status filter the UI offers. Unknown values are ignored,
+	 * so user input never reaches the query text.
+	 */
+	private const STATUS_CONDITIONS = [
+		'declined' => 'p.declined = 1',
+		'complete' => 'p.completed = 1 AND p.declined = 0',
+		'pending' => "(p.status IS NULL OR p.status = '') AND p.completed = 0 AND p.declined = 0",
+		'WC' => "p.status = 'WC' AND p.completed = 0 AND p.declined = 0",
+		'IP' => "p.status = 'IP' AND p.completed = 0 AND p.declined = 0",
+		'DG' => "p.status = 'DG' AND p.completed = 0 AND p.declined = 0",
+	];
+
+	private function applyStatusFilter(QueryBuilder $qb, $statuses): void
+	{
+		if (!is_array($statuses)) {
+			return;
+		}
+		$conditions = [];
+		foreach ($statuses as $status) {
+			if (is_string($status) && isset(self::STATUS_CONDITIONS[$status])) {
+				$conditions[$status] = '(' . self::STATUS_CONDITIONS[$status] . ')';
+			}
+		}
+		if ($conditions) {
+			$qb->andWhere(implode(' OR ', $conditions));
+		}
 	}
 }

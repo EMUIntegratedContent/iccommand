@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\PhotoRequest;
 
+use App\Util\RequestHelper;
 use App\Entity\PhotoRequest\PhotoRequest;
 use App\Entity\User;
 use App\Service\PhotoRequestService;
@@ -49,8 +50,7 @@ class PhotoRequestController extends AbstractController
   #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_VIEW")'))]
   public function getPhotoRequestsAction(Request $request): Response
   {
-    $page = $request->query->get('page') ?? 1;
-    $pageSize = $request->query->get('limit') ?? 25;
+    [$page, $pageSize] = RequestHelper::pagination($request, 25);
 
     // Get all query parameters
     $queryParams = $request->query->all();
@@ -193,50 +193,11 @@ class PhotoRequestController extends AbstractController
    * @return Response The photo request, the status code, and the HTTP headers.
    */
   #[Route('/', methods: ['POST'])]
+  #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_PHOTO_CREATE")'))]
   public function postPhotoRequestAction(Request $request): Response
   {
-    // Check if this is an API request (has API key or API user agent)
-    $hasApiKey = $request->headers->get('X-API-Key');
-    $userAgent = $request->headers->get('User-Agent');
-    $isApiRequest = $hasApiKey || ($userAgent && preg_match('/.*API.*/i', $userAgent));
-
-    // If not an API request, check for proper authentication and roles
-    if (!$isApiRequest) {
-      if (!($this->isGranted('ROLE_GLOBAL_ADMIN') ||
-        $this->isGranted('ROLE_PHOTO_ADMIN') ||
-        $this->isGranted('ROLE_PHOTO_CREATE'))) {
-        throw $this->createAccessDeniedException('Access denied.');
-      }
-    }
-
-    $shootType = $request->request->get("shootType");
-    $firstName = $request->request->get("firstName");
-    $lastName = $request->request->get("lastName");
-    $email = $request->request->get("email");
-    $phone = $request->request->get("phone");
-    $department = $request->request->get("department");
-
-    $photoRequest = new PhotoRequest();
-    $photoRequest->setShootType($shootType ?? 'photoshoot');
-    $photoRequest->setFirstName($firstName ?? '');
-    $photoRequest->setLastName($lastName ?? '');
-    $photoRequest->setEmail($email ?? '');
-    $photoRequest->setPhone($phone ?? '');
-    $photoRequest->setDepartment($department ?? '');
-    $photoRequest->setShootName($request->request->get("shootName") ?? '');
-    $photoRequest->setPhotoType($request->request->get("photoType") ?? '');
-    $photoRequest->setShootDate($request->request->get("shootDate") ? new \DateTime($request->request->get("shootDate")) : null);
-    $photoRequest->setStartTime($request->request->get("startTime") ? new \DateTime($request->request->get("startTime")) : null);
-    $photoRequest->setEndTime($request->request->get("endTime") ? new \DateTime($request->request->get("endTime")) : null);
-    $photoRequest->setLocation($request->request->get("location") ?? '');
-    $photoRequest->setDescription($request->request->get("description") ?? '');
-    $photoRequest->setPhotoExplaination($request->request->get("photoExplaination") ?? '');
-    $photoRequest->setIntendedUse($request->request->get("intendedUse") ?? '');
-    $photoRequest->setForUse($request->request->get("forUse") ?? '');
-    $photoRequest->setUrl($request->request->get("url") ?? '');
-    $photoRequest->setDesigner($request->request->get("designer") ?? '');
-    $photoRequest->setCategory($request->request->get("category") ?? '');
-    $photoRequest->setEventDesc($request->request->get("eventDesc") ?? '');
+    // Internal form only. emich.edu submits to POST /api/external/photorequests/ with the API key.
+    $photoRequest = $this->service->createFromData($request->request->all());
 
     $errors = $this->service->validate($photoRequest); // Validate the photo request.
 
