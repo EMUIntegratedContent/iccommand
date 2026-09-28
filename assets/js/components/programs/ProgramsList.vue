@@ -96,6 +96,11 @@
 							>
 								<td>
 									{{ ugp.full_name }}
+									<span
+										v-if="Number(ugp.is_active) !== 1"
+										class="badge badge-danger ml-2"
+										>Inactive</span
+									>
 								</td>
 								<td>{{ ugp.url }}</td>
 								<td>{{ ugp.id }}</td>
@@ -167,6 +172,11 @@
 							>
 								<td>
 									{{ grad.full_name }}
+									<span
+										v-if="Number(grad.is_active) !== 1"
+										class="badge badge-danger ml-2"
+										>Inactive</span
+									>
 								</td>
 								<td>{{ grad.url }}</td>
 								<td>

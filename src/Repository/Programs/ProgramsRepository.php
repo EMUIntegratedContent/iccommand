@@ -167,7 +167,7 @@ class ProgramsRepository extends ServiceEntityRepository
 			LEFT JOIN program_keyword_links pkl ON pkl.program_id = p.id
 			LEFT JOIN program_keywords pk ON pk.id = pkl.keyword_id
 			LEFT JOIN program_college_link cl ON cl.program_id = p.id
-			WHERE TRUE " . $whereSql;
+			WHERE p.is_active = 1 " . $whereSql;
 
 		$count = (int) $conn->executeQuery($countSql, $binds)->fetchOne();
 
@@ -213,7 +213,7 @@ class ProgramsRepository extends ServiceEntityRepository
 			LEFT JOIN program_keyword_links pkl ON pkl.program_id = p.id
 			LEFT JOIN program_keywords pk ON pk.id = pkl.keyword_id
 			LEFT JOIN program_college_link cl ON cl.program_id = p.id
-			WHERE TRUE " . $whereSql . "
+			WHERE p.is_active = 1 " . $whereSql . "
 			GROUP BY p.id
 			" . $orderBy . "
 			LIMIT $offset, $limit";
@@ -250,7 +250,8 @@ class ProgramsRepository extends ServiceEntityRepository
 		$sql = "SELECT DISTINCT d.department, CONCAT(d.department, ':', d.id) AS key_value
 			FROM program_programs AS p
 			LEFT JOIN program_departments AS d ON p.department_id = d.id
-			WHERE d.department IS NOT NULL";
+			WHERE d.department IS NOT NULL
+				AND p.is_active = 1";
 
 		$rows = $this->em->getConnection()->executeQuery($sql)->fetchAllAssociative();
 		$arrDepartments = array_column($rows, 'key_value');

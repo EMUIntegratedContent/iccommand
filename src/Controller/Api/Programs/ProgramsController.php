@@ -287,6 +287,7 @@ class ProgramsController extends AbstractController
 		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
 		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
+		$program->setIsActive($request->request->getBoolean("is_active", true)); // New programs default to active.
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -420,6 +421,7 @@ class ProgramsController extends AbstractController
 		$program->setImageUrl(RequestHelper::optionalString($request->request->get("image_url")));
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
 		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
+		$program->setIsActive($request->request->getBoolean("is_active", $program->isActive())); // Omitted key leaves it unchanged.
 
 		$errors = $this->service->validate($program); // Validate the program.
 
