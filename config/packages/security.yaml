@@ -106,6 +106,8 @@ when@dev:
         pattern: ^/(_(profiler|wdt)|css|images|js)/
         security: false
       main:
+        # JSON 401 for /api, login redirect for pages (see the class).
+        entry_point: App\Security\ApiAwareEntryPoint
         pattern: ^/
         user_checker: App\Security\UserChecker
         lazy: true
@@ -132,6 +134,8 @@ when@staging:
       main:
         # Blocks accounts that an admin has disabled.
         user_checker: App\Security\UserChecker
+        # JSON 401 for /api, login redirect for pages (see the class).
+        entry_point: App\Security\ApiAwareEntryPoint
         lazy: true
         # At most 5 failed logins per username+IP (and 25 per IP) every 15 minutes.
         login_throttling:
@@ -158,6 +162,8 @@ when@prod:
       main:
         # Blocks accounts that an admin has disabled.
         user_checker: App\Security\UserChecker
+        # JSON 401 for /api, login redirect for pages (see the class).
+        entry_point: App\Security\ApiAwareEntryPoint
         lazy: true
         # At most 5 failed logins per username+IP (and 25 per IP) every 15 minutes.
         login_throttling:
@@ -179,6 +185,8 @@ when@test:
   security:
     firewalls:
       main:
+        # JSON 401 for /api, login redirect for pages (see the class).
+        entry_point: App\Security\ApiAwareEntryPoint
         lazy: true
         # At most 5 failed logins per username+IP (and 25 per IP) every 15 minutes.
         login_throttling:

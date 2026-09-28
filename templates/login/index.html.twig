@@ -9,6 +9,9 @@
     {% if error %}
         <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
+    {% if app.request.query.get('expired') and not error %}
+        <div>Your session expired, so your last change was not saved. Please log in and try again.</div>
+    {% endif %}
 
     <div>
         <img src="/images/e-box.png" width="100px" height="100px" style="float: left; margin-right: 20px;"/>
