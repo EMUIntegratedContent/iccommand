@@ -109,12 +109,18 @@ when@dev:
         pattern: ^/
         user_checker: App\Security\UserChecker
         lazy: true
+        # At most 5 failed logins per username+IP (and 25 per IP) every 15 minutes.
+        login_throttling:
+          max_attempts: 5
+          interval: '15 minutes'
         form_login:
           provider: users
           login_path: app_login
           check_path: app_login
+          enable_csrf: true
         logout:
           path: /logout
+          enable_csrf: true
 
 # Staging server - LDAP auth
 when@staging:
@@ -124,15 +130,23 @@ when@staging:
         pattern: ^/(_(profiler|wdt)|css|images|js)/
         security: false
       main:
+        # Blocks accounts that an admin has disabled.
+        user_checker: App\Security\UserChecker
         lazy: true
+        # At most 5 failed logins per username+IP (and 25 per IP) every 15 minutes.
+        login_throttling:
+          max_attempts: 5
+          interval: '15 minutes'
         provider: users
         form_login_ldap:
           login_path: app_login
           check_path: app_login
+          enable_csrf: true
           service: Symfony\Component\Ldap\Ldap
           dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
         logout:
           path: /logout
+          enable_csrf: true
 
 # Production server - LDAP auth
 when@prod:
@@ -142,15 +156,23 @@ when@prod:
         pattern: ^/(_(profiler|wdt)|css|images|js)/
         security: false
       main:
+        # Blocks accounts that an admin has disabled.
+        user_checker: App\Security\UserChecker
         lazy: true
+        # At most 5 failed logins per username+IP (and 25 per IP) every 15 minutes.
+        login_throttling:
+          max_attempts: 5
+          interval: '15 minutes'
         provider: users
         form_login_ldap:
           login_path: app_login
           check_path: app_login
+          enable_csrf: true
           service: Symfony\Component\Ldap\Ldap
           dn_string: "cn={user_identifier},cn=users,dc=ad,dc=emich,dc=edu"
         logout:
           path: /logout
+          enable_csrf: true
 
 # Test environment - form login without UserChecker (for PHPUnit)
 when@test:
@@ -158,9 +180,15 @@ when@test:
     firewalls:
       main:
         lazy: true
+        # At most 5 failed logins per username+IP (and 25 per IP) every 15 minutes.
+        login_throttling:
+          max_attempts: 5
+          interval: '15 minutes'
         form_login:
           provider: users
           login_path: app_login
           check_path: app_login
+          enable_csrf: true
         logout:
           path: /logout
+          enable_csrf: true
