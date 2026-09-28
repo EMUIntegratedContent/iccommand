@@ -181,7 +181,8 @@ export default {
             .catch(function (error) {
                 console.log(error);
                 self.currentStatus = STATUS_FAILED;
-                self.uploadErrors = error.message;
+                // The API explains what to fix (already HTML-escaped).
+                self.uploadErrors = (error.response && error.response.data && error.response.data.message) || error.message;
             })
     },
     resetUploader: function(){

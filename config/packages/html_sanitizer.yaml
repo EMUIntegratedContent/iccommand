@@ -1,0 +1,29 @@
+# Sanitizer for HTML written by the rich-text (CKEditor) fields: program
+# overviews, scholarship text, the emergency banner message and map hours.
+# This HTML is shown inside ICCommand and on public emich.edu pages, so only
+# formatting the editor produces is kept.
+framework:
+    html_sanitizer:
+        sanitizers:
+            app.rich_text:
+                allow_elements:
+                    p: []
+                    br: []
+                    strong: []
+                    b: []
+                    em: []
+                    i: []
+                    u: []
+                    ul: []
+                    ol: []
+                    li: []
+                    h2: []
+                    h3: []
+                    h4: []
+                    blockquote: []
+                    a: [href]
+                allowed_link_schemes: [http, https, mailto]
+                # Unlisted tags are removed but their text is kept...
+                default_action: block
+                # ...except these, which are removed together with everything inside them.
+                drop_elements: [script, style, iframe, object, embed, svg, math, form, template]
