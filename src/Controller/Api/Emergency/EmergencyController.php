@@ -68,13 +68,13 @@ class EmergencyController extends AbstractController
       $result = $this->service->updateBanner($request->request->all());
 
       if ($result['success']) {
-        $serialized = $this->serializer->serialize($result['banner'], "json", ['groups' => 'banner']);
+        $serialized = $this->serializer->serialize($result['banner'], "json", ['groups' => ['banner', 'banner_admin']]);
         return new Response($serialized, 200, array("Content-Type" => "application/json"));
       } else {
-        return new Response(json_encode(['message' => $result['message']]), 400, array("Content-Type" => "application/json"));
+        return new Response(json_encode(['message' => $result['message']]), $result['status'] ?? 400, array("Content-Type" => "application/json"));
       }
-    } catch (\Exception $e) {
-      $this->logger->error('Emergency banner update failed: ' . $e->getMessage());
+    } catch (\Throwable $e) {
+      $this->logger->error('Emergency banner update failed: ' . $e->getMessage(), ['exception' => $e]);
       return new Response(json_encode(['message' => 'An error occurred while updating the emergency banner.']), 500, array("Content-Type" => "application/json"));
     }
   }
