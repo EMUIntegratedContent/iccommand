@@ -518,7 +518,7 @@
 							</div>
 						</template>
 					</div>
-					<div class="form-group form-check">
+					<div class="form-group form-check mt-4">
 						<input
 							id="programActive"
 							type="checkbox"
