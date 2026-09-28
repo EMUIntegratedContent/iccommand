@@ -6,15 +6,19 @@
   <li class="nav-item">
     <a class="nav-link" href="/programs">Programs List</a>
   </li>
+  {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_CREATE') %}
   <li class="nav-item">
     <a class="nav-link" href="/programs/create">Create new program</a>
   </li>
+  {% endif %}
   <li class="nav-item">
     <a class="nav-link" href="/programs/websites">Program websites</a>
   </li>
+  {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_CREATE') %}
   <li class="nav-item">
     <a class="nav-link" href="/programs/keywords">Manage Keywords</a>
   </li>
+  {% endif %}
   {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_PROGRAMS_ADMIN') %}
   <li class="nav-item">
     <a class="nav-link" href="/programs/manage">Manage app</a>

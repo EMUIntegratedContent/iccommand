@@ -30,6 +30,7 @@ class ScholarshipController extends AbstractController
      * The index (list) page.
      */
     #[Route('/scholarships', name: 'scholarship_index')]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
     public function index(): Response
     {
         $permissions = json_encode($this->service->getScholarshipPermissions());
@@ -43,6 +44,7 @@ class ScholarshipController extends AbstractController
      * The create page.
      */
     #[Route('/scholarships/create', name: 'scholarship_create')]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_CREATE")'))]
     public function add(): Response
     {
         $permissions = json_encode($this->service->getScholarshipPermissions());
@@ -65,6 +67,7 @@ class ScholarshipController extends AbstractController
      * captured as an id.
      */
     #[Route('/scholarships/keywords', name: 'scholarship_keywords')]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_CREATE")'))]
     public function keywords(): Response
     {
         $permissions = json_encode($this->service->getScholarshipPermissions());
@@ -76,6 +79,7 @@ class ScholarshipController extends AbstractController
      * "organizations" isn't captured as an id.
      */
     #[Route('/scholarships/organizations', name: 'scholarship_organizations')]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_CREATE")'))]
     public function organizations(): Response
     {
         $permissions = json_encode($this->service->getScholarshipPermissions());
@@ -86,6 +90,7 @@ class ScholarshipController extends AbstractController
      * The edit page.
      */
     #[Route('/scholarships/{id}/edit', name: 'scholarship_edit', requirements: ['id' => '\d+'])]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_EDIT")'))]
     public function edit(int $id): Response
     {
         $this->findScholarshipOr404($id);
@@ -102,6 +107,7 @@ class ScholarshipController extends AbstractController
      * The show (read-only) page.
      */
     #[Route('/scholarships/{id}', name: 'scholarship_show', requirements: ['id' => '\d+'])]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
     public function show(int $id): Response
     {
         $this->findScholarshipOr404($id);

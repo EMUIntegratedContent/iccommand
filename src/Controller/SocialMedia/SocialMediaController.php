@@ -29,6 +29,7 @@ class SocialMediaController extends AbstractController
      * The index (list) page.
      */
     #[Route('/social-media', name: 'social_media_index')]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SOCIAL_USER")'))]
     public function index(): Response
     {
         $permissions = json_encode($this->service->getUserSocialMediaPermissions());
@@ -42,6 +43,7 @@ class SocialMediaController extends AbstractController
      * The create page.
      */
     #[Route('/social-media/create', name: 'social_media_create')]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SOCIAL_USER")'))]
     public function add(): Response
     {
         $permissions = json_encode($this->service->getUserSocialMediaPermissions());
@@ -64,6 +66,7 @@ class SocialMediaController extends AbstractController
      * The edit page.
      */
     #[Route('/social-media/{id}/edit', name: 'social_media_edit')]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SOCIAL_USER")'))]
     public function edit(int $id): Response
     {
         $socialMedia = $this->doctrine->getRepository(SocialMedia::class)->find($id);
@@ -84,6 +87,7 @@ class SocialMediaController extends AbstractController
      * The show (read-only) page.
      */
     #[Route('/social-media/{id}', name: 'social_media_show')]
+		#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SOCIAL_USER")'))]
     public function show(int $id): Response
     {
         $socialMedia = $this->doctrine->getRepository(SocialMedia::class)->find($id);

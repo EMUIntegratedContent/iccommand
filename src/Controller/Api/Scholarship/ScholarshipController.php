@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api\Scholarship;
 
+use App\Service\RichTextSanitizer;
+use App\Util\RequestHelper;
 use App\Entity\Scholarship\Scholarship;
 use App\Service\ScholarshipService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,6 +40,9 @@ class ScholarshipController extends AbstractController
         'overview' => 'setOverview',
     ];
 
+    /** STRING_FIELDS keys edited with the rich-text editor; sanitized before storing. */
+    private const RICH_TEXT_FIELDS = ['overview', 'contact', 'appProc', 'description'];
+
     /**
      * Boolean fields (payload key => entity setter). Applied when the key is present.
      */
@@ -62,21 +67,22 @@ class ScholarshipController extends AbstractController
     private ManagerRegistry $doctrine;
     private EntityManagerInterface $em;
     private SerializerInterface $serializer;
+    private RichTextSanitizer $richText;
 
-    public function __construct(ScholarshipService $service, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer)
+    public function __construct(ScholarshipService $service, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer, RichTextSanitizer $richText)
     {
         $this->service = $service;
         $this->doctrine = $doctrine;
         $this->em = $em;
         $this->serializer = $serializer;
+        $this->richText = $richText;
     }
 
     #[Route('/list', methods: ['GET'])]
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
     public function getScholarshipsAction(Request $request): Response
     {
-        $page = (int)($request->query->get('page') ?? 1);
-        $pageSize = (int)($request->query->get('limit') ?? 20);
+        [$page, $pageSize] = RequestHelper::pagination($request, 20);
 
         $result = $this->service->getScholarshipsPagination($page, $pageSize);
 
@@ -264,7 +270,12 @@ class ScholarshipController extends AbstractController
         foreach (self::STRING_FIELDS as $key => $setter) {
             if (array_key_exists($key, $data)) {
                 $val = $data[$key];
-                $scholarship->$setter($val === null || $val === '' ? null : (string)$val);
+                $val = $val === null || $val === '' ? null : (string)$val;
+                // Rich-text fields are shown as HTML here and on emich.edu.
+                if (in_array($key, self::RICH_TEXT_FIELDS, true)) {
+                    $val = $this->richText->sanitize($val);
+                }
+                $scholarship->$setter($val);
             }
         }
 

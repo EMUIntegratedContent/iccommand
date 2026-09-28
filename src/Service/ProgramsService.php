@@ -102,7 +102,7 @@ class ProgramsService
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
 	#[ArrayShape(['programs' => "array", 'totalRows' => "integer"])]
-	public function getProgramsPagination($currentPage, $pageSize, $catalog)
+	public function getProgramsPagination(int $currentPage, int $pageSize, string $catalog)
 	{
 		$repository = $this->em->getRepository(Programs::class);
 		return $repository->paginatedPrograms($currentPage, $pageSize, $catalog);
@@ -314,7 +314,7 @@ class ProgramsService
 	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
 	#[ArrayShape(['websites' => "array", 'totalRows' => "integer"])]
-	public function getWebsitesPagination($currentPage, $pageSize)
+	public function getWebsitesPagination(int $currentPage, int $pageSize)
 	{
 		$repository = $this->em->getRepository(ProgramWebsites::class);
 		return $repository->paginatedWebsites($currentPage, $pageSize);

@@ -5,6 +5,8 @@ use App\Entity\Redirect\Redirect;
 use App\Service\RedirectService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,6 +31,7 @@ class RedirectController extends AbstractController {
    * The index page of the redirects.
    */
 	#[Route('/redirects', name: 'redirect_index')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
   public function index(): Response
   {
     $permissions = json_encode($this->service->getUserRedirectPermissions());
@@ -42,6 +45,7 @@ class RedirectController extends AbstractController {
    * The create page of the redirects.
    */
 	#[Route('/redirects/create', name: 'redirects_create')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
   public function add(): Response
   {
     $permissions = json_encode($this->service->getUserRedirectPermissions());
@@ -52,6 +56,7 @@ class RedirectController extends AbstractController {
    * The edit page of the redirects.
    */
 	#[Route('/redirects/{id}/edit', name: 'redirects_edit')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
   public function edit($id): Response
   {
     $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
@@ -74,6 +79,7 @@ class RedirectController extends AbstractController {
    * The management page of the redirects.
    */
 	#[Route('/redirects/manage', name: 'redirects_manage')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_ADMIN")'))]
   public function manage(): Response
   {
     return $this->render('redirect/manage.html.twig', []);
@@ -83,6 +89,7 @@ class RedirectController extends AbstractController {
    * The show page of the redirects.
    */
 	#[Route('/redirects/{id}', name: 'redirects_show')]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
   public function show($id): Response
   {
     $redirect = $this->doctrine->getRepository(Redirect::class)->find($id);

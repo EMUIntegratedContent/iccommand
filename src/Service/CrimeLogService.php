@@ -77,25 +77,4 @@ class CrimeLogService
   {
     return $this->validator->validate($log);
   }
-
-  /**
-   * Truncates the crimelog table. Should be done before every bulk upload
-   */
-  public function truncateCrimeLogTable(): void
-  {
-    $repository = $this->em->getRepository(CrimeLog::class);
-    $repository->truncate();
-  }
-
-  public function deleteFireLogById(int $id): void
-  {
-    $repository = $this->em->getRepository(FireLog::class);
-    $repository->deleteById($id);
-  }
-
-  public function findFireLogByIncidentNumber(string $incidentNumber): ?array
-  {
-    $repository = $this->em->getRepository(FireLog::class);
-    return $repository->findByIncidentNumber($incidentNumber);
-  }
 }

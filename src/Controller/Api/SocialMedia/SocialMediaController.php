@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\SocialMedia;
 
+use App\Util\RequestHelper;
 use App\Entity\SocialMedia\SocialMedia;
 use App\Service\SocialMediaService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,8 +67,7 @@ class SocialMediaController extends AbstractController
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SOCIAL_USER")'))]
     public function getSocialMediaListAction(Request $request): Response
     {
-        $page = $request->query->get('page') ?? 1;
-        $pageSize = $request->query->get('limit') ?? 10;
+        [$page, $pageSize] = RequestHelper::pagination($request, 10);
         $searchTerm = $request->query->get('search') ?? '';
 
         $socialMedia = $this->service->getSocialMediaPagination($page, $pageSize, $searchTerm);

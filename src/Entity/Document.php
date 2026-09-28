@@ -19,6 +19,17 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 abstract class Document
 {
+	/**
+	 * Image types accepted for upload, mapped to the extension used on disk.
+	 * The extension always comes from the detected content type, never from
+	 * the client's filename, so an upload can never be stored as .php etc.
+	 */
+	public const ALLOWED_TYPES = [
+		'image/jpeg' => 'jpg',
+		'image/png' => 'png',
+		'image/gif' => 'gif',
+	];
+
 	#[ORM\Id]
 	#[ORM\Column(name: "id", type: "integer")]
 	#[ORM\GeneratedValue(strategy: "AUTO")]
@@ -77,7 +88,7 @@ abstract class Document
 
 	public function setPath($path)
 	{
-		$path = $path;
+		$this->path = $path;
 
 		return $this;
 	}
@@ -149,8 +160,13 @@ abstract class Document
 	public function preUpload()
 	{
 		if (null !== $this->getFile()) {
-			$filename = preg_replace('/[^A-Za-z0-9 _ .-]/', '', $this->getFile()->getClientOriginalName());
-			$this->path = $filename;
+			// Store under a random name with an extension derived from the
+			// detected content type. The client filename is never used on disk.
+			$mimeType = $this->getFile()->getMimeType();
+			if (!isset(self::ALLOWED_TYPES[$mimeType])) {
+				throw new \InvalidArgumentException('Unsupported image type: ' . $mimeType);
+			}
+			$this->path = bin2hex(random_bytes(16)) . '.' . self::ALLOWED_TYPES[$mimeType];
 		}
 	}
 
@@ -165,7 +181,10 @@ abstract class Document
 		$this->getFile()->move($this->getUploadRootDir(), $this->path);
 
 		if (isset($this->temp)) {
-			unlink($this->getUploadRootDir() . '/' . $this->temp);
+			$old = $this->getUploadRootDir() . '/' . $this->temp;
+			if (is_file($old)) {
+				unlink($old);
+			}
 			$this->temp = null;
 		}
 		$this->file = null;
@@ -175,7 +194,7 @@ abstract class Document
 	public function removeUpload()
 	{
 		$file = $this->getAbsolutePath();
-		if ($file) {
+		if ($file && is_file($file)) {
 			unlink($file);
 		}
 	}

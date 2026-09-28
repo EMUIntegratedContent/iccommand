@@ -72,7 +72,7 @@ class ProgramsRepository extends ServiceEntityRepository
 		])->fetchAssociative();
 	}
 
-	public function paginatedPrograms($currentPage, $pageSize, $catalog): array
+	public function paginatedPrograms(int $currentPage, int $pageSize, string $catalog): array
 	{
 		// Calculate the offset
 		$offset = ($currentPage - 1) * $pageSize;
