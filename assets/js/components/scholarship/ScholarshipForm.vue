@@ -479,7 +479,7 @@
 							<label for="scholarshipPrograms">Related programs</label>
 							<VueMultiselect
 								id="scholarshipPrograms"
-								:options="programs"
+								:options="programOptions"
 								:multiple="true"
 								:close-on-select="false"
 								:disabled="!userCanEdit || !isEditMode"
@@ -888,6 +888,15 @@ export default {
 			set(value) {
 				this.record.description = value
 			}
+		},
+
+		// Only active programs can be newly linked, but programs this scholarship is already
+		// linked to stay in the options so an on-hold link isn't silently dropped on save.
+		programOptions() {
+			let ids = (this.record.programLinks || []).map((l) => Number(l.programId))
+			return this.programs.filter(
+				(p) => Number(p.is_active) === 1 || ids.indexOf(Number(p.id)) !== -1
+			)
 		},
 
 		// The API returns links as programLinks/programId but expects program_links/program_id

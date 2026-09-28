@@ -67,7 +67,7 @@ class CasService {
 	}
 
 	/**
-	 * Fetches graduate programs from the programs database for the degree picker.
+	 * Fetches active graduate programs from the programs database for the degree picker.
 	 */
 	public function getGraduatePrograms(): array
 	{
@@ -79,6 +79,7 @@ class CasService {
 			FROM program_programs p
 			LEFT JOIN program_degrees pd ON p.degree_id = pd.id
 			WHERE p.catalog = 'graduate'
+				AND p.is_active = 1
 			ORDER BY p.full_name ASC
 		";
 

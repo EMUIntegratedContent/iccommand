@@ -182,13 +182,14 @@ class ScholarshipService
     }
 
     /**
-     * All programs (id + full_name) for the link picker.
+     * All programs (id + full_name + is_active) for the link picker. Inactive programs are
+     * included so existing links to them still resolve; the form only offers active ones.
      */
     public function getAvailablePrograms(): array
     {
         $conn = $this->doctrine->getManager('programs')->getConnection();
         return $conn->executeQuery(
-            'SELECT id, full_name FROM program_programs ORDER BY full_name ASC'
+            'SELECT id, full_name, is_active FROM program_programs ORDER BY full_name ASC'
         )->fetchAllAssociative();
     }
 
