@@ -48,22 +48,6 @@
 					:validation-schema="programSchema"
 				>
 					<div class="form-group">Internal ID: {{ record.id }}</div>
-					<div class="form-group form-check">
-						<input
-							id="programActive"
-							type="checkbox"
-							class="form-check-input"
-							:disabled="!userCanEdit || !isEditMode"
-							v-model="record.is_active"
-							@change="formDirty = true"
-						/>
-						<label class="form-check-label" for="programActive">Active</label>
-						<small class="form-text text-muted"
-							>Uncheck to put the program on hold. On-hold programs are hidden from
-							the public Degrees & Programs search and feeds, and from the
-							Scholarship and CAS program pickers.</small
-						>
-					</div>
 					<div class="form-group">
 						<label
 							>Full program name ("Program" column on Degrees & Programs public
@@ -533,6 +517,22 @@
 								/>
 							</div>
 						</template>
+					</div>
+					<div class="form-group form-check">
+						<input
+							id="programActive"
+							type="checkbox"
+							class="form-check-input"
+							:disabled="!userCanEdit || !isEditMode"
+							v-model="record.is_active"
+							@change="formDirty = true"
+						/>
+						<label class="form-check-label" for="programActive">Active</label>
+						<small class="form-text text-muted"
+							>Uncheck to put the program on hold. On-hold programs are hidden from
+							the public Degrees & Programs search and feeds, and from the
+							Scholarship and CAS program pickers.</small
+						>
 					</div>
 					<div
 						v-if="Object.keys(errors).length && isEditMode"
