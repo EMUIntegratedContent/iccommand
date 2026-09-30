@@ -104,6 +104,7 @@ class Scholarship
      * A short overview of this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_overview', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide an overview.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $overview = null;
 
@@ -126,6 +127,7 @@ class Scholarship
      * The URL with more information about this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_url', type: 'string', length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "You must provide an application link.")]
     #[Assert\Url(message: "Provide a valid URL.")]
     #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
@@ -135,6 +137,7 @@ class Scholarship
      * The description of this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_description', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide additional information.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $description = null;
 
@@ -306,6 +309,7 @@ class Scholarship
      * The free-text contact information for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_contact', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide contact information.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $contact = null;
 
@@ -829,6 +833,18 @@ class Scholarship
     }
 
     /* ****************************** Validation ****************************** */
+
+    /**
+     * Reduce rich-text HTML to its visible text, so the required rich-text fields treat
+     * editor markup with no text in it (e.g. "<p>&nbsp;</p>") as blank.
+     * @param string $html
+     * @return string
+     */
+    public static function richTextToPlainText(string $html): string
+    {
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return trim(str_replace("\u{00A0}", ' ', $text));
+    }
 
     /**
      * Check each class standing, since they are stored as one comma separated string.

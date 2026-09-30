@@ -46,9 +46,10 @@
 					:validation-schema="scholarshipSchema"
 				>
 					<fieldset>
-						<legend>Basic information</legend>
+						<legend>Basic Information</legend>
+						<p class="small text-muted"><span class="red">*</span> Required field</p>
 						<div class="form-group">
-							<label>Title <span class="red">*</span></label>
+							<label>Scholarship Title <span class="red">*</span></label>
 							<Field
 								name="title"
 								type="text"
@@ -69,7 +70,7 @@
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group">
-									<label>Amount</label>
+									<label>Award Amount / Value</label>
 									<Field
 										name="amount"
 										type="text"
@@ -80,7 +81,7 @@
 										}"
 										:readonly="!userCanEdit || !isEditMode"
 										v-model="record.amount"
-										placeholder="e.g. $1500-$2500, or tuition and fees"
+										placeholder="e.g., $1,500 - $2,500 or Tuition &amp; Fees"
 										@update:modelValue="formDirty = true"
 									>
 									</Field>
@@ -91,7 +92,7 @@
 							</div>
 							<div class="col-md-6">
 								<div class="form-group">
-									<label>More information URL</label>
+									<label>Application Link / URL <span class="red">*</span></label>
 									<Field
 										name="url"
 										type="url"
@@ -109,62 +110,70 @@
 									<div class="invalid-feedback">
 										{{ errors.url }}
 									</div>
+									<small class="form-text text-muted">
+										Target link for the student "Application Information" button.
+									</small>
 								</div>
 							</div>
 						</div>
 						<div class="form-group">
-							<label class="mt-2">Overview</label>
+							<label class="mt-2">Overview / Summary <span class="red">*</span></label>
 							<template v-if="!userCanEdit || !isEditMode">
 								<div v-if="!record.overview">---</div>
 								<div v-else v-html="record.overview"></div>
 							</template>
 							<template v-else>
-								<ckeditor
-									v-model="overviewModel"
-									:editor="editor"
-									:config="ckConfig"
-									name="scholarshipOverview"
-									@update:modelValue="formDirty = true"
-								>
-								</ckeditor>
+								<Field name="overview" v-slot="{ errorMessage }" v-model="overviewModel">
+									<div :class="{ 'is-invalid-ckeditor': errorMessage }">
+										<ckeditor
+											v-model="overviewModel"
+											:editor="editor"
+											:config="ckConfig"
+											name="scholarshipOverview"
+											@update:modelValue="formDirty = true"
+										>
+										</ckeditor>
+									</div>
+									<div v-if="errorMessage" class="invalid-feedback-ckeditor">
+										{{ errorMessage }}
+									</div>
+								</Field>
 							</template>
 						</div>
-						<div class="form-group form-check">
-							<input
-								id="scholarshipActive"
-								type="checkbox"
-								class="form-check-input"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.active"
-								@change="formDirty = true"
-							/>
-							<label class="form-check-label" for="scholarshipActive">
-								Active
-							</label>
-							<small class="form-text text-muted">
-								Only active scholarships are published to the public feed.
-							</small>
-						</div>
-						<div class="form-group form-check">
-							<input
-								id="scholarshipCatchAll"
-								type="checkbox"
-								class="form-check-input"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.catchAll"
-								@change="formDirty = true"
-							/>
-							<label class="form-check-label" for="scholarshipCatchAll">
-								Catch-all scholarship
-							</label>
-							<small class="form-text text-muted">
-								Flags this as a general scholarship not tied to specific eligibility criteria.
-							</small>
+						<div class="form-group">
+							<div class="form-check form-check-inline">
+								<input
+									id="scholarshipActive"
+									type="checkbox"
+									class="form-check-input"
+									:disabled="!userCanEdit || !isEditMode"
+									v-model="record.active"
+									@change="formDirty = true"
+								/>
+								<label class="form-check-label" for="scholarshipActive">
+									Active
+									<small class="text-muted ml-1">(Publish to public feed)</small>
+								</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input
+									id="scholarshipCatchAll"
+									type="checkbox"
+									class="form-check-input"
+									:disabled="!userCanEdit || !isEditMode"
+									v-model="record.catchAll"
+									@change="formDirty = true"
+								/>
+								<label class="form-check-label" for="scholarshipCatchAll">
+									Catch-all Scholarship
+									<small class="text-muted ml-1">(General scholarship not tied to specific criteria)</small>
+								</label>
+							</div>
 						</div>
 					</fieldset>
 
 					<fieldset>
-						<legend>Eligibility and criteria</legend>
+						<legend>Eligibility &amp; Criteria</legend>
 						<div class="row">
 							<div class="col-md-4">
 								<div class="form-group">
@@ -219,21 +228,24 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="scholarshipStandingClass">Class standing</label>
+							<label for="scholarshipStandingClass">Class Standing</label>
 							<VueMultiselect
 								id="scholarshipStandingClass"
 								:options="options.classStanding"
 								:multiple="true"
 								:close-on-select="false"
 								:disabled="!userCanEdit || !isEditMode"
-								placeholder="No restriction"
+								placeholder="No restriction (All Standings Eligible)"
 								v-model="standingClassModel"
 								@update:modelValue="formDirty = true"
 							>
 							</VueMultiselect>
+							<small class="form-text text-muted">
+								Leaving empty represents no restriction.
+							</small>
 						</div>
 						<div class="form-group">
-							<label>Enrollment requirement</label>
+							<label>Enrollment Requirement</label>
 							<Field
 								name="enrollment"
 								type="text"
@@ -244,7 +256,7 @@
 								}"
 								:readonly="!userCanEdit || !isEditMode"
 								v-model="record.enrollment"
-								placeholder="e.g. full time"
+								placeholder="e.g., Full-time, 6+ credit hours, or specific course"
 								@update:modelValue="formDirty = true"
 							>
 							</Field>
@@ -252,10 +264,11 @@
 								{{ errors.enrollment }}
 							</div>
 						</div>
+						<hr />
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group">
-									<label>Available to transfer students</label>
+									<label>Available to Transfer Students</label>
 									<div>
 										<div
 											v-for="opt in options.transfer"
@@ -280,7 +293,7 @@
 							</div>
 							<div class="col-md-6">
 								<div class="form-group">
-									<label>Housing requirement</label>
+									<label>Housing Requirement</label>
 									<div>
 										<div
 											v-for="opt in options.housing"
@@ -304,49 +317,51 @@
 								</div>
 							</div>
 						</div>
-						<div class="form-group form-check">
-							<input
-								id="scholarshipIsFafsa"
-								type="checkbox"
-								class="form-check-input"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.isFafsa"
-								@change="formDirty = true"
-							/>
-							<label class="form-check-label" for="scholarshipIsFafsa">
-								Requires a FAFSA
-							</label>
-						</div>
-						<div class="form-group form-check">
-							<input
-								id="scholarshipIsParent"
-								type="checkbox"
-								class="form-check-input"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.isParent"
-								@change="formDirty = true"
-							/>
-							<label class="form-check-label" for="scholarshipIsParent">
-								Must be a parent
-							</label>
-						</div>
-						<div class="form-group form-check">
-							<input
-								id="scholarshipIsBilingual"
-								type="checkbox"
-								class="form-check-input"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.isBilingual"
-								@change="formDirty = true"
-							/>
-							<label class="form-check-label" for="scholarshipIsBilingual">
-								Must be bilingual
-							</label>
+						<div class="form-group">
+							<div class="form-check form-check-inline">
+								<input
+									id="scholarshipIsFafsa"
+									type="checkbox"
+									class="form-check-input"
+									:disabled="!userCanEdit || !isEditMode"
+									v-model="record.isFafsa"
+									@change="formDirty = true"
+								/>
+								<label class="form-check-label" for="scholarshipIsFafsa">
+									Requires a FAFSA
+								</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input
+									id="scholarshipIsParent"
+									type="checkbox"
+									class="form-check-input"
+									:disabled="!userCanEdit || !isEditMode"
+									v-model="record.isParent"
+									@change="formDirty = true"
+								/>
+								<label class="form-check-label" for="scholarshipIsParent">
+									Must be a parent
+								</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input
+									id="scholarshipIsBilingual"
+									type="checkbox"
+									class="form-check-input"
+									:disabled="!userCanEdit || !isEditMode"
+									v-model="record.isBilingual"
+									@change="formDirty = true"
+								/>
+								<label class="form-check-label" for="scholarshipIsBilingual">
+									Must be bilingual
+								</label>
+							</div>
 						</div>
 					</fieldset>
 
 					<fieldset>
-						<legend>Location restrictions</legend>
+						<legend>Location Restrictions</legend>
 						<div class="row">
 							<div class="col-md-6 col-lg-3">
 								<div class="form-group">
@@ -378,6 +393,7 @@
 										}"
 										:readonly="!userCanEdit || !isEditMode"
 										v-model="record.county"
+										placeholder="e.g., Washtenaw"
 										@update:modelValue="formDirty = true"
 									>
 									</Field>
@@ -399,6 +415,7 @@
 										}"
 										:readonly="!userCanEdit || !isEditMode"
 										v-model="record.city"
+										placeholder="e.g., Ypsilanti"
 										@update:modelValue="formDirty = true"
 									>
 									</Field>
@@ -409,7 +426,7 @@
 							</div>
 							<div class="col-md-6 col-lg-3">
 								<div class="form-group">
-									<label>High school</label>
+									<label>High School</label>
 									<Field
 										name="highSchool"
 										type="text"
@@ -420,6 +437,7 @@
 										}"
 										:readonly="!userCanEdit || !isEditMode"
 										v-model="record.highSchool"
+										placeholder="Specific High School"
 										@update:modelValue="formDirty = true"
 									>
 									</Field>
@@ -432,11 +450,11 @@
 					</fieldset>
 
 					<fieldset>
-						<legend>Affiliations and programs</legend>
+						<legend>Affiliations &amp; Programs</legend>
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group">
-									<label for="scholarshipCollege">Awarding college</label>
+									<label for="scholarshipCollege">Awarding College</label>
 									<select
 										id="scholarshipCollege"
 										class="form-control"
@@ -453,7 +471,7 @@
 							</div>
 							<div class="col-md-6">
 								<div class="form-group">
-									<label for="scholarshipDepartment">Awarding department</label>
+									<label for="scholarshipDepartment">Awarding Department</label>
 									<select
 										id="scholarshipDepartment"
 										class="form-control"
@@ -470,7 +488,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="scholarshipPrograms">Related programs</label>
+							<label for="scholarshipPrograms">Related Programs / Majors</label>
 							<VueMultiselect
 								id="scholarshipPrograms"
 								:options="programOptions"
@@ -479,7 +497,7 @@
 								:disabled="!userCanEdit || !isEditMode"
 								label="full_name"
 								track-by="id"
-								placeholder="Search programs"
+								placeholder="Search and select majors (e.g. Computer Science, Nursing)"
 								v-model="selectedProgramsModel"
 								@update:modelValue="formDirty = true"
 							>
@@ -521,7 +539,7 @@
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group">
-									<label for="scholarshipOrganizations">Organizations, club, fraternity, sorority, etc.</label>
+									<label for="scholarshipOrganizations">Organizations, Club, Fraternity, Sorority, etc.</label>
 									<VueMultiselect
 										id="scholarshipOrganizations"
 										:options="organizationOptions"
@@ -536,13 +554,13 @@
 									>
 									</VueMultiselect>
 									<small class="form-text text-muted">
-										Manage the list of organizations under Manage Organizations.
+										Manage list under <a href="/scholarships/organizations">Manage Organizations</a>.
 									</small>
 								</div>
 							</div>
 							<div class="col-md-6">
 								<div class="form-group">
-									<label for="scholarshipKeywords">Keywords</label>
+									<label for="scholarshipKeywords">Keywords / Tags</label>
 									<VueMultiselect
 										id="scholarshipKeywords"
 										:options="keywordOptions"
@@ -557,7 +575,7 @@
 									>
 									</VueMultiselect>
 									<small class="form-text text-muted">
-										Manage the list of keywords under Manage Keywords.
+										Manage list under <a href="/scholarships/keywords">Manage Keywords</a>.
 									</small>
 								</div>
 							</div>
@@ -565,11 +583,11 @@
 					</fieldset>
 
 					<fieldset>
-						<legend>Dates and instructions</legend>
+						<legend>Dates &amp; Instructions</legend>
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group">
-									<label>Apply by date</label>
+									<label>Apply By Date <small class="text-muted">(Optional)</small></label>
 									<Field
 										name="applyDate"
 										type="date"
@@ -590,7 +608,7 @@
 							</div>
 							<div class="col-md-6">
 								<div class="form-group">
-									<label>Expiration date</label>
+									<label>Posting Expiration Date <small class="text-muted">(Optional)</small></label>
 									<Field
 										name="expDate"
 										type="date"
@@ -611,7 +629,7 @@
 							</div>
 						</div>
 						<div>
-							<label class="mt-2">Application procedure</label>
+							<label class="mt-2">Application Procedure</label>
 							<template v-if="!userCanEdit || !isEditMode">
 								<div v-if="!record.appProc">---</div>
 								<div v-else v-html="record.appProc"></div>
@@ -628,37 +646,51 @@
 							</template>
 						</div>
 						<div>
-							<label class="mt-2">Contact information</label>
+							<label class="mt-2">Contact Information <span class="red">*</span></label>
 							<template v-if="!userCanEdit || !isEditMode">
 								<div v-if="!record.contact">---</div>
 								<div v-else v-html="record.contact"></div>
 							</template>
 							<template v-else>
-								<ckeditor
-									v-model="contactModel"
-									:editor="editor"
-									:config="ckConfig"
-									name="scholarshipContact"
-									@update:modelValue="formDirty = true"
-								>
-								</ckeditor>
+								<Field name="contact" v-slot="{ errorMessage }" v-model="contactModel">
+									<div :class="{ 'is-invalid-ckeditor': errorMessage }">
+										<ckeditor
+											v-model="contactModel"
+											:editor="editor"
+											:config="ckConfig"
+											name="scholarshipContact"
+											@update:modelValue="formDirty = true"
+										>
+										</ckeditor>
+									</div>
+									<div v-if="errorMessage" class="invalid-feedback-ckeditor">
+										{{ errorMessage }}
+									</div>
+								</Field>
 							</template>
 						</div>
 						<div>
-							<label class="mt-2">Additional information</label>
+							<label class="mt-2">Additional Information <span class="red">*</span></label>
 							<template v-if="!userCanEdit || !isEditMode">
 								<div v-if="!record.description">---</div>
 								<div v-else v-html="record.description"></div>
 							</template>
 							<template v-else>
-								<ckeditor
-									v-model="descriptionModel"
-									:editor="editor"
-									:config="ckConfig"
-									name="scholarshipDescription"
-									@update:modelValue="formDirty = true"
-								>
-								</ckeditor>
+								<Field name="description" v-slot="{ errorMessage }" v-model="descriptionModel">
+									<div :class="{ 'is-invalid-ckeditor': errorMessage }">
+										<ckeditor
+											v-model="descriptionModel"
+											:editor="editor"
+											:config="ckConfig"
+											name="scholarshipDescription"
+											@update:modelValue="formDirty = true"
+										>
+										</ckeditor>
+									</div>
+									<div v-if="errorMessage" class="invalid-feedback-ckeditor">
+										{{ errorMessage }}
+									</div>
+								</Field>
 							</template>
 						</div>
 					</fieldset>
@@ -737,6 +769,11 @@ import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
 const STATUS_SAVE_FAILED = 3
+
+// Editor markup with no text in it (e.g. "<p>&nbsp;</p>") counts as empty, as it does in the API.
+function hasRichText(html) {
+	return (html || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim() !== ""
+}
 
 export default {
 	created() {
@@ -995,9 +1032,16 @@ export default {
 					.required("A title is required.")
 					.max(255, "Title must be 255 characters or less."),
 				url: Yup.string()
+					.required("An application link is required.")
 					.url("Please enter a valid URL.")
 					.max(255, "URL must be 255 characters or less.")
 					.nullable(true),
+				overview: Yup.string()
+					.test("rich-text-required", "An overview is required.", hasRichText),
+				contact: Yup.string()
+					.test("rich-text-required", "Contact information is required.", hasRichText),
+				description: Yup.string()
+					.test("rich-text-required", "Additional information is required.", hasRichText),
 				amount: Yup.string()
 					.max(255, "Amount must be 255 characters or less.")
 					.nullable(true),
