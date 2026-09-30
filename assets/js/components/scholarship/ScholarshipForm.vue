@@ -46,7 +46,7 @@
 					:validation-schema="scholarshipSchema"
 				>
 					<fieldset>
-						<legend>Scholarship</legend>
+						<legend>Basic information</legend>
 						<div class="form-group">
 							<label>Title <span class="red">*</span></label>
 							<Field
@@ -64,6 +64,52 @@
 							</Field>
 							<div class="invalid-feedback">
 								{{ errors.title }}
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Amount</label>
+									<Field
+										name="amount"
+										type="text"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.amount,
+											'form-control-plaintext': !userCanEdit || !isEditMode
+										}"
+										:readonly="!userCanEdit || !isEditMode"
+										v-model="record.amount"
+										placeholder="e.g. $1500-$2500, or tuition and fees"
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.amount }}
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>More information URL</label>
+									<Field
+										name="url"
+										type="url"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.url,
+											'form-control-plaintext': !userCanEdit || !isEditMode
+										}"
+										:readonly="!userCanEdit || !isEditMode"
+										v-model="record.url"
+										placeholder="https://..."
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.url }}
+									</div>
+								</div>
 							</div>
 						</div>
 						<div class="form-group">
@@ -115,94 +161,62 @@
 								Flags this as a general scholarship not tied to specific eligibility criteria.
 							</small>
 						</div>
-						<div class="form-group">
-							<label>More information URL</label>
-							<Field
-								name="url"
-								type="url"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.url,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.url"
-								placeholder="https://..."
-								@update:modelValue="formDirty = true"
-							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.url }}
-							</div>
-						</div>
-						<div class="form-group">
-							<label>Amount</label>
-							<Field
-								name="amount"
-								type="text"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.amount,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.amount"
-								placeholder="e.g. $1500-$2500, or tuition and fees"
-								@update:modelValue="formDirty = true"
-							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.amount }}
-							</div>
-						</div>
 					</fieldset>
 
 					<fieldset>
-						<legend>Eligibility</legend>
-						<div class="form-group">
-							<label for="scholarshipGender">Gender</label>
-							<select
-								id="scholarshipGender"
-								class="form-control"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.gender"
-								@change="formDirty = true"
-							>
-								<option value="">No restriction</option>
-								<option v-for="opt in options.gender" :key="opt" :value="opt">
-									{{ opt }}
-								</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label for="scholarshipEthnicity">Ethnicity</label>
-							<select
-								id="scholarshipEthnicity"
-								class="form-control"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.ethnicity"
-								@change="formDirty = true"
-							>
-								<option value="">No restriction</option>
-								<option v-for="opt in options.ethnicity" :key="opt" :value="opt">
-									{{ opt }}
-								</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label for="scholarshipGpa">Minimum GPA</label>
-							<select
-								id="scholarshipGpa"
-								class="form-control"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.gpa"
-								@change="formDirty = true"
-							>
-								<option value="">No restriction</option>
-								<option v-for="opt in options.gpa" :key="opt" :value="opt">
-									{{ opt }}
-								</option>
-							</select>
+						<legend>Eligibility and criteria</legend>
+						<div class="row">
+							<div class="col-md-4">
+								<div class="form-group">
+									<label for="scholarshipGender">Gender</label>
+									<select
+										id="scholarshipGender"
+										class="form-control"
+										:disabled="!userCanEdit || !isEditMode"
+										v-model="record.gender"
+										@change="formDirty = true"
+									>
+										<option value="">No restriction</option>
+										<option v-for="opt in options.gender" :key="opt" :value="opt">
+											{{ opt }}
+										</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label for="scholarshipEthnicity">Ethnicity</label>
+									<select
+										id="scholarshipEthnicity"
+										class="form-control"
+										:disabled="!userCanEdit || !isEditMode"
+										v-model="record.ethnicity"
+										@change="formDirty = true"
+									>
+										<option value="">No restriction</option>
+										<option v-for="opt in options.ethnicity" :key="opt" :value="opt">
+											{{ opt }}
+										</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label for="scholarshipGpa">Minimum GPA</label>
+									<select
+										id="scholarshipGpa"
+										class="form-control"
+										:disabled="!userCanEdit || !isEditMode"
+										v-model="record.gpa"
+										@change="formDirty = true"
+									>
+										<option value="">No restriction</option>
+										<option v-for="opt in options.gpa" :key="opt" :value="opt">
+											{{ opt }}
+										</option>
+									</select>
+								</div>
+							</div>
 						</div>
 						<div class="form-group">
 							<label for="scholarshipStandingClass">Class standing</label>
@@ -238,26 +252,55 @@
 								{{ errors.enrollment }}
 							</div>
 						</div>
-						<div class="form-group">
-							<label>Available to transfer students</label>
-							<div>
-								<div
-									v-for="opt in options.transfer"
-									:key="opt"
-									class="form-check form-check-inline"
-								>
-									<input
-										:id="'scholarshipTransfer' + opt"
-										type="radio"
-										class="form-check-input"
-										:value="opt"
-										:disabled="!userCanEdit || !isEditMode"
-										v-model="record.transfer"
-										@change="formDirty = true"
-									/>
-									<label class="form-check-label" :for="'scholarshipTransfer' + opt">
-										{{ opt }}
-									</label>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Available to transfer students</label>
+									<div>
+										<div
+											v-for="opt in options.transfer"
+											:key="opt"
+											class="form-check form-check-inline"
+										>
+											<input
+												:id="'scholarshipTransfer' + opt"
+												type="radio"
+												class="form-check-input"
+												:value="opt"
+												:disabled="!userCanEdit || !isEditMode"
+												v-model="record.transfer"
+												@change="formDirty = true"
+											/>
+											<label class="form-check-label" :for="'scholarshipTransfer' + opt">
+												{{ opt }}
+											</label>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Housing requirement</label>
+									<div>
+										<div
+											v-for="opt in options.housing"
+											:key="opt"
+											class="form-check form-check-inline"
+										>
+											<input
+												:id="'scholarshipHousing' + opt"
+												type="radio"
+												class="form-check-input"
+												:value="opt"
+												:disabled="!userCanEdit || !isEditMode"
+												v-model="record.housing"
+												@change="formDirty = true"
+											/>
+											<label class="form-check-label" :for="'scholarshipHousing' + opt">
+												{{ opt }}
+											</label>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -300,180 +343,131 @@
 								Must be bilingual
 							</label>
 						</div>
-						<div class="form-group">
-							<label>Housing requirement</label>
-							<div>
-								<div
-									v-for="opt in options.housing"
-									:key="opt"
-									class="form-check form-check-inline"
-								>
-									<input
-										:id="'scholarshipHousing' + opt"
-										type="radio"
-										class="form-check-input"
-										:value="opt"
+					</fieldset>
+
+					<fieldset>
+						<legend>Location restrictions</legend>
+						<div class="row">
+							<div class="col-md-6 col-lg-3">
+								<div class="form-group">
+									<label for="scholarshipState">State</label>
+									<select
+										id="scholarshipState"
+										class="form-control"
 										:disabled="!userCanEdit || !isEditMode"
-										v-model="record.housing"
+										v-model="record.state"
 										@change="formDirty = true"
-									/>
-									<label class="form-check-label" :for="'scholarshipHousing' + opt">
-										{{ opt }}
-									</label>
+									>
+										<option value="">No restriction</option>
+										<option v-for="opt in options.state" :key="opt" :value="opt">
+											{{ opt }}
+										</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-6 col-lg-3">
+								<div class="form-group">
+									<label>County</label>
+									<Field
+										name="county"
+										type="text"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.county,
+											'form-control-plaintext': !userCanEdit || !isEditMode
+										}"
+										:readonly="!userCanEdit || !isEditMode"
+										v-model="record.county"
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.county }}
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-lg-3">
+								<div class="form-group">
+									<label>City</label>
+									<Field
+										name="city"
+										type="text"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.city,
+											'form-control-plaintext': !userCanEdit || !isEditMode
+										}"
+										:readonly="!userCanEdit || !isEditMode"
+										v-model="record.city"
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.city }}
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-lg-3">
+								<div class="form-group">
+									<label>High school</label>
+									<Field
+										name="highSchool"
+										type="text"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.highSchool,
+											'form-control-plaintext': !userCanEdit || !isEditMode
+										}"
+										:readonly="!userCanEdit || !isEditMode"
+										v-model="record.highSchool"
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.highSchool }}
+									</div>
 								</div>
 							</div>
 						</div>
 					</fieldset>
 
 					<fieldset>
-						<legend>Location</legend>
-						<div class="form-group">
-							<label>County</label>
-							<Field
-								name="county"
-								type="text"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.county,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.county"
-								@update:modelValue="formDirty = true"
-							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.county }}
+						<legend>Affiliations and programs</legend>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="scholarshipCollege">Awarding college</label>
+									<select
+										id="scholarshipCollege"
+										class="form-control"
+										:disabled="!userCanEdit || !isEditMode"
+										v-model="record.collegeId"
+										@change="formDirty = true"
+									>
+										<option value="">None</option>
+										<option v-for="c in colleges" :key="c.id" :value="c.id">
+											{{ c.college }}
+										</option>
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label>City</label>
-							<Field
-								name="city"
-								type="text"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.city,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.city"
-								@update:modelValue="formDirty = true"
-							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.city }}
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="scholarshipDepartment">Awarding department</label>
+									<select
+										id="scholarshipDepartment"
+										class="form-control"
+										:disabled="!userCanEdit || !isEditMode"
+										v-model="record.departmentId"
+										@change="formDirty = true"
+									>
+										<option value="">None</option>
+										<option v-for="d in departments" :key="d.id" :value="d.id">
+											{{ d.department }}
+										</option>
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label for="scholarshipState">State</label>
-							<select
-								id="scholarshipState"
-								class="form-control"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.state"
-								@change="formDirty = true"
-							>
-								<option value="">No restriction</option>
-								<option v-for="opt in options.state" :key="opt" :value="opt">
-									{{ opt }}
-								</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label>High school</label>
-							<Field
-								name="highSchool"
-								type="text"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.highSchool,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.highSchool"
-								@update:modelValue="formDirty = true"
-							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.highSchool }}
-							</div>
-						</div>
-					</fieldset>
-
-					<fieldset>
-						<legend>Affiliations and keywords</legend>
-						<div class="form-group">
-							<label for="scholarshipOrganizations">Organizations, club, fraternity, sorority, etc.</label>
-							<VueMultiselect
-								id="scholarshipOrganizations"
-								:options="organizationOptions"
-								:multiple="true"
-								:close-on-select="false"
-								:disabled="!userCanEdit || !isEditMode"
-								label="organization"
-								track-by="id"
-								placeholder="Search organizations"
-								v-model="selectedOrganizationsModel"
-								@update:modelValue="formDirty = true"
-							>
-							</VueMultiselect>
-							<small class="form-text text-muted">
-								Manage the list of organizations under Manage Organizations.
-							</small>
-						</div>
-						<div class="form-group">
-							<label for="scholarshipKeywords">Keywords</label>
-							<VueMultiselect
-								id="scholarshipKeywords"
-								:options="keywordOptions"
-								:multiple="true"
-								:close-on-select="false"
-								:disabled="!userCanEdit || !isEditMode"
-								label="keyword"
-								track-by="id"
-								placeholder="Search keywords"
-								v-model="selectedKeywordsModel"
-								@update:modelValue="formDirty = true"
-							>
-							</VueMultiselect>
-							<small class="form-text text-muted">
-								Manage the list of keywords under Manage Keywords.
-							</small>
-						</div>
-					</fieldset>
-
-					<fieldset>
-						<legend>Awarding college and programs</legend>
-						<div class="form-group">
-							<label for="scholarshipCollege">Awarding college</label>
-							<select
-								id="scholarshipCollege"
-								class="form-control"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.collegeId"
-								@change="formDirty = true"
-							>
-								<option value="">None</option>
-								<option v-for="c in colleges" :key="c.id" :value="c.id">
-									{{ c.college }}
-								</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label for="scholarshipDepartment">Awarding department</label>
-							<select
-								id="scholarshipDepartment"
-								class="form-control"
-								:disabled="!userCanEdit || !isEditMode"
-								v-model="record.departmentId"
-								@change="formDirty = true"
-							>
-								<option value="">None</option>
-								<option v-for="d in departments" :key="d.id" :value="d.id">
-									{{ d.department }}
-								</option>
-							</select>
 						</div>
 						<div class="form-group">
 							<label for="scholarshipPrograms">Related programs</label>
@@ -524,68 +518,97 @@
 								</tbody>
 							</table>
 						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="scholarshipOrganizations">Organizations, club, fraternity, sorority, etc.</label>
+									<VueMultiselect
+										id="scholarshipOrganizations"
+										:options="organizationOptions"
+										:multiple="true"
+										:close-on-select="false"
+										:disabled="!userCanEdit || !isEditMode"
+										label="organization"
+										track-by="id"
+										placeholder="Search organizations"
+										v-model="selectedOrganizationsModel"
+										@update:modelValue="formDirty = true"
+									>
+									</VueMultiselect>
+									<small class="form-text text-muted">
+										Manage the list of organizations under Manage Organizations.
+									</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="scholarshipKeywords">Keywords</label>
+									<VueMultiselect
+										id="scholarshipKeywords"
+										:options="keywordOptions"
+										:multiple="true"
+										:close-on-select="false"
+										:disabled="!userCanEdit || !isEditMode"
+										label="keyword"
+										track-by="id"
+										placeholder="Search keywords"
+										v-model="selectedKeywordsModel"
+										@update:modelValue="formDirty = true"
+									>
+									</VueMultiselect>
+									<small class="form-text text-muted">
+										Manage the list of keywords under Manage Keywords.
+									</small>
+								</div>
+							</div>
+						</div>
 					</fieldset>
 
 					<fieldset>
-						<legend>Dates</legend>
-						<div class="form-group">
-							<label>Apply by date</label>
-							<Field
-								name="applyDate"
-								type="date"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.applyDate,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.applyDate"
-								@update:modelValue="formDirty = true"
-							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.applyDate }}
+						<legend>Dates and instructions</legend>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Apply by date</label>
+									<Field
+										name="applyDate"
+										type="date"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.applyDate,
+											'form-control-plaintext': !userCanEdit || !isEditMode
+										}"
+										:readonly="!userCanEdit || !isEditMode"
+										v-model="record.applyDate"
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.applyDate }}
+									</div>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
-							<label>Expiration date</label>
-							<Field
-								name="expDate"
-								type="date"
-								class="form-control"
-								:class="{
-									'is-invalid': errors.expDate,
-									'form-control-plaintext': !userCanEdit || !isEditMode
-								}"
-								:readonly="!userCanEdit || !isEditMode"
-								v-model="record.expDate"
-								@update:modelValue="formDirty = true"
-							>
-							</Field>
-							<div class="invalid-feedback">
-								{{ errors.expDate }}
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Expiration date</label>
+									<Field
+										name="expDate"
+										type="date"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.expDate,
+											'form-control-plaintext': !userCanEdit || !isEditMode
+										}"
+										:readonly="!userCanEdit || !isEditMode"
+										v-model="record.expDate"
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.expDate }}
+									</div>
+								</div>
 							</div>
-						</div>
-					</fieldset>
-
-					<fieldset>
-						<legend>Details</legend>
-						<div>
-							<label class="mt-2">Contact information</label>
-							<template v-if="!userCanEdit || !isEditMode">
-								<div v-if="!record.contact">---</div>
-								<div v-else v-html="record.contact"></div>
-							</template>
-							<template v-else>
-								<ckeditor
-									v-model="contactModel"
-									:editor="editor"
-									:config="ckConfig"
-									name="scholarshipContact"
-									@update:modelValue="formDirty = true"
-								>
-								</ckeditor>
-							</template>
 						</div>
 						<div>
 							<label class="mt-2">Application procedure</label>
@@ -599,6 +622,23 @@
 									:editor="editor"
 									:config="ckConfig"
 									name="scholarshipAppProc"
+									@update:modelValue="formDirty = true"
+								>
+								</ckeditor>
+							</template>
+						</div>
+						<div>
+							<label class="mt-2">Contact information</label>
+							<template v-if="!userCanEdit || !isEditMode">
+								<div v-if="!record.contact">---</div>
+								<div v-else v-html="record.contact"></div>
+							</template>
+							<template v-else>
+								<ckeditor
+									v-model="contactModel"
+									:editor="editor"
+									:config="ckConfig"
+									name="scholarshipContact"
 									@update:modelValue="formDirty = true"
 								>
 								</ckeditor>
