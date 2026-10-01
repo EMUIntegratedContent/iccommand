@@ -573,7 +573,6 @@ class ScholarshipService
         return [
             'gender' => Scholarship::GENDER_OPTIONS,
             'ethnicity' => Scholarship::ETHNICITY_OPTIONS,
-            'gpa' => Scholarship::GPA_OPTIONS,
             'classStanding' => Scholarship::CLASS_STANDING_OPTIONS,
             'housing' => Scholarship::HOUSING_OPTIONS,
             'transfer' => Scholarship::TRANSFER_OPTIONS,

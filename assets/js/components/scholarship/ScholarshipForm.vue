@@ -63,6 +63,7 @@
 									}"
 									:readonly="!userCanEdit || !isEditMode"
 									v-model="record.title"
+									placeholder="e.g., Eastern Michigan Leadership Endowed Scholarship"
 									@update:modelValue="formDirty = true"
 								>
 								</Field>
@@ -114,7 +115,7 @@
 											{{ errors.url }}
 										</div>
 										<small class="form-text text-muted">
-											Target link for the student "Application Information" button.
+											Target link for student "Application Information" button.
 										</small>
 									</div>
 								</div>
@@ -131,7 +132,7 @@
 											<ckeditor
 												:model-value="overviewModel"
 												:editor="editor"
-												:config="ckConfig"
+												:config="ckConfigs.overview"
 												name="scholarshipOverview"
 												@update:modelValue="updateRichText('overview', $event)"
 											>
@@ -219,18 +220,30 @@
 								<div class="col-md-4">
 									<div class="form-group">
 										<label for="scholarshipGpa">Minimum GPA</label>
-										<select
+										<Field
 											id="scholarshipGpa"
+											name="gpa"
+											type="number"
+											min="0"
+											max="4"
+											step="0.01"
 											class="form-control"
-											:disabled="!userCanEdit || !isEditMode"
+											:class="{
+												'is-invalid': errors.gpa,
+												'form-control-plaintext': !userCanEdit || !isEditMode
+											}"
+											:readonly="!userCanEdit || !isEditMode"
 											v-model="record.gpa"
-											@change="formDirty = true"
+											placeholder="e.g., 2.00 or 3.25"
+											@update:modelValue="formDirty = true"
 										>
-											<option value="">No restriction</option>
-											<option v-for="opt in options.gpa" :key="opt" :value="opt">
-												{{ opt }}
-											</option>
-										</select>
+										</Field>
+										<div class="invalid-feedback">
+											{{ errors.gpa }}
+										</div>
+										<small class="form-text text-muted">
+											Blank represents No restriction.
+										</small>
 									</div>
 								</div>
 							</div>
@@ -248,7 +261,7 @@
 								>
 								</VueMultiselect>
 								<small class="form-text text-muted">
-									Leaving empty represents no restriction.
+									Leaving empty represents No restriction.
 								</small>
 							</div>
 							<div class="form-group">
@@ -374,7 +387,7 @@
 						</div>
 						<div class="card-body">
 							<div class="row">
-								<div class="col-md-6 col-lg-3">
+								<div class="col-md-4">
 									<div class="form-group">
 										<label for="scholarshipState">State</label>
 										<select
@@ -391,7 +404,7 @@
 										</select>
 									</div>
 								</div>
-								<div class="col-md-6 col-lg-3">
+								<div class="col-md-4">
 									<div class="form-group">
 										<label>County</label>
 										<Field
@@ -413,7 +426,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="col-md-6 col-lg-3">
+								<div class="col-md-4">
 									<div class="form-group">
 										<label>City</label>
 										<Field
@@ -435,27 +448,25 @@
 										</div>
 									</div>
 								</div>
-								<div class="col-md-6 col-lg-3">
-									<div class="form-group">
-										<label>High School</label>
-										<Field
-											name="highSchool"
-											type="text"
-											class="form-control"
-											:class="{
-												'is-invalid': errors.highSchool,
-												'form-control-plaintext': !userCanEdit || !isEditMode
-											}"
-											:readonly="!userCanEdit || !isEditMode"
-											v-model="record.highSchool"
-											placeholder="Specific High School"
-											@update:modelValue="formDirty = true"
-										>
-										</Field>
-										<div class="invalid-feedback">
-											{{ errors.highSchool }}
-										</div>
-									</div>
+							</div>
+							<div class="form-group">
+								<label>High School</label>
+								<Field
+									name="highSchool"
+									type="text"
+									class="form-control"
+									:class="{
+										'is-invalid': errors.highSchool,
+										'form-control-plaintext': !userCanEdit || !isEditMode
+									}"
+									:readonly="!userCanEdit || !isEditMode"
+									v-model="record.highSchool"
+									placeholder="Specific High School"
+									@update:modelValue="formDirty = true"
+								>
+								</Field>
+								<div class="invalid-feedback">
+									{{ errors.highSchool }}
 								</div>
 							</div>
 						</div>
@@ -477,7 +488,7 @@
 											v-model="record.collegeId"
 											@change="formDirty = true"
 										>
-											<option value="">None</option>
+											<option value="">Select College...</option>
 											<option v-for="c in colleges" :key="c.id" :value="c.id">
 												{{ c.college }}
 											</option>
@@ -494,7 +505,7 @@
 											v-model="record.departmentId"
 											@change="formDirty = true"
 										>
-											<option value="">None</option>
+											<option value="">Select Department...</option>
 											<option v-for="d in departments" :key="d.id" :value="d.id">
 												{{ d.department }}
 											</option>
@@ -563,7 +574,7 @@
 											:disabled="!userCanEdit || !isEditMode"
 											label="organization"
 											track-by="id"
-											placeholder="Search organizations"
+											placeholder="Select an organization..."
 											v-model="selectedOrganizationsModel"
 											@update:modelValue="formDirty = true"
 										>
@@ -584,7 +595,7 @@
 											:disabled="!userCanEdit || !isEditMode"
 											label="keyword"
 											track-by="id"
-											placeholder="Search keywords"
+											placeholder="Search keywords..."
 											v-model="selectedKeywordsModel"
 											@update:modelValue="formDirty = true"
 										>
@@ -657,7 +668,7 @@
 									<ckeditor
 										:model-value="appProcModel"
 										:editor="editor"
-										:config="ckConfig"
+										:config="ckConfigs.appProc"
 										name="scholarshipAppProc"
 										@update:modelValue="updateRichText('appProc', $event)"
 									>
@@ -672,11 +683,11 @@
 								</template>
 								<template v-else>
 									<Field name="contact" v-slot="{ errorMessage }" v-model="contactModel">
-										<div :class="{ 'is-invalid-ckeditor': errorMessage }">
+										<div class="scholarship-contact-editor" :class="{ 'is-invalid-ckeditor': errorMessage }">
 											<ckeditor
 												:model-value="contactModel"
 												:editor="editor"
-												:config="ckConfig"
+												:config="ckConfigs.contact"
 												name="scholarshipContact"
 												@update:modelValue="updateRichText('contact', $event)"
 											>
@@ -700,7 +711,7 @@
 											<ckeditor
 												:model-value="descriptionModel"
 												:editor="editor"
-												:config="ckConfig"
+												:config="ckConfigs.description"
 												name="scholarshipDescription"
 												@update:modelValue="updateRichText('description', $event)"
 											>
@@ -789,7 +800,16 @@
 	</div>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* The contact placeholder is one item per line, so give it room and keep its line breaks. */
+.scholarship-contact-editor :deep(.ck-editor__editable) {
+	min-height: 12em;
+}
+
+.scholarship-contact-editor :deep(.ck-placeholder)::before {
+	white-space: pre-wrap;
+}
+</style>
 
 <script>
 import Heading from "../utils/Heading.vue"
@@ -801,6 +821,13 @@ import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
 const STATUS_SAVE_FAILED = 3
+
+function editorConfig(placeholder) {
+	return {
+		toolbar: ["Bold", "Italic", "Undo", "Redo", "NumberedList", "BulletedList", "Link"],
+		placeholder: placeholder
+	}
+}
 
 // Editor markup with no text in it (e.g. "<p>&nbsp;</p>") counts as empty, as it does in the API.
 function hasRichText(html) {
@@ -877,16 +904,14 @@ export default {
 			isEditMode: false,
 			
 			editor: ClassicEditor,
-			ckConfig: {
-				toolbar: [
-					"Bold",
-					"Italic",
-					"Undo",
-					"Redo",
-					"NumberedList",
-					"BulletedList",
-					"Link"
-				]
+			// The editors only read their config when created, so each gets its own placeholder here.
+			ckConfigs: {
+				overview: editorConfig("Provide a concise summary of the scholarship purpose..."),
+				appProc: editorConfig("Detail the step-by-step procedure required for students to apply..."),
+				contact: editorConfig("Name\nTitle\nPhone Number\nEmail Address\nCampus Office / Address"),
+				description: editorConfig(
+					"Provide any additional details, special instructions, or requirements students should know when applying..."
+				)
 			},
 
 			colleges: [],
@@ -898,7 +923,6 @@ export default {
 			options: {
 				gender: [],
 				ethnicity: [],
-				gpa: [],
 				classStanding: [],
 				housing: [],
 				transfer: [],
@@ -1088,6 +1112,16 @@ export default {
 					.nullable(true),
 				highSchool: Yup.string()
 					.max(255, "High school must be 255 characters or less.")
+					.nullable(true),
+				// An empty number input reaches us as "", so treat it as no restriction.
+				gpa: Yup.number()
+					.transform((value, originalValue) => (originalValue === "" ? null : value))
+					.typeError("GPA must be a number.")
+					.min(0, "GPA must be between 0.00 and 4.00.")
+					.max(4, "GPA must be between 0.00 and 4.00.")
+					.test("two-decimals", "GPA can have at most two decimal places.", (value) =>
+						value == null || /^\d+(\.\d{1,2})?$/.test(String(value))
+					)
 					.nullable(true),
 				// An empty date input casts to Invalid Date, so convert it to null.
 				applyDate: Yup.date().transform(this.emptyDateToNull).nullable(true),
