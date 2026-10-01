@@ -129,11 +129,11 @@
 									<Field name="overview" v-slot="{ errorMessage }" v-model="overviewModel">
 										<div :class="{ 'is-invalid-ckeditor': errorMessage }">
 											<ckeditor
-												v-model="overviewModel"
+												:model-value="overviewModel"
 												:editor="editor"
 												:config="ckConfig"
 												name="scholarshipOverview"
-												@update:modelValue="formDirty = true"
+												@update:modelValue="updateRichText('overview', $event)"
 											>
 											</ckeditor>
 										</div>
@@ -655,11 +655,11 @@
 								</template>
 								<template v-else>
 									<ckeditor
-										v-model="appProcModel"
+										:model-value="appProcModel"
 										:editor="editor"
 										:config="ckConfig"
 										name="scholarshipAppProc"
-										@update:modelValue="formDirty = true"
+										@update:modelValue="updateRichText('appProc', $event)"
 									>
 									</ckeditor>
 								</template>
@@ -674,11 +674,11 @@
 									<Field name="contact" v-slot="{ errorMessage }" v-model="contactModel">
 										<div :class="{ 'is-invalid-ckeditor': errorMessage }">
 											<ckeditor
-												v-model="contactModel"
+												:model-value="contactModel"
 												:editor="editor"
 												:config="ckConfig"
 												name="scholarshipContact"
-												@update:modelValue="formDirty = true"
+												@update:modelValue="updateRichText('contact', $event)"
 											>
 											</ckeditor>
 										</div>
@@ -698,11 +698,11 @@
 									<Field name="description" v-slot="{ errorMessage }" v-model="descriptionModel">
 										<div :class="{ 'is-invalid-ckeditor': errorMessage }">
 											<ckeditor
-												v-model="descriptionModel"
+												:model-value="descriptionModel"
 												:editor="editor"
 												:config="ckConfig"
 												name="scholarshipDescription"
-												@update:modelValue="formDirty = true"
+												@update:modelValue="updateRichText('description', $event)"
 											>
 											</ckeditor>
 										</div>
@@ -1230,6 +1230,15 @@ export default {
 					self.isSaveFailed = true
 					self.saveErrors = self.violationMessages(error)
 				})
+		},
+
+		// CKEditor reports a change when it loads an empty field, so only flag the form
+		// when the editor's content differs from the record.
+		updateRichText: function (field, value) {
+			if (value !== (this.record[field] || "")) {
+				this.record[field] = value
+				this.formDirty = true
+			}
 		},
 
 		toggleEdit: function () {
