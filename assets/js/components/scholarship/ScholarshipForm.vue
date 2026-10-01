@@ -716,6 +716,18 @@
 					</fieldset>
 
 					<div
+						v-if="Object.keys(errors).length && isEditMode"
+						class="alert alert-danger fade show"
+						role="alert"
+					>
+						Please fix all errors before submitting:
+						<ul>
+							<li v-for="(error, field) in errors" :key="field">
+								<strong>{{ error }}</strong>
+							</li>
+						</ul>
+					</div>
+					<div
 						v-if="success === true"
 						class="alert alert-success fade show"
 						role="alert"
