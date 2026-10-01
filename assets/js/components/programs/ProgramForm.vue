@@ -451,11 +451,11 @@
 						</template>
 						<template v-else>
 							<ckeditor
-								v-model="overviewModel"
+								:model-value="overviewModel"
 								:editor="editor"
 								:config="ckConfig"
 								name="programOverview"
-								@update:modelValue="formDirty = true"
+								@update:modelValue="updateRichText('program_overview', $event)"
 							>
 							</ckeditor>
 						</template>
@@ -747,13 +747,8 @@ export default {
 		 * throws and aborts Vue's render pass -- leaving the whole form unable to
 		 * repaint. Coercing to a string here guarantees the editor never sees null.
 		 */
-		overviewModel: {
-			get() {
-				return this.record.program_overview || ""
-			},
-			set(value) {
-				this.record.program_overview = value
-			}
+		overviewModel() {
+			return this.record.program_overview || ""
 		},
 
 		isStatusInitial() {
@@ -1212,6 +1207,19 @@ export default {
 					self.apiError.status = error.response.status
 					self.apiError.message = error.response.data
 				})
+		},
+
+		/**
+		 * CKEditor reports a change when it loads an empty field, so only flag the form
+		 * when the editor's content differs from the record.
+		 * @param {string} field The record field the editor is bound to.
+		 * @param {string} value The editor's current content.
+		 */
+		updateRichText: function (field, value) {
+			if (value !== (this.record[field] || "")) {
+				this.record[field] = value
+				this.formDirty = true
+			}
 		},
 
 		/**
