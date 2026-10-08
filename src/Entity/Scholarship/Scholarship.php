@@ -37,14 +37,9 @@ class Scholarship
     ];
 
     /**
-     * Two decimal places to match the DECIMAL(3,2) column, which reads back as "3.50".
+     * At most two decimal places to match the DECIMAL(3,2) column, which reads back as "3.50".
      */
-    public const GPA_OPTIONS = [
-        '2.50', '2.60', '2.70', '2.80', '2.90',
-        '3.00', '3.10', '3.20', '3.30', '3.40',
-        '3.50', '3.60', '3.70', '3.80', '3.90',
-        '4.00',
-    ];
+    public const GPA_PATTERN = '/^\d+(\.\d{1,2})?$/';
 
     /**
      * Class standing is multi-select and is stored comma separated.
@@ -104,6 +99,7 @@ class Scholarship
      * A short overview of this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_overview', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide an overview.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $overview = null;
 
@@ -118,7 +114,8 @@ class Scholarship
      * The minimum GPA required for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_gpa', type: 'decimal', precision: 3, scale: 2, nullable: true)]
-    #[Assert\Choice(choices: self::GPA_OPTIONS, message: "Choose a GPA from the list.")]
+    #[Assert\Regex(pattern: self::GPA_PATTERN, message: "Enter the GPA as a number with up to two decimal places.")]
+    #[Assert\Range(notInRangeMessage: "GPA must be between 0.00 and 4.00.", min: 0, max: 4)]
     #[Groups("scholarship")]
     private ?string $gpa = null;
 
@@ -126,6 +123,7 @@ class Scholarship
      * The URL with more information about this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_url', type: 'string', length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "You must provide an application link.")]
     #[Assert\Url(message: "Provide a valid URL.")]
     #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
@@ -135,6 +133,7 @@ class Scholarship
      * The description of this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_description', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide additional information.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $description = null;
 
@@ -306,6 +305,7 @@ class Scholarship
      * The free-text contact information for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_contact', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide contact information.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $contact = null;
 
@@ -425,7 +425,8 @@ class Scholarship
     }
 
     /**
-     * Pad the GPA to two decimals so "3.5" and "3.50" are stored the same way.
+     * Pad the GPA to two decimals so "3.5" and "3.50" are stored the same way. Anything with
+     * more decimals is kept as given so validation rejects it rather than rounding it.
      * @param string|null $gpa
      * @return $this
      */
@@ -436,7 +437,7 @@ class Scholarship
             return $this;
         }
 
-        $this->gpa = is_numeric($gpa) ? number_format((float)$gpa, 2, '.', '') : $gpa;
+        $this->gpa = preg_match(self::GPA_PATTERN, $gpa) ? number_format((float)$gpa, 2, '.', '') : $gpa;
         return $this;
     }
 
@@ -829,6 +830,18 @@ class Scholarship
     }
 
     /* ****************************** Validation ****************************** */
+
+    /**
+     * Reduce rich-text HTML to its visible text, so the required rich-text fields treat
+     * editor markup with no text in it (e.g. "<p>&nbsp;</p>") as blank.
+     * @param string $html
+     * @return string
+     */
+    public static function richTextToPlainText(string $html): string
+    {
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return trim(str_replace("\u{00A0}", ' ', $text));
+    }
 
     /**
      * Check each class standing, since they are stored as one comma separated string.
