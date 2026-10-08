@@ -1,6 +1,8 @@
 <?php
 namespace App\Service;
 
+use App\Entity\Ic\IcCollege;
+use App\Entity\Ic\IcDepartment;
 use App\Entity\Programs\Programs;
 use App\Entity\Scholarship\Scholarship;
 use App\Entity\Scholarship\ScholarshipKeyword;
@@ -194,25 +196,19 @@ class ScholarshipService
     }
 
     /**
-     * All colleges (id + college) for the awarding college picker.
+     * All colleges (shared ic_colleges) for the awarding college picker.
      */
     public function getAvailableColleges(): array
     {
-        $conn = $this->doctrine->getManager('programs')->getConnection();
-        return $conn->executeQuery(
-            'SELECT id, college FROM program_colleges ORDER BY college ASC'
-        )->fetchAllAssociative();
+        return $this->em->getRepository(IcCollege::class)->findForDropdown();
     }
 
     /**
-     * All departments (id + department) for the awarding department picker.
+     * All departments (shared ic_departments) for the awarding department picker.
      */
     public function getAvailableDepartments(): array
     {
-        $conn = $this->doctrine->getManager('programs')->getConnection();
-        return $conn->executeQuery(
-            'SELECT id, department FROM program_departments ORDER BY department ASC'
-        )->fetchAllAssociative();
+        return $this->em->getRepository(IcDepartment::class)->findForDropdown();
     }
 
     /* ****************************** Keywords ******************************* */

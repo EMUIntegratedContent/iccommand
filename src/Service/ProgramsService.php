@@ -6,6 +6,8 @@ use App\Entity\Programs\ProgramKeywordLinks;
 use App\Entity\Programs\Programs;
 use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\ProgramKeywords;
+use App\Repository\Ic\IcCollegeRepository;
+use App\Repository\Ic\IcDepartmentRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
@@ -22,15 +24,19 @@ class ProgramsService
 	private AuthorizationCheckerInterface $authorizationChecker;
 	private ValidatorInterface $validator;
 	private ObjectManager $em;
+	private IcCollegeRepository $icColleges;
+	private IcDepartmentRepository $icDepartments;
 
 	/**
 	 * The constructor of the service of the redirects.
 	 */
-	public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine)
+	public function __construct(AuthorizationCheckerInterface $authorizationChecker, ValidatorInterface $validator, ManagerRegistry $doctrine, IcCollegeRepository $icColleges, IcDepartmentRepository $icDepartments)
 	{
 		$this->authorizationChecker = $authorizationChecker;
 		$this->validator = $validator;
 		$this->em = $doctrine->getManager('programs');
+		$this->icColleges = $icColleges;
+		$this->icDepartments = $icDepartments;
 	}
 
 	/**
@@ -321,29 +327,21 @@ class ProgramsService
 	}
 
 	/**
-	 * Get all colleges.
+	 * Get all colleges (shared ic_colleges).
 	 * @return array
-	 * @throws \Doctrine\ORM\NoResultException
-	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
 	public function getColleges()
 	{
-		// Get the Doctrine repository
-		$repository = $this->em->getRepository(Programs::class);
-		return $repository->getColleges();
+		return $this->icColleges->findForDropdown();
 	}
 
 	/**
-	 * Get all departments.
+	 * Get all departments (shared ic_departments).
 	 * @return array
-	 * @throws \Doctrine\ORM\NoResultException
-	 * @throws \Doctrine\ORM\NonUniqueResultException
 	 */
 	public function getDepartments()
 	{
-		// Get the Doctrine repository
-		$repository = $this->em->getRepository(Programs::class);
-		return $repository->getDepartments();
+		return $this->icDepartments->findForDropdown();
 	}
 
 	/**
@@ -759,7 +757,9 @@ class ProgramsService
 		if (!is_array($departmentIds)) {
 			$departmentIds = $departmentIds ? [$departmentIds] : [];
 		}
-		$departmentIds = array_map('intval', $departmentIds);
+		// program_inter_dept is keyed on (program_id, department_id) with an FK to
+		// ic_departments, so drop duplicates and blanks before inserting.
+		$departmentIds = array_values(array_unique(array_filter(array_map('intval', $departmentIds), static fn(int $id) => $id > 0)));
 
 		$this->em->getRepository(Programs::class)->updateProgramDepartments($programId, $departmentIds);
 	}

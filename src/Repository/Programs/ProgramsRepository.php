@@ -155,12 +155,12 @@ class ProgramsRepository extends ServiceEntityRepository
 	{
 		$conn = $this->em->getConnection();
 
-		// The COUNT joins mirror the SELECT joins minus program_colleges/program_websites,
+		// The COUNT joins mirror the SELECT joins minus ic_colleges/program_websites,
 		// which are only needed for output columns/ordering. This matches the legacy query.
 		$countSql = "
 			SELECT COUNT(DISTINCT p.id) AS cnt
 			FROM program_programs p
-			LEFT JOIN program_departments d ON p.department_id = d.id
+			LEFT JOIN ic_departments d ON p.department_id = d.id
 			INNER JOIN program_degrees de ON p.degree_id = de.id
 			LEFT JOIN program_inter_dept pid ON pid.program_id = p.id
 			JOIN program_delivery pd ON pd.program_id = p.id
@@ -204,9 +204,9 @@ class ProgramsRepository extends ServiceEntityRepository
 				pw.url AS prg_url,
 				GROUP_CONCAT(pd.delivery_id SEPARATOR ':') AS DeliveryIDs
 			FROM program_programs p
-			LEFT JOIN program_departments d ON p.department_id = d.id
+			LEFT JOIN ic_departments d ON p.department_id = d.id
 			LEFT JOIN program_websites pw ON pw.program = p.program
-			INNER JOIN program_colleges c ON p.college_id = c.id
+			INNER JOIN ic_colleges c ON p.college_id = c.id
 			INNER JOIN program_degrees de ON p.degree_id = de.id
 			LEFT JOIN program_inter_dept pid ON pid.program_id = p.id
 			JOIN program_delivery pd ON pd.program_id = p.id
@@ -249,7 +249,7 @@ class ProgramsRepository extends ServiceEntityRepository
 	{
 		$sql = "SELECT DISTINCT d.department, CONCAT(d.department, ':', d.id) AS key_value
 			FROM program_programs AS p
-			LEFT JOIN program_departments AS d ON p.department_id = d.id
+			LEFT JOIN ic_departments AS d ON p.department_id = d.id
 			WHERE d.department IS NOT NULL
 				AND p.is_active = 1";
 
@@ -287,28 +287,6 @@ class ProgramsRepository extends ServiceEntityRepository
 		}
 
 		return $arrAreaOfStudy;
-	}
-
-	public function getColleges(): array
-	{
-		$clgSql = "
-			SELECT *
-			FROM program_colleges
-			ORDER BY college ASC
-		";
-
-		return $this->em->getConnection()->executeQuery($clgSql)->fetchAllAssociative();
-	}
-
-	public function getDepartments(): array
-	{
-		$departmentsSql = "
-			SELECT id, department
-			FROM program_departments
-			ORDER BY department ASC
-		";
-
-		return $this->em->getConnection()->executeQuery($departmentsSql)->fetchAllAssociative();
 	}
 
 	public function getProgTypes(): array
