@@ -173,7 +173,12 @@ final class Version20261008010000 extends AbstractMigration
             $this->warnIf(true, 'program_departments already retired, skipping');
             return;
         }
-        $this->abortIf(!$this->tableExists('ic_colleges'), 'ic_colleges is missing; run Version20261008000000 first');
+        // Under --dry-run the previous migration's rename hasn't happened yet, so accept
+        // program_colleges too (Version20261008000000 renames it before this SQL runs).
+        $this->abortIf(
+            !$this->tableExists('ic_colleges') && !$this->tableExists('program_colleges'),
+            'Neither ic_colleges nor program_colleges exists'
+        );
         $this->abortIf($this->tableExists('program_departments_bk'), 'program_departments_bk already exists');
         $this->abortOnUnmappedIds();
         $this->abortOnRenamedDepartments();

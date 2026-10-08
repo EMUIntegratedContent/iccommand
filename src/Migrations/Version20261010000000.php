@@ -37,12 +37,14 @@ final class Version20261010000000 extends AbstractMigration
         }
 
         // department_id has an FK to ic_departments, so every value can be linked; college_id
-        // has none, so check it can be.
+        // has none, so check it can be. Under --dry-run the colleges table may not be renamed
+        // to ic_colleges yet (same ids either way).
         if ($hasCollege) {
+            $collegeTable = $this->tableExists('ic_colleges') ? 'ic_colleges' : 'program_colleges';
             $unknown = $this->connection->fetchFirstColumn(
-                'SELECT p.id FROM program_programs p
+                "SELECT p.id FROM program_programs p
                  WHERE p.college_id IS NOT NULL AND p.college_id <> 0
-                   AND NOT EXISTS (SELECT 1 FROM ic_colleges c WHERE c.id = p.college_id)'
+                   AND NOT EXISTS (SELECT 1 FROM $collegeTable c WHERE c.id = p.college_id)"
             );
             $this->abortIf($unknown !== [], 'college_id is not an ic_colleges id for programs: ' . implode(', ', $unknown));
         }
@@ -94,6 +96,16 @@ final class Version20261010000000 extends AbstractMigration
                AND TABLE_NAME = 'program_programs'
                AND COLUMN_NAME = ?",
             [$column]
+        );
+    }
+
+    private function tableExists(string $table): bool
+    {
+        return (bool)$this->connection->fetchOne(
+            "SELECT COUNT(*) FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?",
+            [$table]
         );
     }
 
