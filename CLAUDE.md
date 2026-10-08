@@ -12,13 +12,14 @@ ICCommand is a Symfony 8 / PHP 8.5 multi-module internal web application for Eas
 ```bash
 docker compose up -d          # Start all services (web on :8080, db on :3306, mailhog on :8027)
 docker compose down           # Stop services
+docker exec iccommand-web-1 php bin/console <cmd>   # DB host `db` only resolves inside Docker
 ```
 
 ### PHP / Symfony
 ```bash
 composer install              # Install PHP dependencies
 php bin/console cache:clear   # Clear Symfony cache
-php bin/console doctrine:migrations:migrate   # Run database migrations
+php bin/console doctrine:migrations:migrate [--dry-run]   # Migrations live in src/Migrations/
 php bin/console make:entity   # Generate a new entity
 ```
 
@@ -27,14 +28,17 @@ php bin/console make:entity   # Generate a new entity
 npm install                   # Install JS dependencies
 npm run dev                   # Build assets once (development)
 npm run watch                 # Build assets with file watching
-npm run build                 # Build assets for production
+npm run build                 # Production build; public/build is committed (prod deploys by git pull)
+bin/check-frontend-build      # Run before committing public/build
 ```
 
 ### Tests
+The `test` env is stale since the Symfony 8 upgrade: it needs `SYMFONY_PHPUNIT_VERSION=9.6`, temporary
+patches to `config/packages/test/*.yaml`, and the `.env` vars exported with `APP_ENV=test`. Tests run
+against the real `ic` DB, so clean up the rows they create.
 ```bash
-php bin/phpunit               # Run all tests
-php bin/phpunit tests/path/to/TestFile.php          # Run a single test file
-php bin/phpunit --filter testMethodName              # Run a single test method
+php bin/phpunit tests/Api/Admin                     # Run a directory/file (inside the web container)
+php bin/phpunit --filter testMethodName             # Run a single test method
 ```
 
 ## Architecture
@@ -45,11 +49,19 @@ Three separate MySQL/MariaDB connections configured in `config/packages/doctrine
 
 | Connection | Entity Directory | Purpose |
 |---|---|---|
-| `default` | `src/Entity/` (excluding Programs, CrimeLog) | Main IC application |
-| `programs` | `src/Entity/Programs/` | Acalog academic programs catalog |
+| `default` | all of `src/Entity/` (auto_mapping) | Main IC application |
+| `programs` | `src/Entity/Programs/` | Same physical `ic` DB as default (Programs moved in June 2026) |
 | `dps` | `src/Entity/CrimeLog/` | DPS crime & fire log |
 
 Services that use a non-default entity manager (Programs, CrimeLog) must inject the correct EntityManager explicitly rather than relying on the autowired default.
+
+### Shared Colleges & Departments
+
+`ic_` prefix = table shared by more than one app. `ic_colleges` / `ic_departments` (entities in
+`src/Entity/Ic/`, managed at /admin/colleges and /admin/departments) feed the Programs and Scholarships
+dropdowns. A program's colleges and departments live ONLY in `program_college_link` / `program_inter_dept`
+(several per program). See `docs/shared-colleges-departments.md`. Much of the Programs module is raw DBAL
+SQL in `ProgramsRepository` (many program tables have no entity).
 
 ### Backend Structure
 
@@ -100,8 +112,17 @@ Environment-specific CORS in `config/packages/nelmio_cors.yaml`. Dev allows `*.e
 ## Key Conventions
 
 - PHP routes use `#[Route]` and `#[IsGranted]` attributes (not YAML or annotation routing).
-- Serialization uses JMS Serializer with serialization groups for API responses.
+- Serialization uses Symfony Serializer (`SerializerInterface`) with `#[Groups]` attributes (jms/serializer is installed but unused).
 - Form validation uses Symfony Validator constraints on entity properties.
 - Frontend HTTP requests use Axios with CSRF token configured in `assets/js/bootstrap.js`.
-- jQuery is globally available via Webpack `autoProvidejQuery()`.
+- jQuery (`$` / `jQuery`) is auto-provided to bundled modules via Webpack `autoProvidejQuery()`, but is not on `window` (so not usable from the browser console or inline scripts).
 - Vue 3 runs with the runtime compiler enabled and Options API support.
+- New API controllers must be registered in `config/routes.yaml` with their `/api/...` prefix; otherwise
+  `config/routes/attributes.yaml` serves them at a bare path, outside the `^/api` firewall rule.
+- `^/admin` is ROLE_GLOBAL_ADMIN-only via access_control.
+- Migrations are hand-written and safe to re-run: check `information_schema` before each change and use
+  `warnIf`/`abortIf`. MariaDB can't roll back schema changes, so back up before migrating. Under
+  `--dry-run`, earlier migrations' SQL hasn't run, so checks must tolerate the old schema.
+- Delete modals: don't clear `deleteConfirm` inside the click handler before the request finishes; doing so
+  disables the button before Bootstrap's `data-dismiss` handler runs, and the modal stays open.
+- Public API docs: `docs/scholarship-search-api.md`, `docs/shared-colleges-departments.md`.
