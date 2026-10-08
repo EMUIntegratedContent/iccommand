@@ -7,7 +7,7 @@
     "jquery": "^3.3.1",
     "sass": "^1.77.8",
     "sass-loader": "^17.0.0",
-    "vue": "^3.2.45",
+    "vue": "^3.5.43",
     "vue-loader": "^17.0.1",
     "vue-template-compiler": "^2.7.14",
     "webpack": "^5.105.3",
