@@ -54,8 +54,8 @@ Parameters come in three kinds:
 | `highSchool` | string | Substring, case-insensitive | Free text |
 | `enrollment` | string | Substring, case-insensitive | Free text, e.g. `full` matches `full time`, `Full-Time`, `fulltime` |
 | `major` | integer | Exact program ID | A program ID from the programs catalog |
-| `college` | integer | Exact college ID | A college ID |
-| `department` | integer | Exact department ID | A department ID |
+| `college` | integer | Exact college ID | A college ID (`ic_colleges.id`) |
+| `department` | integer | Exact department ID | A department ID (`ic_departments.id`) |
 | `organization` | string | Substring against any awarding organization linked to the scholarship | Free text |
 | `keyword` | string | Comma-separated list; matches a scholarship carrying **any** of the terms as a substring | e.g. `nursing,transfer` |
 | `isFafsa` | boolean | See below | `1` / `0` |
@@ -178,8 +178,8 @@ error.
 | `city` | string \| null | |
 | `county` | string \| null | |
 | `highSchool` | string \| null | |
-| `collegeId` | integer \| null | Awarding college |
-| `departmentId` | integer \| null | Awarding department |
+| `college` | string \| null | Awarding college name |
+| `department` | string \| null | Awarding department name |
 | `isFafsa` | boolean | A FAFSA is required |
 | `isParent` | boolean | Applicant must be a parent |
 | `isBilingual` | boolean | Applicant must be bilingual |
@@ -241,8 +241,8 @@ may be `null`.
   "county": null,
   "highSchool": null,
   "contact": null,
-  "collegeId": null,
-  "departmentId": null,
+  "college": null,
+  "department": null,
   "organizations": [ { "id": 6, "organization": "Alumni Association" } ],
   "keywords": [ { "id": 40, "keyword": "alumni" } ],
   "programLinks": []

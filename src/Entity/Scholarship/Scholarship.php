@@ -217,7 +217,7 @@ class Scholarship
     private ?string $ethnicity = null;
 
     /**
-     * The awarding college. Loose FK to program_colleges.id, mirroring how
+     * The awarding college. Loose FK to ic_colleges.id, mirroring how
      * App\Entity\Programs\Programs references colleges — a plain int with no Doctrine
      * association and no database FK constraint.
      */
@@ -226,10 +226,11 @@ class Scholarship
     private ?int $collegeId = null;
 
     /**
-     * The awarding department. Loose FK to program_departments.id, same convention as
-     * $collegeId above.
+     * The awarding department: ic_departments.id. A plain int (no Doctrine association) so
+     * the feed shape stays a scalar, but the database enforces it with an FK
+     * (ON DELETE SET NULL).
      */
-    #[ORM\Column(name: 'schlrshp_department_id', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'schlrshp_department_id', type: 'integer', nullable: true, options: ['unsigned' => true])]
     #[Groups("scholarship")]
     private ?int $departmentId = null;
 

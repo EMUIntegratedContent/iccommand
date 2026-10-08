@@ -276,8 +276,6 @@ class ProgramsController extends AbstractController
 		$program->setProgram($progName);
 		$program->setFullName($progFullName);
 		$program->setCatalog($catalog);
-		$program->setCollegeId(is_array($collegeIds) && count($collegeIds) ? intval($collegeIds[0]) : intval($collegeIds));
-		$program->setDepartmentId(is_array($departmentIds) && count($departmentIds) ? intval($departmentIds[0]) : intval($departmentIds));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
 		$program->setSlug($this->service->makeProgramSlug($progName));
@@ -411,8 +409,6 @@ class ProgramsController extends AbstractController
 		$program->setProgram($progName);
 		$program->setCatalog($catalog);
 		$program->setFullName($progFullName);
-		$program->setCollegeId(is_array($collegeIds) && count($collegeIds) ? intval($collegeIds[0]) : intval($collegeIds));
-		$program->setDepartmentId(is_array($departmentIds) && count($departmentIds) ? intval($departmentIds[0]) : intval($departmentIds));
 		$program->setDegreeId($request->request->get("degree_id"));
 		$program->setTypeId($request->request->get("type_id"));
 		$program->setCatalogId($this->service->getCatalogIdFromName($catalog));

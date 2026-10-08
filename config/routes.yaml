@@ -6,6 +6,14 @@ admin_users:
   resource: App\Controller\Api\Admin\UserController
   prefix: /api/admin/
 
+admin_ic_colleges:
+  resource: App\Controller\Api\Admin\IcCollegeController
+  prefix: /api/admin/
+
+admin_ic_departments:
+  resource: App\Controller\Api\Admin\IcDepartmentController
+  prefix: /api/admin/
+
 emails_api:
   resource: App\Controller\Api\EmailController
   prefix: /api/

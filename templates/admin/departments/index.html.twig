@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Departments{% endblock %}
+
+{% block modulenav %}
+  {% include 'admin/nav_admin.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <admin-department-list></admin-department-list>
+</div>
+{% endblock %}

@@ -63,15 +63,17 @@ export default {
 
       // The word "delete" must be typed in modal.
       if (this.deleteConfirm === "delete") {
-        // Reset the delete text.
-        this.deleteConfirm = null;
-
+        // The delete text is reset once the request finishes, not here: clearing it now
+        // disables this button before the click reaches Bootstrap's data-dismiss
+        // handler, which then ignores it and leaves the modal open.
         axios.delete("/api/programs/" + this.program.id)
         .then(function(response) { // Success.
+          self.deleteConfirm = null;
           // Fire the delete event to the parent.
           self.programDeleted();
         })
         .catch(function(error) { // Failure.
+          self.deleteConfirm = null;
           self.programDeleteError();
         });
       }

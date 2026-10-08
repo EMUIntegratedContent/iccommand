@@ -4,7 +4,7 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">Delete Entity</h5>
+					<h5 class="modal-title">Delete {{ entityLabel }}</h5>
 					<button
 						type="button"
 						class="close"
@@ -16,7 +16,7 @@
 				</div>
 				<div class="modal-body">
 					<p>
-						Are you sure you want to delete "{{ entity.name }}"? Type the word
+						Are you sure you want to delete "{{ itemName }}"? Type the word
 						<strong>"delete"</strong> to confirm.
 					</p>
 					<div class="form-group">
@@ -42,7 +42,7 @@
 						@click="deleteItem"
 						:disabled="deleteConfirm != 'delete'"
 					>
-						Delete Entity
+						Delete {{ entityLabel }}
 					</button>
 				</div>
 			</div>
@@ -54,12 +54,36 @@
 
 <script>
 export default {
-	props: ["entity"],
+	props: {
+		/**
+		 * The API URL that deletes the item, e.g. /api/admin/colleges/5.
+		 */
+		deleteUrl: {
+			type: String,
+			required: true
+		},
+
+		/**
+		 * The kind of item, e.g. "College".
+		 */
+		entityLabel: {
+			type: String,
+			required: true
+		},
+
+		/**
+		 * The name of the item being deleted.
+		 */
+		itemName: {
+			type: String,
+			required: true
+		}
+	},
 
 	data: function () {
 		return {
 			/**
-			 * The confirmation of the user for the deletion of the entity.
+			 * The confirmation of the user for the deletion of the item.
 			 * @type {string}
 			 */
 			deleteConfirm: null
@@ -68,7 +92,7 @@ export default {
 
 	methods: {
 		/**
-		 * Deletes the entity.
+		 * Deletes the item.
 		 */
 		deleteItem: function () {
 			let self = this
@@ -79,32 +103,26 @@ export default {
 				// disables this button before the click reaches Bootstrap's data-dismiss
 				// handler, which then ignores it and leaves the modal open.
 				axios
-					.delete("/api/social-media/" + this.entity.id)
+					.delete(this.deleteUrl)
 					.then(function (response) {
 						// Success.
 						self.deleteConfirm = null
-						self.itemDeleted()
+						self.$emit("itemDeleted")
 					})
 					.catch(function (error) {
-						// Failure.
+						// Failure. A 409 carries the reason the item is still in use.
 						self.deleteConfirm = null
-						self.itemDeleteError()
+						let data = error.response ? error.response.data : null
+						self.$emit(
+							"itemDeleteError",
+							data && data.message
+								? data.message
+								: "There was an error deleting this " +
+										self.entityLabel.toLowerCase() +
+										"."
+						)
 					})
 			}
-		},
-
-		/**
-		 * Emits an event to the parent telling it that the item has been deleted.
-		 */
-		itemDeleted: function () {
-			this.$emit("itemDeleted")
-		},
-
-		/**
-		 * Emits an event to the parent telling it that the item has not been deleted.
-		 */
-		itemDeleteError: function () {
-			this.$emit("itemDeleteError")
 		}
 	}
 }

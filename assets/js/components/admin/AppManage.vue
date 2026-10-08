@@ -368,6 +368,9 @@ export default {
         return
       }
       this.deleteConfirm = null; // reset delete text
+      // Resetting the text disables the Revoke button before the click reaches Bootstrap's
+      // data-dismiss handler, so close the modal explicitly.
+      $('#deleteModal').modal('hide')
 
       // Eliminate all user roles pertaining to this app from the current user object
       // TUTORIAL: https://gist.github.com/chad3814/2924672 (removing multiple items via splice)
