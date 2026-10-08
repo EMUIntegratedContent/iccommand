@@ -18,12 +18,6 @@ class Programs
     #[ORM\Column(length: 30)]
     private ?string $catalog = null;
 
-    #[ORM\Column]
-    private ?int $college_id = null;
-
-    #[ORM\Column]
-    private ?int $department_id = null;
-
     #[ORM\Column(length: 255)]
     private ?string $program = null;
 
@@ -76,30 +70,6 @@ class Programs
     public function setCatalog(string $catalog): static
     {
         $this->catalog = $catalog;
-
-        return $this;
-    }
-
-    public function getCollegeId(): ?int
-    {
-        return $this->college_id;
-    }
-
-    public function setCollegeId(int $college_id): static
-    {
-        $this->college_id = $college_id;
-
-        return $this;
-    }
-
-    public function getDepartmentId(): ?int
-    {
-        return $this->department_id;
-    }
-
-    public function setDepartmentId(int $department_id): static
-    {
-        $this->department_id = $department_id;
 
         return $this;
     }

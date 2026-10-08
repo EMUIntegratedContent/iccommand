@@ -184,18 +184,20 @@ class ProgramsService
 		}
 
 		// --- Area of Study (department ids) ---------------------------------------
+		// EXISTS (not a join) so each result still lists ALL of its departments.
 		$departmentIds = $this->intList($params['department'] ?? '');
 		if ($departmentIds !== []) {
 			$list = implode(',', $departmentIds);
-			$where .= " AND ((d.id IN ($list)) OR (pid.department_id IN ($list)))";
+			$where .= " AND EXISTS (SELECT 1 FROM program_inter_dept pidf"
+				. " WHERE pidf.program_id = p.id AND pidf.department_id IN ($list))";
 		}
 
 		// --- College --------------------------------------------------------------
 		$college = isset($params['college']) ? (int) $params['college'] : 0;
 		if ($college > 0) {
-			$where .= ' AND (p.college_id = :college OR cl.college_id = :college_link)';
+			$where .= ' AND EXISTS (SELECT 1 FROM program_college_link clf'
+				. ' WHERE clf.program_id = p.id AND clf.college_id = :college)';
 			$binds['college'] = $college;
-			$binds['college_link'] = $college;
 		}
 
 		// --- Degree type ----------------------------------------------------------
@@ -296,10 +298,15 @@ class ProgramsService
 		switch ($field) {
 			case 'program':
 				return ' ORDER BY p.full_name ' . $direction;
+			// A program can have several departments/colleges; sort by the first name.
 			case 'department':
-				return ' ORDER BY d.department ' . $direction;
+				return ' ORDER BY (SELECT MIN(dd.department) FROM program_inter_dept x'
+					. ' JOIN ic_departments dd ON dd.id = x.department_id'
+					. ' WHERE x.program_id = p.id) ' . $direction;
 			case 'college':
-				return ' ORDER BY c.college ' . $direction;
+				return ' ORDER BY (SELECT MIN(cc.college) FROM program_college_link l'
+					. ' JOIN ic_colleges cc ON cc.id = l.college_id'
+					. ' WHERE l.program_id = p.id) ' . $direction;
 			case 'degree':
 				return " ORDER BY IF(de.degree LIKE '%certificate%', 'Certificate', de.degree) " . $direction;
 			case 'mode':
@@ -324,6 +331,15 @@ class ProgramsService
 	{
 		$repository = $this->em->getRepository(ProgramWebsites::class);
 		return $repository->paginatedWebsites($currentPage, $pageSize);
+	}
+
+	/**
+	 * Every program's college and department names from the link tables, keyed by program id.
+	 * @return array{colleges: array<int, string[]>, departments: array<int, string[]>}
+	 */
+	public function getLinkedNamesByProgram(): array
+	{
+		return $this->em->getRepository(Programs::class)->getLinkedNamesByProgram();
 	}
 
 	/**
@@ -734,7 +750,9 @@ class ProgramsService
 		if (!is_array($collegeIds)) {
 			$collegeIds = $collegeIds ? [$collegeIds] : [];
 		}
-		$collegeIds = array_map('intval', $collegeIds);
+		// program_college_link is keyed on (program_id, college_id) with an FK to
+		// ic_colleges, so drop duplicates and blanks before inserting.
+		$collegeIds = array_values(array_unique(array_filter(array_map('intval', $collegeIds), static fn(int $id) => $id > 0)));
 
 		$this->em->getRepository(Programs::class)->updateProgramColleges($programId, $collegeIds);
 	}

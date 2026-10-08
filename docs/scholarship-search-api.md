@@ -178,8 +178,8 @@ error.
 | `city` | string \| null | |
 | `county` | string \| null | |
 | `highSchool` | string \| null | |
-| `collegeId` | integer \| null | Awarding college (`ic_colleges.id`) |
-| `departmentId` | integer \| null | Awarding department (`ic_departments.id`) |
+| `college` | string \| null | Awarding college name |
+| `department` | string \| null | Awarding department name |
 | `isFafsa` | boolean | A FAFSA is required |
 | `isParent` | boolean | Applicant must be a parent |
 | `isBilingual` | boolean | Applicant must be bilingual |
@@ -241,8 +241,8 @@ may be `null`.
   "county": null,
   "highSchool": null,
   "contact": null,
-  "collegeId": null,
-  "departmentId": null,
+  "college": null,
+  "department": null,
   "organizations": [ { "id": 6, "organization": "Alumni Association" } ],
   "keywords": [ { "id": 40, "keyword": "alumni" } ],
   "programLinks": []

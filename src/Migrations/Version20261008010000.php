@@ -90,6 +90,78 @@ final class Version20261008010000 extends AbstractMigration
     /** Legacy departments with no ic counterpart (64: defunct "Environmental Science and Society - HIDDEN"). */
     private const SKIPPED_LEGACY_IDS = [64];
 
+    /**
+     * The program_departments rows DEPARTMENTS was built from (id => department). Another
+     * database (staging, prod) must hold the same id/name pairs, or the id-based mapping above
+     * would silently attach programs to the wrong department.
+     */
+    private const LEGACY_NAMES = [
+        1 => 'Africology & African American Studies',
+        2 => 'Art & Design',
+        3 => 'Biology',
+        4 => 'Chemistry',
+        5 => 'Communication, Media & Theatre Arts',
+        6 => 'Computer Science',
+        7 => 'Economics',
+        8 => 'English Language & Literature',
+        9 => 'Geography & Geology',
+        10 => 'History & Philosophy',
+        11 => 'Mathematics & Statistics',
+        12 => 'Music & Dance',
+        13 => 'Physics & Astronomy',
+        14 => 'Political Science',
+        15 => 'Psychology',
+        16 => 'Sociology, Anthropology & Criminology',
+        17 => "Women's & Gender Studies",
+        18 => 'World Languages',
+        19 => 'Interdisciplinary (CAS)',
+        20 => 'Accounting, Finance, and Information Systems',
+        21 => 'Management',
+        22 => 'Marketing',
+        23 => 'Interdisciplinary (COB)',
+        24 => 'Leadership & Counseling',
+        25 => 'Special Education & Communication Sciences and Disorders',
+        26 => 'Teacher Education',
+        27 => 'Interdisciplinary (COE)',
+        28 => 'Military Science & Leadership',
+        29 => 'Engineering',
+        30 => 'Information Security & Applied Computing',
+        31 => 'Technology & Professional Services Management',
+        32 => 'Visual & Built Environments',
+        33 => 'Interdisciplinary (CET)',
+        34 => 'Health Promotion & Human Performance',
+        35 => 'Health Sciences',
+        36 => 'Nursing',
+        37 => 'Social Work',
+        38 => 'Interdisciplinary (CHHS)',
+        39 => 'Interdisciplinary Programs',
+        40 => 'Africology & African American Studies',
+        41 => 'School of Art & Design',
+        42 => 'Communication, Media & Theatre Arts',
+        43 => 'English Language & Literature',
+        44 => 'Geography & Geology',
+        45 => 'History & Philosophy',
+        46 => 'Mathematics & Statistics',
+        47 => 'Music & Dance',
+        48 => 'Physics & Astronomy',
+        49 => 'Sociology, Anthropology & Criminology',
+        50 => "Women's & Gender Studies",
+        51 => 'Leadership & Counseling',
+        52 => 'Engineering',
+        53 => 'Information Security & Applied Computing',
+        54 => 'Technology & Professional Services Management',
+        55 => 'School of Visual & Built Environments',
+        56 => 'Interdisciplinary (COET)',
+        57 => 'Health Promotion & Human Performance',
+        58 => 'School of Health Sciences',
+        59 => 'School of Nursing',
+        60 => 'School of Physician Assistant Studies',
+        61 => 'School of Social Work',
+        62 => 'University Advising & Career Development Center',
+        63 => 'Pre-professional Studies',
+        64 => 'Environmental Science and Society - HIDDEN',
+    ];
+
     public function getDescription(): string
     {
         return 'Create shared ic_departments, repoint program/scholarship departments to it, retire program_departments';
@@ -104,6 +176,7 @@ final class Version20261008010000 extends AbstractMigration
         $this->abortIf(!$this->tableExists('ic_colleges'), 'ic_colleges is missing; run Version20261008000000 first');
         $this->abortIf($this->tableExists('program_departments_bk'), 'program_departments_bk already exists');
         $this->abortOnUnmappedIds();
+        $this->abortOnRenamedDepartments();
 
         $this->addSql('CREATE TABLE IF NOT EXISTS ic_departments (
             id INT UNSIGNED AUTO_INCREMENT NOT NULL,
@@ -227,6 +300,26 @@ final class Version20261008010000 extends AbstractMigration
              WHERE schlrshp_department_id IS NOT NULL AND schlrshp_department_id NOT IN ($allowed)"
         );
         $this->abortIf($scholarships !== [], 'Scholarships with an unmappable department: ' . implode(', ', $scholarships));
+    }
+
+    /**
+     * Stops before any change if a program_departments id holds a different department than
+     * the one the mapping was built from (names compared trimmed and case-insensitively).
+     */
+    private function abortOnRenamedDepartments(): void
+    {
+        $mismatches = [];
+        foreach ($this->connection->fetchAllAssociative('SELECT id, department FROM program_departments ORDER BY id') as $row) {
+            $expected = self::LEGACY_NAMES[(int) $row['id']] ?? null;
+            if ($expected !== null && strcasecmp(trim((string) $row['department']), $expected) !== 0) {
+                $mismatches[] = sprintf('%d: "%s" (expected "%s")', $row['id'], $row['department'], $expected);
+            }
+        }
+        $this->abortIf(
+            $mismatches !== [],
+            'program_departments ids hold different departments than the mapping expects; update DEPARTMENTS/LEGACY_NAMES first: '
+                . implode('; ', $mismatches)
+        );
     }
 
     private function tableExists(string $table): bool
