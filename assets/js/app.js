@@ -66,6 +66,10 @@ app.component("home-page", require("./components/Homepage.vue").default);
 app.component("admin-user-index", require("./components/admin/UserIndex.vue").default);
 app.component("admin-user-manage", require("./components/admin/UserManage.vue").default);
 app.component("app-manage", require("./components/admin/AppManage.vue").default);
+app.component("admin-college-list", require("./components/admin/CollegeList.vue").default);
+app.component("admin-college-form", require("./components/admin/CollegeForm.vue").default);
+app.component("admin-department-list", require("./components/admin/DepartmentList.vue").default);
+app.component("admin-department-form", require("./components/admin/DepartmentForm.vue").default);
 app.component("user-profile", require("./components/Profile.vue").default);
 
 /* Campus Map Application */

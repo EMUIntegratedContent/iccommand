@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add a college.{% endblock %}
+
+{% block modulenav %}
+  {% include 'admin/nav_admin.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <admin-college-form :item-exists="false" start-mode="edit"></admin-college-form>
+</div>
+{% endblock %}

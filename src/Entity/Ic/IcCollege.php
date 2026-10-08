@@ -3,7 +3,9 @@ namespace App\Entity\Ic;
 
 use App\Repository\Ic\IcCollegeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A college, shared across IC Command apps (Programs, Scholarships). Formerly the
@@ -11,6 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
  */
 #[ORM\Entity(repositoryClass: IcCollegeRepository::class)]
 #[ORM\Table(name: 'ic_colleges')]
+#[UniqueEntity(fields: ['college'], message: 'That college already exists.')]
 class IcCollege
 {
     #[ORM\Id]
@@ -19,11 +22,15 @@ class IcCollege
     #[Groups("ic")]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'A college name is required.')]
+    #[Assert\Length(max: 100, maxMessage: 'College name must be 100 characters or less.')]
     #[Groups("ic")]
     private ?string $college = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Url(message: 'Please enter a valid URL.', requireTld: true)]
+    #[Assert\Length(max: 100, maxMessage: 'URL must be 100 characters or less.')]
     #[Groups("ic")]
     private ?string $url = null;
 
