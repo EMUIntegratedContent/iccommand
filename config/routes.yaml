@@ -14,6 +14,10 @@ admin_ic_departments:
   resource: App\Controller\Api\Admin\IcDepartmentController
   prefix: /api/admin/
 
+ic_external:
+  resource: App\Controller\Api\Ic\IcExternalController
+  prefix: /api/external/ic/
+
 emails_api:
   resource: App\Controller\Api\EmailController
   prefix: /api/
