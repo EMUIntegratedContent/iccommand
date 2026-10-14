@@ -52,6 +52,15 @@ class IcService
         return $this->colleges->findOneWithCounts($id);
     }
 
+    /**
+     * The college with its counts plus the departments, programs and scholarships that use it.
+     */
+    public function getCollegeWithUsage(int $id): ?array
+    {
+        $college = $this->getCollegeWithCounts($id);
+        return $college === null ? null : $college + $this->colleges->findUsage($id);
+    }
+
     public function getCollege(int $id): ?IcCollege
     {
         return $this->colleges->find($id);
@@ -90,6 +99,15 @@ class IcService
     public function getDepartmentWithCounts(int $id): ?array
     {
         return $this->departments->findOneWithCounts($id);
+    }
+
+    /**
+     * The department with its counts plus the programs and scholarships that use it.
+     */
+    public function getDepartmentWithUsage(int $id): ?array
+    {
+        $department = $this->getDepartmentWithCounts($id);
+        return $department === null ? null : $department + $this->departments->findUsage($id);
     }
 
     public function getDepartment(int $id): ?IcDepartment

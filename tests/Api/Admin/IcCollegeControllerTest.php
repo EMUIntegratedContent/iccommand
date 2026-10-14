@@ -63,9 +63,14 @@ class IcCollegeControllerTest extends WebTestCase
         $this->assertSame(0, $list['colleges'][0]['program_count']);
         $this->assertSame(0, $list['colleges'][0]['scholarship_count']);
 
+        // GET one also lists what uses the college.
         $client->request('GET', '/api/admin/colleges/' . $id);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(1, json_decode($client->getResponse()->getContent(), true)['department_count']);
+        $one = json_decode($client->getResponse()->getContent(), true);
+        $this->assertSame(1, $one['department_count']);
+        $this->assertSame([['id' => $departmentId, 'department' => self::NAME_PREFIX . ' Department']], $one['departments']);
+        $this->assertSame([], $one['programs']);
+        $this->assertSame([], $one['scholarships']);
 
         $client->request('GET', '/api/admin/colleges/dropdown');
         $this->assertResponseStatusCodeSame(200);
@@ -102,6 +107,13 @@ class IcCollegeControllerTest extends WebTestCase
         $client->request('DELETE', '/api/admin/colleges/' . $collegeId);
         $this->assertResponseStatusCodeSame(409);
         $this->assertStringContainsString('program', json_decode($client->getResponse()->getContent(), true)['message']);
+
+        // GET one lists the linked programs.
+        $client->request('GET', '/api/admin/colleges/' . $collegeId);
+        $this->assertResponseStatusCodeSame(200);
+        $college = json_decode($client->getResponse()->getContent(), true);
+        $this->assertNotEmpty($college['programs']);
+        $this->assertSame(['id', 'full_name', 'catalog'], array_keys($college['programs'][0]));
     }
 
     public function testNonAdminIsForbidden(): void

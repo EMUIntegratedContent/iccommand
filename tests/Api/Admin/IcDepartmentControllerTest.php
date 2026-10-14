@@ -69,7 +69,10 @@ class IcDepartmentControllerTest extends WebTestCase
 
         $client->request('GET', '/api/admin/departments/' . $id);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame($collegeB, json_decode($client->getResponse()->getContent(), true)['college_id']);
+        $one = json_decode($client->getResponse()->getContent(), true);
+        $this->assertSame($collegeB, $one['college_id']);
+        $this->assertSame([], $one['programs']);
+        $this->assertSame([], $one['scholarships']);
 
         // DELETE (unused) -> 204, then 404
         $client->request('DELETE', '/api/admin/departments/' . $id);

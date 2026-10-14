@@ -40,7 +40,7 @@ class IcDepartmentController extends AbstractController
     #[IsGranted('ROLE_GLOBAL_ADMIN')]
     public function getAction(int $id): Response
     {
-        $department = $this->service->getDepartmentWithCounts($id);
+        $department = $this->service->getDepartmentWithUsage($id);
         if ($department === null) {
             return new Response(json_encode("Department not found."), 404, ["Content-Type" => "application/json"]);
         }
