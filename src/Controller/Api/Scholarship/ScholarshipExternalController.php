@@ -60,6 +60,35 @@ class ScholarshipExternalController extends AbstractController
         return new Response(json_encode($this->publicRows($scholarships)), 200, ["Content-Type" => "application/json"]);
     }
 
+    /**
+     * Allowed values for the fixed-choice search criteria (gender, ethnicity, classStanding,
+     * housing, transfer, state). Same output as /api/scholarships/options.
+     */
+    #[Route('/options', methods: ['GET'])]
+    public function getOptionsAction(): Response
+    {
+        return new Response(json_encode($this->service->getScholarshipOptions()), 200, ["Content-Type" => "application/json"]);
+    }
+
+    /**
+     * Every keyword (id, keyword), sorted by name. Same output as /api/scholarships/keyword-options.
+     */
+    #[Route('/keyword-options', methods: ['GET'])]
+    public function getKeywordOptionsAction(): Response
+    {
+        return new Response(json_encode($this->service->getAvailableKeywords()), 200, ["Content-Type" => "application/json"]);
+    }
+
+    /**
+     * Every organization (id, organization), sorted by name. Same output as
+     * /api/scholarships/organization-options.
+     */
+    #[Route('/organization-options', methods: ['GET'])]
+    public function getOrganizationOptionsAction(): Response
+    {
+        return new Response(json_encode($this->service->getAvailableOrganizations()), 200, ["Content-Type" => "application/json"]);
+    }
+
     #[Route('/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function getScholarshipAction(int $id): Response
     {
