@@ -72,6 +72,16 @@ The Programs and Scholarships dropdowns (`/api/programs/{colleges,departments}`,
 `/api/scholarships/{colleges,departments}`) read from the same repositories, so changes made here
 show up in both apps immediately.
 
+## Public college and department lists
+
+No login needed (`^/api/external` is public). Same output as `/api/scholarships/{colleges,departments}`,
+sorted by name. Code: `src/Controller/Api/Ic/IcExternalController.php`.
+
+| Route | Each row |
+|---|---|
+| `GET /api/external/ic/colleges` | `id`, `college`, `url` |
+| `GET /api/external/ic/departments` | `id`, `department`, `college_id` |
+
 ## Public API changes (breaking)
 
 | Route | Before | Now |
