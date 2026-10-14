@@ -1,9 +1,9 @@
 <template>
 	<div>
-		<div v-for="section in sections" :key="section.key" class="mb-3">
+		<div v-for="section in sections" :key="section.key" class="border rounded mb-3">
 			<button
 				type="button"
-				class="btn btn-link p-0 text-dark text-decoration-none"
+				class="btn btn-link d-block w-100 text-left px-3 py-2 text-dark text-decoration-none"
 				@click="toggleSection(section.key)"
 				:aria-expanded="expanded[section.key] ? 'true' : 'false'"
 			>
@@ -15,7 +15,7 @@
 				<h6 class="d-inline ml-1">{{ section.label }}</h6>
 				<span class="badge badge-primary ml-2">{{ section.items.length }}</span>
 			</button>
-			<div v-if="expanded[section.key]">
+			<div v-if="expanded[section.key]" class="px-3 pb-3">
 				<ul v-if="section.items.length > 0" class="list-group mt-2">
 					<li v-for="item in section.items" :key="item.id" class="list-group-item">
 						<a :href="item.url">{{ item.name }}</a>
