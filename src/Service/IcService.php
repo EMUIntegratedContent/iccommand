@@ -115,6 +115,11 @@ class IcService
         return $this->departments->find($id);
     }
 
+    public function getDepartmentsForDropdown(): array
+    {
+        return $this->departments->findForDropdown();
+    }
+
     /**
      * Why a department can't be deleted (programs or scholarships still use it), or null if
      * nothing uses it.
