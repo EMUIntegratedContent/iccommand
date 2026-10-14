@@ -257,6 +257,10 @@ may be `null`.
 |---|---|
 | `GET /api/external/scholarships/all` | Every scholarship on offer. Same as a search with no parameters |
 | `GET /api/external/scholarships/{id}` | One scholarship. `404` if it does not exist, is unpublished, or has expired |
+| `GET /api/external/scholarships/options` | Allowed values for the fixed-choice criteria, as an object keyed `gender`, `ethnicity`, `classStanding`, `housing`, `transfer`, `state`, each an array of strings |
+| `GET /api/external/scholarships/keyword-options` | Every keyword as `{ "id", "keyword" }`, sorted by name. Use the names for the `keyword` parameter |
+| `GET /api/external/scholarships/organization-options` | Every organization as `{ "id", "organization" }`, sorted by name. Use the names for the `organization` parameter |
+| `GET /api/external/ic/colleges`, `GET /api/external/ic/departments` | The college and department lists, for the `college` and `department` parameters. See `docs/shared-colleges-departments.md` |
 
 ---
 
