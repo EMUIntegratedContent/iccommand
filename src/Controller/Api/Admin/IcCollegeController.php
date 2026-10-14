@@ -50,7 +50,7 @@ class IcCollegeController extends AbstractController
     #[IsGranted('ROLE_GLOBAL_ADMIN')]
     public function getAction(int $id): Response
     {
-        $college = $this->service->getCollegeWithCounts($id);
+        $college = $this->service->getCollegeWithUsage($id);
         if ($college === null) {
             return new Response(json_encode("College not found."), 404, ["Content-Type" => "application/json"]);
         }

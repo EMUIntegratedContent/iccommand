@@ -36,7 +36,7 @@
             <p class="text-muted mb-2">
               Upload a CSV with columns <code>keyword</code> (required) and
               <code>program_id</code> (optional). Existing keywords are skipped. The program id can be found on the Programs List page or on the Program Form page under "Internal ID". <br><br>
-              <p><a href="/bulk_keyword_template.csv" download>Download Sample Template [CSV]</a>.</p>
+              <a href="/bulk_keyword_template.csv" download>Download Sample Template [CSV]</a>.
             </p>
             <div v-if="uploadStatus === 1" style="text-align: center">
               <img src="/images/loading.gif" alt="Uploading..." />
