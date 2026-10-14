@@ -18,7 +18,7 @@
 			<div v-if="expanded[section.key]" class="px-3 pb-3">
 				<ul v-if="section.items.length > 0" class="list-group mt-2">
 					<li v-for="item in section.items" :key="item.id" class="list-group-item">
-						<a :href="item.url">{{ item.name }}</a>
+						<a :href="item.url" target="_blank">{{ item.name }}</a>
 						<small v-if="item.note" class="text-muted ml-2"
 							>({{ item.note }})</small
 						>
