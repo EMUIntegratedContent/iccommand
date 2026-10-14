@@ -93,13 +93,8 @@
 
 					<fieldset v-if="itemExists">
 						<legend>Usage</legend>
-						<p>
-							This college is used by
-							<strong>{{ record.department_count }}</strong> department(s),
-							<strong>{{ record.program_count }}</strong> program(s) and
-							<strong>{{ record.scholarship_count }}</strong> scholarship(s).
-							Changes here appear in the Programs and Scholarships apps.
-						</p>
+						<p>Changes here appear in the Programs and Scholarships apps.</p>
+						<ic-usage-lists :sections="usageSections"></ic-usage-lists>
 					</fieldset>
 
 					<div
@@ -191,6 +186,7 @@
 <script>
 import Heading from "../utils/Heading.vue"
 import IcDeleteModal from "./IcDeleteModal.vue"
+import IcUsageLists from "./IcUsageLists.vue"
 import NotFound from "../utils/NotFound.vue"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
@@ -214,6 +210,7 @@ export default {
 	components: {
 		Heading,
 		IcDeleteModal,
+		IcUsageLists,
 		NotFound,
 		Field,
 		VeeForm
@@ -266,7 +263,7 @@ export default {
 			isSaveFailed: false,
 
 			/**
-			 * The college being created or updated, plus its usage counts.
+			 * The college being created or updated, plus its usage counts and lists.
 			 * @type {Object}
 			 */
 			record: {
@@ -275,7 +272,10 @@ export default {
 				url: "",
 				department_count: 0,
 				program_count: 0,
-				scholarship_count: 0
+				scholarship_count: 0,
+				departments: [],
+				programs: [],
+				scholarships: []
 			},
 
 			/**
@@ -314,6 +314,43 @@ export default {
 				this.record.program_count > 0 ||
 				this.record.scholarship_count > 0
 			)
+		},
+
+		/**
+		 * The departments, programs and scholarships using the college, linked to their edit pages.
+		 * @return {Array}
+		 */
+		usageSections: function () {
+			return [
+				{
+					key: "departments",
+					label: "Departments",
+					items: this.record.departments.map((d) => ({
+						id: d.id,
+						name: d.department,
+						url: "/admin/departments/" + d.id + "/edit"
+					}))
+				},
+				{
+					key: "programs",
+					label: "Programs",
+					items: this.record.programs.map((p) => ({
+						id: p.id,
+						name: p.full_name,
+						note: p.catalog,
+						url: "/programs/" + p.id + "/edit"
+					}))
+				},
+				{
+					key: "scholarships",
+					label: "Scholarships",
+					items: this.record.scholarships.map((s) => ({
+						id: s.id,
+						name: s.title,
+						url: "/scholarships/" + s.id + "/edit"
+					}))
+				}
+			]
 		},
 
 		/**

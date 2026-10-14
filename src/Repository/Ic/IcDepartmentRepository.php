@@ -92,6 +92,32 @@ class IcDepartmentRepository extends ServiceEntityRepository
         return $row === false ? null : $this->castRow($row);
     }
 
+    /**
+     * The programs and scholarships behind findOneWithCounts()'s counts, sorted by name, for
+     * the edit page's usage lists.
+     *
+     * @return array{programs: array<int, array{id:int, full_name:string, catalog:?string}>, scholarships: array<int, array{id:int, title:string}>}
+     */
+    public function findUsage(int $id): array
+    {
+        $queries = [
+            'programs' => 'SELECT DISTINCT p.id, p.full_name, p.catalog FROM program_programs p
+                JOIN program_inter_dept x ON x.program_id = p.id
+                WHERE x.department_id = :id ORDER BY p.full_name ASC, p.catalog ASC',
+            'scholarships' => 'SELECT s.id, s.schlrshp_title AS title FROM scholarships_scholarship s
+                WHERE s.schlrshp_department_id = :id ORDER BY title ASC',
+        ];
+
+        $conn = $this->getEntityManager()->getConnection();
+        $usage = [];
+        foreach ($queries as $key => $sql) {
+            $rows = $conn->executeQuery($sql, ['id' => $id])->fetchAllAssociative();
+            $usage[$key] = array_map(fn (array $row) => ['id' => (int) $row['id']] + $row, $rows);
+        }
+
+        return $usage;
+    }
+
     private function castRow(array $row): array
     {
         return [
