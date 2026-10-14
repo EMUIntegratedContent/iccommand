@@ -96,7 +96,6 @@
 
 					<fieldset v-if="itemExists">
 						<legend>Usage</legend>
-						<p>Changes here appear in the Programs and Scholarships apps.</p>
 						<ic-usage-lists :sections="usageSections"></ic-usage-lists>
 					</fieldset>
 
