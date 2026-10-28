@@ -658,23 +658,23 @@
 									</div>
 								</div>
 							</div>
-							<div>
-								<label class="mt-2">Application Procedure</label>
-								<template v-if="!userCanEdit || !isEditMode">
-									<div v-if="!record.appProc">---</div>
-									<div v-else v-html="record.appProc"></div>
-								</template>
-								<template v-else>
-									<ckeditor
-										:model-value="appProcModel"
-										:editor="editor"
-										:config="ckConfigs.appProc"
-										name="scholarshipAppProc"
-										@update:modelValue="updateRichText('appProc', $event)"
-									>
-									</ckeditor>
-								</template>
-							</div>
+<!--							<div>-->
+<!--								<label class="mt-2">Application Procedure</label>-->
+<!--								<template v-if="!userCanEdit || !isEditMode">-->
+<!--									<div v-if="!record.appProc">-&#45;&#45;</div>-->
+<!--									<div v-else v-html="record.appProc"></div>-->
+<!--								</template>-->
+<!--								<template v-else>-->
+<!--									<ckeditor-->
+<!--										:model-value="appProcModel"-->
+<!--										:editor="editor"-->
+<!--										:config="ckConfigs.appProc"-->
+<!--										name="scholarshipAppProc"-->
+<!--										@update:modelValue="updateRichText('appProc', $event)"-->
+<!--									>-->
+<!--									</ckeditor>-->
+<!--								</template>-->
+<!--							</div>-->
 							<div>
 								<label class="mt-2">Contact Information <span class="red">*</span></label>
 								<template v-if="!userCanEdit || !isEditMode">
@@ -902,12 +902,12 @@ export default {
 			isDeleted: false,
 			isDeleteError: false,
 			isEditMode: false,
-			
+
 			editor: ClassicEditor,
 			// The editors only read their config when created, so each gets its own placeholder here.
 			ckConfigs: {
 				overview: editorConfig("Provide a concise summary of the scholarship purpose..."),
-				appProc: editorConfig("Detail the step-by-step procedure required for students to apply..."),
+				// appProc: editorConfig("Detail the step-by-step procedure required for students to apply..."),
 				contact: editorConfig("Name\nTitle\nPhone Number\nEmail Address\nCampus Office / Address"),
 				description: editorConfig(
 					"Provide any additional details, special instructions, or requirements students should know when applying..."
@@ -956,13 +956,13 @@ export default {
 				keyword_ids: [],
 				organization_ids: [],
 				contact: "",
-				appProc: "",
+				// appProc: "",
 				description: "",
 				collegeId: "",
 				departmentId: "",
 				programLinks: []
 			},
-			
+
 			formDirty: false,
 			isSaveFailed: false,
 			saveErrors: [],
@@ -1005,14 +1005,14 @@ export default {
 			}
 		},
 
-		appProcModel: {
-			get() {
-				return this.record.appProc || ""
-			},
-			set(value) {
-				this.record.appProc = value
-			}
-		},
+		// appProcModel: {
+		// 	get() {
+		// 		return this.record.appProc || ""
+		// 	},
+		// 	set(value) {
+		// 		this.record.appProc = value
+		// 	}
+		// },
 
 		descriptionModel: {
 			get() {
