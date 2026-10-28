@@ -49,7 +49,7 @@ class AppendScholarshipAppProcCommand extends Command
         }
         try {
             foreach ($rows as $row) {
-                $combined = ($row['schlrshp_description'] ?? '') . '<br>'	. $row['schlrshp_app_proc'];
+                $combined = ($row['schlrshp_description'] ?? '') . $row['schlrshp_app_proc'];
 
                 if (strlen($combined) > self::DESCRIPTION_MAX_BYTES) {
                     $io->warning(sprintf('Scholarship #%d skipped: combined length %d exceeds TEXT limit.', $row['id'], strlen($combined)));
