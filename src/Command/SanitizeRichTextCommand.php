@@ -28,7 +28,11 @@ class SanitizeRichTextCommand extends Command
     /** entity class => list of fields (getter/setter suffixes) */
     private const TARGETS = [
         Programs::class => ['ProgramOverview'],
-        Scholarship::class => ['Overview', 'Contact', 'AppProc', 'Description'],
+        Scholarship::class => [
+					'Overview',
+					'Contact',
+//					'AppProc',
+					'Description'],
         EmergencyBanner::class => ['BannerMessage'],
         MapBuilding::class => ['Hours'],
         MapParking::class => ['Hours'],

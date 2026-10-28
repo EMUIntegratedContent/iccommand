@@ -241,7 +241,15 @@ class ScholarshipRepository extends ServiceEntityRepository
      */
     private function applyContentFilters(QueryBuilder $qb, array $params): void
     {
-        foreach (['title', 'overview', 'description', 'appProc', 'amount', 'url', 'contact'] as $field) {
+        foreach ([
+					'title',
+				  'overview',
+				  'description',
+//									 'appProc',
+					'amount',
+				  'url',
+				  'contact'
+			 ] as $field) {
             $value = $this->cleanParam($params[$field] ?? null);
             if ($value !== null) {
                 $qb->andWhere("s.$field LIKE :$field")
