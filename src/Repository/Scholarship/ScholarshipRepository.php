@@ -245,7 +245,6 @@ class ScholarshipRepository extends ServiceEntityRepository
 					'title',
 				  'overview',
 				  'description',
-//									 'appProc',
 					'amount',
 				  'url',
 				  'contact'

@@ -31,7 +31,6 @@ class SanitizeRichTextCommand extends Command
         Scholarship::class => [
 					'Overview',
 					'Contact',
-//					'AppProc',
 					'Description'],
         EmergencyBanner::class => ['BannerMessage'],
         MapBuilding::class => ['Hours'],

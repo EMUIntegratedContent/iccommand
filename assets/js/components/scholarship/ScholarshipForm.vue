@@ -658,23 +658,6 @@
 									</div>
 								</div>
 							</div>
-<!--							<div>-->
-<!--								<label class="mt-2">Application Procedure</label>-->
-<!--								<template v-if="!userCanEdit || !isEditMode">-->
-<!--									<div v-if="!record.appProc">-&#45;&#45;</div>-->
-<!--									<div v-else v-html="record.appProc"></div>-->
-<!--								</template>-->
-<!--								<template v-else>-->
-<!--									<ckeditor-->
-<!--										:model-value="appProcModel"-->
-<!--										:editor="editor"-->
-<!--										:config="ckConfigs.appProc"-->
-<!--										name="scholarshipAppProc"-->
-<!--										@update:modelValue="updateRichText('appProc', $event)"-->
-<!--									>-->
-<!--									</ckeditor>-->
-<!--								</template>-->
-<!--							</div>-->
 							<div>
 								<label class="mt-2">Contact Information <span class="red">*</span></label>
 								<template v-if="!userCanEdit || !isEditMode">
@@ -700,14 +683,14 @@
 								</template>
 							</div>
 							<div>
-								<label class="mt-2">Additional Information <span class="red">*</span></label>
+								<label class="mt-2">Application Procedure <span class="red">*</span></label>
 								<template v-if="!userCanEdit || !isEditMode">
 									<div v-if="!record.description">---</div>
 									<div v-else v-html="record.description"></div>
 								</template>
 								<template v-else>
-									<Field name="description" v-slot="{ errorMessage }" v-model="descriptionModel">
-										<div :class="{ 'is-invalid-ckeditor': errorMessage }">
+									<Field id="scholarshipDescr" name="description" v-slot="{ errorMessage }" v-model="descriptionModel">
+										<div class="scholarship-descr-editor" :class="{ 'is-invalid-ckeditor': errorMessage }">
 											<ckeditor
 												:model-value="descriptionModel"
 												:editor="editor"
@@ -721,6 +704,16 @@
 											{{ errorMessage }}
 										</div>
 									</Field>
+                  <label class="form-check-label" for="scholarshipDescr">
+                    <small class="text-muted">Enter detailed application instructions, required materials, and any additional scholarship requirements. You can use bullet points, paragraphs, bold text, and links to make the information easier to read. For example:
+                      <ul>
+                        <li>Complete the scholarship application.</li>
+                        <li>Submit a 300-word essay.</li>
+                        <li>Provide one letter of recommendation.</li>
+                        <li>Maintain a minimum cumulative GPA of 3.00.</li>
+                      </ul>
+                    </small>
+                  </label>
 								</template>
 							</div>
 						</div>
@@ -802,7 +795,7 @@
 
 <style scoped>
 /* The contact placeholder is one item per line, so give it room and keep its line breaks. */
-.scholarship-contact-editor :deep(.ck-editor__editable) {
+.scholarship-contact-editor :deep(.ck-editor__editable), .scholarship-descr-editor :deep(.ck-editor__editable) {
 	min-height: 12em;
 }
 
@@ -907,7 +900,6 @@ export default {
 			// The editors only read their config when created, so each gets its own placeholder here.
 			ckConfigs: {
 				overview: editorConfig("Provide a concise summary of the scholarship purpose..."),
-				// appProc: editorConfig("Detail the step-by-step procedure required for students to apply..."),
 				contact: editorConfig("Name\nTitle\nPhone Number\nEmail Address\nCampus Office / Address"),
 				description: editorConfig(
 					"Provide any additional details, special instructions, or requirements students should know when applying..."
@@ -956,7 +948,6 @@ export default {
 				keyword_ids: [],
 				organization_ids: [],
 				contact: "",
-				// appProc: "",
 				description: "",
 				collegeId: "",
 				departmentId: "",
@@ -1004,15 +995,6 @@ export default {
 				this.record.contact = value
 			}
 		},
-
-		// appProcModel: {
-		// 	get() {
-		// 		return this.record.appProc || ""
-		// 	},
-		// 	set(value) {
-		// 		this.record.appProc = value
-		// 	}
-		// },
 
 		descriptionModel: {
 			get() {

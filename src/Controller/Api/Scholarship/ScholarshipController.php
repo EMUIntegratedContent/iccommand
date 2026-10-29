@@ -34,7 +34,6 @@ class ScholarshipController extends AbstractController
         'ethnicity' => 'setEthnicity',
         'transfer' => 'setTransfer',
         'housing' => 'setHousing',
-//        'appProc' => 'setAppProc',
         'amount' => 'setAmount',
         'contact' => 'setContact',
         'overview' => 'setOverview',
@@ -44,7 +43,6 @@ class ScholarshipController extends AbstractController
     private const RICH_TEXT_FIELDS = [
 			'overview',
 			'contact',
-//			'appProc',
 			'description'];
 
     /**
