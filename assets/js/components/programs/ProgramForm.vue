@@ -405,6 +405,17 @@
 							{{ errors.progDuration }}
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="mt-2" for="progContact">Contact</label>
+						<ic-contact-select
+							v-if="userCanEdit && isEditMode"
+							input-id="progContact"
+							v-model="record.contact_id"
+							v-model:displayName="record.contact_name"
+							@update:modelValue="formDirty = true"
+						></ic-contact-select>
+						<div v-else>{{ record.contact_name || "---" }}</div>
+					</div>
 					<div>
 						<label class="mt-2">Image URL</label>
 						<Field
@@ -615,6 +626,7 @@
 <script>
 import Heading from "../utils/Heading.vue"
 import VueMultiselect from "vue-multiselect"
+import IcContactSelect from "../ic/IcContactSelect.vue"
 import NotFound from "../utils/NotFound.vue"
 import ProgramDeleteModal from "./ProgramDeleteModal.vue"
 import { ErrorMessage, Field, Form as VeeForm } from "vee-validate"
@@ -646,6 +658,7 @@ export default {
 
 	components: {
 		Heading,
+		IcContactSelect,
 		VueMultiselect,
 		ProgramDeleteModal,
 		NotFound,
@@ -731,6 +744,8 @@ export default {
 				duration: null,
 				image_url: null,
 				application_url: null,
+				contact_id: null,
+				contact_name: null,
 				program_overview: "",
 				is_active: true
 			},

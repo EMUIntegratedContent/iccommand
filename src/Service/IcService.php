@@ -2,16 +2,19 @@
 namespace App\Service;
 
 use App\Entity\Ic\IcCollege;
+use App\Entity\Ic\IcContact;
 use App\Entity\Ic\IcDepartment;
 use App\Repository\Ic\IcCollegeRepository;
+use App\Repository\Ic\IcContactRepository;
 use App\Repository\Ic\IcDepartmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Business logic for the colleges and departments shared across IC Command apps
- * (ic_colleges / ic_departments), managed from the admin area.
+ * Business logic for the colleges, departments and contacts shared across IC Command apps
+ * (ic_colleges / ic_departments / ic_contacts), managed from the admin area.
  */
 class IcService
 {
@@ -20,6 +23,7 @@ class IcService
         private ValidatorInterface $validator,
         private IcCollegeRepository $colleges,
         private IcDepartmentRepository $departments,
+        private IcContactRepository $contacts,
     ) {
     }
 
@@ -72,6 +76,14 @@ class IcService
     }
 
     /**
+     * The public college list: the dropdown rows plus each college's contact.
+     */
+    public function getPublicColleges(): array
+    {
+        return $this->addIcContactInfo($this->colleges->findForPublicList());
+    }
+
+    /**
      * Why a college can't be deleted (it still has departments, programs or scholarships),
      * or null if nothing uses it.
      */
@@ -121,6 +133,14 @@ class IcService
     }
 
     /**
+     * The public department list: the dropdown rows plus each department's contact.
+     */
+    public function getPublicDepartments(): array
+    {
+        return $this->addIcContactInfo($this->departments->findForPublicList());
+    }
+
+    /**
      * Why a department can't be deleted (programs or scholarships still use it), or null if
      * nothing uses it.
      */
@@ -134,6 +154,102 @@ class IcService
         return $this->blockerMessage($department['department'], [
             'program' => $department['program_count'],
             'scholarship' => $department['scholarship_count'],
+        ]);
+    }
+
+    /* ****************************** Contacts ******************************* */
+
+    public function getContactsPagination(int $page, int $limit, ?string $searchTerm = null): array
+    {
+        return $this->contacts->paginatedWithCounts($page, $limit, $searchTerm);
+    }
+
+    public function getContactWithCounts(int $id): ?array
+    {
+        return $this->contacts->findOneWithCounts($id);
+    }
+
+    /**
+     * The contact with its counts plus the records that use it.
+     */
+    public function getContactWithUsage(int $id): ?array
+    {
+        $contact = $this->getContactWithCounts($id);
+        return $contact === null ? null : $contact + $this->contacts->findUsage($id);
+    }
+
+    public function getContact(int $id): ?IcContact
+    {
+        return $this->contacts->find($id);
+    }
+
+    public function getContactsForDropdown(): array
+    {
+        return $this->contacts->findForDropdown();
+    }
+
+    /**
+     * The contact a form picked. A cleared picker (null or '') means no contact.
+     *
+     * @throws UnprocessableEntityHttpException for an id that doesn't exist, e.g. a contact
+     *                                          deleted while the form was open
+     */
+    public function resolveContact(mixed $id): ?IcContact
+    {
+        if ($id === null || $id === '') {
+            return null;
+        }
+
+        $contactId = filter_var($id, FILTER_VALIDATE_INT);
+        $contact = $contactId === false ? null : $this->contacts->find($contactId);
+        if ($contact === null) {
+            throw new UnprocessableEntityHttpException('That contact no longer exists.');
+        }
+
+        return $contact;
+    }
+
+    /**
+     * What the public feeds publish about each contact, keyed by contact id.
+     */
+    public function getIcContactInfoById(): array
+    {
+        return $this->contacts->findPublicInfoById();
+    }
+
+    /**
+     * Swaps each row's contact_id for its public icContactInfo (null without a contact).
+     *
+     * @param array<int, array> $rows rows with a contact_id key
+     */
+    public function addIcContactInfo(array $rows): array
+    {
+        $info = $this->getIcContactInfoById();
+
+        return array_map(function (array $row) use ($info) {
+            $contactId = $row['contact_id'];
+            unset($row['contact_id']);
+            $row['icContactInfo'] = $contactId === null ? null : ($info[(int) $contactId] ?? null);
+            return $row;
+        }, $rows);
+    }
+
+    /**
+     * Why a contact can't be deleted (records still use it), or null if nothing uses it.
+     */
+    public function contactDeleteBlocker(int $id): ?string
+    {
+        $contact = $this->getContactWithCounts($id);
+        if ($contact === null) {
+            return null;
+        }
+
+        return $this->blockerMessage($contact['display_name'], [
+            'college' => $contact['college_count'],
+            'department' => $contact['department_count'],
+            'program' => $contact['program_count'],
+            'scholarship' => $contact['scholarship_count'],
+            'building' => $contact['building_count'],
         ]);
     }
 

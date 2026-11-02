@@ -20,20 +20,20 @@ class IcExternalController extends AbstractController
     }
 
     /**
-     * Every college (id, college, url), sorted by name.
+     * Every college (id, college, url, icContactInfo), sorted by name.
      */
     #[Route('/colleges', methods: ['GET'])]
     public function getCollegesAction(): Response
     {
-        return new Response(json_encode($this->service->getCollegesForDropdown()), 200, ["Content-Type" => "application/json"]);
+        return new Response(json_encode($this->service->getPublicColleges()), 200, ["Content-Type" => "application/json"]);
     }
 
     /**
-     * Every department (id, department, college_id), sorted by name.
+     * Every department (id, department, college_id, icContactInfo), sorted by name.
      */
     #[Route('/departments', methods: ['GET'])]
     public function getDepartmentsAction(): Response
     {
-        return new Response(json_encode($this->service->getDepartmentsForDropdown()), 200, ["Content-Type" => "application/json"]);
+        return new Response(json_encode($this->service->getPublicDepartments()), 200, ["Content-Type" => "application/json"]);
     }
 }

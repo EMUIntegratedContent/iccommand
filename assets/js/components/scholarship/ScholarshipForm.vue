@@ -658,6 +658,17 @@
 									</div>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="mt-2" for="scholarshipIcContact">Contact</label>
+								<ic-contact-select
+									v-if="userCanEdit && isEditMode"
+									input-id="scholarshipIcContact"
+									v-model="record.contactId"
+									v-model:displayName="record.contactName"
+									@update:modelValue="formDirty = true"
+								></ic-contact-select>
+								<div v-else>{{ record.contactName || "---" }}</div>
+							</div>
 							<div>
 								<label class="mt-2">Contact Information <span class="red">*</span></label>
 								<template v-if="!userCanEdit || !isEditMode">
@@ -810,6 +821,7 @@ import NotFound from "../utils/NotFound.vue"
 import ScholarshipDeleteModal from "./ScholarshipDeleteModal.vue"
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 import VueMultiselect from "vue-multiselect"
+import IcContactSelect from "../ic/IcContactSelect.vue"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
@@ -849,6 +861,7 @@ export default {
 
 	components: {
 		Heading,
+		IcContactSelect,
 		NotFound,
 		ScholarshipDeleteModal,
 		Field,
@@ -951,6 +964,8 @@ export default {
 				description: "",
 				collegeId: "",
 				departmentId: "",
+				contactId: null,
+				contactName: null,
 				programLinks: []
 			},
 

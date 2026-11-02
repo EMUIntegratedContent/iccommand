@@ -16,7 +16,7 @@ class IcCollegeRepository extends ServiceEntityRepository
 {
     /** The row select shared by the list and single-record queries; counts are correlated subqueries. */
     private const SELECT_WITH_COUNTS = "
-        SELECT c.id, c.college, c.url,
+        SELECT c.id, c.college, c.url, c.contact_id,
             (SELECT COUNT(*) FROM ic_departments d WHERE d.college_id = c.id) AS department_count,
             (SELECT COUNT(DISTINCT l.program_id) FROM program_college_link l WHERE l.college_id = c.id) AS program_count,
             (SELECT COUNT(*) FROM scholarships_scholarship s WHERE s.schlrshp_college_id = c.id) AS scholarship_count
@@ -36,6 +36,20 @@ class IcCollegeRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->select('c.id AS id', 'c.college AS college', 'c.url AS url')
+            ->orderBy('c.college', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    /**
+     * The findForDropdown() rows plus each college's contact id, for the public list.
+     *
+     * @return array<int, array{id: int, college: string, url: ?string, contact_id: ?string}>
+     */
+    public function findForPublicList(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.id AS id', 'c.college AS college', 'c.url AS url', 'IDENTITY(c.icContact) AS contact_id')
             ->orderBy('c.college', 'ASC')
             ->getQuery()
             ->getArrayResult();
@@ -122,6 +136,7 @@ class IcCollegeRepository extends ServiceEntityRepository
             'id' => (int) $row['id'],
             'college' => $row['college'],
             'url' => $row['url'],
+            'contact_id' => $row['contact_id'] === null ? null : (int) $row['contact_id'],
             'department_count' => (int) $row['department_count'],
             'program_count' => (int) $row['program_count'],
             'scholarship_count' => (int) $row['scholarship_count'],

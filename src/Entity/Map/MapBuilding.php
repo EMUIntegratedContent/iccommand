@@ -2,9 +2,11 @@
 
 namespace App\Entity\Map;
 
+use App\Entity\Ic\IcContact;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ORM\Entity(repositoryClass: "App\Repository\Map\MapBuildingRepository")]
@@ -73,6 +75,14 @@ class MapBuilding extends MapItem
 	#[SerializedName("buildingType")]
 	#[Groups("bldgs")]
 	private $buildingType;
+
+	/**
+	 * Many buildings have (zero or) one contact. Serialized through the contactId/contactName/
+	 * icContactInfo virtual properties below rather than as a nested object.
+	 */
+	#[ORM\ManyToOne(targetEntity: "App\Entity\Ic\IcContact", fetch: "EAGER")]
+	#[ORM\JoinColumn(name: "contact_id", referencedColumnName: "id", nullable: true)]
+	private $icContact;
 
 
 	/**
@@ -188,6 +198,38 @@ class MapBuilding extends MapItem
 	public function setBuildingType(?MapBuildingType $buildingType)
 	{
 		$this->buildingType = $buildingType;
+	}
+
+	#[Ignore]
+	public function getIcContact(): ?IcContact
+	{
+		return $this->icContact;
+	}
+
+	public function setIcContact(?IcContact $icContact)
+	{
+		$this->icContact = $icContact;
+	}
+
+	#[Groups("bldgs")]
+	public function getContactId(): ?int
+	{
+		return $this->icContact?->getId();
+	}
+
+	#[Groups("bldgs")]
+	public function getContactName(): ?string
+	{
+		return $this->icContact?->getDisplayName();
+	}
+
+	/**
+	 * What the public feed publishes about the contact.
+	 */
+	#[Groups("bldgs")]
+	public function getIcContactInfo(): ?array
+	{
+		return $this->icContact?->toPublicArray();
 	}
 
 	public function getDirectoryDepartments()

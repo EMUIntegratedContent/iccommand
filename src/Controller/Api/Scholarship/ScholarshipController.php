@@ -6,6 +6,7 @@ use App\Service\RichTextSanitizer;
 use App\Util\RequestHelper;
 use App\Entity\Scholarship\Scholarship;
 use App\Service\ScholarshipService;
+use App\Service\IcService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -62,7 +63,6 @@ class ScholarshipController extends AbstractController
     private const INT_FIELDS = [
         'collegeId' => 'setCollegeId',
         'departmentId' => 'setDepartmentId',
-        'contactId' => 'setContactId',
     ];
 
     private ScholarshipService $service;
@@ -70,14 +70,16 @@ class ScholarshipController extends AbstractController
     private EntityManagerInterface $em;
     private SerializerInterface $serializer;
     private RichTextSanitizer $richText;
+    private IcService $icService;
 
-    public function __construct(ScholarshipService $service, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer, RichTextSanitizer $richText)
+    public function __construct(ScholarshipService $service, ManagerRegistry $doctrine, EntityManagerInterface $em, SerializerInterface $serializer, RichTextSanitizer $richText, IcService $icService)
     {
         $this->service = $service;
         $this->doctrine = $doctrine;
         $this->em = $em;
         $this->serializer = $serializer;
         $this->richText = $richText;
+        $this->icService = $icService;
     }
 
     #[Route('/list', methods: ['GET'])]
@@ -297,6 +299,10 @@ class ScholarshipController extends AbstractController
                 $val = $data[$key];
                 $scholarship->$setter($val === null || $val === '' ? null : (int)$val);
             }
+        }
+
+        if (array_key_exists('contactId', $data)) {
+            $scholarship->setIcContact($this->icService->resolveContact($data['contactId']));
         }
 
         foreach (['applyDate' => 'setApplyDate', 'expDate' => 'setExpDate'] as $key => $setter) {
