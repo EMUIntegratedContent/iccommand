@@ -6,7 +6,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * The public college and department lists (/api/external/ic/*) answer without a login and
- * return the same rows as the Scholarships dropdown routes. Read-only, so nothing to clean up.
+ * return the same rows as the Scholarships dropdown routes plus each record's public contact
+ * (see IcContactFeedsTest). Read-only, so nothing to clean up.
  */
 class IcExternalControllerTest extends WebTestCase
 {
@@ -19,7 +20,7 @@ class IcExternalControllerTest extends WebTestCase
         $colleges = json_decode($client->getResponse()->getContent(), true);
         $this->assertIsArray($colleges);
         $this->assertNotEmpty($colleges);
-        $this->assertSame(['id', 'college', 'url'], array_keys($colleges[0]));
+        $this->assertSame(['id', 'college', 'url', 'icContactInfo'], array_keys($colleges[0]));
     }
 
     public function testDepartmentsArePublic(): void
@@ -31,6 +32,6 @@ class IcExternalControllerTest extends WebTestCase
         $departments = json_decode($client->getResponse()->getContent(), true);
         $this->assertIsArray($departments);
         $this->assertNotEmpty($departments);
-        $this->assertSame(['id', 'department', 'college_id'], array_keys($departments[0]));
+        $this->assertSame(['id', 'department', 'college_id', 'icContactInfo'], array_keys($departments[0]));
     }
 }

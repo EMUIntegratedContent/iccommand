@@ -163,6 +163,7 @@ error.
 | `description` | string \| null | HTML |
 | `appProc` | string \| null | HTML — how to apply |
 | `contact` | string \| null | HTML — who to contact |
+| `icContactInfo` | object \| null | The shared contact record, if one is set: `name`, `email`, `phone`, `url` (the last three can be `null`). Separate from `contact`, which is free text and always present on new records |
 | `amount` | string \| null | Free text, e.g. `$1000`, `varies`, `160 awards at $500 each` |
 | `url` | string \| null | |
 | `gpa` | string \| null | Minimum GPA, two decimals, e.g. `"3.00"`. A string, not a number |
@@ -241,6 +242,12 @@ may be `null`.
   "county": null,
   "highSchool": null,
   "contact": null,
+  "icContactInfo": {
+    "name": "Jane Doe",
+    "email": "jdoe@emich.edu",
+    "phone": "734-487-1234",
+    "url": "https://www.emich.edu/example"
+  },
   "college": null,
   "department": null,
   "organizations": [ { "id": 6, "organization": "Alumni Association" } ],

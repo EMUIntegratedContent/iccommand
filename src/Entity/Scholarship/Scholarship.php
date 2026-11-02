@@ -1,12 +1,14 @@
 <?php
 namespace App\Entity\Scholarship;
 
+use App\Entity\Ic\IcContact;
 use App\Repository\Scholarship\ScholarshipRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -304,11 +306,13 @@ class Scholarship
     private ?string $contact = null;
 
     /**
-     * Loose FK to a contact record. The contacts relation is deferred to a later phase.
+     * The optional shared contact. Separate from the free-text $contact above, which stays
+     * required. Serialized through the contactId/contactName/icContactInfo virtual properties
+     * below rather than as a nested object.
      */
-    #[ORM\Column(name: 'schlrshp_contact_id', type: 'integer', nullable: true)]
-    #[Groups("scholarship")]
-    private ?int $contactId = null;
+    #[ORM\ManyToOne(targetEntity: IcContact::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(name: 'contact_id', referencedColumnName: 'id', nullable: true)]
+    private ?IcContact $icContact = null;
 
     /**
      * The links joining this scholarship to academic programs.
@@ -752,15 +756,37 @@ class Scholarship
         return $this;
     }
 
-    public function getContactId(): ?int
+    #[Ignore]
+    public function getIcContact(): ?IcContact
     {
-        return $this->contactId;
+        return $this->icContact;
     }
 
-    public function setContactId(?int $contactId): self
+    public function setIcContact(?IcContact $icContact): self
     {
-        $this->contactId = $contactId;
+        $this->icContact = $icContact;
         return $this;
+    }
+
+    #[Groups("scholarship")]
+    public function getContactId(): ?int
+    {
+        return $this->icContact?->getId();
+    }
+
+    #[Groups("scholarship")]
+    public function getContactName(): ?string
+    {
+        return $this->icContact?->getDisplayName();
+    }
+
+    /**
+     * What the public feed publishes about the contact.
+     */
+    #[Groups("scholarship")]
+    public function getIcContactInfo(): ?array
+    {
+        return $this->icContact?->toPublicArray();
     }
 
     /**

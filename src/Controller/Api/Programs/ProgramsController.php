@@ -8,6 +8,7 @@ use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
 use App\Util\RequestHelper;
 use App\Service\ProgramsService;
+use App\Service\IcService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
@@ -40,7 +41,7 @@ class ProgramsController extends AbstractController
 	 * The constructor of the ProgramsController.
 	 * @param ProgramsService $service The service container of this controller.
 	 */
-	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer)
+	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer, private IcService $icService)
 	{
 		$this->service = $service;
 		$this->logger = $logger;
@@ -286,6 +287,7 @@ class ProgramsController extends AbstractController
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
 		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
 		$program->setIsActive($request->request->getBoolean("is_active", true)); // New programs default to active.
+		$program->setContactId($this->icService->resolveContact($request->request->get("contact_id"))?->getId());
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -418,6 +420,9 @@ class ProgramsController extends AbstractController
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
 		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
 		$program->setIsActive($request->request->getBoolean("is_active", $program->isActive())); // Omitted key leaves it unchanged.
+		if ($request->request->has("contact_id")) { // Omitted key leaves it unchanged.
+			$program->setContactId($this->icService->resolveContact($request->request->get("contact_id"))?->getId());
+		}
 
 		$errors = $this->service->validate($program); // Validate the program.
 

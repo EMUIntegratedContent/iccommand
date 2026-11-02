@@ -196,6 +196,22 @@
                 <template v-if="userCanEdit && isEditMode">
                   <div class="form-row">
                     <div class="form-group col-md-12">
+                      <label for="buildingContact">Contact</label>
+                      <ic-contact-select
+                          input-id="buildingContact"
+                          v-model="record.contactId"
+                          v-model:displayName="record.contactName"
+                      ></ic-contact-select>
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  <h5>Contact</h5>
+                  <p>{{ record.contactName || 'None' }}</p>
+                </template>
+                <template v-if="userCanEdit && isEditMode">
+                  <div class="form-row">
+                    <div class="form-group col-md-12">
                       <label class="form-check-label">
                         Include in Admissions Tour (Set the position the building will appear in the Tour)
                       </label>
@@ -1233,6 +1249,7 @@ import MapitemImageEditModal from './MapitemImageEditModal.vue'
 import ImageThumbnailPod from './ImageThumbnailPod.vue'
 import Heading from '../utils/Heading.vue'
 import VueMultiselect from 'vue-multiselect'
+import IcContactSelect from '../ic/IcContactSelect.vue'
 import NotFound from '../utils/NotFound.vue'
 import Draggable from 'vuedraggable'
 import GoogleMap from './GoogleMap.vue'
@@ -1280,6 +1297,7 @@ export default {
   },
   components: {
     Heading,
+    IcContactSelect,
     VueMultiselect,
     MapitemDeleteModal,
     MapitemImageDeleteModal,
@@ -1351,6 +1369,8 @@ export default {
         alias: '',
         bathrooms: [],
         building: null,
+        contactId: null,
+        contactName: null,
         description: '',
         diningOptions: [],
         dispensers: [],

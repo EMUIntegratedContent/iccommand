@@ -16,7 +16,7 @@ class IcDepartmentRepository extends ServiceEntityRepository
 {
     /** The row select shared by the list and single-record queries; counts are correlated subqueries. */
     private const SELECT_WITH_COUNTS = "
-        SELECT d.id, d.department, d.college_id, c.college,
+        SELECT d.id, d.department, d.college_id, d.contact_id, c.college,
             (SELECT COUNT(DISTINCT x.program_id) FROM program_inter_dept x WHERE x.department_id = d.id) AS program_count,
             (SELECT COUNT(*) FROM scholarships_scholarship s WHERE s.schlrshp_department_id = d.id) AS scholarship_count
         FROM ic_departments d
@@ -36,6 +36,20 @@ class IcDepartmentRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('d')
             ->select('d.id AS id', 'd.department AS department', 'IDENTITY(d.college) AS college_id')
+            ->orderBy('d.department', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    /**
+     * The findForDropdown() rows plus each department's contact id, for the public list.
+     *
+     * @return array<int, array{id: int, department: string, college_id: int, contact_id: ?string}>
+     */
+    public function findForPublicList(): array
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.id AS id', 'd.department AS department', 'IDENTITY(d.college) AS college_id', 'IDENTITY(d.icContact) AS contact_id')
             ->orderBy('d.department', 'ASC')
             ->getQuery()
             ->getArrayResult();
@@ -124,6 +138,7 @@ class IcDepartmentRepository extends ServiceEntityRepository
             'id' => (int) $row['id'],
             'department' => $row['department'],
             'college_id' => (int) $row['college_id'],
+            'contact_id' => $row['contact_id'] === null ? null : (int) $row['contact_id'],
             'college' => $row['college'],
             'program_count' => (int) $row['program_count'],
             'scholarship_count' => (int) $row['scholarship_count'],

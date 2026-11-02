@@ -129,6 +129,9 @@ class IcCollegeController extends AbstractController
         if (array_key_exists('url', $data)) {
             $college->setUrl(RequestHelper::optionalString($data['url']));
         }
+        if (array_key_exists('contactId', $data)) {
+            $college->setIcContact($this->service->resolveContact($data['contactId']));
+        }
     }
 
     private function inUse(string $message): Response

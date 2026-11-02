@@ -5,6 +5,7 @@ namespace App\Repository\Programs;
 use App\Entity\Programs\Programs;
 use App\Entity\Programs\ProgramKeywordLinks;
 use App\Entity\Programs\ProgramKeywords;
+use App\Repository\Ic\IcContactRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -53,7 +54,8 @@ class ProgramsRepository extends ServiceEntityRepository
 				GROUP_CONCAT(DISTINCT pd.delivery_id) AS delivery_ids,
 				GROUP_CONCAT(DISTINCT pkl.keyword_id) AS keyword_ids,
 				GROUP_CONCAT(DISTINCT pcl.college_id) AS college_ids,
-				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids
+				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids,
+				(SELECT " . IcContactRepository::DISPLAY_NAME_SQL . " FROM ic_contacts c WHERE c.id = p.contact_id) AS contact_name
 			FROM program_programs p
 			LEFT JOIN program_websites w ON (
 					(w.program_id IS NOT NULL AND w.program_id = p.id)
@@ -193,6 +195,7 @@ class ProgramsRepository extends ServiceEntityRepository
 				p.program,
 				p.catalog_id,
 				p.ref_id,
+				p.contact_id,
 				(SELECT JSON_ARRAYAGG(dd.department ORDER BY dd.department)
 					FROM program_inter_dept x
 					JOIN ic_departments dd ON dd.id = x.department_id
