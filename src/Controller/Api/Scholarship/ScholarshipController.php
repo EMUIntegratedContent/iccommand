@@ -34,14 +34,16 @@ class ScholarshipController extends AbstractController
         'ethnicity' => 'setEthnicity',
         'transfer' => 'setTransfer',
         'housing' => 'setHousing',
-        'appProc' => 'setAppProc',
         'amount' => 'setAmount',
         'contact' => 'setContact',
         'overview' => 'setOverview',
     ];
 
     /** STRING_FIELDS keys edited with the rich-text editor; sanitized before storing. */
-    private const RICH_TEXT_FIELDS = ['overview', 'contact', 'appProc', 'description'];
+    private const RICH_TEXT_FIELDS = [
+			'overview',
+			'contact',
+			'description'];
 
     /**
      * Boolean fields (payload key => entity setter). Applied when the key is present.

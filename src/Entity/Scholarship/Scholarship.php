@@ -288,13 +288,6 @@ class Scholarship
     private ?string $housing = null;
 
     /**
-     * The application process for this scholarship.
-     */
-    #[ORM\Column(name: 'schlrshp_app_proc', type: 'text', nullable: true)]
-    #[Groups("scholarship")]
-    private ?string $appProc = null;
-
-    /**
      * The award amount for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_amount', type: 'string', length: 255, nullable: true)]
@@ -734,17 +727,6 @@ class Scholarship
     public function setHousing(?string $housing): self
     {
         $this->housing = $housing;
-        return $this;
-    }
-
-    public function getAppProc(): ?string
-    {
-        return $this->appProc;
-    }
-
-    public function setAppProc(?string $appProc): self
-    {
-        $this->appProc = $appProc;
         return $this;
     }
 
