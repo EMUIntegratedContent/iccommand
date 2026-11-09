@@ -92,15 +92,6 @@
 								{{ errors.collegeId }}
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="departmentContact">Contact</label>
-							<ic-contact-select
-								input-id="departmentContact"
-								v-model="record.contact_id"
-								:disabled="!isEditMode"
-								@update:modelValue="formDirty = true"
-							></ic-contact-select>
-						</div>
 					</fieldset>
 
 					<fieldset v-if="itemExists">
@@ -196,7 +187,6 @@
 
 <script>
 import Heading from "../utils/Heading.vue"
-import IcContactSelect from "../ic/IcContactSelect.vue"
 import IcDeleteModal from "./IcDeleteModal.vue"
 import IcUsageLists from "./IcUsageLists.vue"
 import NotFound from "../utils/NotFound.vue"
@@ -223,7 +213,6 @@ export default {
 
 	components: {
 		Heading,
-		IcContactSelect,
 		IcDeleteModal,
 		IcUsageLists,
 		NotFound,
@@ -291,7 +280,6 @@ export default {
 				id: "",
 				department: "",
 				college_id: "",
-				contact_id: null,
 				college: "",
 				program_count: 0,
 				scholarship_count: 0,
@@ -488,8 +476,7 @@ export default {
 				url: route,
 				data: {
 					department: self.record.department,
-					collegeId: self.record.college_id,
-					contactId: self.record.contact_id
+					collegeId: self.record.college_id
 				}
 			})
 				.then(function (response) {

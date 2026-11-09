@@ -123,9 +123,6 @@ class IcDepartmentController extends AbstractController
             $collegeId = filter_var($data['collegeId'], FILTER_VALIDATE_INT);
             $department->setCollege($collegeId === false ? null : $this->service->getCollege($collegeId));
         }
-        if (array_key_exists('contactId', $data)) {
-            $department->setIcContact($this->service->resolveContact($data['contactId']));
-        }
     }
 
     private function inUse(string $message): Response

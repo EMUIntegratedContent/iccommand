@@ -5,7 +5,6 @@ namespace App\Entity\Programs;
 use App\Repository\Programs\ProgramsRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: ProgramsRepository::class)]
 #[ORM\Table(name: 'program_programs')]
@@ -57,29 +56,6 @@ class Programs
 
     #[ORM\Column(name: 'is_active', type: 'boolean', options: ['default' => 1])]
     private bool $is_active = true;
-
-    /**
-     * ic_contacts.id. A plain int rather than an association because the programs entity
-     * manager only maps this namespace, so it can't load IcContact. Ignored here and on the
-     * getter because Programs serializes with no groups, including on the public feed, and
-     * the serializer outputs both the property and the getter.
-     */
-    #[ORM\Column(nullable: true, options: ['unsigned' => true])]
-    #[Ignore]
-    private ?int $contact_id = null;
-
-    #[Ignore]
-    public function getContactId(): ?int
-    {
-        return $this->contact_id;
-    }
-
-    public function setContactId(?int $contact_id): static
-    {
-        $this->contact_id = $contact_id;
-
-        return $this;
-    }
 
     public function getId(): ?int
     {

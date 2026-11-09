@@ -306,13 +306,24 @@ class Scholarship
     private ?string $contact = null;
 
     /**
-     * The optional shared contact. Separate from the free-text $contact above, which stays
-     * required. Serialized through the contactId/contactName/icContactInfo virtual properties
-     * below rather than as a nested object.
+     * Loose FK to a contact record. Unused placeholder, superseded by $icContacts.
      */
-    #[ORM\ManyToOne(targetEntity: IcContact::class, fetch: 'EAGER')]
-    #[ORM\JoinColumn(name: 'contact_id', referencedColumnName: 'id', nullable: true)]
-    private ?IcContact $icContact = null;
+    #[ORM\Column(name: 'schlrshp_contact_id', type: 'integer', nullable: true)]
+    #[Groups("scholarship")]
+    private ?int $contactId = null;
+
+    /**
+     * The optional shared contacts. Separate from the free-text $contact above, which stays
+     * required. Serialized through the contactIds/contactNames/icContactsInfo virtual
+     * properties below rather than as nested objects.
+     *
+     * @var Collection<int, IcContact>
+     */
+    #[ORM\ManyToMany(targetEntity: IcContact::class, fetch: 'EAGER')]
+    #[ORM\JoinTable(name: 'scholarship_contact')]
+    #[ORM\JoinColumn(name: 'scholarship_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'contact_id', referencedColumnName: 'id')]
+    private Collection $icContacts;
 
     /**
      * The links joining this scholarship to academic programs.
@@ -361,6 +372,7 @@ class Scholarship
      */
     public function __construct()
     {
+        $this->icContacts = new ArrayCollection();
         $this->programLinks = new ArrayCollection();
         $this->keywordLinks = new ArrayCollection();
         $this->organizationLinks = new ArrayCollection();
@@ -756,37 +768,76 @@ class Scholarship
         return $this;
     }
 
-    #[Ignore]
-    public function getIcContact(): ?IcContact
+    public function getContactId(): ?int
     {
-        return $this->icContact;
+        return $this->contactId;
     }
 
-    public function setIcContact(?IcContact $icContact): self
+    public function setContactId(?int $contactId): self
     {
-        $this->icContact = $icContact;
+        $this->contactId = $contactId;
         return $this;
     }
 
-    #[Groups("scholarship")]
-    public function getContactId(): ?int
+    /**
+     * @return Collection<int, IcContact>
+     */
+    #[Ignore]
+    public function getIcContacts(): Collection
     {
-        return $this->icContact?->getId();
-    }
-
-    #[Groups("scholarship")]
-    public function getContactName(): ?string
-    {
-        return $this->icContact?->getDisplayName();
+        return $this->icContacts;
     }
 
     /**
-     * What the public feed publishes about the contact.
+     * Makes the scholarship's contacts exactly these.
+     *
+     * @param IcContact[] $icContacts
+     */
+    public function setIcContacts(array $icContacts): self
+    {
+        foreach ($this->icContacts->toArray() as $existing) {
+            if (!in_array($existing, $icContacts, true)) {
+                $this->icContacts->removeElement($existing);
+            }
+        }
+        foreach ($icContacts as $icContact) {
+            if (!$this->icContacts->contains($icContact)) {
+                $this->icContacts->add($icContact);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return int[]
      */
     #[Groups("scholarship")]
-    public function getIcContactInfo(): ?array
+    public function getContactIds(): array
     {
-        return $this->icContact?->toPublicArray();
+        return array_values($this->icContacts->map(fn (IcContact $c) => $c->getId())->toArray());
+    }
+
+    /**
+     * @return string[]
+     */
+    #[Groups("scholarship")]
+    public function getContactNames(): array
+    {
+        return array_values($this->icContacts->map(fn (IcContact $c) => $c->getDisplayName())->toArray());
+    }
+
+    /**
+     * What the public feed publishes about the contacts, sorted by name.
+     *
+     * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>
+     */
+    #[Groups("scholarship")]
+    public function getIcContactsInfo(): array
+    {
+        $contacts = $this->icContacts->toArray();
+        usort($contacts, fn (IcContact $a, IcContact $b) => strcasecmp($a->getDisplayName(), $b->getDisplayName()));
+
+        return array_map(fn (IcContact $c) => $c->toPublicArray(), $contacts);
     }
 
     /**

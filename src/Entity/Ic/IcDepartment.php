@@ -5,7 +5,6 @@ use App\Repository\Ic\IcDepartmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -39,14 +38,6 @@ class IcDepartment
     #[Assert\Length(max: 255, maxMessage: 'Department name must be 255 characters or less.')]
     #[Groups("ic")]
     private ?string $department = null;
-
-    /**
-     * The optional contact. Serialized through the contactId/contactName virtual properties
-     * below rather than as a nested object.
-     */
-    #[ORM\ManyToOne(targetEntity: IcContact::class)]
-    #[ORM\JoinColumn(name: 'contact_id', referencedColumnName: 'id', nullable: true)]
-    private ?IcContact $icContact = null;
 
     public function getId(): ?int
     {
@@ -85,29 +76,5 @@ class IcDepartment
     {
         $this->department = $department;
         return $this;
-    }
-
-    #[Ignore]
-    public function getIcContact(): ?IcContact
-    {
-        return $this->icContact;
-    }
-
-    public function setIcContact(?IcContact $icContact): self
-    {
-        $this->icContact = $icContact;
-        return $this;
-    }
-
-    #[Groups("ic")]
-    public function getContactId(): ?int
-    {
-        return $this->icContact?->getId();
-    }
-
-    #[Groups("ic")]
-    public function getContactName(): ?string
-    {
-        return $this->icContact?->getDisplayName();
     }
 }

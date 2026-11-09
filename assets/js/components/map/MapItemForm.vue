@@ -196,22 +196,6 @@
                 <template v-if="userCanEdit && isEditMode">
                   <div class="form-row">
                     <div class="form-group col-md-12">
-                      <label for="buildingContact">Contact</label>
-                      <ic-contact-select
-                          input-id="buildingContact"
-                          v-model="record.contactId"
-                          v-model:displayName="record.contactName"
-                      ></ic-contact-select>
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <h5>Contact</h5>
-                  <p>{{ record.contactName || 'None' }}</p>
-                </template>
-                <template v-if="userCanEdit && isEditMode">
-                  <div class="form-row">
-                    <div class="form-group col-md-12">
                       <label class="form-check-label">
                         Include in Admissions Tour (Set the position the building will appear in the Tour)
                       </label>
@@ -269,6 +253,12 @@
                            href="#pills-dispensers" role="tab" aria-controls="pills-dispensers"
                            aria-selected="false">Cycle Dispensers <span
                             class="badge badge-light">{{ record.dispensers.length }}</span></a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="pills-contacts-tab" data-toggle="pill"
+                           href="#pills-contacts" role="tab" aria-controls="pills-contacts"
+                           aria-selected="false">Contacts <span
+                            class="badge badge-light">{{ (record.contactIds || []).length }}</span></a>
                       </li>
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
@@ -819,6 +809,14 @@
                           </div>
                         </template>
                       </div><!-- end .tab-pane -->
+                      <div class="tab-pane fade pl-4" id="pills-contacts" role="tabpanel"
+                           aria-labelledby="pills-contacts-tab">
+                        <ic-contact-cards
+                            input-id-prefix="buildingContact"
+                            v-model="record.contactIds"
+                            :editable="userCanEdit && isEditMode"
+                        ></ic-contact-cards>
+                      </div><!-- end .tab-pane -->
                     </div><!-- end .tablist -->
                   </div>
                 </div><!-- end auxuilary pills -->
@@ -1249,7 +1247,7 @@ import MapitemImageEditModal from './MapitemImageEditModal.vue'
 import ImageThumbnailPod from './ImageThumbnailPod.vue'
 import Heading from '../utils/Heading.vue'
 import VueMultiselect from 'vue-multiselect'
-import IcContactSelect from '../ic/IcContactSelect.vue'
+import IcContactCards from '../ic/IcContactCards.vue'
 import NotFound from '../utils/NotFound.vue'
 import Draggable from 'vuedraggable'
 import GoogleMap from './GoogleMap.vue'
@@ -1297,7 +1295,7 @@ export default {
   },
   components: {
     Heading,
-    IcContactSelect,
+    IcContactCards,
     VueMultiselect,
     MapitemDeleteModal,
     MapitemImageDeleteModal,
@@ -1369,8 +1367,7 @@ export default {
         alias: '',
         bathrooms: [],
         building: null,
-        contactId: null,
-        contactName: null,
+        contactIds: [],
         description: '',
         diningOptions: [],
         dispensers: [],

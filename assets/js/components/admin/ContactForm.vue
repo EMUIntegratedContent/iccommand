@@ -471,13 +471,9 @@ export default {
 				url: "",
 				forager_url: "",
 				image_url: "",
-				college_count: 0,
-				department_count: 0,
 				program_count: 0,
 				scholarship_count: 0,
 				building_count: 0,
-				colleges: [],
-				departments: [],
 				programs: [],
 				scholarships: [],
 				buildings: []
@@ -521,8 +517,6 @@ export default {
 		 */
 		isInUse: function () {
 			return (
-				this.record.college_count > 0 ||
-				this.record.department_count > 0 ||
 				this.record.program_count > 0 ||
 				this.record.scholarship_count > 0 ||
 				this.record.building_count > 0
@@ -549,24 +543,6 @@ export default {
 		 */
 		usageSections: function () {
 			return [
-				{
-					key: "colleges",
-					label: "Colleges",
-					items: this.record.colleges.map((c) => ({
-						id: c.id,
-						name: c.college,
-						url: "/admin/colleges/" + c.id + "/edit"
-					}))
-				},
-				{
-					key: "departments",
-					label: "Departments",
-					items: this.record.departments.map((d) => ({
-						id: d.id,
-						name: d.department,
-						url: "/admin/departments/" + d.id + "/edit"
-					}))
-				},
 				{
 					key: "programs",
 					label: "Programs",

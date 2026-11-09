@@ -17,14 +17,27 @@ class IcContactRepository extends ServiceEntityRepository
     /** IcContact::getDisplayName() in SQL, for a contact aliased as c. */
     public const DISPLAY_NAME_SQL = "IF(c.type = 'Person', CONCAT(c.last_name, ', ', c.first_name), c.organization)";
 
+    /**
+     * The tables joining a record to its contacts: (record id column, contact_id). Both are
+     * foreign keys; the contact side has no ON DELETE action, so a used contact can't be deleted.
+     */
+    public const PROGRAM_LINK = 'program_contact';
+    public const SCHOLARSHIP_LINK = 'scholarship_contact';
+    public const BUILDING_LINK = 'map_building_contact';
+
+    /** link table => its record id column */
+    public const LINK_TABLES = [
+        self::PROGRAM_LINK => 'program_id',
+        self::SCHOLARSHIP_LINK => 'scholarship_id',
+        self::BUILDING_LINK => 'building_id',
+    ];
+
     /** The row select shared by the list and single-record queries; counts are correlated subqueries. */
     private const SELECT_WITH_COUNTS = "
         SELECT c.*, " . self::DISPLAY_NAME_SQL . " AS display_name,
-            (SELECT COUNT(*) FROM ic_colleges x WHERE x.contact_id = c.id) AS college_count,
-            (SELECT COUNT(*) FROM ic_departments x WHERE x.contact_id = c.id) AS department_count,
-            (SELECT COUNT(*) FROM program_programs x WHERE x.contact_id = c.id) AS program_count,
-            (SELECT COUNT(*) FROM scholarships_scholarship x WHERE x.contact_id = c.id) AS scholarship_count,
-            (SELECT COUNT(*) FROM map_building x WHERE x.contact_id = c.id) AS building_count
+            (SELECT COUNT(*) FROM program_contact x WHERE x.contact_id = c.id) AS program_count,
+            (SELECT COUNT(*) FROM scholarship_contact x WHERE x.contact_id = c.id) AS scholarship_count,
+            (SELECT COUNT(*) FROM map_building_contact x WHERE x.contact_id = c.id) AS building_count
         FROM ic_contacts c";
 
     public function __construct(ManagerRegistry $registry)
@@ -60,6 +73,31 @@ class IcContactRepository extends ServiceEntityRepository
         }
 
         return $info;
+    }
+
+    /**
+     * The contact ids of each record in a link table, keyed by record id, each list sorted by
+     * contact name.
+     *
+     * @param string $linkTable one of the LINK_TABLES keys
+     * @return array<int, int[]>
+     */
+    public function findContactIdsByRecord(string $linkTable): array
+    {
+        $recordColumn = self::LINK_TABLES[$linkTable] ?? throw new \InvalidArgumentException("Unknown contact link table $linkTable.");
+
+        $rows = $this->getEntityManager()->getConnection()->executeQuery(
+            "SELECT l.$recordColumn AS record_id, l.contact_id
+             FROM $linkTable l JOIN ic_contacts c ON c.id = l.contact_id
+             ORDER BY " . self::DISPLAY_NAME_SQL . ' ASC, c.id ASC'
+        )->fetchAllAssociative();
+
+        $byRecord = [];
+        foreach ($rows as $row) {
+            $byRecord[(int) $row['record_id']][] = (int) $row['contact_id'];
+        }
+
+        return $byRecord;
     }
 
     /**
@@ -120,15 +158,16 @@ class IcContactRepository extends ServiceEntityRepository
     public function findUsage(int $id): array
     {
         $queries = [
-            'colleges' => 'SELECT x.id, x.college FROM ic_colleges x WHERE x.contact_id = :id ORDER BY x.college ASC',
-            'departments' => 'SELECT x.id, x.department FROM ic_departments x WHERE x.contact_id = :id ORDER BY x.department ASC',
             'programs' => 'SELECT x.id, x.full_name, x.catalog FROM program_programs x
-                WHERE x.contact_id = :id ORDER BY x.full_name ASC, x.catalog ASC',
+                JOIN program_contact l ON l.program_id = x.id
+                WHERE l.contact_id = :id ORDER BY x.full_name ASC, x.catalog ASC',
             'scholarships' => 'SELECT x.id, x.schlrshp_title AS title FROM scholarships_scholarship x
-                WHERE x.contact_id = :id ORDER BY title ASC',
+                JOIN scholarship_contact l ON l.scholarship_id = x.id
+                WHERE l.contact_id = :id ORDER BY title ASC',
             'buildings' => 'SELECT x.id, i.name FROM map_building x
                 JOIN map_item i ON i.id = x.id
-                WHERE x.contact_id = :id ORDER BY i.name ASC',
+                JOIN map_building_contact l ON l.building_id = x.id
+                WHERE l.contact_id = :id ORDER BY i.name ASC',
         ];
 
         $conn = $this->getEntityManager()->getConnection();
@@ -144,7 +183,7 @@ class IcContactRepository extends ServiceEntityRepository
     private function castRow(array $row): array
     {
         $row['id'] = (int) $row['id'];
-        foreach (['college', 'department', 'program', 'scholarship', 'building'] as $noun) {
+        foreach (['program', 'scholarship', 'building'] as $noun) {
             $row[$noun . '_count'] = (int) $row[$noun . '_count'];
         }
 

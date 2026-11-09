@@ -287,7 +287,7 @@ class ProgramsController extends AbstractController
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
 		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
 		$program->setIsActive($request->request->getBoolean("is_active", true)); // New programs default to active.
-		$program->setContactId($this->icService->resolveContact($request->request->get("contact_id"))?->getId());
+		$contacts = $this->icService->resolveContacts($request->request->all("contact_ids")); // Throws a 422 for an unknown id.
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -312,6 +312,13 @@ class ProgramsController extends AbstractController
 			$this->service->updateProgramDepartments($program->getId(), $departmentIds);
 		} catch (\Exception $e) {
 			return new Response("Failed to save program departments.", 500, array("Content-Type" => "application/json"));
+		}
+
+		// Update contacts pivot table
+		try {
+			$this->service->updateProgramContacts($program->getId(), array_map(fn($c) => $c->getId(), $contacts));
+		} catch (\Exception $e) {
+			return new Response("Failed to save program contacts.", 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update delivery modes using service method
@@ -420,9 +427,8 @@ class ProgramsController extends AbstractController
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
 		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
 		$program->setIsActive($request->request->getBoolean("is_active", $program->isActive())); // Omitted key leaves it unchanged.
-		if ($request->request->has("contact_id")) { // Omitted key leaves it unchanged.
-			$program->setContactId($this->icService->resolveContact($request->request->get("contact_id"))?->getId());
-		}
+		// Omitted key leaves the contacts unchanged. Throws a 422 for an unknown id.
+		$contacts = $request->request->has("contact_ids") ? $this->icService->resolveContacts($request->request->all("contact_ids")) : null;
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -447,6 +453,15 @@ class ProgramsController extends AbstractController
 			$this->service->updateProgramDepartments($program->getId(), $departmentIds);
 		} catch (\Exception $e) {
 			return new Response("Failed to save program departments.", 500, array("Content-Type" => "application/json"));
+		}
+
+		// Update contacts pivot table
+		if ($contacts !== null) {
+			try {
+				$this->service->updateProgramContacts($program->getId(), array_map(fn($c) => $c->getId(), $contacts));
+			} catch (\Exception $e) {
+				return new Response("Failed to save program contacts.", 500, array("Content-Type" => "application/json"));
+			}
 		}
 
 		// Update delivery modes

@@ -53,10 +53,10 @@ class MapItemController extends AbstractController
 	{
 		$mapItems = $this->doctrine->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
 
-		// The edit form needs the contact's id and name; the public feed gets icContactInfo only.
+		// The edit form needs the contacts' ids and names; the public feed gets icContactsInfo only.
 		$serialized = $this->serializer->serialize($mapItems, 'json', [
 			'groups' => 'bldgs',
-			AbstractNormalizer::IGNORED_ATTRIBUTES => ['contactId', 'contactName'],
+			AbstractNormalizer::IGNORED_ATTRIBUTES => ['contactIds', 'contactNames'],
 		]);
 		return new Response($serialized, 200, ['Content-Type' => 'application/json']);
 	}
@@ -201,9 +201,9 @@ class MapItemController extends AbstractController
 					$mapItem->setBuildingType($buildingType);
 				}
 
-				// Contact. Omitted key leaves it unchanged.
-				if (array_key_exists('contactId', $data)) {
-					$mapItem->setIcContact($this->icService->resolveContact($data['contactId']));
+				// Contacts. Omitted key leaves them unchanged.
+				if (array_key_exists('contactIds', $data)) {
+					$mapItem->setIcContacts($this->icService->resolveContacts($data['contactIds']));
 				}
 				break;
 			case "bus":
@@ -429,9 +429,9 @@ class MapItemController extends AbstractController
 					$mapItem->setBuildingType($buildingType);
 				}
 
-				// Contact. Omitted key leaves it unchanged.
-				if (array_key_exists('contactId', $data)) {
-					$mapItem->setIcContact($this->icService->resolveContact($data['contactId']));
+				// Contacts. Omitted key leaves them unchanged.
+				if (array_key_exists('contactIds', $data)) {
+					$mapItem->setIcContacts($this->icService->resolveContacts($data['contactIds']));
 				}
 
 				// Building bathrooms

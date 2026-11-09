@@ -12,12 +12,11 @@
 		</div>
 		<div>
 			<p>
-				Contacts are shared across IC Command: <strong>colleges</strong>,
-				<strong>departments</strong>, <strong>programs</strong>,
+				Contacts are shared across IC Command: <strong>programs</strong>,
 				<strong>scholarships</strong> and <strong>buildings</strong> can each
-				have one, chosen from this list on their own forms. A contact's name,
-				email, phone and URL appear on the public API for those records. A
-				contact can't be deleted while anything still uses it.
+				have any number of them, chosen from this list on their own forms. A
+				contact's name, email, phone and URL appear on the public API for those
+				records. A contact can't be deleted while anything still uses it.
 			</p>
 		</div>
 		<div class="card">
@@ -88,8 +87,6 @@
 								<th scope="col">Type</th>
 								<th scope="col">Email</th>
 								<th scope="col">Phone</th>
-								<th scope="col">Colleges</th>
-								<th scope="col">Departments</th>
 								<th scope="col">Programs</th>
 								<th scope="col">Scholarships</th>
 								<th scope="col">Buildings</th>
@@ -106,8 +103,6 @@
 								<td>{{ contact.type }}</td>
 								<td>{{ contact.email }}</td>
 								<td>{{ contact.phone }}</td>
-								<td>{{ contact.college_count }}</td>
-								<td>{{ contact.department_count }}</td>
 								<td>{{ contact.program_count }}</td>
 								<td>{{ contact.scholarship_count }}</td>
 								<td>{{ contact.building_count }}</td>

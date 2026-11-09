@@ -74,14 +74,13 @@ show up in both apps immediately.
 
 ## Public college and department lists
 
-No login needed (`^/api/external` is public). Same rows as `/api/scholarships/{colleges,departments}`
-plus each record's public contact (see `docs/ic-contacts.md`), sorted by name. Code:
-`src/Controller/Api/Ic/IcExternalController.php`.
+No login needed (`^/api/external` is public). Same output as `/api/scholarships/{colleges,departments}`,
+sorted by name. Code: `src/Controller/Api/Ic/IcExternalController.php`.
 
 | Route | Each row |
 |---|---|
-| `GET /api/external/ic/colleges` | `id`, `college`, `url`, `icContactInfo` |
-| `GET /api/external/ic/departments` | `id`, `department`, `college_id`, `icContactInfo` |
+| `GET /api/external/ic/colleges` | `id`, `college`, `url` |
+| `GET /api/external/ic/departments` | `id`, `department`, `college_id` |
 
 ## Public API changes (breaking)
 

@@ -76,14 +76,6 @@ class IcService
     }
 
     /**
-     * The public college list: the dropdown rows plus each college's contact.
-     */
-    public function getPublicColleges(): array
-    {
-        return $this->addIcContactInfo($this->colleges->findForPublicList());
-    }
-
-    /**
      * Why a college can't be deleted (it still has departments, programs or scholarships),
      * or null if nothing uses it.
      */
@@ -130,14 +122,6 @@ class IcService
     public function getDepartmentsForDropdown(): array
     {
         return $this->departments->findForDropdown();
-    }
-
-    /**
-     * The public department list: the dropdown rows plus each department's contact.
-     */
-    public function getPublicDepartments(): array
-    {
-        return $this->addIcContactInfo($this->departments->findForPublicList());
     }
 
     /**
@@ -189,47 +173,67 @@ class IcService
     }
 
     /**
-     * The contact a form picked. A cleared picker (null or '') means no contact.
+     * The contacts a form picked, without duplicates. Cleared pickers (null or '') are skipped,
+     * so an empty list means no contacts.
      *
+     * @param mixed $ids list of contact ids; anything else counts as an empty list
+     * @return IcContact[]
      * @throws UnprocessableEntityHttpException for an id that doesn't exist, e.g. a contact
      *                                          deleted while the form was open
      */
-    public function resolveContact(mixed $id): ?IcContact
+    public function resolveContacts(mixed $ids): array
     {
-        if ($id === null || $id === '') {
-            return null;
+        if (!is_array($ids)) {
+            return [];
         }
 
-        $contactId = filter_var($id, FILTER_VALIDATE_INT);
-        $contact = $contactId === false ? null : $this->contacts->find($contactId);
-        if ($contact === null) {
-            throw new UnprocessableEntityHttpException('That contact no longer exists.');
+        $contacts = [];
+        foreach ($ids as $id) {
+            if ($id === null || $id === '') {
+                continue;
+            }
+
+            $contactId = filter_var($id, FILTER_VALIDATE_INT);
+            $contact = $contactId === false ? null : $this->contacts->find($contactId);
+            if ($contact === null) {
+                throw new UnprocessableEntityHttpException('That contact no longer exists.');
+            }
+            $contacts[$contact->getId()] = $contact;
         }
 
-        return $contact;
+        return array_values($contacts);
     }
 
     /**
-     * What the public feeds publish about each contact, keyed by contact id.
-     */
-    public function getIcContactInfoById(): array
-    {
-        return $this->contacts->findPublicInfoById();
-    }
-
-    /**
-     * Swaps each row's contact_id for its public icContactInfo (null without a contact).
+     * What the public feeds publish about each contact, as a list per record id, for one of
+     * the contact link tables (see IcContactRepository::LINK_TABLES). Records without
+     * contacts are absent.
      *
-     * @param array<int, array> $rows rows with a contact_id key
+     * @return array<int, array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>>
      */
-    public function addIcContactInfo(array $rows): array
+    public function getIcContactsInfoByRecord(string $linkTable): array
     {
-        $info = $this->getIcContactInfoById();
+        $info = $this->contacts->findPublicInfoById();
+
+        $byRecord = [];
+        foreach ($this->contacts->findContactIdsByRecord($linkTable) as $recordId => $contactIds) {
+            $byRecord[$recordId] = array_values(array_filter(array_map(fn (int $id) => $info[$id] ?? null, $contactIds)));
+        }
+
+        return $byRecord;
+    }
+
+    /**
+     * Adds each row's icContactsInfo: the public details of its program's contacts, or [].
+     *
+     * @param array<int, array> $rows program rows with an id key
+     */
+    public function addProgramContactsInfo(array $rows): array
+    {
+        $info = $this->getIcContactsInfoByRecord(IcContactRepository::PROGRAM_LINK);
 
         return array_map(function (array $row) use ($info) {
-            $contactId = $row['contact_id'];
-            unset($row['contact_id']);
-            $row['icContactInfo'] = $contactId === null ? null : ($info[(int) $contactId] ?? null);
+            $row['icContactsInfo'] = $info[(int) $row['id']] ?? [];
             return $row;
         }, $rows);
     }
@@ -245,8 +249,6 @@ class IcService
         }
 
         return $this->blockerMessage($contact['display_name'], [
-            'college' => $contact['college_count'],
-            'department' => $contact['department_count'],
             'program' => $contact['program_count'],
             'scholarship' => $contact['scholarship_count'],
             'building' => $contact['building_count'],

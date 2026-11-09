@@ -758,6 +758,19 @@ class ProgramsService
 	}
 
 	/**
+	 * Replaces a program's contacts by delegating to the repository.
+	 *
+	 * @param int $programId
+	 * @param int[] $contactIds ids of contacts that exist (see IcService::resolveContacts())
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function updateProgramContacts(int $programId, array $contactIds): void
+	{
+		$this->em->getRepository(Programs::class)->updateProgramContacts($programId, array_values(array_unique($contactIds)));
+	}
+
+	/**
 	 * Normalize and update departments for a program by delegating to the repository.
 	 * Accepts an array or comma-separated string and ensures an array of ints is passed
 	 * to the repository.

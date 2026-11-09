@@ -21,12 +21,12 @@ class ScholarshipExternalController extends AbstractController
 {
     /**
      * Serialization context for the public endpoints.
-     * Uses the scholarship group, minus the Gedmo audit fields, contactId and contactName.
+     * Uses the scholarship group, minus the Gedmo audit fields, contactId, contactIds and contactNames.
      * Excluded here instead of on the entity so the admin API keeps them.
      */
     private const PUBLIC_CONTEXT = [
         'groups' => 'scholarship',
-        AbstractNormalizer::IGNORED_ATTRIBUTES => ['created', 'createdBy', 'updated', 'updatedBy', 'contactId', 'contactName'],
+        AbstractNormalizer::IGNORED_ATTRIBUTES => ['created', 'createdBy', 'updated', 'updatedBy', 'contactId', 'contactIds', 'contactNames'],
     ];
 
     private ManagerRegistry $doctrine;

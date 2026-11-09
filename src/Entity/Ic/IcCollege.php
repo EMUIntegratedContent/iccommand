@@ -5,7 +5,6 @@ use App\Repository\Ic\IcCollegeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -35,14 +34,6 @@ class IcCollege
     #[Groups("ic")]
     private ?string $url = null;
 
-    /**
-     * The optional contact. Serialized through the contactId/contactName virtual properties
-     * below rather than as a nested object.
-     */
-    #[ORM\ManyToOne(targetEntity: IcContact::class)]
-    #[ORM\JoinColumn(name: 'contact_id', referencedColumnName: 'id', nullable: true)]
-    private ?IcContact $icContact = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -68,29 +59,5 @@ class IcCollege
     {
         $this->url = $url;
         return $this;
-    }
-
-    #[Ignore]
-    public function getIcContact(): ?IcContact
-    {
-        return $this->icContact;
-    }
-
-    public function setIcContact(?IcContact $icContact): self
-    {
-        $this->icContact = $icContact;
-        return $this;
-    }
-
-    #[Groups("ic")]
-    public function getContactId(): ?int
-    {
-        return $this->icContact?->getId();
-    }
-
-    #[Groups("ic")]
-    public function getContactName(): ?string
-    {
-        return $this->icContact?->getDisplayName();
     }
 }

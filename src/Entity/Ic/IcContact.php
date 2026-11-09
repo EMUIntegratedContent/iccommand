@@ -9,8 +9,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * A person or organization to contact, shared across IC Command apps. Colleges, departments,
- * scholarships, programs and buildings can each point at one through their contact_id.
+ * A person or organization to contact, shared across IC Command apps. Programs, scholarships
+ * and buildings can each have any number of them, through the program_contact,
+ * scholarship_contact and map_building_contact link tables.
  */
 #[ORM\Entity(repositoryClass: IcContactRepository::class)]
 #[ORM\Table(name: 'ic_contacts')]

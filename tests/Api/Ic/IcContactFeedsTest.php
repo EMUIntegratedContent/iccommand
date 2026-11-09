@@ -2,10 +2,8 @@
 
 namespace App\Tests\Api\Ic;
 
-use App\Entity\Ic\IcCollege;
 use App\Entity\Ic\IcContact;
 use App\Entity\Ic\IcContactType;
-use App\Entity\Ic\IcDepartment;
 use App\Entity\Map\MapBuilding;
 use App\Entity\Scholarship\Scholarship;
 use App\Entity\User;
@@ -14,9 +12,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * A contact set through each record's own API reaches that record's public feed as
- * icContactInfo: name, email, phone and url only. Test rows are ZZ-prefixed and temp users
- * zz_ictest_-prefixed; tearDown removes both.
+ * Contacts set through each record's own API reach that record's public feed as the
+ * icContactsInfo list: name, email, phone and url only, sorted by name, [] for none. Test rows
+ * are ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
  */
 class IcContactFeedsTest extends WebTestCase
 {
@@ -26,6 +24,7 @@ class IcContactFeedsTest extends WebTestCase
     /** Fields of the contact that must never reach a public feed. */
     private const PRIVATE_VALUES = ['ZZPRIVATEROOM', 'ZZPRIVATEAREA', 'zzprivateforager', 'zzprivateimage'];
 
+    /** The contact with every field set. Sorts after SECOND_INFO by display name ("Last, Jane" after "Last, Adam"). */
     private const EXPECTED_INFO = [
         'name' => 'Jane ' . self::NAME_PREFIX,
         'email' => 'zz.feed@emich.edu',
@@ -33,143 +32,164 @@ class IcContactFeedsTest extends WebTestCase
         'url' => 'https://www.emich.edu/zz-feed',
     ];
 
-    public function testContactReachesEveryPublicFeed(): void
+    /** A second contact with only the required fields. */
+    private const SECOND_INFO = [
+        'name' => 'Adam ' . self::NAME_PREFIX,
+        'email' => null,
+        'phone' => null,
+        'url' => null,
+    ];
+
+    public function testContactsReachEveryPublicFeed(): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
         $client->loginUser($this->persistUser($em));
 
         $contactId = $this->createContact($client);
+        $secondId = $this->createContact($client, 'Adam', false);
+        $contactIds = [$contactId, $secondId];
 
-        $collegeId = $this->create($client, 'POST', '/api/admin/colleges', [
-            'college' => self::NAME_PREFIX . ' College',
-            'contactId' => $contactId,
-        ]);
-        $plainCollegeId = $this->create($client, 'POST', '/api/admin/colleges', ['college' => self::NAME_PREFIX . ' Plain College']);
-        $departmentId = $this->create($client, 'POST', '/api/admin/departments', [
-            'department' => self::NAME_PREFIX . ' Department',
-            'collegeId' => $collegeId,
-            'contactId' => $contactId,
-        ]);
-        $scholarshipId = $this->create($client, 'POST', '/api/scholarships/', [
-            'title' => self::NAME_PREFIX . ' Scholarship',
-            'overview' => '<p>Overview</p>',
-            'url' => 'https://www.emich.edu/zz',
-            'description' => '<p>Description</p>',
-            'contact' => '<p>Free-text contact</p>',
-            'active' => true,
-            'contactId' => $contactId,
-        ]);
-        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em) + ['contactId' => $contactId]);
-        $programId = $this->create($client, 'POST', '/api/programs/', $this->programPayload($em) + ['contact_id' => $contactId]);
+        $scholarshipId = $this->create($client, 'POST', '/api/scholarships/', $this->scholarshipPayload() + ['contactIds' => $contactIds]);
+        $plainScholarshipId = $this->create($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(' Plain'));
+        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em) + ['contactIds' => $contactIds]);
+        $programId = $this->create($client, 'POST', '/api/programs/', $this->programPayload($em) + ['contact_ids' => $contactIds]);
 
         // The public routes need no login.
         $client->getCookieJar()->clear();
         static::getContainer()->get('security.token_storage')->setToken(null);
 
-        $colleges = $this->publicJson($client, '/api/external/ic/colleges');
-        $college = $this->rowById($colleges, $collegeId);
-        $this->assertSame(['id', 'college', 'url', 'icContactInfo'], array_keys($college));
-        $this->assertSame(self::EXPECTED_INFO, $college['icContactInfo']);
-        $this->assertNull($this->rowById($colleges, $plainCollegeId)['icContactInfo']);
-
-        $department = $this->rowById($this->publicJson($client, '/api/external/ic/departments'), $departmentId);
-        $this->assertSame(['id', 'department', 'college_id', 'icContactInfo'], array_keys($department));
-        $this->assertSame(self::EXPECTED_INFO, $department['icContactInfo']);
-
         // Scholarships keep publishing the free-text contact beside the new key.
+        $expected = [self::SECOND_INFO, self::EXPECTED_INFO];
         $scholarshipRows = [
             $this->rowById($this->publicJson($client, '/api/external/scholarships/all'), $scholarshipId),
             $this->rowById($this->publicJson($client, '/api/external/scholarships/search?title=' . urlencode(self::NAME_PREFIX)), $scholarshipId),
             $this->publicJson($client, '/api/external/scholarships/' . $scholarshipId),
         ];
         foreach ($scholarshipRows as $row) {
-            $this->assertSame(self::EXPECTED_INFO, $row['icContactInfo']);
+            $this->assertSame($expected, $row['icContactsInfo']);
             $this->assertSame('<p>Free-text contact</p>', $row['contact']);
-            $this->assertNoContactId($row);
+            $this->assertNoContactIds($row);
         }
+        $this->assertSame([], $this->rowById($this->publicJson($client, '/api/external/scholarships/all'), $plainScholarshipId)['icContactsInfo']);
 
         $building = $this->rowById($this->publicJson($client, '/api/external/mapitems'), $buildingId);
-        $this->assertSame(self::EXPECTED_INFO, $building['icContactInfo']);
-        $this->assertNoContactId($building);
+        $this->assertSame($expected, $building['icContactsInfo']);
+        $this->assertNoContactIds($building);
 
         $program = $this->rowById($this->publicJson($client, '/api/external/programs/programs'), $programId);
-        $this->assertSame(self::EXPECTED_INFO, $program['icContactInfo']);
-        $this->assertNoContactId($program);
+        $this->assertSame($expected, $program['icContactsInfo']);
+        $this->assertNoContactIds($program);
 
         $search = $this->publicJson($client, '/api/external/programs/search?program=' . urlencode(self::NAME_PREFIX));
         $this->assertCount(1, $search['programs']);
-        $this->assertSame(self::EXPECTED_INFO, $search['programs'][0]['icContactInfo']);
-        $this->assertNoContactId($search['programs'][0]);
+        $this->assertSame($expected, $search['programs'][0]['icContactsInfo']);
+        $this->assertNoContactIds($search['programs'][0]);
     }
 
-    public function testContactCanBeReadBackAndCleared(): void
+    public function testContactsCanBeReadBackAndChanged(): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
         $client->loginUser($this->persistUser($em));
 
         $contactId = $this->createContact($client);
-        $displayName = self::NAME_PREFIX . ', Jane';
+        $secondId = $this->createContact($client, 'Adam', false);
+        $names = [self::NAME_PREFIX . ', Jane', self::NAME_PREFIX . ', Adam'];
 
         // Scholarship
-        $scholarshipId = $this->create($client, 'POST', '/api/scholarships/', [
-            'title' => self::NAME_PREFIX . ' Scholarship',
-            'overview' => '<p>Overview</p>',
-            'url' => 'https://www.emich.edu/zz',
-            'description' => '<p>Description</p>',
-            'contact' => '<p>Free-text contact</p>',
-            'contactId' => $contactId,
-        ]);
+        $scholarshipId = $this->create($client, 'POST', '/api/scholarships/', $this->scholarshipPayload() + ['contactIds' => [$contactId, $secondId]]);
         $client->request('GET', '/api/scholarships/' . $scholarshipId);
         $scholarship = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame($contactId, $scholarship['contactId']);
-        $this->assertSame($displayName, $scholarship['contactName']);
+        $this->assertEqualsCanonicalizing([$contactId, $secondId], $scholarship['contactIds']);
+        $this->assertEqualsCanonicalizing($names, $scholarship['contactNames']);
 
-        // The free-text contact stays required when a contact is picked.
+        // The free-text contact stays required when contacts are picked.
         $this->sendJson($client, 'PUT', '/api/scholarships/' . $scholarshipId, ['contact' => '']);
         $this->assertResponseStatusCodeSame(422);
         $em->clear();
 
-        $this->sendJson($client, 'PUT', '/api/scholarships/' . $scholarshipId, ['contactId' => null, 'contact' => '<p>Free-text contact</p>']);
+        // Omitted key leaves the contacts alone; duplicates and blanks are dropped.
+        $this->sendJson($client, 'PUT', '/api/scholarships/' . $scholarshipId, ['title' => self::NAME_PREFIX . ' Scholarship']);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertNull(json_decode($client->getResponse()->getContent(), true)['contactId']);
+        $this->assertCount(2, json_decode($client->getResponse()->getContent(), true)['contactIds']);
+        $this->sendJson($client, 'PUT', '/api/scholarships/' . $scholarshipId, ['contactIds' => [$contactId, $contactId, null, '']]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([$contactId], json_decode($client->getResponse()->getContent(), true)['contactIds']);
+        $this->sendJson($client, 'PUT', '/api/scholarships/' . $scholarshipId, ['contactIds' => []]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([], json_decode($client->getResponse()->getContent(), true)['contactIds']);
 
-        // A map item saved without the key keeps its contact (other item types never have one).
-        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em) + ['contactId' => $contactId]);
+        // Building (other map item types never have contacts)
+        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em) + ['contactIds' => [$contactId, $secondId]]);
         $client->request('GET', '/api/mapitems/' . $buildingId);
         $building = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame($contactId, $building['contactId']);
-        $this->assertSame($displayName, $building['contactName']);
+        $this->assertEqualsCanonicalizing([$contactId, $secondId], $building['contactIds']);
+        $this->assertEqualsCanonicalizing($names, $building['contactNames']);
 
         $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId] + $this->buildingPayload($em));
         $this->assertResponseStatusCodeSame(201);
-        $this->assertSame($contactId, json_decode($client->getResponse()->getContent(), true)['contactId']);
+        $this->assertCount(2, json_decode($client->getResponse()->getContent(), true)['contactIds']);
 
-        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId, 'contactId' => null] + $this->buildingPayload($em));
+        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId, 'contactIds' => [$secondId]] + $this->buildingPayload($em));
         $this->assertResponseStatusCodeSame(201);
-        $this->assertNull(json_decode($client->getResponse()->getContent(), true)['contactId']);
+        $this->assertSame([$secondId], json_decode($client->getResponse()->getContent(), true)['contactIds']);
 
-        // Program (raw SQL read: snake_case keys)
-        $programId = $this->create($client, 'POST', '/api/programs/', $this->programPayload($em) + ['contact_id' => $contactId]);
+        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId, 'contactIds' => []] + $this->buildingPayload($em));
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame([], json_decode($client->getResponse()->getContent(), true)['contactIds']);
+
+        // Program (raw SQL read: snake_case keys, ids as a comma-separated string)
+        $programId = $this->create($client, 'POST', '/api/programs/', $this->programPayload($em) + ['contact_ids' => [$contactId, $secondId, $contactId]]);
         $client->request('GET', '/api/programs/' . $programId);
         $program = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame($contactId, (int) $program['contact_id']);
-        $this->assertSame($displayName, $program['contact_name']);
+        $this->assertEqualsCanonicalizing([$contactId, $secondId], array_map('intval', explode(',', $program['contact_ids'])));
 
-        $this->sendJson($client, 'PUT', '/api/programs/', ['id' => $programId, 'contact_id' => null] + $this->programPayload($em));
+        $this->sendJson($client, 'PUT', '/api/programs/', ['id' => $programId] + $this->programPayload($em));
         $this->assertResponseStatusCodeSame(201);
-        $this->assertNull(json_decode($client->getResponse()->getContent(), true)['contact_id']);
+        $this->assertCount(2, explode(',', json_decode($client->getResponse()->getContent(), true)['contact_ids']));
+
+        $this->sendJson($client, 'PUT', '/api/programs/', ['id' => $programId, 'contact_ids' => [$secondId]] + $this->programPayload($em));
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame((string) $secondId, json_decode($client->getResponse()->getContent(), true)['contact_ids']);
+
+        $this->sendJson($client, 'PUT', '/api/programs/', ['id' => $programId, 'contact_ids' => []] + $this->programPayload($em));
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertNull(json_decode($client->getResponse()->getContent(), true)['contact_ids']);
 
         // Unknown ids are refused on every save path.
-        $this->sendJson($client, 'PUT', '/api/scholarships/' . $scholarshipId, ['contactId' => 999999999]);
+        $this->sendJson($client, 'PUT', '/api/scholarships/' . $scholarshipId, ['contactIds' => [$contactId, 999999999]]);
         $this->assertResponseStatusCodeSame(422);
         $em->clear();
-        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId, 'contactId' => 999999999] + $this->buildingPayload($em));
+        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId, 'contactIds' => [999999999]] + $this->buildingPayload($em));
         $this->assertResponseStatusCodeSame(422);
         $em->clear();
-        $this->sendJson($client, 'PUT', '/api/programs/', ['id' => $programId, 'contact_id' => 999999999] + $this->programPayload($em));
+        $this->sendJson($client, 'PUT', '/api/programs/', ['id' => $programId, 'contact_ids' => [999999999]] + $this->programPayload($em));
         $this->assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * Deleting a program, scholarship or building drops its contact links; the contact stays.
+     */
+    public function testDeletingARecordDropsItsContactLinks(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $client->loginUser($this->persistUser($em));
+        $conn = $em->getConnection();
+
+        $contactId = $this->createContact($client);
+        $programId = $this->create($client, 'POST', '/api/programs/', $this->programPayload($em) + ['contact_ids' => [$contactId]]);
+        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em) + ['contactIds' => [$contactId]]);
+        $this->assertSame(1, (int) $conn->fetchOne('SELECT COUNT(*) FROM program_contact WHERE program_id = ?', [$programId]));
+        $this->assertSame(1, (int) $conn->fetchOne('SELECT COUNT(*) FROM map_building_contact WHERE building_id = ?', [$buildingId]));
+
+        $client->request('DELETE', '/api/programs/' . $programId);
+        $this->assertSame(0, (int) $conn->fetchOne('SELECT COUNT(*) FROM program_contact WHERE program_id = ?', [$programId]));
+        $client->request('DELETE', '/api/mapitems/' . $buildingId);
+        $this->assertSame(0, (int) $conn->fetchOne('SELECT COUNT(*) FROM map_building_contact WHERE building_id = ?', [$buildingId]));
+
+        $this->assertSame(1, (int) $conn->fetchOne('SELECT COUNT(*) FROM ic_contacts WHERE id = ?', [$contactId]));
     }
 
     /**
@@ -187,28 +207,45 @@ class IcContactFeedsTest extends WebTestCase
             ->setRoom(self::PRIVATE_VALUES[0])
             ->setArea(self::PRIVATE_VALUES[1]);
 
-        foreach ([new IcCollege(), new IcDepartment(), new Scholarship(), new MapBuilding()] as $record) {
-            $record->setIcContact($contact);
+        foreach ([new Scholarship(), new MapBuilding()] as $record) {
+            $record->setIcContacts([$contact]);
             $json = $serializer->serialize($record, 'json');
             $this->assertStringNotContainsString(self::PRIVATE_VALUES[0], $json, get_class($record));
             $this->assertStringNotContainsString(self::PRIVATE_VALUES[1], $json, get_class($record));
         }
     }
 
-    private function createContact(KernelBrowser $client): int
+    /**
+     * @param bool $full whether to set the public fields (EXPECTED_INFO) or only the name
+     */
+    private function createContact(KernelBrowser $client, string $firstName = 'Jane', bool $full = true): int
     {
         return $this->create($client, 'POST', '/api/admin/contacts', [
             'type' => 'Person',
             'lastName' => self::NAME_PREFIX,
-            'firstName' => 'Jane',
+            'firstName' => $firstName,
+        ] + (!$full ? [] : [
             'email' => self::EXPECTED_INFO['email'],
             'phone' => self::EXPECTED_INFO['phone'],
             'url' => self::EXPECTED_INFO['url'],
+        ]) + [
             'room' => self::PRIVATE_VALUES[0],
             'area' => self::PRIVATE_VALUES[1],
             'foragerUrl' => 'https://www.emich.edu/' . self::PRIVATE_VALUES[2],
             'imageUrl' => 'https://www.emich.edu/' . self::PRIVATE_VALUES[3],
         ]);
+    }
+
+    private function scholarshipPayload(string $suffix = ''): array
+    {
+        return [
+            'title' => self::NAME_PREFIX . $suffix . ' Scholarship',
+            'overview' => '<p>Overview</p>',
+            'url' => 'https://www.emich.edu/zz',
+            'description' => '<p>Description</p>',
+            'contact' => '<p>Free-text contact</p>',
+            'active' => true,
+        ];
     }
 
     private function buildingPayload(EntityManagerInterface $em): array
@@ -289,9 +326,9 @@ class IcContactFeedsTest extends WebTestCase
         return $matches[0];
     }
 
-    private function assertNoContactId(array $row): void
+    private function assertNoContactIds(array $row): void
     {
-        foreach (['contactId', 'contact_id', 'contactName', 'contact_name', 'icContact'] as $key) {
+        foreach (['contactId', 'contactIds', 'contact_id', 'contact_ids', 'contactName', 'contactNames', 'contact_name', 'icContact', 'icContacts', 'icContactInfo'] as $key) {
             $this->assertArrayNotHasKey($key, $row);
         }
     }
@@ -322,8 +359,6 @@ class IcContactFeedsTest extends WebTestCase
             $conn->executeStatement('DELETE FROM program_programs WHERE program LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM scholarships_scholarship WHERE schlrshp_title LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM map_item WHERE name LIKE ?', [$like]);
-            $conn->executeStatement('DELETE FROM ic_departments WHERE department LIKE ?', [$like]);
-            $conn->executeStatement('DELETE FROM ic_colleges WHERE college LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM ic_contacts WHERE last_name LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
         }

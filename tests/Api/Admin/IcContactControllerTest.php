@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * End-to-end test for the admin contact API (/api/admin/contacts), the rule that a contact
- * can't be deleted while anything uses it, and the picker's options route. Test rows are
+ * can't be deleted while a program, scholarship or building uses it, and the picker's options route. Test rows are
  * ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
  */
 class IcContactControllerTest extends WebTestCase
@@ -85,7 +85,7 @@ class IcContactControllerTest extends WebTestCase
         $list = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(1, $list['totalRows']);
         $this->assertSame(self::NAME_PREFIX . ' Office', $list['contacts'][0]['display_name']);
-        foreach (['college', 'department', 'program', 'scholarship', 'building'] as $noun) {
+        foreach (['program', 'scholarship', 'building'] as $noun) {
             $this->assertSame(0, $list['contacts'][0][$noun . '_count']);
         }
 
@@ -95,7 +95,7 @@ class IcContactControllerTest extends WebTestCase
         $this->assertSame('Organization', $one['type']);
         $this->assertSame('https://www.emich.edu/forager', $one['forager_url']);
         $this->assertSame(self::USERNAME_PREFIX . 'contact_admin', $one['updated_by']);
-        foreach (['colleges', 'departments', 'programs', 'scholarships', 'buildings'] as $key) {
+        foreach (['programs', 'scholarships', 'buildings'] as $key) {
             $this->assertSame([], $one[$key]);
         }
 
@@ -113,33 +113,39 @@ class IcContactControllerTest extends WebTestCase
         $client->loginUser($this->persistUser($em, 'contact_inuse', ['ROLE_GLOBAL_ADMIN']));
 
         $contactId = $this->createOrganization($client, self::NAME_PREFIX . ' In Use');
+        $otherId = $this->createOrganization($client, self::NAME_PREFIX . ' Other');
 
-        $this->json($client, 'POST', '/api/admin/colleges', ['college' => self::NAME_PREFIX . ' College', 'contactId' => $contactId]);
+        // A scholarship can have several contacts.
+        $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['contactIds' => [$contactId, $otherId]]));
         $this->assertResponseStatusCodeSame(201);
-        $college = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame($contactId, $college['contactId']);
-        $this->assertSame(self::NAME_PREFIX . ' In Use', $college['contactName']);
+        $scholarship = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEqualsCanonicalizing([$contactId, $otherId], $scholarship['contactIds']);
+        $this->assertEqualsCanonicalizing([self::NAME_PREFIX . ' In Use', self::NAME_PREFIX . ' Other'], $scholarship['contactNames']);
 
         $client->request('DELETE', '/api/admin/contacts/' . $contactId);
         $this->assertResponseStatusCodeSame(409);
         $conflict = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame('in_use', $conflict['error']);
-        $this->assertStringContainsString('1 college', $conflict['message']);
+        $this->assertStringContainsString('1 scholarship', $conflict['message']);
 
         $client->request('GET', '/api/admin/contacts/' . $contactId);
         $one = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame(1, $one['college_count']);
-        $this->assertSame(self::NAME_PREFIX . ' College', $one['colleges'][0]['college']);
+        $this->assertSame(1, $one['scholarship_count']);
+        $this->assertSame(self::NAME_PREFIX . ' Scholarship', $one['scholarships'][0]['title']);
 
-        // The college's own API returns the id its form reads.
-        $client->request('GET', '/api/admin/colleges/' . $college['id']);
-        $this->assertSame($contactId, json_decode($client->getResponse()->getContent(), true)['contact_id']);
-
-        // Clearing the only use frees the contact.
-        $this->json($client, 'PUT', '/api/admin/colleges/' . $college['id'], ['contactId' => null]);
+        // Removing one contact frees only that contact.
+        $this->json($client, 'PUT', '/api/scholarships/' . $scholarship['id'], ['contactIds' => [$otherId]]);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertNull(json_decode($client->getResponse()->getContent(), true)['contactId']);
+        $this->assertSame([$otherId], json_decode($client->getResponse()->getContent(), true)['contactIds']);
         $client->request('DELETE', '/api/admin/contacts/' . $contactId);
+        $this->assertResponseStatusCodeSame(204);
+        $client->request('DELETE', '/api/admin/contacts/' . $otherId);
+        $this->assertResponseStatusCodeSame(409);
+
+        // Deleting the scholarship drops its links, which frees the other contact.
+        $client->request('DELETE', '/api/scholarships/' . $scholarship['id']);
+        $this->assertSame(204, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $client->request('DELETE', '/api/admin/contacts/' . $otherId);
         $this->assertResponseStatusCodeSame(204);
     }
 
@@ -149,10 +155,14 @@ class IcContactControllerTest extends WebTestCase
         $em = static::getContainer()->get('doctrine')->getManager();
         $client->loginUser($this->persistUser($em, 'contact_unknown', ['ROLE_GLOBAL_ADMIN']));
 
-        $this->json($client, 'POST', '/api/admin/colleges', ['college' => self::NAME_PREFIX . ' Unknown', 'contactId' => 999999999]);
+        $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['contactIds' => [999999999]]));
         $this->assertResponseStatusCodeSame(422);
-        $this->json($client, 'POST', '/api/admin/colleges', ['college' => self::NAME_PREFIX . ' Unknown', 'contactId' => 'abc']);
+        $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['contactIds' => ['abc']]));
         $this->assertResponseStatusCodeSame(422);
+
+        // The same payload without the bad id saves, so the 422s above were the contact.
+        $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['contactIds' => []]));
+        $this->assertResponseStatusCodeSame(201);
     }
 
     public function testOptionsRouteIsOpenToEditorsOnly(): void
@@ -191,6 +201,18 @@ class IcContactControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(401);
     }
 
+    private function scholarshipPayload(array $extra): array
+    {
+        return $extra + [
+            'title' => self::NAME_PREFIX . ' Scholarship',
+            'overview' => '<p>Overview</p>',
+            'url' => 'https://www.emich.edu/zz',
+            'description' => '<p>Description</p>',
+            'contact' => '<p>Free-text contact</p>',
+            'active' => true,
+        ];
+    }
+
     private function createOrganization(KernelBrowser $client, string $name): int
     {
         $this->json($client, 'POST', '/api/admin/contacts', ['type' => 'Organization', 'organization' => $name]);
@@ -221,7 +243,7 @@ class IcContactControllerTest extends WebTestCase
         if (static::$booted) {
             $em = static::getContainer()->get('doctrine')->getManager();
             $conn = $em->getConnection();
-            $conn->executeStatement('DELETE FROM ic_colleges WHERE college LIKE ?', [self::NAME_PREFIX . '%']);
+            $conn->executeStatement('DELETE FROM scholarships_scholarship WHERE schlrshp_title LIKE ?', [self::NAME_PREFIX . '%']);
             $conn->executeStatement('DELETE FROM ic_contacts WHERE organization LIKE ? OR last_name LIKE ?', [self::NAME_PREFIX . '%', self::NAME_PREFIX . '%']);
             $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
         }

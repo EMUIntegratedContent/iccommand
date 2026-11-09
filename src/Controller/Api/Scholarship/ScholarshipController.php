@@ -63,6 +63,7 @@ class ScholarshipController extends AbstractController
     private const INT_FIELDS = [
         'collegeId' => 'setCollegeId',
         'departmentId' => 'setDepartmentId',
+        'contactId' => 'setContactId',
     ];
 
     private ScholarshipService $service;
@@ -301,8 +302,8 @@ class ScholarshipController extends AbstractController
             }
         }
 
-        if (array_key_exists('contactId', $data)) {
-            $scholarship->setIcContact($this->icService->resolveContact($data['contactId']));
+        if (array_key_exists('contactIds', $data)) {
+            $scholarship->setIcContacts($this->icService->resolveContacts($data['contactIds']));
         }
 
         foreach (['applyDate' => 'setApplyDate', 'expDate' => 'setExpDate'] as $key => $setter) {
