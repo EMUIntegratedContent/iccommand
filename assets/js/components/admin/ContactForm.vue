@@ -81,25 +81,6 @@
 						</div>
 						<template v-if="isPerson">
 							<div class="form-group">
-								<label>Last Name <span class="red" v-if="isEditMode">*</span></label>
-								<Field
-									name="lastName"
-									type="text"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.lastName,
-										'form-control-plaintext': !isEditMode
-									}"
-									:readonly="!isEditMode"
-									v-model="record.last_name"
-									@update:modelValue="formDirty = true"
-								>
-								</Field>
-								<div class="invalid-feedback">
-									{{ errors.lastName }}
-								</div>
-							</div>
-							<div class="form-group">
 								<label>First Name <span class="red" v-if="isEditMode">*</span></label>
 								<Field
 									name="firstName"
@@ -116,6 +97,25 @@
 								</Field>
 								<div class="invalid-feedback">
 									{{ errors.firstName }}
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Last Name <span class="red" v-if="isEditMode">*</span></label>
+								<Field
+									name="lastName"
+									type="text"
+									class="form-control"
+									:class="{
+										'is-invalid': errors.lastName,
+										'form-control-plaintext': !isEditMode
+									}"
+									:readonly="!isEditMode"
+									v-model="record.last_name"
+									@update:modelValue="formDirty = true"
+								>
+								</Field>
+								<div class="invalid-feedback">
+									{{ errors.lastName }}
 								</div>
 							</div>
 						</template>
@@ -279,9 +279,9 @@
 					<fieldset v-if="itemExists">
 						<legend>History</legend>
 						<p class="mb-1">
-							Created {{ record.created }} by {{ record.created_by }}
+							Created {{ formatHistoryDate(record.created) }} by {{ record.created_by }}
 						</p>
-						<p>Last updated {{ record.updated }} by {{ record.updated_by }}</p>
+						<p>Last updated {{ formatHistoryDate(record.updated) }} by {{ record.updated_by }}</p>
 					</fieldset>
 
 					<fieldset v-if="itemExists">
@@ -641,6 +641,20 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Formats a timestamp like PHP's "n/j/y @ h:i a", e.g. 11/9/26 @ 09:05 am.
+		 */
+		formatHistoryDate: function (value) {
+			if (!value) return ""
+			const date = new Date(value)
+			if (isNaN(date.getTime())) return value
+			const pad = (n) => String(n).padStart(2, "0")
+			const hours = date.getHours()
+			const hour12 = hours % 12 || 12
+			const meridiem = hours < 12 ? "am" : "pm"
+			return `${date.getMonth() + 1}/${date.getDate()}/${pad(date.getFullYear() % 100)} @ ${pad(hour12)}:${pad(date.getMinutes())} ${meridiem}`
+		},
+
 		/**
 		 * Goes to the edit page after creating, or confirms the update and reloads the record
 		 * so the name and history stay current.

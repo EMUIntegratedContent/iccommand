@@ -45,9 +45,9 @@ Decisions (confirmed):
    listing `ROLE_GLOBAL_ADMIN` + each module's CREATE role (EDIT and ADMIN inherit it). The prefix is registered in `config/routes.yaml`.
 7. **Mixed table collations** (`program_programs` latin1, `map_building` utf8mb3) don't matter for INT FKs.
 8. **Scholarship already has contact fields.** `Scholarship::$contact` is the required free-text block
-   (`schlrshp_contact`), and `Scholarship::$contactId` is a loose, unused placeholder (`schlrshp_contact_id`).
-   The association is therefore `$icContacts`, and the placeholder is left alone, which also means no deploy
-   check is needed on its values.
+   (`schlrshp_contact`), and `Scholarship::$contactId` was a loose, unused placeholder (`schlrshp_contact_id`).
+   The association is therefore `$icContacts`, and the placeholder is dropped by the link-table migration.
+   Nothing wrote it, so no deploy check is needed on its values.
 9. **`/api/external/mapitems` shares the `bldgs` group with the authenticated map API**, and the edit form needs
    `contactIds` / `contactNames` from that group. They're ignored on the external route only, as
    `ScholarshipExternalController::PUBLIC_CONTEXT` does.

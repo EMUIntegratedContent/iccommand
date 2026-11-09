@@ -19,12 +19,14 @@ use Doctrine\Migrations\AbstractMigration;
  * quiet. program_contact has no entity (see ProgramsRepository::updateProgramContacts()), but
  * follows the same naming.
  *
+ * It also drops scholarships_scholarship.schlrshp_contact_id, the unused single-contact
+ * placeholder the many-to-many link table replaces. Nothing wrote it. down() adds it back empty.
+ *
  * An earlier version of this migration added a contact_id column to ic_colleges, ic_departments,
  * program_programs, scholarships_scholarship (renaming schlrshp_contact_id) and map_building.
  * That version never reached production. Both up() and down() remove those columns if a
  * development database still has them, so rolling this migration back and re-applying it
- * cleans up after the old one. Their values are discarded. The scholarship column goes back to
- * its original name, schlrshp_contact_id, which the current migration leaves alone.
+ * cleans up after the old one. Their values are discarded.
  *
  * down() drops the link tables, so which contacts each record had is lost. Back up before
  * rolling back.
@@ -47,8 +49,8 @@ final class Version20261102010000 extends AbstractMigration
         'map_building' => ['IDX_839D57F3E7A1254A', 'FK_839D57F3E7A1254A'],
     ];
 
-    private const SCHOLARSHIP_TABLE = 'scholarships_scholarship';
-    private const SCHOLARSHIP_PLACEHOLDER = 'schlrshp_contact_id';
+    private const PLACEHOLDER_TABLE = 'scholarships_scholarship';
+    private const PLACEHOLDER_COLUMN = 'schlrshp_contact_id';
 
     public function getDescription(): string
     {
@@ -58,6 +60,9 @@ final class Version20261102010000 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->removeLegacyColumns();
+        if ($this->columnExists(self::PLACEHOLDER_TABLE, self::PLACEHOLDER_COLUMN)) {
+            $this->addSql('ALTER TABLE ' . self::PLACEHOLDER_TABLE . ' DROP COLUMN ' . self::PLACEHOLDER_COLUMN);
+        }
 
         foreach (self::LINK_TABLES as $table => [$recordTable, $recordColumn, $recordType, $contactIndex, $recordFk, $contactFk]) {
             if ($this->tableExists($table)) {
@@ -87,6 +92,9 @@ final class Version20261102010000 extends AbstractMigration
         }
 
         $this->removeLegacyColumns();
+        if (!$this->columnExists(self::PLACEHOLDER_TABLE, self::PLACEHOLDER_COLUMN)) {
+            $this->addSql('ALTER TABLE ' . self::PLACEHOLDER_TABLE . ' ADD ' . self::PLACEHOLDER_COLUMN . ' INT DEFAULT NULL');
+        }
     }
 
     /**
@@ -107,11 +115,7 @@ final class Version20261102010000 extends AbstractMigration
                 $this->addSql("DROP INDEX $index ON $table");
             }
 
-            if ($table === self::SCHOLARSHIP_TABLE) {
-                $this->addSql("ALTER TABLE $table CHANGE contact_id " . self::SCHOLARSHIP_PLACEHOLDER . ' INT DEFAULT NULL');
-            } else {
-                $this->addSql("ALTER TABLE $table DROP COLUMN contact_id");
-            }
+            $this->addSql("ALTER TABLE $table DROP COLUMN contact_id");
         }
     }
 

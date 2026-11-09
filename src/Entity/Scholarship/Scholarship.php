@@ -306,13 +306,6 @@ class Scholarship
     private ?string $contact = null;
 
     /**
-     * Loose FK to a contact record. Unused placeholder, superseded by $icContacts.
-     */
-    #[ORM\Column(name: 'schlrshp_contact_id', type: 'integer', nullable: true)]
-    #[Groups("scholarship")]
-    private ?int $contactId = null;
-
-    /**
      * The optional shared contacts. Separate from the free-text $contact above, which stays
      * required. Serialized through the contactIds/contactNames/icContactsInfo virtual
      * properties below rather than as nested objects.
@@ -765,17 +758,6 @@ class Scholarship
     public function setContact(?string $contact): self
     {
         $this->contact = $contact;
-        return $this;
-    }
-
-    public function getContactId(): ?int
-    {
-        return $this->contactId;
-    }
-
-    public function setContactId(?int $contactId): self
-    {
-        $this->contactId = $contactId;
         return $this;
     }
 

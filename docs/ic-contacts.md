@@ -35,8 +35,8 @@ The contact side has no `ON DELETE` action, so a contact that is still linked ca
 | `program_contact` | `program_id`, `contact_id` | No entity: the `programs` entity manager maps only `App\Entity\Programs`, so it can't hold an association to `IcContact`. `ProgramsRepository::updateProgramContacts()` writes it with raw SQL, like `program_college_link` |
 
 `Scholarship::$contact` is a different thing: the free-text contact block (`schlrshp_contact`). It stays
-required, and is still published as `contact`. `scholarships_scholarship.schlrshp_contact_id` is an unused
-placeholder that nothing writes. It is left as it was.
+required, and is still published as `contact`. The old unused `schlrshp_contact_id` column was dropped by
+`Version20261102010000`.
 
 ## Admin screens
 
