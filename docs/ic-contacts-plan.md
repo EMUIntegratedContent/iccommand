@@ -13,7 +13,7 @@ Decisions (confirmed):
 - **Colleges and departments have no contacts.** (The first version had them. Review removed them.)
 - Deleting a contact in use is **blocked** with usage counts (same as colleges/departments). The contact
   side of each link FK has no cascade.
-- Only global admins create/edit contacts, at `/admin/contacts`. Module forms only pick existing ones.
+- Contacts are created/edited in the Contacts app at `/contacts` (roles `ROLE_CONTACTS_*`; originally global-admin-only at `/admin/contacts`). Module forms only pick existing ones.
 - Public feeds for scholarships, buildings and programs include each record's contacts, limited to name,
   email, phone and url. No contact id or other contact fields.
 - The public key is `icContactsInfo`, a list that is `[]` without contacts. Scholarships keep publishing
@@ -96,10 +96,10 @@ link table once.
 1. Migrate (after a backup), then migrate again → only warnings. `doctrine:schema:update --dump-sql | grep -i contact`
    → only `program_contact`, which has no mapping, and the unused scholarship placeholder is untouched.
 2. Rollback test: `migrations:execute --down` both versions, then migrate again.
-3. As global admin: create Person + Organization contacts at `/admin/contacts`; validation rejects bad input.
+3. As global admin: create Person + Organization contacts at `/contacts`; validation rejects bad input.
 4. Assign several contacts in each of the three forms; reload → persists; remove one, save → gone.
 5. Delete a contact in use → disabled with counts; API `DELETE` → 409. Clear all uses → delete works.
-6. As a non-admin with only e.g. ROLE_MAP_EDIT: `/api/ic/contacts/options` works, `/api/admin/contacts` → 403.
+6. As a non-admin with only e.g. ROLE_MAP_EDIT: `/api/ic/contacts/options` works, `/api/contacts` → 403.
 7. Logged out, call the six public routes. Records with contacts return `icContactsInfo` with exactly
    `name`, `email`, `phone`, `url` per entry; records without return `[]`. Search each response for `contactId`,
    `contactIds`, `contact_id`, `icContact`, `forager_url`, `room` and `createdBy` from the contact: none should appear.

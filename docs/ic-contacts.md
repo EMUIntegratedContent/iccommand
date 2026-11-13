@@ -38,10 +38,12 @@ The contact side has no `ON DELETE` action, so a contact that is still linked ca
 required, and is still published as `contact`. The old unused `schlrshp_contact_id` column was dropped by
 `Version20261102010000`.
 
-## Admin screens
+## Contacts app
 
-Global admins manage contacts at `/admin/contacts`: list with search and paging, add, edit, delete. A
-contact can't be deleted while a program, scholarship or building uses it. The edit page lists what uses it
+Contacts is its own app at `/contacts` (Maps & Directories menu and homepage), separate from the admin
+area. Roles, each inheriting the one before: `ROLE_CONTACTS_VIEW` (list, read-only form),
+`ROLE_CONTACTS_EDIT` (add, edit), `ROLE_CONTACTS_DELETE` (delete) and `ROLE_CONTACTS_ADMIN` (also manages
+who has access, at `/contacts/manage`). Global admins can do everything. A contact can't be deleted while a program, scholarship or building uses it. The edit page lists what uses it
 and disables the delete button, and the API refuses too (409 with the reason).
 
 ## Forms
@@ -55,7 +57,9 @@ names. A contact can be picked once per record.
 
 | Route | Who | What |
 |---|---|---|
-| `GET/POST /api/admin/contacts`, `GET/PUT/DELETE /api/admin/contacts/{id}` | Global admins | CRUD |
+| `GET /api/contacts`, `GET /api/contacts/{id}` | `ROLE_CONTACTS_VIEW` and up, global admins | List (search, paging), read |
+| `POST /api/contacts`, `PUT /api/contacts/{id}` | `ROLE_CONTACTS_EDIT` and up, global admins | Create, update |
+| `DELETE /api/contacts/{id}` | `ROLE_CONTACTS_DELETE` and up, global admins | Delete (409 while in use) |
 | `GET /api/ic/contacts/options` | Global admins and anyone with a map, programs or scholarship CREATE role (their EDIT and ADMIN roles inherit it) | Dropdown rows: `id`, `displayName`, `type`, `email` |
 
 Each record's own save route takes the list of contact ids: `contactIds`, or `contact_ids` on programs. It

@@ -63,7 +63,7 @@ dropdowns. A program's colleges and departments live ONLY in `program_college_li
 (several per program). See `docs/shared-colleges-departments.md`. Much of the Programs module is raw DBAL
 SQL in `ProgramsRepository` (many program tables have no entity).
 
-`ic_contacts` (`IcContact`, managed at /admin/contacts) holds the contacts of programs, scholarships and
+`ic_contacts` (`IcContact`, managed in the Contacts app at /contacts, roles `ROLE_CONTACTS_VIEW/EDIT/DELETE/ADMIN`) holds the contacts of programs, scholarships and
 buildings (many each), through the `program_contact`, `scholarship_contact` and `map_building_contact` link
 tables. Public feeds publish them as the `icContactsInfo` list, built only by `IcContact::toPublicArray()`.
 See `docs/ic-contacts.md`.
