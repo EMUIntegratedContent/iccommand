@@ -8,13 +8,14 @@ use App\Repository\Ic\IcCollegeRepository;
 use App\Repository\Ic\IcContactRepository;
 use App\Repository\Ic\IcDepartmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Business logic for the colleges, departments and contacts shared across IC Command apps
- * (ic_colleges / ic_departments / ic_contacts), managed from the admin area.
+ * (ic_colleges / ic_departments in the admin area, ic_contacts in the Contacts app).
  */
 class IcService
 {
@@ -24,7 +25,40 @@ class IcService
         private IcCollegeRepository $colleges,
         private IcDepartmentRepository $departments,
         private IcContactRepository $contacts,
+        private AuthorizationCheckerInterface $authorizationChecker,
     ) {
+    }
+
+    /**
+     * What the current user may do in the Contacts app, for the Vue components. Each role
+     * inherits the ones below it; global admins get everything.
+     *
+     * @return array{admin: bool, edit: bool, delete: bool, view: bool}
+     */
+    public function getContactPermissions(): array
+    {
+        $permissions = ['admin' => false, 'edit' => false, 'delete' => false, 'view' => false];
+
+        if ($this->authorizationChecker->isGranted('ROLE_CONTACTS_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
+            $permissions['admin'] = true;
+            $permissions['delete'] = true;
+            $permissions['edit'] = true;
+            $permissions['view'] = true;
+        }
+        if ($this->authorizationChecker->isGranted('ROLE_CONTACTS_DELETE')) {
+            $permissions['delete'] = true;
+            $permissions['edit'] = true;
+            $permissions['view'] = true;
+        }
+        if ($this->authorizationChecker->isGranted('ROLE_CONTACTS_EDIT')) {
+            $permissions['edit'] = true;
+            $permissions['view'] = true;
+        }
+        if ($this->authorizationChecker->isGranted('ROLE_CONTACTS_VIEW')) {
+            $permissions['view'] = true;
+        }
+
+        return $permissions;
     }
 
     public function validate(object $entity): ConstraintViolationListInterface

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add contact.{% endblock %}
+
+{% block modulenav %}
+  {% include 'contacts/nav_contacts.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <contacts-form :item-exists="false" start-mode="edit" :permissions="[{{ permissions }}]"></contacts-form>
+</div>
+{% endblock %}
