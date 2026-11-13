@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contacts Management{% endblock %}
+
+{% block modulenav %}
+  {% include 'contacts/nav_contacts.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <h1 class="display-4">Contacts App Management</h1>
+  <app-manage role-prefix="ROLE_CONTACTS_" app-slug="contacts" app-name="Contacts App" current-user="{{ app.user.username }}"></app-manage>
+</div>
+{% endblock %}

@@ -8,6 +8,7 @@ use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
 use App\Util\RequestHelper;
 use App\Service\ProgramsService;
+use App\Service\IcService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
@@ -40,7 +41,7 @@ class ProgramsController extends AbstractController
 	 * The constructor of the ProgramsController.
 	 * @param ProgramsService $service The service container of this controller.
 	 */
-	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer)
+	public function __construct(ProgramsService $service, LoggerInterface $logger, ManagerRegistry $doctrine, SerializerInterface $serializer, private IcService $icService)
 	{
 		$this->service = $service;
 		$this->logger = $logger;
@@ -286,6 +287,7 @@ class ProgramsController extends AbstractController
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
 		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
 		$program->setIsActive($request->request->getBoolean("is_active", true)); // New programs default to active.
+		$contacts = $this->icService->resolveContacts($request->request->all("contact_ids")); // Throws a 422 for an unknown id.
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -310,6 +312,13 @@ class ProgramsController extends AbstractController
 			$this->service->updateProgramDepartments($program->getId(), $departmentIds);
 		} catch (\Exception $e) {
 			return new Response("Failed to save program departments.", 500, array("Content-Type" => "application/json"));
+		}
+
+		// Update contacts pivot table
+		try {
+			$this->service->updateProgramContacts($program->getId(), array_map(fn($c) => $c->getId(), $contacts));
+		} catch (\Exception $e) {
+			return new Response("Failed to save program contacts.", 500, array("Content-Type" => "application/json"));
 		}
 
 		// Update delivery modes using service method
@@ -418,6 +427,8 @@ class ProgramsController extends AbstractController
 		$program->setApplicationUrl(RequestHelper::optionalString($request->request->get("application_url")));
 		$program->setProgramOverview($richText->sanitize(RequestHelper::optionalString($request->request->get("program_overview"))));
 		$program->setIsActive($request->request->getBoolean("is_active", $program->isActive())); // Omitted key leaves it unchanged.
+		// Omitted key leaves the contacts unchanged. Throws a 422 for an unknown id.
+		$contacts = $request->request->has("contact_ids") ? $this->icService->resolveContacts($request->request->all("contact_ids")) : null;
 
 		$errors = $this->service->validate($program); // Validate the program.
 
@@ -442,6 +453,15 @@ class ProgramsController extends AbstractController
 			$this->service->updateProgramDepartments($program->getId(), $departmentIds);
 		} catch (\Exception $e) {
 			return new Response("Failed to save program departments.", 500, array("Content-Type" => "application/json"));
+		}
+
+		// Update contacts pivot table
+		if ($contacts !== null) {
+			try {
+				$this->service->updateProgramContacts($program->getId(), array_map(fn($c) => $c->getId(), $contacts));
+			} catch (\Exception $e) {
+				return new Response("Failed to save program contacts.", 500, array("Content-Type" => "application/json"));
+			}
 		}
 
 		// Update delivery modes

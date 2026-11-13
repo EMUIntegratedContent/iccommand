@@ -159,6 +159,16 @@ export default {
 					display: false,
 					category: "Maps & Directories"
 				},
+				contacts: {
+					// Added Nov. 2026
+					title: "Contacts",
+					description:
+						"The contacts application manages the people and organizations that programs, scholarships, and buildings list as their contacts.",
+					buttonText: "Manage Contacts",
+					buttonLink: "/contacts",
+					display: false,
+					category: "Maps & Directories"
+				},
 				scholarships: {
 					// Added Aug. 2026
 					title: "Scholarships",
@@ -252,6 +262,9 @@ export default {
 			}
 			if (role.includes("ROLE_SOCIAL_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.social.display = true
+			}
+			if (role.includes("ROLE_CONTACTS_") || role.includes("ROLE_GLOBAL_ADMIN")) {
+				this.userModules.contacts.display = true
 			}
 			if (
 				role.includes("ROLE_SCHOLARSHIP_") ||

@@ -31,7 +31,7 @@
             </div>
         </div>
         {% endif %}
-        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') or is_granted('ROLE_DEPARTMENTS_VIEW') %}
+        {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_MAP_VIEW') or is_granted('ROLE_DEPARTMENTS_VIEW') or is_granted('ROLE_CONTACTS_VIEW') %}
         <div class="btn-group">
             <button type="button" class="btn btn-outline-light dropdown-toggle outlined" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Maps & Directories
@@ -45,6 +45,9 @@
                 {% endif %}
                 {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_SOCIAL_USER') %}
                 <a class="dropdown-item" href="/social-media">Social Media Directory</a>
+                {% endif %}
+                {% if is_granted('ROLE_GLOBAL_ADMIN') or is_granted('ROLE_CONTACTS_VIEW') %}
+                <a class="dropdown-item" href="/contacts">Contacts</a>
                 {% endif %}
             </div>
         </div>

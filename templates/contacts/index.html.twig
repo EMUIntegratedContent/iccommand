@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contacts{% endblock %}
+
+{% block modulenav %}
+  {% include 'contacts/nav_contacts.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <contacts-list :permissions="[{{ permissions }}]"></contacts-list>
+</div>
+{% endblock %}
