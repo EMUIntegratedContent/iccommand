@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\Admin;
+namespace App\Controller\Api\Contacts;
 
 use App\Entity\Ic\IcContact;
 use App\Entity\Ic\IcContactType;
@@ -8,6 +8,7 @@ use App\Service\IcService;
 use App\Util\RequestHelper;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,9 +17,9 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * CRUD for the contacts shared across IC Command apps (ic_contacts).
- * Prefix /api/admin/ (routes.yaml); global admins only.
+ * Prefix /api/contacts (routes.yaml). View reads, edit writes, delete removes; global admins can do all.
  */
-class IcContactController extends AbstractController
+class ContactController extends AbstractController
 {
     /**
      * Optional text fields (payload key => entity setter). Applied when the key is present.
@@ -42,8 +43,8 @@ class IcContactController extends AbstractController
     ) {
     }
 
-    #[Route('/contacts', methods: ['GET'])]
-    #[IsGranted('ROLE_GLOBAL_ADMIN')]
+    #[Route('', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CONTACTS_VIEW")'))]
     public function listAction(Request $request): Response
     {
         [$page, $limit] = RequestHelper::pagination($request, 50);
@@ -53,8 +54,8 @@ class IcContactController extends AbstractController
         return new Response(json_encode($result), 200, ["Content-Type" => "application/json"]);
     }
 
-    #[Route('/contacts/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
-    #[IsGranted('ROLE_GLOBAL_ADMIN')]
+    #[Route('/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CONTACTS_VIEW")'))]
     public function getAction(int $id): Response
     {
         $contact = $this->service->getContactWithUsage($id);
@@ -64,8 +65,8 @@ class IcContactController extends AbstractController
         return new Response(json_encode($contact), 200, ["Content-Type" => "application/json"]);
     }
 
-    #[Route('/contacts', methods: ['POST'])]
-    #[IsGranted('ROLE_GLOBAL_ADMIN')]
+    #[Route('', methods: ['POST'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CONTACTS_EDIT")'))]
     public function createAction(Request $request): Response
     {
         $contact = new IcContact();
@@ -80,8 +81,8 @@ class IcContactController extends AbstractController
         return new Response($this->serialize($contact), 201, ["Content-Type" => "application/json"]);
     }
 
-    #[Route('/contacts/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]
-    #[IsGranted('ROLE_GLOBAL_ADMIN')]
+    #[Route('/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CONTACTS_EDIT")'))]
     public function updateAction(int $id, Request $request): Response
     {
         $contact = $this->service->getContact($id);
@@ -101,11 +102,11 @@ class IcContactController extends AbstractController
     }
 
     /**
-     * Refuses (409) while any college, department, program, scholarship or building still
+     * Refuses (409) while any program, scholarship or building still
      * points at the contact.
      */
-    #[Route('/contacts/{id}', methods: ['DELETE'], requirements: ['id' => '\d+'])]
-    #[IsGranted('ROLE_GLOBAL_ADMIN')]
+    #[Route('/{id}', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_CONTACTS_DELETE")'))]
     public function deleteAction(int $id): Response
     {
         $contact = $this->service->getContact($id);

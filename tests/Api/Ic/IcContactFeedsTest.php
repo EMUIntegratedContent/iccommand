@@ -220,7 +220,7 @@ class IcContactFeedsTest extends WebTestCase
      */
     private function createContact(KernelBrowser $client, string $firstName = 'Jane', bool $full = true): int
     {
-        return $this->create($client, 'POST', '/api/admin/contacts', [
+        return $this->create($client, 'POST', '/api/contacts', [
             'type' => 'Person',
             'lastName' => self::NAME_PREFIX,
             'firstName' => $firstName,

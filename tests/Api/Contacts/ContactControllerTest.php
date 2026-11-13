@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Api\Admin;
+namespace App\Tests\Api\Contacts;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -8,11 +8,11 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * End-to-end test for the admin contact API (/api/admin/contacts), the rule that a contact
+ * End-to-end test for the contacts API (/api/contacts), the rule that a contact
  * can't be deleted while a program, scholarship or building uses it, and the picker's options route. Test rows are
  * ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
  */
-class IcContactControllerTest extends WebTestCase
+class ContactControllerTest extends WebTestCase
 {
     private const NAME_PREFIX = 'ZZ Ic Contact Test';
     private const USERNAME_PREFIX = 'zz_ictest_';
@@ -24,7 +24,7 @@ class IcContactControllerTest extends WebTestCase
         $client->loginUser($this->persistUser($em, 'contact_admin', ['ROLE_GLOBAL_ADMIN']));
 
         // CREATE
-        $this->json($client, 'POST', '/api/admin/contacts', [
+        $this->json($client, 'POST', '/api/contacts', [
             'type' => 'Person',
             'lastName' => self::NAME_PREFIX . ' Doe',
             'firstName' => 'Jane',
@@ -61,12 +61,12 @@ class IcContactControllerTest extends WebTestCase
             'bad image url' => ['type' => 'Organization', 'organization' => 'ZZ', 'imageUrl' => 'nope'],
         ];
         foreach ($invalid as $label => $payload) {
-            $this->json($client, 'POST', '/api/admin/contacts', $payload);
+            $this->json($client, 'POST', '/api/contacts', $payload);
             $this->assertSame(422, $client->getResponse()->getStatusCode(), $label);
         }
 
         // UPDATE: a person can become an organization
-        $this->json($client, 'PUT', '/api/admin/contacts/' . $id, [
+        $this->json($client, 'PUT', '/api/contacts/' . $id, [
             'type' => 'Organization',
             'organization' => self::NAME_PREFIX . ' Office',
             'lastName' => null,
@@ -80,7 +80,7 @@ class IcContactControllerTest extends WebTestCase
         $this->assertSame('734-487-1234', $updated['phone']); // Omitted keys are left alone.
 
         // LIST + GET one carry the display name, counts and usage lists
-        $client->request('GET', '/api/admin/contacts?page=1&limit=10&searchterm=' . urlencode(self::NAME_PREFIX . ' Office'));
+        $client->request('GET', '/api/contacts?page=1&limit=10&searchterm=' . urlencode(self::NAME_PREFIX . ' Office'));
         $this->assertResponseStatusCodeSame(200);
         $list = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(1, $list['totalRows']);
@@ -89,7 +89,7 @@ class IcContactControllerTest extends WebTestCase
             $this->assertSame(0, $list['contacts'][0][$noun . '_count']);
         }
 
-        $client->request('GET', '/api/admin/contacts/' . $id);
+        $client->request('GET', '/api/contacts/' . $id);
         $this->assertResponseStatusCodeSame(200);
         $one = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame('Organization', $one['type']);
@@ -100,9 +100,9 @@ class IcContactControllerTest extends WebTestCase
         }
 
         // DELETE (unused) -> 204, then 404
-        $client->request('DELETE', '/api/admin/contacts/' . $id);
+        $client->request('DELETE', '/api/contacts/' . $id);
         $this->assertResponseStatusCodeSame(204);
-        $client->request('GET', '/api/admin/contacts/' . $id);
+        $client->request('GET', '/api/contacts/' . $id);
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -122,13 +122,13 @@ class IcContactControllerTest extends WebTestCase
         $this->assertEqualsCanonicalizing([$contactId, $otherId], $scholarship['contactIds']);
         $this->assertEqualsCanonicalizing([self::NAME_PREFIX . ' In Use', self::NAME_PREFIX . ' Other'], $scholarship['contactNames']);
 
-        $client->request('DELETE', '/api/admin/contacts/' . $contactId);
+        $client->request('DELETE', '/api/contacts/' . $contactId);
         $this->assertResponseStatusCodeSame(409);
         $conflict = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame('in_use', $conflict['error']);
         $this->assertStringContainsString('1 scholarship', $conflict['message']);
 
-        $client->request('GET', '/api/admin/contacts/' . $contactId);
+        $client->request('GET', '/api/contacts/' . $contactId);
         $one = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(1, $one['scholarship_count']);
         $this->assertSame(self::NAME_PREFIX . ' Scholarship', $one['scholarships'][0]['title']);
@@ -137,15 +137,15 @@ class IcContactControllerTest extends WebTestCase
         $this->json($client, 'PUT', '/api/scholarships/' . $scholarship['id'], ['contactIds' => [$otherId]]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([$otherId], json_decode($client->getResponse()->getContent(), true)['contactIds']);
-        $client->request('DELETE', '/api/admin/contacts/' . $contactId);
+        $client->request('DELETE', '/api/contacts/' . $contactId);
         $this->assertResponseStatusCodeSame(204);
-        $client->request('DELETE', '/api/admin/contacts/' . $otherId);
+        $client->request('DELETE', '/api/contacts/' . $otherId);
         $this->assertResponseStatusCodeSame(409);
 
         // Deleting the scholarship drops its links, which frees the other contact.
         $client->request('DELETE', '/api/scholarships/' . $scholarship['id']);
         $this->assertSame(204, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-        $client->request('DELETE', '/api/admin/contacts/' . $otherId);
+        $client->request('DELETE', '/api/contacts/' . $otherId);
         $this->assertResponseStatusCodeSame(204);
     }
 
@@ -183,7 +183,7 @@ class IcContactControllerTest extends WebTestCase
             $this->assertSame(['id', 'displayName', 'type', 'email'], array_keys($option));
             $this->assertSame(self::NAME_PREFIX . ' Option', $option['displayName']);
 
-            $client->request('GET', '/api/admin/contacts');
+            $client->request('GET', '/api/contacts');
             $this->assertSame(403, $client->getResponse()->getStatusCode(), $role);
         }
 
@@ -191,6 +191,86 @@ class IcContactControllerTest extends WebTestCase
         $client->loginUser($this->persistUser($em, 'contact_viewer', ['ROLE_MAP_VIEW']));
         $client->request('GET', '/api/ic/contacts/options');
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    /**
+     * @return array<string, array{0: string[], 1: bool, 2: bool, 3: bool}> roles => can [read, write, delete]
+     */
+    public static function roleMatrix(): array
+    {
+        return [
+            'view' => [['ROLE_CONTACTS_VIEW'], true, false, false],
+            'edit' => [['ROLE_CONTACTS_EDIT'], true, true, false],
+            'delete' => [['ROLE_CONTACTS_DELETE'], true, true, true],
+            'admin' => [['ROLE_CONTACTS_ADMIN'], true, true, true],
+            'global admin alone' => [['ROLE_GLOBAL_ADMIN'], true, true, true],
+            'other module admin' => [['ROLE_MAP_ADMIN'], false, false, false],
+        ];
+    }
+
+    /**
+     * @dataProvider roleMatrix
+     */
+    public function testRoleMatrix(array $roles, bool $canRead, bool $canWrite, bool $canDelete): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+
+        $client->loginUser($this->persistUser($em, 'seed_admin', ['ROLE_GLOBAL_ADMIN']));
+        $seedId = $this->createOrganization($client, self::NAME_PREFIX . ' Seed');
+
+        $client->loginUser($this->persistUser($em, 'matrix_user', $roles));
+
+        $client->request('GET', '/api/contacts?page=1&limit=10');
+        $this->assertSame($canRead ? 200 : 403, $client->getResponse()->getStatusCode(), 'list');
+        $client->request('GET', '/api/contacts/' . $seedId);
+        $this->assertSame($canRead ? 200 : 403, $client->getResponse()->getStatusCode(), 'get');
+
+        $this->json($client, 'POST', '/api/contacts', ['type' => 'Organization', 'organization' => self::NAME_PREFIX . ' Made']);
+        $this->assertSame($canWrite ? 201 : 403, $client->getResponse()->getStatusCode(), 'create');
+
+        $this->json($client, 'PUT', '/api/contacts/' . $seedId, ['type' => 'Organization', 'organization' => self::NAME_PREFIX . ' Renamed']);
+        $this->assertSame($canWrite ? 200 : 403, $client->getResponse()->getStatusCode(), 'update');
+
+        $client->request('DELETE', '/api/contacts/' . $seedId);
+        $this->assertSame($canDelete ? 204 : 403, $client->getResponse()->getStatusCode(), 'delete');
+    }
+
+    public function testDeleteRoleGetsConflictForContactInUse(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $client->loginUser($this->persistUser($em, 'inuse_seed', ['ROLE_GLOBAL_ADMIN']));
+        $contactId = $this->createOrganization($client, self::NAME_PREFIX . ' Busy');
+        $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['contactIds' => [$contactId]]));
+        $this->assertResponseStatusCodeSame(201);
+
+        $client->loginUser($this->persistUser($em, 'inuse_deleter', ['ROLE_CONTACTS_DELETE']));
+        $client->request('DELETE', '/api/contacts/' . $contactId);
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('in_use', json_decode($client->getResponse()->getContent(), true)['error']);
+    }
+
+    public function testOldAdminApiIsGone(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $client->loginUser($this->persistUser($em, 'old_api', ['ROLE_GLOBAL_ADMIN']));
+
+        $client->request('GET', '/api/admin/contacts');
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testUnauthenticatedIs401(): void
+    {
+        $client = static::createClient();
+
+        $client->request('GET', '/api/contacts');
+
+        $this->assertResponseStatusCodeSame(401);
+        $this->assertJson($client->getResponse()->getContent());
     }
 
     public function testOptionsRouteNeedsALogin(): void
@@ -215,7 +295,7 @@ class IcContactControllerTest extends WebTestCase
 
     private function createOrganization(KernelBrowser $client, string $name): int
     {
-        $this->json($client, 'POST', '/api/admin/contacts', ['type' => 'Organization', 'organization' => $name]);
+        $this->json($client, 'POST', '/api/contacts', ['type' => 'Organization', 'organization' => $name]);
         $this->assertResponseStatusCodeSame(201);
         return json_decode($client->getResponse()->getContent(), true)['id'];
     }

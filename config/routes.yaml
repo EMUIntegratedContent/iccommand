@@ -14,9 +14,10 @@ admin_ic_departments:
   resource: App\Controller\Api\Admin\IcDepartmentController
   prefix: /api/admin/
 
-admin_ic_contacts:
-  resource: App\Controller\Api\Admin\IcContactController
-  prefix: /api/admin/
+contacts:
+  resource: App\Controller\Api\Contacts\ContactController
+  prefix: /api/contacts
+  trailing_slash_on_root: false
 
 ic_contact_options:
   resource: App\Controller\Api\Ic\IcContactOptionsController
