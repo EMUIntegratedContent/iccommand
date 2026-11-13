@@ -31,7 +31,7 @@
 						</h4>
 					</div>
 					<div class="col-md-6 text-right">
-						<a href="/admin/contacts/create" class="btn btn-success">
+						<a v-if="userCanEdit" href="/contacts/create" class="btn btn-success">
 							<i class="fa fa-plus"></i> Add Contact
 						</a>
 					</div>
@@ -96,7 +96,7 @@
 						<tbody>
 							<tr v-for="contact in contacts" :key="contact.id">
 								<th scope="row">
-									<a :href="'/admin/contacts/' + contact.id + '/edit'">{{
+									<a :href="contactUrl(contact)">{{
 										contact.display_name
 									}}</a>
 								</th>
@@ -107,7 +107,7 @@
 								<td>{{ contact.scholarship_count }}</td>
 								<td>{{ contact.building_count }}</td>
 								<td>
-									<a :href="'/admin/contacts/' + contact.id + '/edit'"
+									<a v-if="userCanEdit" :href="'/contacts/' + contact.id + '/edit'"
 										><font-awesome-icon icon="fa-solid fa-pen-to-square"
 									/></a>
 								</td>
@@ -143,6 +143,13 @@ export default {
 		ExternalPaginator
 	},
 
+	props: {
+		permissions: {
+			type: Array,
+			required: true
+		}
+	},
+
 	data: function () {
 		return {
 			/**
@@ -168,7 +175,25 @@ export default {
 		}
 	},
 
+	computed: {
+		/**
+		 * @return {boolean} True if the user can add and edit contacts.
+		 */
+		userCanEdit: function () {
+			return this.permissions[0].edit ? true : false
+		}
+	},
+
 	methods: {
+		/**
+		 * The page a contact's name links to: the edit page for editors, else the read-only page.
+		 * @param {Object} contact
+		 * @return {string}
+		 */
+		contactUrl: function (contact) {
+			return "/contacts/" + contact.id + (this.userCanEdit ? "/edit" : "")
+		},
+
 		/**
 		 * Clears the search box and reloads the full list.
 		 */
@@ -186,7 +211,7 @@ export default {
 
 			axios
 				.get(
-					"/api/admin/contacts?page=" +
+					"/api/contacts?page=" +
 						self.currentPage +
 						"&limit=" +
 						self.itemsPerPage +

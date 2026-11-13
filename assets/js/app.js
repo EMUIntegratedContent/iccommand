@@ -70,8 +70,6 @@ app.component("admin-college-list", require("./components/admin/CollegeList.vue"
 app.component("admin-college-form", require("./components/admin/CollegeForm.vue").default);
 app.component("admin-department-list", require("./components/admin/DepartmentList.vue").default);
 app.component("admin-department-form", require("./components/admin/DepartmentForm.vue").default);
-app.component("admin-contact-list", require("./components/admin/ContactList.vue").default);
-app.component("admin-contact-form", require("./components/admin/ContactForm.vue").default);
 app.component("user-profile", require("./components/Profile.vue").default);
 
 /* Campus Map Application */
@@ -119,6 +117,10 @@ app.component("cas-link-delete-modal", require("./components/cas/CasLinkDeleteMo
 app.component("socialmedia-list", require("./components/socialmedia/SocialMediaList.vue").default);
 app.component("socialmedia-form", require("./components/socialmedia/SocialMediaForm.vue").default);
 app.component("socialmedia-delete-modal", require("./components/socialmedia/SocialMediaDeleteModal.vue").default);
+
+/* Contacts Application */
+app.component("contacts-list", require("./components/contacts/ContactList.vue").default);
+app.component("contacts-form", require("./components/contacts/ContactForm.vue").default);
 
 /* Scholarships Application */
 app.component("scholarship-list", require("./components/scholarship/ScholarshipList.vue").default);

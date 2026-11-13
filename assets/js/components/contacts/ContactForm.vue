@@ -29,11 +29,11 @@
 				<span v-else>Contact: {{ savedName }}</span>
 			</heading>
 			<div class="button-holder" role="group" aria-label="form navigation buttons">
-				<a href="/admin/contacts" class="btn btn-info pull-left"
+				<a href="/contacts" class="btn btn-info pull-left"
 					><i class="fa fa-arrow-left"></i
 				></a>
 				<button
-					v-if="itemExists"
+					v-if="itemExists && userCanEdit"
 					type="button"
 					class="btn btn-info pull-right"
 					@click="toggleEdit"
@@ -336,7 +336,7 @@
 							<i class="fa fa-save fa-2x"></i>
 						</button>
 						<button
-							v-if="itemExists"
+							v-if="itemExists && userCanDelete"
 							type="button"
 							class="btn btn-danger ml-4"
 							data-toggle="modal"
@@ -346,7 +346,7 @@
 						>
 							<i class="fa fa-trash fa-2x"></i>
 						</button>
-						<small v-if="itemExists && isInUse" class="text-muted ml-2">{{
+						<small v-if="itemExists && userCanDelete && isInUse" class="text-muted ml-2">{{
 							deleteBlockedReason
 						}}</small>
 					</div>
@@ -359,7 +359,7 @@
 			v-if="itemExists"
 			entity-label="Contact"
 			:item-name="savedName"
-			:delete-url="'/api/admin/contacts/' + record.id"
+			:delete-url="'/api/contacts/' + record.id"
 			@itemDeleted="markItemDeleted"
 			@itemDeleteError="markItemDeleteError"
 		></ic-delete-modal>
@@ -377,8 +377,8 @@
 
 <script>
 import Heading from "../utils/Heading.vue"
-import IcDeleteModal from "./IcDeleteModal.vue"
-import IcUsageLists from "./IcUsageLists.vue"
+import IcDeleteModal from "../ic/IcDeleteModal.vue"
+import IcUsageLists from "../ic/IcUsageLists.vue"
 import NotFound from "../utils/NotFound.vue"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
@@ -422,6 +422,11 @@ export default {
 		startMode: {
 			type: String,
 			required: false
+		},
+
+		permissions: {
+			type: Array,
+			required: true
 		}
 	},
 
@@ -503,6 +508,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @return {boolean} True if the user can edit contacts.
+		 */
+		userCanEdit: function () {
+			return this.permissions[0].edit ? true : false
+		},
+
+		/**
+		 * @return {boolean} True if the user can delete contacts.
+		 */
+		userCanDelete: function () {
+			return this.permissions[0].delete ? true : false
+		},
+
 		/**
 		 * Why the delete button is disabled.
 		 * @return {string}
@@ -665,7 +684,7 @@ export default {
 
 			if (!this.itemExists) {
 				this.successMessage = "Contact created."
-				document.location = "/admin/contacts/" + this.record.id + "/edit"
+				document.location = "/contacts/" + this.record.id + "/edit"
 			} else {
 				this.successMessage = "Update successful."
 				this.fetchContact(this.record.id)
@@ -683,7 +702,7 @@ export default {
 			let self = this
 
 			axios
-				.get("/api/admin/contacts/" + itemId)
+				.get("/api/contacts/" + itemId)
 				.then(function (response) {
 					// Success.
 					self.record = response.data
@@ -709,7 +728,7 @@ export default {
 			this.deleteErrorMessage = null
 			this.isDeleted = true
 			setTimeout(function () {
-				window.location.replace("/admin/contacts")
+				window.location.replace("/contacts")
 			}, 2000)
 		},
 
@@ -730,8 +749,8 @@ export default {
 			self.success = false
 			let method = this.itemExists ? "put" : "post"
 			let route = this.itemExists
-				? "/api/admin/contacts/" + this.record.id
-				: "/api/admin/contacts"
+				? "/api/contacts/" + this.record.id
+				: "/api/contacts"
 
 			axios({
 				method: method,
