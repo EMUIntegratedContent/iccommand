@@ -83,7 +83,7 @@ class UserController extends AbstractController
 	 * Return all defined roles
 	 */
 	#[Route('/roles', methods: ['GET'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_REDIRECT_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_CRIMELOG_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_REDIRECT_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_CRIMELOG_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_CONTACTS_ADMIN")'))]
 	public function getRolesAction(): Response
 	{
 		$roles = $this->getParameter('security.role_hierarchy.roles');
@@ -177,7 +177,7 @@ class UserController extends AbstractController
 	 * Return all users of an application
 	 */
 	#[Route('/appusers/{rolePrefix}', methods: ['GET'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_REDIRECT_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_CRIMELOG_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_REDIRECT_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_CRIMELOG_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_CONTACTS_ADMIN")'))]
 	public function getAppusersAction(string $rolePrefix): Response
 	{
 		$this->denyUnlessManagesPrefix($rolePrefix);
@@ -192,7 +192,7 @@ class UserController extends AbstractController
 	 * Return all users that are NOT part of an application
 	 */
 	#[Route('/appusers/not/{rolePrefix}', methods: ['GET'])]
-	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_REDIRECT_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_CRIMELOG_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN")'))]
+	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_MAP_ADMIN") or is_granted("ROLE_REDIRECT_ADMIN") or is_granted("ROLE_PROGRAMS_ADMIN") or is_granted("ROLE_CRIMELOG_ADMIN") or is_granted("ROLE_DEPARTMENTS_ADMIN") or is_granted("ROLE_PHOTO_ADMIN") or is_granted("ROLE_EMERGENCY_ADMIN") or is_granted("ROLE_CAS_ADMIN") or is_granted("ROLE_SOCIAL_ADMIN") or is_granted("ROLE_SCHOLARSHIP_ADMIN") or is_granted("ROLE_CONTACTS_ADMIN")'))]
 	public function getAppusersNotAction(string $rolePrefix): Response
 	{
 		$this->denyUnlessManagesPrefix($rolePrefix);
