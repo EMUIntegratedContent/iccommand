@@ -54,6 +54,17 @@ class AdvisorController extends AbstractController
         return new Response(json_encode($result), 200, ["Content-Type" => "application/json"]);
     }
 
+    /**
+     * The buildings the form's picker offers (id, name), sorted by name. Only editors pick one;
+     * readers see the advisor's building_name.
+     */
+    #[Route('/buildings', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_ADVISORS_EDIT")'))]
+    public function buildingOptionsAction(): Response
+    {
+        return new Response(json_encode($this->service->getBuildingOptions()), 200, ["Content-Type" => "application/json"]);
+    }
+
     #[Route('/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_ADVISORS_VIEW")'))]
     public function getAction(int $id): Response
@@ -102,8 +113,7 @@ class AdvisorController extends AbstractController
     }
 
     /**
-     * Refuses (409) while any program, scholarship or building still
-     * points at the advisor.
+     * Refuses (409) while any program or scholarship still points at the advisor.
      */
     #[Route('/{id}', methods: ['DELETE'], requirements: ['id' => '\d+'])]
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_ADVISORS_DELETE")'))]
@@ -131,12 +141,17 @@ class AdvisorController extends AbstractController
     /* ***************************** Helpers ***************************** */
 
     /**
-     * An unknown or blank type leaves the type unset so validation reports it.
+     * An unknown or blank type leaves the type unset so validation reports it. buildingId
+     * null or '' clears the building; an id that isn't a building is a 422.
      */
     private function applyFields(IcAdvisor $advisor, array $data): void
     {
         if (array_key_exists('type', $data)) {
             $advisor->setType(is_string($data['type']) ? IcAdvisorType::tryFrom($data['type']) : null);
+        }
+
+        if (array_key_exists('buildingId', $data)) {
+            $advisor->setBuilding($this->service->resolveBuilding($data['buildingId']));
         }
 
         foreach (self::STRING_FIELDS as $key => $setter) {

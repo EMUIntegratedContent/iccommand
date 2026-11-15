@@ -6,7 +6,6 @@ use App\Service\RichTextSanitizer;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -25,7 +24,6 @@ use App\Entity\Map\MapParkingType;
 use App\Entity\Map\MapService;
 use App\Entity\Map\MapServiceType;
 use App\Service\MapItemService;
-use App\Service\IcService;
 use App\Entity\Map\MapDispenser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
@@ -37,7 +35,7 @@ class MapItemController extends AbstractController
 	private SerializerInterface $serializer;
 	private RichTextSanitizer $richText;
 
-	public function __construct(MapItemService $service, ManagerRegistry $doctrine, SerializerInterface $serializer, RichTextSanitizer $richText, private IcService $icService)
+	public function __construct(MapItemService $service, ManagerRegistry $doctrine, SerializerInterface $serializer, RichTextSanitizer $richText)
 	{
 		$this->service = $service;
 		$this->doctrine = $doctrine;
@@ -53,11 +51,7 @@ class MapItemController extends AbstractController
 	{
 		$mapItems = $this->doctrine->getRepository(MapItem::class)->findBy([], ['name' => 'asc']);
 
-		// The edit form needs the advisors' ids and names; the public feed gets icAdvisorsInfo only.
-		$serialized = $this->serializer->serialize($mapItems, 'json', [
-			'groups' => 'bldgs',
-			AbstractNormalizer::IGNORED_ATTRIBUTES => ['advisorIds', 'advisorNames'],
-		]);
+		$serialized = $this->serializer->serialize($mapItems, 'json', ['groups' => 'bldgs']);
 		return new Response($serialized, 200, ['Content-Type' => 'application/json']);
 	}
 
@@ -199,11 +193,6 @@ class MapItemController extends AbstractController
 				$buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($data['buildingType']['id']);
 				if ($buildingType) {
 					$mapItem->setBuildingType($buildingType);
-				}
-
-				// Advisors. Omitted key leaves them unchanged.
-				if (array_key_exists('advisorIds', $data)) {
-					$mapItem->setIcAdvisors($this->icService->resolveAdvisors($data['advisorIds']));
 				}
 				break;
 			case "bus":
@@ -427,11 +416,6 @@ class MapItemController extends AbstractController
 				$buildingType = $this->doctrine->getRepository(MapBuildingType::class)->find($data['buildingType']['id']);
 				if ($buildingType) {
 					$mapItem->setBuildingType($buildingType);
-				}
-
-				// Advisors. Omitted key leaves them unchanged.
-				if (array_key_exists('advisorIds', $data)) {
-					$mapItem->setIcAdvisors($this->icService->resolveAdvisors($data['advisorIds']));
 				}
 
 				// Building bathrooms

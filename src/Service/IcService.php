@@ -4,9 +4,11 @@ namespace App\Service;
 use App\Entity\Ic\IcCollege;
 use App\Entity\Ic\IcAdvisor;
 use App\Entity\Ic\IcDepartment;
+use App\Entity\Map\MapBuilding;
 use App\Repository\Ic\IcCollegeRepository;
 use App\Repository\Ic\IcAdvisorRepository;
 use App\Repository\Ic\IcDepartmentRepository;
+use App\Repository\Map\MapBuildingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -25,6 +27,7 @@ class IcService
         private IcCollegeRepository $colleges,
         private IcDepartmentRepository $departments,
         private IcAdvisorRepository $advisors,
+        private MapBuildingRepository $buildings,
         private AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
@@ -239,11 +242,42 @@ class IcService
     }
 
     /**
+     * The buildings an advisor can be in, for the advisor form's picker.
+     *
+     * @return array<int, array{id: int, name: string}>
+     */
+    public function getBuildingOptions(): array
+    {
+        return $this->buildings->findOptions();
+    }
+
+    /**
+     * The building an advisor form picked: null for none (null or '').
+     *
+     * @throws UnprocessableEntityHttpException for an id that isn't a building, e.g. one
+     *                                          deleted while the form was open
+     */
+    public function resolveBuilding(mixed $id): ?MapBuilding
+    {
+        if ($id === null || $id === '') {
+            return null;
+        }
+
+        $buildingId = is_bool($id) ? false : filter_var($id, FILTER_VALIDATE_INT);
+        $building = $buildingId === false ? null : $this->buildings->find($buildingId);
+        if ($building === null) {
+            throw new UnprocessableEntityHttpException('That building no longer exists.');
+        }
+
+        return $building;
+    }
+
+    /**
      * What the public feeds publish about each advisor, as a list per record id, for one of
      * the advisor link tables (see IcAdvisorRepository::LINK_TABLES). Records without
      * advisors are absent.
      *
-     * @return array<int, array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>>
+     * @return array<int, array<int, array{name: string, email: ?string, phone: ?string, url: ?string, buildingName: ?string}>>
      */
     public function getIcAdvisorsInfoByRecord(string $linkTable): array
     {
@@ -285,7 +319,6 @@ class IcService
         return $this->blockerMessage($advisor['display_name'], [
             'program' => $advisor['program_count'],
             'scholarship' => $advisor['scholarship_count'],
-            'building' => $advisor['building_count'],
         ]);
     }
 

@@ -179,6 +179,34 @@
 							</div>
 						</div>
 						<div class="form-group">
+							<label for="advisorBuilding">Building</label>
+							<template v-if="isEditMode">
+								<VueMultiselect
+									id="advisorBuilding"
+									v-model="selectedBuilding"
+									:options="buildings"
+									:multiple="false"
+									:loading="loadingBuildings"
+									label="name"
+									track-by="id"
+									placeholder="Search buildings..."
+									@update:modelValue="formDirty = true"
+								>
+								</VueMultiselect>
+								<small v-if="buildingsError" class="text-danger">{{
+									buildingsError
+								}}</small>
+							</template>
+							<input
+								v-else
+								id="advisorBuilding"
+								type="text"
+								class="form-control form-control-plaintext"
+								:value="record.building_name || 'None'"
+								readonly
+							/>
+						</div>
+						<div class="form-group">
 							<label>Room</label>
 							<Field
 								name="room"
@@ -366,6 +394,8 @@
 	</div>
 </template>
 
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+
 <style scoped>
 .button-holder {
 	height: 50px;
@@ -380,6 +410,7 @@ import Heading from "../utils/Heading.vue"
 import IcDeleteModal from "../ic/IcDeleteModal.vue"
 import IcUsageLists from "../ic/IcUsageLists.vue"
 import NotFound from "../utils/NotFound.vue"
+import VueMultiselect from "vue-multiselect"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
@@ -388,6 +419,11 @@ export default {
 		// Detect if the form should be in edit mode from the start; default is false.
 		if (this.startMode == "edit") {
 			this.isEditMode = true
+		}
+
+		// Only editors pick a building; readers see the record's building_name.
+		if (this.userCanEdit) {
+			this.fetchBuildings()
 		}
 
 		if (this.itemExists === false) {
@@ -405,7 +441,8 @@ export default {
 		IcUsageLists,
 		NotFound,
 		Field,
-		VeeForm
+		VeeForm,
+		VueMultiselect
 	},
 
 	props: {
@@ -442,6 +479,14 @@ export default {
 			},
 
 			/**
+			 * The buildings the picker offers: {id, name}, sorted by name.
+			 * @type {Array}
+			 */
+			buildings: [],
+			buildingsError: null,
+			loadingBuildings: false,
+
+			/**
 			 * The reason the server refused to delete the advisor, if any.
 			 * @type {string|null}
 			 */
@@ -473,15 +518,15 @@ export default {
 				phone: "",
 				room: "",
 				area: "",
+				building_id: null,
+				building_name: null,
 				url: "",
 				forager_url: "",
 				image_url: "",
 				program_count: 0,
 				scholarship_count: 0,
-				building_count: 0,
 				programs: [],
-				scholarships: [],
-				buildings: []
+				scholarships: []
 			},
 
 			/**
@@ -535,11 +580,30 @@ export default {
 		 * @return {boolean}
 		 */
 		isInUse: function () {
-			return (
-				this.record.program_count > 0 ||
-				this.record.scholarship_count > 0 ||
-				this.record.building_count > 0
-			)
+			return this.record.program_count > 0 || this.record.scholarship_count > 0
+		},
+
+		/**
+		 * The picked building as a picker option; setting it stores only the id. Before the
+		 * options load, the record's own id and name stand in.
+		 * @return {Object|null}
+		 */
+		selectedBuilding: {
+			get: function () {
+				if (this.record.building_id === null) {
+					return null
+				}
+				return (
+					this.buildings.find((b) => b.id === this.record.building_id) || {
+						id: this.record.building_id,
+						name: this.record.building_name
+					}
+				)
+			},
+			set: function (building) {
+				this.record.building_id = building ? building.id : null
+				this.record.building_name = building ? building.name : null
+			}
 		},
 
 		/**
@@ -579,15 +643,6 @@ export default {
 						id: s.id,
 						name: s.title,
 						url: "/scholarships/" + s.id + "/edit"
-					}))
-				},
-				{
-					key: "buildings",
-					label: "Buildings",
-					items: this.record.buildings.map((b) => ({
-						id: b.id,
-						name: b.name,
-						url: "/map/items/" + b.id + "/edit"
 					}))
 				}
 			]
@@ -722,6 +777,26 @@ export default {
 		},
 
 		/**
+		 * Gets the buildings for the picker.
+		 */
+		fetchBuildings: function () {
+			let self = this
+			self.loadingBuildings = true
+
+			axios
+				.get("/api/advisors/buildings")
+				.then(function (response) {
+					self.buildings = response.data
+				})
+				.catch(function () {
+					self.buildingsError = "There was an error loading the buildings."
+				})
+				.finally(function () {
+					self.loadingBuildings = false
+				})
+		},
+
+		/**
 		 * Called from the @itemDeleted event emission from the Delete Modal.
 		 */
 		markItemDeleted: function () {
@@ -764,6 +839,7 @@ export default {
 					phone: self.record.phone,
 					room: self.record.room,
 					area: self.record.area,
+					buildingId: self.record.building_id,
 					url: self.record.url,
 					foragerUrl: self.record.forager_url,
 					imageUrl: self.record.image_url

@@ -254,12 +254,6 @@
                            aria-selected="false">Cycle Dispensers <span
                             class="badge badge-light">{{ record.dispensers.length }}</span></a>
                       </li>
-                      <li class="nav-item">
-                        <a class="nav-link" id="pills-advisors-tab" data-toggle="pill"
-                           href="#pills-advisors" role="tab" aria-controls="pills-advisors"
-                           aria-selected="false">Advisors <span
-                            class="badge badge-light">{{ (record.advisorIds || []).length }}</span></a>
-                      </li>
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
                       <div class="tab-pane fade show active pl-4" id="pills-bathrooms"
@@ -809,14 +803,6 @@
                           </div>
                         </template>
                       </div><!-- end .tab-pane -->
-                      <div class="tab-pane fade pl-4" id="pills-advisors" role="tabpanel"
-                           aria-labelledby="pills-advisors-tab">
-                        <ic-advisor-cards
-                            input-id-prefix="buildingAdvisor"
-                            v-model="record.advisorIds"
-                            :editable="userCanEdit && isEditMode"
-                        ></ic-advisor-cards>
-                      </div><!-- end .tab-pane -->
                     </div><!-- end .tablist -->
                   </div>
                 </div><!-- end auxuilary pills -->
@@ -1247,7 +1233,6 @@ import MapitemImageEditModal from './MapitemImageEditModal.vue'
 import ImageThumbnailPod from './ImageThumbnailPod.vue'
 import Heading from '../utils/Heading.vue'
 import VueMultiselect from 'vue-multiselect'
-import IcAdvisorCards from '../ic/IcAdvisorCards.vue'
 import NotFound from '../utils/NotFound.vue'
 import Draggable from 'vuedraggable'
 import GoogleMap from './GoogleMap.vue'
@@ -1295,7 +1280,6 @@ export default {
   },
   components: {
     Heading,
-    IcAdvisorCards,
     VueMultiselect,
     MapitemDeleteModal,
     MapitemImageDeleteModal,
@@ -1367,7 +1351,6 @@ export default {
         alias: '',
         bathrooms: [],
         building: null,
-        advisorIds: [],
         description: '',
         diningOptions: [],
         dispensers: [],

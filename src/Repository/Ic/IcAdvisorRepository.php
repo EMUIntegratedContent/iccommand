@@ -23,22 +23,23 @@ class IcAdvisorRepository extends ServiceEntityRepository
      */
     public const PROGRAM_LINK = 'program_advisor';
     public const SCHOLARSHIP_LINK = 'scholarship_advisor';
-    public const BUILDING_LINK = 'map_building_advisor';
 
     /** link table => its record id column */
     public const LINK_TABLES = [
         self::PROGRAM_LINK => 'program_id',
         self::SCHOLARSHIP_LINK => 'scholarship_id',
-        self::BUILDING_LINK => 'building_id',
     ];
 
-    /** The row select shared by the list and single-record queries; counts are correlated subqueries. */
+    /**
+     * The row select shared by the list and single-record queries: the advisor, its building's
+     * name, and how many records use it (correlated subqueries).
+     */
     private const SELECT_WITH_COUNTS = "
-        SELECT c.*, " . self::DISPLAY_NAME_SQL . " AS display_name,
+        SELECT c.*, " . self::DISPLAY_NAME_SQL . " AS display_name, b.name AS building_name,
             (SELECT COUNT(*) FROM program_advisor x WHERE x.advisor_id = c.id) AS program_count,
-            (SELECT COUNT(*) FROM scholarship_advisor x WHERE x.advisor_id = c.id) AS scholarship_count,
-            (SELECT COUNT(*) FROM map_building_advisor x WHERE x.advisor_id = c.id) AS building_count
-        FROM ic_advisors c";
+            (SELECT COUNT(*) FROM scholarship_advisor x WHERE x.advisor_id = c.id) AS scholarship_count
+        FROM ic_advisors c
+        LEFT JOIN map_item b ON b.id = c.building_id";
 
     public function __construct(ManagerRegistry $registry)
     {
@@ -63,12 +64,17 @@ class IcAdvisorRepository extends ServiceEntityRepository
     /**
      * What the public feeds publish about each advisor, keyed by advisor id.
      *
-     * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>
+     * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string, buildingName: ?string}>
      */
     public function findPublicInfoById(): array
     {
+        // Fetch-joins the buildings, since toPublicArray() reads each one's name.
+        $advisors = $this->createQueryBuilder('a')
+            ->leftJoin('a.building', 'b')->addSelect('b')
+            ->getQuery()->getResult();
+
         $info = [];
-        foreach ($this->findAll() as $advisor) {
+        foreach ($advisors as $advisor) {
             $info[$advisor->getId()] = $advisor->toPublicArray();
         }
 
@@ -164,10 +170,6 @@ class IcAdvisorRepository extends ServiceEntityRepository
             'scholarships' => 'SELECT x.id, x.schlrshp_title AS title FROM scholarships_scholarship x
                 JOIN scholarship_advisor l ON l.scholarship_id = x.id
                 WHERE l.advisor_id = :id ORDER BY title ASC',
-            'buildings' => 'SELECT x.id, i.name FROM map_building x
-                JOIN map_item i ON i.id = x.id
-                JOIN map_building_advisor l ON l.building_id = x.id
-                WHERE l.advisor_id = :id ORDER BY i.name ASC',
         ];
 
         $conn = $this->getEntityManager()->getConnection();
@@ -183,7 +185,8 @@ class IcAdvisorRepository extends ServiceEntityRepository
     private function castRow(array $row): array
     {
         $row['id'] = (int) $row['id'];
-        foreach (['program', 'scholarship', 'building'] as $noun) {
+        $row['building_id'] = $row['building_id'] === null ? null : (int) $row['building_id'];
+        foreach (['program', 'scholarship'] as $noun) {
             $row[$noun . '_count'] = (int) $row[$noun . '_count'];
         }
 

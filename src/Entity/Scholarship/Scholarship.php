@@ -811,7 +811,7 @@ class Scholarship
     /**
      * What the public feed publishes about the advisors, sorted by name.
      *
-     * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>
+     * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string, buildingName: ?string}>
      */
     #[Groups("scholarship")]
     public function getIcAdvisorsInfo(): array

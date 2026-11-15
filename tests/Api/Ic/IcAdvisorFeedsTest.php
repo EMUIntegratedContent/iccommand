@@ -4,7 +4,6 @@ namespace App\Tests\Api\Ic;
 
 use App\Entity\Ic\IcAdvisor;
 use App\Entity\Ic\IcAdvisorType;
-use App\Entity\Map\MapBuilding;
 use App\Entity\Scholarship\Scholarship;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,8 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * Advisors set through each record's own API reach that record's public feed as the
- * icAdvisorsInfo list: name, email, phone and url only, sorted by name, [] for none. Test rows
- * are ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
+ * icAdvisorsInfo list: name, email, phone, url and building name only, sorted by name, [] for
+ * none. Test rows are ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
  */
 class IcAdvisorFeedsTest extends WebTestCase
 {
@@ -30,6 +29,7 @@ class IcAdvisorFeedsTest extends WebTestCase
         'email' => 'zz.feed@emich.edu',
         'phone' => '734-487-1234',
         'url' => 'https://www.emich.edu/zz-feed',
+        'buildingName' => self::NAME_PREFIX . ' Building',
     ];
 
     /** A second advisor with only the required fields. */
@@ -38,6 +38,7 @@ class IcAdvisorFeedsTest extends WebTestCase
         'email' => null,
         'phone' => null,
         'url' => null,
+        'buildingName' => null,
     ];
 
     public function testAdvisorsReachEveryPublicFeed(): void
@@ -46,13 +47,13 @@ class IcAdvisorFeedsTest extends WebTestCase
         $em = static::getContainer()->get('doctrine')->getManager();
         $client->loginUser($this->persistUser($em));
 
-        $advisorId = $this->createAdvisor($client);
+        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em));
+        $advisorId = $this->createAdvisor($client, 'Jane', true, $buildingId);
         $secondId = $this->createAdvisor($client, 'Adam', false);
         $advisorIds = [$advisorId, $secondId];
 
         $scholarshipId = $this->create($client, 'POST', '/api/scholarships/', $this->scholarshipPayload() + ['advisorIds' => $advisorIds]);
         $plainScholarshipId = $this->create($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(' Plain'));
-        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em) + ['advisorIds' => $advisorIds]);
         $programId = $this->create($client, 'POST', '/api/programs/', $this->programPayload($em) + ['advisor_ids' => $advisorIds]);
 
         // The public routes need no login.
@@ -73,8 +74,9 @@ class IcAdvisorFeedsTest extends WebTestCase
         }
         $this->assertSame([], $this->rowById($this->publicJson($client, '/api/external/scholarships/all'), $plainScholarshipId)['icAdvisorsInfo']);
 
+        // Buildings don't list advisors; the building only shows up as an advisor's buildingName.
         $building = $this->rowById($this->publicJson($client, '/api/external/mapitems'), $buildingId);
-        $this->assertSame($expected, $building['icAdvisorsInfo']);
+        $this->assertArrayNotHasKey('icAdvisorsInfo', $building);
         $this->assertNoAdvisorIds($building);
 
         $program = $this->rowById($this->publicJson($client, '/api/external/programs/programs'), $programId);
@@ -120,25 +122,6 @@ class IcAdvisorFeedsTest extends WebTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([], json_decode($client->getResponse()->getContent(), true)['advisorIds']);
 
-        // Building (other map item types never have advisors)
-        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em) + ['advisorIds' => [$advisorId, $secondId]]);
-        $client->request('GET', '/api/mapitems/' . $buildingId);
-        $building = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEqualsCanonicalizing([$advisorId, $secondId], $building['advisorIds']);
-        $this->assertEqualsCanonicalizing($names, $building['advisorNames']);
-
-        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId] + $this->buildingPayload($em));
-        $this->assertResponseStatusCodeSame(201);
-        $this->assertCount(2, json_decode($client->getResponse()->getContent(), true)['advisorIds']);
-
-        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId, 'advisorIds' => [$secondId]] + $this->buildingPayload($em));
-        $this->assertResponseStatusCodeSame(201);
-        $this->assertSame([$secondId], json_decode($client->getResponse()->getContent(), true)['advisorIds']);
-
-        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId, 'advisorIds' => []] + $this->buildingPayload($em));
-        $this->assertResponseStatusCodeSame(201);
-        $this->assertSame([], json_decode($client->getResponse()->getContent(), true)['advisorIds']);
-
         // Program (raw SQL read: snake_case keys, ids as a comma-separated string)
         $programId = $this->create($client, 'POST', '/api/programs/', $this->programPayload($em) + ['advisor_ids' => [$advisorId, $secondId, $advisorId]]);
         $client->request('GET', '/api/programs/' . $programId);
@@ -161,15 +144,12 @@ class IcAdvisorFeedsTest extends WebTestCase
         $this->sendJson($client, 'PUT', '/api/scholarships/' . $scholarshipId, ['advisorIds' => [$advisorId, 999999999]]);
         $this->assertResponseStatusCodeSame(422);
         $em->clear();
-        $this->sendJson($client, 'PUT', '/api/mapitem', ['id' => $buildingId, 'advisorIds' => [999999999]] + $this->buildingPayload($em));
-        $this->assertResponseStatusCodeSame(422);
-        $em->clear();
         $this->sendJson($client, 'PUT', '/api/programs/', ['id' => $programId, 'advisor_ids' => [999999999]] + $this->programPayload($em));
         $this->assertResponseStatusCodeSame(422);
     }
 
     /**
-     * Deleting a program, scholarship or building drops its advisor links; the advisor stays.
+     * Deleting a program drops its advisor links; the advisor stays.
      */
     public function testDeletingARecordDropsItsAdvisorLinks(): void
     {
@@ -180,16 +160,37 @@ class IcAdvisorFeedsTest extends WebTestCase
 
         $advisorId = $this->createAdvisor($client);
         $programId = $this->create($client, 'POST', '/api/programs/', $this->programPayload($em) + ['advisor_ids' => [$advisorId]]);
-        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em) + ['advisorIds' => [$advisorId]]);
         $this->assertSame(1, (int) $conn->fetchOne('SELECT COUNT(*) FROM program_advisor WHERE program_id = ?', [$programId]));
-        $this->assertSame(1, (int) $conn->fetchOne('SELECT COUNT(*) FROM map_building_advisor WHERE building_id = ?', [$buildingId]));
 
         $client->request('DELETE', '/api/programs/' . $programId);
         $this->assertSame(0, (int) $conn->fetchOne('SELECT COUNT(*) FROM program_advisor WHERE program_id = ?', [$programId]));
-        $client->request('DELETE', '/api/mapitems/' . $buildingId);
-        $this->assertSame(0, (int) $conn->fetchOne('SELECT COUNT(*) FROM map_building_advisor WHERE building_id = ?', [$buildingId]));
 
         $this->assertSame(1, (int) $conn->fetchOne('SELECT COUNT(*) FROM ic_advisors WHERE id = ?', [$advisorId]));
+    }
+
+    /**
+     * Deleting an advisor's building clears its building (ON DELETE SET NULL); the advisor
+     * stays and its feed entry's buildingName becomes null.
+     */
+    public function testDeletingABuildingClearsItFromItsAdvisors(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $client->loginUser($this->persistUser($em));
+        $conn = $em->getConnection();
+
+        $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em));
+        $advisorId = $this->createAdvisor($client, 'Jane', true, $buildingId);
+        $scholarshipId = $this->create($client, 'POST', '/api/scholarships/', $this->scholarshipPayload() + ['advisorIds' => [$advisorId]]);
+
+        $client->request('DELETE', '/api/mapitems/' . $buildingId);
+        $this->assertSame(1, (int) $conn->fetchOne('SELECT COUNT(*) FROM ic_advisors WHERE id = ? AND building_id IS NULL', [$advisorId]));
+
+        $em->clear();
+        $client->getCookieJar()->clear();
+        static::getContainer()->get('security.token_storage')->setToken(null);
+        $row = $this->publicJson($client, '/api/external/scholarships/' . $scholarshipId);
+        $this->assertSame(array_merge(self::EXPECTED_INFO, ['buildingName' => null]), $row['icAdvisorsInfo'][0]);
     }
 
     /**
@@ -207,23 +208,23 @@ class IcAdvisorFeedsTest extends WebTestCase
             ->setRoom(self::PRIVATE_VALUES[0])
             ->setArea(self::PRIVATE_VALUES[1]);
 
-        foreach ([new Scholarship(), new MapBuilding()] as $record) {
-            $record->setIcAdvisors([$advisor]);
-            $json = $serializer->serialize($record, 'json');
-            $this->assertStringNotContainsString(self::PRIVATE_VALUES[0], $json, get_class($record));
-            $this->assertStringNotContainsString(self::PRIVATE_VALUES[1], $json, get_class($record));
-        }
+        $scholarship = (new Scholarship())->setIcAdvisors([$advisor]);
+        $json = $serializer->serialize($scholarship, 'json');
+        $this->assertStringNotContainsString(self::PRIVATE_VALUES[0], $json);
+        $this->assertStringNotContainsString(self::PRIVATE_VALUES[1], $json);
     }
 
     /**
      * @param bool $full whether to set the public fields (EXPECTED_INFO) or only the name
+     * @param int|null $buildingId the advisor's building, which feeds publish by name only
      */
-    private function createAdvisor(KernelBrowser $client, string $firstName = 'Jane', bool $full = true): int
+    private function createAdvisor(KernelBrowser $client, string $firstName = 'Jane', bool $full = true, ?int $buildingId = null): int
     {
         return $this->create($client, 'POST', '/api/advisors', [
             'type' => 'Person',
             'lastName' => self::NAME_PREFIX,
             'firstName' => $firstName,
+            'buildingId' => $buildingId,
         ] + (!$full ? [] : [
             'email' => self::EXPECTED_INFO['email'],
             'phone' => self::EXPECTED_INFO['phone'],
@@ -328,7 +329,7 @@ class IcAdvisorFeedsTest extends WebTestCase
 
     private function assertNoAdvisorIds(array $row): void
     {
-        foreach (['advisorId', 'advisorIds', 'advisor_id', 'advisor_ids', 'advisorName', 'advisorNames', 'advisor_name', 'icAdvisor', 'icAdvisors', 'icAdvisorInfo'] as $key) {
+        foreach (['advisorId', 'advisorIds', 'advisor_id', 'advisor_ids', 'advisorName', 'advisorNames', 'advisor_name', 'icAdvisor', 'icAdvisors', 'icAdvisorInfo', 'buildingId', 'building_id'] as $key) {
             $this->assertArrayNotHasKey($key, $row);
         }
     }

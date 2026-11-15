@@ -8,9 +8,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * End-to-end test for the advisors API (/api/advisors), the rule that an advisor
- * can't be deleted while a program, scholarship or building uses it, and the picker's options route. Test rows are
- * ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
+ * End-to-end test for the advisors API (/api/advisors), including an advisor's building and
+ * the form's building options, the rule that an advisor can't be deleted while a program or
+ * scholarship uses it, and the picker's options route. Test rows are ZZ-prefixed and temp users
+ * zz_ictest_-prefixed; tearDown removes both.
  */
 class AdvisorControllerTest extends WebTestCase
 {
@@ -22,6 +23,13 @@ class AdvisorControllerTest extends WebTestCase
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
         $client->loginUser($this->persistUser($em, 'advisor_admin', ['ROLE_GLOBAL_ADMIN']));
+        $buildingId = $this->createBuilding($client, $em);
+
+        // The form's building options: id and name only.
+        $client->request('GET', '/api/advisors/buildings');
+        $this->assertResponseStatusCodeSame(200);
+        $buildings = json_decode($client->getResponse()->getContent(), true);
+        $this->assertSame(['id' => $buildingId, 'name' => self::NAME_PREFIX . ' Building'], current(array_filter($buildings, fn (array $b) => $b['id'] === $buildingId)));
 
         // CREATE
         $this->json($client, 'POST', '/api/advisors', [
@@ -32,6 +40,7 @@ class AdvisorControllerTest extends WebTestCase
             'phone' => '734-487-1234',
             'room' => '101',
             'area' => 'Admissions',
+            'buildingId' => $buildingId,
             'url' => 'https://www.emich.edu/jane',
             'foragerUrl' => 'https://www.emich.edu/forager',
             'imageUrl' => 'https://www.emich.edu/jane.jpg',
@@ -41,6 +50,9 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertSame('Person', $created['type']);
         $this->assertSame(self::NAME_PREFIX . ' Doe, Jane', $created['displayName']);
         $this->assertSame('https://www.emich.edu/forager', $created['foragerUrl']);
+        $this->assertSame($buildingId, $created['buildingId']);
+        $this->assertSame(self::NAME_PREFIX . ' Building', $created['buildingName']);
+        $this->assertArrayNotHasKey('building', $created);
         // Audit fields hold the username, like the other Blameable entities.
         $this->assertSame(self::USERNAME_PREFIX . 'advisor_admin', $created['createdBy']);
         $this->assertSame(self::USERNAME_PREFIX . 'advisor_admin', $created['updatedBy']);
@@ -59,6 +71,9 @@ class AdvisorControllerTest extends WebTestCase
             'script url' => ['type' => 'Organization', 'organization' => 'ZZ', 'url' => 'javascript:alert(1)'],
             'bad forager url' => ['type' => 'Organization', 'organization' => 'ZZ', 'foragerUrl' => 'nope'],
             'bad image url' => ['type' => 'Organization', 'organization' => 'ZZ', 'imageUrl' => 'nope'],
+            'unknown building' => ['type' => 'Organization', 'organization' => 'ZZ', 'buildingId' => 999999999],
+            'non-numeric building' => ['type' => 'Organization', 'organization' => 'ZZ', 'buildingId' => 'abc'],
+            'boolean building' => ['type' => 'Organization', 'organization' => 'ZZ', 'buildingId' => true],
         ];
         foreach ($invalid as $label => $payload) {
             $this->json($client, 'POST', '/api/advisors', $payload);
@@ -78,6 +93,7 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertSame(self::NAME_PREFIX . ' Office', $updated['displayName']);
         $this->assertNull($updated['email']);
         $this->assertSame('734-487-1234', $updated['phone']); // Omitted keys are left alone.
+        $this->assertSame($buildingId, $updated['buildingId']);
 
         // LIST + GET one carry the display name, counts and usage lists
         $client->request('GET', '/api/advisors?page=1&limit=10&searchterm=' . urlencode(self::NAME_PREFIX . ' Office'));
@@ -85,9 +101,11 @@ class AdvisorControllerTest extends WebTestCase
         $list = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(1, $list['totalRows']);
         $this->assertSame(self::NAME_PREFIX . ' Office', $list['advisors'][0]['display_name']);
-        foreach (['program', 'scholarship', 'building'] as $noun) {
+        $this->assertSame(self::NAME_PREFIX . ' Building', $list['advisors'][0]['building_name']);
+        foreach (['program', 'scholarship'] as $noun) {
             $this->assertSame(0, $list['advisors'][0][$noun . '_count']);
         }
+        $this->assertArrayNotHasKey('building_count', $list['advisors'][0]);
 
         $client->request('GET', '/api/advisors/' . $id);
         $this->assertResponseStatusCodeSame(200);
@@ -95,9 +113,19 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertSame('Organization', $one['type']);
         $this->assertSame('https://www.emich.edu/forager', $one['forager_url']);
         $this->assertSame(self::USERNAME_PREFIX . 'advisor_admin', $one['updated_by']);
-        foreach (['programs', 'scholarships', 'buildings'] as $key) {
+        $this->assertSame($buildingId, $one['building_id']);
+        $this->assertSame(self::NAME_PREFIX . ' Building', $one['building_name']);
+        foreach (['programs', 'scholarships'] as $key) {
             $this->assertSame([], $one[$key]);
         }
+        $this->assertArrayNotHasKey('buildings', $one);
+
+        // A null buildingId clears the building.
+        $this->json($client, 'PUT', '/api/advisors/' . $id, ['buildingId' => null]);
+        $this->assertResponseStatusCodeSame(200);
+        $cleared = json_decode($client->getResponse()->getContent(), true);
+        $this->assertNull($cleared['buildingId']);
+        $this->assertNull($cleared['buildingName']);
 
         // DELETE (unused) -> 204, then 404
         $client->request('DELETE', '/api/advisors/' . $id);
@@ -172,8 +200,8 @@ class AdvisorControllerTest extends WebTestCase
         $client->loginUser($this->persistUser($em, 'advisor_seed', ['ROLE_GLOBAL_ADMIN']));
         $advisorId = $this->createOrganization($client, self::NAME_PREFIX . ' Option');
 
-        // Module editors can read the options, but not the admin API.
-        foreach (['ROLE_MAP_CREATE', 'ROLE_PROGRAMS_CREATE', 'ROLE_SCHOLARSHIP_CREATE', 'ROLE_SCHOLARSHIP_ADMIN'] as $index => $role) {
+        // Program and scholarship editors can read the options, but not the advisors API.
+        foreach (['ROLE_PROGRAMS_CREATE', 'ROLE_SCHOLARSHIP_CREATE', 'ROLE_SCHOLARSHIP_ADMIN'] as $index => $role) {
             $client->loginUser($this->persistUser($em, 'advisor_editor' . $index, [$role]));
 
             $client->request('GET', '/api/ic/advisors/options');
@@ -187,10 +215,13 @@ class AdvisorControllerTest extends WebTestCase
             $this->assertSame(403, $client->getResponse()->getStatusCode(), $role);
         }
 
-        // View-only users don't get the picker, so they don't get its data.
-        $client->loginUser($this->persistUser($em, 'advisor_viewer', ['ROLE_MAP_VIEW']));
-        $client->request('GET', '/api/ic/advisors/options');
-        $this->assertResponseStatusCodeSame(403);
+        // View-only users don't get the picker, and buildings no longer have advisors, so
+        // neither gets its data.
+        foreach (['ROLE_PROGRAMS_VIEW', 'ROLE_MAP_CREATE', 'ROLE_MAP_ADMIN'] as $index => $role) {
+            $client->loginUser($this->persistUser($em, 'advisor_noopts' . $index, [$role]));
+            $client->request('GET', '/api/ic/advisors/options');
+            $this->assertSame(403, $client->getResponse()->getStatusCode(), $role);
+        }
     }
 
     /**
@@ -225,6 +256,8 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertSame($canRead ? 200 : 403, $client->getResponse()->getStatusCode(), 'list');
         $client->request('GET', '/api/advisors/' . $seedId);
         $this->assertSame($canRead ? 200 : 403, $client->getResponse()->getStatusCode(), 'get');
+        $client->request('GET', '/api/advisors/buildings');
+        $this->assertSame($canWrite ? 200 : 403, $client->getResponse()->getStatusCode(), 'building options');
 
         $this->json($client, 'POST', '/api/advisors', ['type' => 'Organization', 'organization' => self::NAME_PREFIX . ' Made']);
         $this->assertSame($canWrite ? 201 : 403, $client->getResponse()->getStatusCode(), 'create');
@@ -293,6 +326,32 @@ class AdvisorControllerTest extends WebTestCase
         ];
     }
 
+    private function createBuilding(KernelBrowser $client, EntityManagerInterface $em): int
+    {
+        $this->json($client, 'POST', '/api/mapitems', [
+            'itemType' => 'building',
+            'name' => self::NAME_PREFIX . ' Building',
+            'description' => 'A building',
+            'hours' => '',
+            'address' => '1 Test St',
+            'alias' => '',
+            'admissionsTour' => 0,
+            'latitudeIllustration' => 0,
+            'longitudeIllustration' => 0,
+            'latitudeSatellite' => 0,
+            'longitudeSatellite' => 0,
+            'buildingType' => ['id' => (int) $em->getConnection()->fetchOne('SELECT MIN(id) FROM map_building_type')],
+            'bathrooms' => [],
+            'diningOptions' => [],
+            'emergencyDevices' => [],
+            'exhibits' => [],
+            'services' => [],
+            'dispensers' => [],
+        ]);
+        $this->assertSame(201, $client->getResponse()->getStatusCode(), substr($client->getResponse()->getContent(), 0, 500));
+        return (int) json_decode($client->getResponse()->getContent(), true)['id'];
+    }
+
     private function createOrganization(KernelBrowser $client, string $name): int
     {
         $this->json($client, 'POST', '/api/advisors', ['type' => 'Organization', 'organization' => $name]);
@@ -324,6 +383,7 @@ class AdvisorControllerTest extends WebTestCase
             $em = static::getContainer()->get('doctrine')->getManager();
             $conn = $em->getConnection();
             $conn->executeStatement('DELETE FROM scholarships_scholarship WHERE schlrshp_title LIKE ?', [self::NAME_PREFIX . '%']);
+            $conn->executeStatement('DELETE FROM map_item WHERE name LIKE ?', [self::NAME_PREFIX . '%']);
             $conn->executeStatement('DELETE FROM ic_advisors WHERE organization LIKE ? OR last_name LIKE ?', [self::NAME_PREFIX . '%', self::NAME_PREFIX . '%']);
             $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
         }

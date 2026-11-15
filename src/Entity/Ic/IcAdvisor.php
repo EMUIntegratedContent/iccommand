@@ -1,17 +1,19 @@
 <?php
 namespace App\Entity\Ic;
 
+use App\Entity\Map\MapBuilding;
 use App\Repository\Ic\IcAdvisorRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * An advisor (a person or organization), shared across IC Command apps. Programs, scholarships
- * and buildings can each have any number of them, through the program_advisor,
- * scholarship_advisor and map_building_advisor link tables.
+ * An advisor (a person or organization), shared across IC Command apps. Programs and
+ * scholarships can each have any number of them, through the program_advisor and
+ * scholarship_advisor link tables. An advisor can be in one building.
  */
 #[ORM\Entity(repositoryClass: IcAdvisorRepository::class)]
 #[ORM\Table(name: 'ic_advisors')]
@@ -63,6 +65,14 @@ class IcAdvisor
     #[Assert\Length(max: 255, maxMessage: 'Area must be 255 characters or less.')]
     #[Groups("ic")]
     private ?string $area = null;
+
+    /**
+     * The building the advisor is in, if any. Deleting the building clears it. Serialized
+     * through buildingId/buildingName rather than as a nested building.
+     */
+    #[ORM\ManyToOne(targetEntity: MapBuilding::class)]
+    #[ORM\JoinColumn(name: 'building_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?MapBuilding $building = null;
 
     #[ORM\Column(length: 1024, nullable: true)]
     #[Assert\Url(message: 'Please enter a valid URL.', requireTld: true)]
@@ -209,6 +219,30 @@ class IcAdvisor
         return $this;
     }
 
+    #[Ignore]
+    public function getBuilding(): ?MapBuilding
+    {
+        return $this->building;
+    }
+
+    public function setBuilding(?MapBuilding $building): self
+    {
+        $this->building = $building;
+        return $this;
+    }
+
+    #[Groups("ic")]
+    public function getBuildingId(): ?int
+    {
+        return $this->building?->getId();
+    }
+
+    #[Groups("ic")]
+    public function getBuildingName(): ?string
+    {
+        return $this->building?->getName();
+    }
+
     public function getUrl(): ?string
     {
         return $this->url;
@@ -278,9 +312,10 @@ class IcAdvisor
 
     /**
      * What the public feeds publish about an advisor. Everything else (room, area, Forager and
-     * image URLs, audit fields, id) stays private, so a new field is private until added here.
+     * image URLs, audit fields, its id and its building's id) stays private, so a new field is
+     * private until added here.
      *
-     * @return array{name: string, email: ?string, phone: ?string, url: ?string}
+     * @return array{name: string, email: ?string, phone: ?string, url: ?string, buildingName: ?string}
      */
     public function toPublicArray(): array
     {
@@ -291,6 +326,7 @@ class IcAdvisor
             'email' => $this->email,
             'phone' => $this->phone,
             'url' => $this->url,
+            'buildingName' => $this->building?->getName(),
         ];
     }
 

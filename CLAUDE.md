@@ -63,9 +63,10 @@ dropdowns. A program's colleges and departments live ONLY in `program_college_li
 (several per program). See `docs/shared-colleges-departments.md`. Much of the Programs module is raw DBAL
 SQL in `ProgramsRepository` (many program tables have no entity).
 
-`ic_advisors` (`IcAdvisor`, managed in the Advisors app at /advisors, roles `ROLE_ADVISORS_VIEW/EDIT/DELETE/ADMIN`) holds the advisors of programs, scholarships and
-buildings (many each), through the `program_advisor`, `scholarship_advisor` and `map_building_advisor` link
-tables. Public feeds publish them as the `icAdvisorsInfo` list, built only by `IcAdvisor::toPublicArray()`.
+`ic_advisors` (`IcAdvisor`, managed in the Advisors app at /advisors, roles `ROLE_ADVISORS_VIEW/EDIT/DELETE/ADMIN`) holds the advisors of programs and scholarships
+(many each), through the `program_advisor` and `scholarship_advisor` link tables. Each advisor can be in one
+building (`building_id` → `map_building`, `ON DELETE SET NULL`); buildings don't list advisors. Public feeds
+publish them as the `icAdvisorsInfo` list (including `buildingName`), built only by `IcAdvisor::toPublicArray()`.
 It was named Contacts (`ic_contacts`, `IcContact`) until November 2026. A scholarship's free-text `contact`
 field is unrelated and keeps its name. See `docs/ic-advisors.md`.
 
