@@ -33,12 +33,16 @@ bin/check-frontend-build      # Run before committing public/build
 ```
 
 ### Tests
-The `test` env is stale since the Symfony 8 upgrade: it needs `SYMFONY_PHPUNIT_VERSION=9.6`, temporary
-patches to `config/packages/test/*.yaml`, and the `.env` vars exported with `APP_ENV=test`. Tests run
-against the real `ic` DB, so clean up the rows they create.
+`bin/phpunit` runs PHPUnit 9.6 (downloaded into `bin/.phpunit` on first use) with `APP_ENV=test`, and
+`tests/bootstrap.php` reads `.env` and `.env.local`. Tests run against the real `ic` DB, so clean up the rows
+they create. Test-env config lives in `when@test` blocks (there is no `config/packages/test/`); test mail
+goes to the null transport. PHPUnit 9 takes a single path, so groups of directories are `<testsuite>`s in
+`phpunit.xml.dist`.
 ```bash
-php bin/phpunit tests/Api/Admin                     # Run a directory/file (inside the web container)
-php bin/phpunit --filter testMethodName             # Run a single test method
+php bin/phpunit                                     # Everything (inside the web container)
+php bin/phpunit tests/Api/Admin                     # One directory or file
+php bin/phpunit --testsuite advisors                # A suite from phpunit.xml.dist
+php bin/phpunit --filter testMethodName             # A single test method
 ```
 
 ## Architecture
