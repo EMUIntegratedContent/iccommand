@@ -1,4 +1,5 @@
 monolog:
+    channels: ["crime_log"]
     handlers:
         main:
             type: stream

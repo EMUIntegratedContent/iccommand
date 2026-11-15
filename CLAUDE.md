@@ -33,9 +33,11 @@ bin/check-frontend-build      # Run before committing public/build
 ```
 
 ### Tests
-The `test` env is stale since the Symfony 8 upgrade: it needs `SYMFONY_PHPUNIT_VERSION=9.6`, temporary
-patches to `config/packages/test/*.yaml`, and the `.env` vars exported with `APP_ENV=test`. Tests run
-against the real `ic` DB, so clean up the rows they create.
+The `test` config was fixed after the Symfony 8 upgrade, but the bridge still defaults to PHPUnit 6.5 and
+Symfony ignores `.env.local` in `test`. Inside the web container, first run:
+`export SYMFONY_PHPUNIT_VERSION=9.6; set -a; . ./.env; [ -f ./.env.local ] && . ./.env.local; set +a; export APP_ENV=test APP_DEBUG=1`
+(re-export `APP_ENV=test` AFTER sourcing `.env`). Tests run against the real `ic` DB, so run pending
+migrations first and clean up the rows tests create.
 ```bash
 php bin/phpunit tests/Api/Admin                     # Run a directory/file (inside the web container)
 php bin/phpunit --filter testMethodName             # Run a single test method
