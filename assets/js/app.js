@@ -45,7 +45,7 @@ if (!String.prototype.includes) {
 
 /* ******************************** Vue Setup ******************************* */
 import { createApp } from "vue"
-import CKEditor from '@ckeditor/ckeditor5-vue';
+import { CkeditorPlugin } from '@ckeditor/ckeditor5-vue';
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -126,7 +126,7 @@ app.component("scholarship-organizations-list", require("./components/scholarshi
 
 
 app.component('font-awesome-icon', FontAwesomeIcon)
-app.use(CKEditor)
+app.use(CkeditorPlugin)
 app.mount('#app')
 
 

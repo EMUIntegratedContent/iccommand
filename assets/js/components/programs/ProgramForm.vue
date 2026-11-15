@@ -619,7 +619,7 @@ import NotFound from "../utils/NotFound.vue"
 import ProgramDeleteModal from "./ProgramDeleteModal.vue"
 import { ErrorMessage, Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
+import ClassicEditor from "@/utils/ckeditor"
 
 const STATUS_INITIAL = 0
 const STATUS_SAVE_FAILED = 1
