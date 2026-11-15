@@ -336,6 +336,8 @@ class IcAdvisor
             'email' => $this->email,
             'phone' => $this->phone,
             'url' => $this->url,
+						'room' => $this->room,
+						'area' => $this->area,
             'buildingName' => $this->building?->getName(),
         ];
     }

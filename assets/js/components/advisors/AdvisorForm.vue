@@ -268,44 +268,44 @@
 									{{ errors.url }}
 								</div>
 							</div>
-							<div class="form-group">
-								<label>Forager URL</label>
-								<Field
-									name="foragerUrl"
-									type="url"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.foragerUrl,
-										'form-control-plaintext': !isEditMode
-									}"
-									:readonly="!isEditMode"
-									v-model="record.forager_url"
-									@update:modelValue="formDirty = true"
-								>
-								</Field>
-								<div class="invalid-feedback">
-									{{ errors.foragerUrl }}
-								</div>
-							</div>
-							<div class="form-group">
-								<label>Image URL</label>
-								<Field
-									name="imageUrl"
-									type="url"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.imageUrl,
-										'form-control-plaintext': !isEditMode
-									}"
-									:readonly="!isEditMode"
-									v-model="record.image_url"
-									@update:modelValue="formDirty = true"
-								>
-								</Field>
-								<div class="invalid-feedback">
-									{{ errors.imageUrl }}
-								</div>
-							</div>
+<!--							<div class="form-group">-->
+<!--								<label>Forager URL</label>-->
+<!--								<Field-->
+<!--									name="foragerUrl"-->
+<!--									type="url"-->
+<!--									class="form-control"-->
+<!--									:class="{-->
+<!--										'is-invalid': errors.foragerUrl,-->
+<!--										'form-control-plaintext': !isEditMode-->
+<!--									}"-->
+<!--									:readonly="!isEditMode"-->
+<!--									v-model="record.forager_url"-->
+<!--									@update:modelValue="formDirty = true"-->
+<!--								>-->
+<!--								</Field>-->
+<!--								<div class="invalid-feedback">-->
+<!--									{{ errors.foragerUrl }}-->
+<!--								</div>-->
+<!--							</div>-->
+<!--							<div class="form-group">-->
+<!--								<label>Image URL</label>-->
+<!--								<Field-->
+<!--									name="imageUrl"-->
+<!--									type="url"-->
+<!--									class="form-control"-->
+<!--									:class="{-->
+<!--										'is-invalid': errors.imageUrl,-->
+<!--										'form-control-plaintext': !isEditMode-->
+<!--									}"-->
+<!--									:readonly="!isEditMode"-->
+<!--									v-model="record.image_url"-->
+<!--									@update:modelValue="formDirty = true"-->
+<!--								>-->
+<!--								</Field>-->
+<!--								<div class="invalid-feedback">-->
+<!--									{{ errors.imageUrl }}-->
+<!--								</div>-->
+<!--							</div>-->
 						</div>
 					</fieldset>
 
