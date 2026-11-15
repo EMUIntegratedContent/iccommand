@@ -321,6 +321,7 @@
 							<ic-usage-lists
 								:sections="usageSections"
 								:editable="canEditLinks"
+								:searchable="false"
 								@add="addLink"
 								@remove="removeLink"
 							></ic-usage-lists>

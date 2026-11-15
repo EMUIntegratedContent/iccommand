@@ -63,7 +63,8 @@ The advisor form (`AdvisorForm.vue`) has a searchable Building picker, filled fr
 Building column.
 
 The advisor form's Usage section (`IcUsageLists.vue`, shared with the college and department forms) lists
-the advisor's programs and scholarships, each linked to its edit page, with a search over the list. In edit
+the advisor's programs and scholarships in name order, each linked to its edit page (unlike the college and
+department forms, without a search over the list: `:searchable="false"`). In edit
 mode, for `ROLE_ADVISORS_EDIT` and up, each section also has an "Add" search over every program (by full
 name, with its catalog) or scholarship (by title), from `/api/advisors/programs` and
 `/api/advisors/scholarships`. Clicking a result adds it, and a trash button removes an item. Inactive

@@ -69,7 +69,7 @@
 				</div>
 
 				<template v-if="section.items.length > 0">
-					<div class="mt-2 mb-3">
+					<div v-if="searchable" class="mt-2 mb-3">
 						<label :for="'usageSearch-' + section.key" class="form-label"
 							>Search {{ section.label }}</label
 						>
@@ -101,7 +101,7 @@
 							</button>
 						</div>
 					</div>
-					<ul v-if="filteredItems(section).length > 0" class="list-group">
+					<ul v-if="filteredItems(section).length > 0" class="list-group" :class="{ 'mt-2': !searchable }">
 						<li
 							v-for="item in filteredItems(section)"
 							:key="item.id"
@@ -161,6 +161,15 @@ export default {
 		editable: {
 			type: Boolean,
 			default: false
+		},
+
+		/**
+		 * Shows a search box over each section's items. Off for short lists, which are already
+		 * in name order.
+		 */
+		searchable: {
+			type: Boolean,
+			default: true
 		}
 	},
 
