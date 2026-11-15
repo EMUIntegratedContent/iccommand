@@ -817,7 +817,7 @@
 import Heading from "../utils/Heading.vue"
 import NotFound from "../utils/NotFound.vue"
 import ScholarshipDeleteModal from "./ScholarshipDeleteModal.vue"
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
+import ClassicEditor from "@/utils/ckeditor"
 import VueMultiselect from "vue-multiselect"
 import IcAdvisorCards from "../ic/IcAdvisorCards.vue"
 import { Field, Form as VeeForm } from "vee-validate"
