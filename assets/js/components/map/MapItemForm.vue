@@ -255,10 +255,10 @@
                             class="badge badge-light">{{ record.dispensers.length }}</span></a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" id="pills-contacts-tab" data-toggle="pill"
-                           href="#pills-contacts" role="tab" aria-controls="pills-contacts"
-                           aria-selected="false">Contacts <span
-                            class="badge badge-light">{{ (record.contactIds || []).length }}</span></a>
+                        <a class="nav-link" id="pills-advisors-tab" data-toggle="pill"
+                           href="#pills-advisors" role="tab" aria-controls="pills-advisors"
+                           aria-selected="false">Advisors <span
+                            class="badge badge-light">{{ (record.advisorIds || []).length }}</span></a>
                       </li>
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
@@ -809,13 +809,13 @@
                           </div>
                         </template>
                       </div><!-- end .tab-pane -->
-                      <div class="tab-pane fade pl-4" id="pills-contacts" role="tabpanel"
-                           aria-labelledby="pills-contacts-tab">
-                        <ic-contact-cards
-                            input-id-prefix="buildingContact"
-                            v-model="record.contactIds"
+                      <div class="tab-pane fade pl-4" id="pills-advisors" role="tabpanel"
+                           aria-labelledby="pills-advisors-tab">
+                        <ic-advisor-cards
+                            input-id-prefix="buildingAdvisor"
+                            v-model="record.advisorIds"
                             :editable="userCanEdit && isEditMode"
-                        ></ic-contact-cards>
+                        ></ic-advisor-cards>
                       </div><!-- end .tab-pane -->
                     </div><!-- end .tablist -->
                   </div>
@@ -1247,7 +1247,7 @@ import MapitemImageEditModal from './MapitemImageEditModal.vue'
 import ImageThumbnailPod from './ImageThumbnailPod.vue'
 import Heading from '../utils/Heading.vue'
 import VueMultiselect from 'vue-multiselect'
-import IcContactCards from '../ic/IcContactCards.vue'
+import IcAdvisorCards from '../ic/IcAdvisorCards.vue'
 import NotFound from '../utils/NotFound.vue'
 import Draggable from 'vuedraggable'
 import GoogleMap from './GoogleMap.vue'
@@ -1295,7 +1295,7 @@ export default {
   },
   components: {
     Heading,
-    IcContactCards,
+    IcAdvisorCards,
     VueMultiselect,
     MapitemDeleteModal,
     MapitemImageDeleteModal,
@@ -1367,7 +1367,7 @@ export default {
         alias: '',
         bathrooms: [],
         building: null,
-        contactIds: [],
+        advisorIds: [],
         description: '',
         diningOptions: [],
         dispensers: [],

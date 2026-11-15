@@ -63,10 +63,11 @@ dropdowns. A program's colleges and departments live ONLY in `program_college_li
 (several per program). See `docs/shared-colleges-departments.md`. Much of the Programs module is raw DBAL
 SQL in `ProgramsRepository` (many program tables have no entity).
 
-`ic_contacts` (`IcContact`, managed in the Contacts app at /contacts, roles `ROLE_CONTACTS_VIEW/EDIT/DELETE/ADMIN`) holds the contacts of programs, scholarships and
-buildings (many each), through the `program_contact`, `scholarship_contact` and `map_building_contact` link
-tables. Public feeds publish them as the `icContactsInfo` list, built only by `IcContact::toPublicArray()`.
-See `docs/ic-contacts.md`.
+`ic_advisors` (`IcAdvisor`, managed in the Advisors app at /advisors, roles `ROLE_ADVISORS_VIEW/EDIT/DELETE/ADMIN`) holds the advisors of programs, scholarships and
+buildings (many each), through the `program_advisor`, `scholarship_advisor` and `map_building_advisor` link
+tables. Public feeds publish them as the `icAdvisorsInfo` list, built only by `IcAdvisor::toPublicArray()`.
+It was named Contacts (`ic_contacts`, `IcContact`) until November 2026. A scholarship's free-text `contact`
+field is unrelated and keeps its name. See `docs/ic-advisors.md`.
 
 ### Backend Structure
 
@@ -130,4 +131,4 @@ Environment-specific CORS in `config/packages/nelmio_cors.yaml`. Dev allows `*.e
   `--dry-run`, earlier migrations' SQL hasn't run, so checks must tolerate the old schema.
 - Delete modals: don't clear `deleteConfirm` inside the click handler before the request finishes; doing so
   disables the button before Bootstrap's `data-dismiss` handler runs, and the modal stays open.
-- Public API docs: `docs/scholarship-search-api.md`, `docs/shared-colleges-departments.md`, `docs/ic-contacts.md`.
+- Public API docs: `docs/scholarship-search-api.md`, `docs/shared-colleges-departments.md`, `docs/ic-advisors.md`.

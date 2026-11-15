@@ -25,11 +25,11 @@
 		<!-- Main Area -->
 		<div v-if="isDataLoaded === true && isDeleted === false && is404 === false">
 			<heading>
-				<span v-if="!itemExists">Add New Contact</span>
-				<span v-else>Contact: {{ savedName }}</span>
+				<span v-if="!itemExists">Add New Advisor</span>
+				<span v-else>Advisor: {{ savedName }}</span>
 			</heading>
 			<div class="button-holder" role="group" aria-label="form navigation buttons">
-				<a href="/contacts" class="btn btn-info pull-left"
+				<a href="/advisors" class="btn btn-info pull-left"
 					><i class="fa fa-arrow-left"></i
 				></a>
 				<button
@@ -45,11 +45,11 @@
 				<VeeForm
 					class="form"
 					v-slot="{ errors }"
-					@submit="submitContact"
-					:validation-schema="contactSchema"
+					@submit="submitAdvisor"
+					:validation-schema="advisorSchema"
 				>
 					<fieldset>
-						<legend>Contact</legend>
+						<legend>Advisor</legend>
 						<div class="form-group">
 							<label class="d-block"
 								>Type <span class="red" v-if="isEditMode">*</span></label
@@ -60,7 +60,7 @@
 								class="form-check form-check-inline"
 							>
 								<Field
-									:id="'contactType' + option"
+									:id="'advisorType' + option"
 									name="type"
 									type="radio"
 									class="form-check-input"
@@ -71,7 +71,7 @@
 									@update:modelValue="formDirty = true"
 								>
 								</Field>
-								<label class="form-check-label" :for="'contactType' + option">{{
+								<label class="form-check-label" :for="'advisorType' + option">{{
 									option
 								}}</label>
 							</div>
@@ -310,10 +310,10 @@
 					</div>
 					<div v-if="isSaveFailed" class="alert alert-danger" role="alert">
 						<p class="mb-0" v-if="saveErrors.length === 0">
-							Error saving this contact.
+							Error saving this advisor.
 						</p>
 						<template v-else>
-							<p class="mb-1">This contact could not be saved:</p>
+							<p class="mb-1">This advisor could not be saved:</p>
 							<ul class="mb-0">
 								<li v-for="message in saveErrors" :key="message">
 									{{ message }}
@@ -342,7 +342,7 @@
 							data-toggle="modal"
 							data-target="#deleteModal"
 							:disabled="isInUse"
-							:title="isInUse ? deleteBlockedReason : 'Delete this contact'"
+							:title="isInUse ? deleteBlockedReason : 'Delete this advisor'"
 						>
 							<i class="fa fa-trash fa-2x"></i>
 						</button>
@@ -357,9 +357,9 @@
 		<!-- Delete Modal -->
 		<ic-delete-modal
 			v-if="itemExists"
-			entity-label="Contact"
+			entity-label="Advisor"
 			:item-name="savedName"
-			:delete-url="'/api/contacts/' + record.id"
+			:delete-url="'/api/advisors/' + record.id"
 			@itemDeleted="markItemDeleted"
 			@itemDeleteError="markItemDeleteError"
 		></ic-delete-modal>
@@ -391,11 +391,11 @@ export default {
 		}
 
 		if (this.itemExists === false) {
-			// Set up for a new contact.
+			// Set up for a new advisor.
 			this.isDataLoaded = true
 		} else {
 			// Fetch the existing record using the property itemId.
-			this.fetchContact(this.itemId)
+			this.fetchAdvisor(this.itemId)
 		}
 	},
 
@@ -442,7 +442,7 @@ export default {
 			},
 
 			/**
-			 * The reason the server refused to delete the contact, if any.
+			 * The reason the server refused to delete the advisor, if any.
 			 * @type {string|null}
 			 */
 			deleteErrorMessage: null,
@@ -460,7 +460,7 @@ export default {
 			isSaveFailed: false,
 
 			/**
-			 * The contact being created or updated, plus its usage counts and lists.
+			 * The advisor being created or updated, plus its usage counts and lists.
 			 * @type {Object}
 			 */
 			record: {
@@ -500,7 +500,7 @@ export default {
 			successMessage: "",
 
 			/**
-			 * The contact types (IcContactType).
+			 * The advisor types (IcAdvisorType).
 			 * @type {Array}
 			 */
 			typeOptions: ["Person", "Organization"]
@@ -509,14 +509,14 @@ export default {
 
 	computed: {
 		/**
-		 * @return {boolean} True if the user can edit contacts.
+		 * @return {boolean} True if the user can edit advisors.
 		 */
 		userCanEdit: function () {
 			return this.permissions[0].edit ? true : false
 		},
 
 		/**
-		 * @return {boolean} True if the user can delete contacts.
+		 * @return {boolean} True if the user can delete advisors.
 		 */
 		userCanDelete: function () {
 			return this.permissions[0].delete ? true : false
@@ -527,11 +527,11 @@ export default {
 		 * @return {string}
 		 */
 		deleteBlockedReason: function () {
-			return "Can't delete: records still use this contact."
+			return "Can't delete: records still use this advisor."
 		},
 
 		/**
-		 * True while anything still points at the contact (the server refuses the delete too).
+		 * True while anything still points at the advisor (the server refuses the delete too).
 		 * @return {boolean}
 		 */
 		isInUse: function () {
@@ -557,7 +557,7 @@ export default {
 		},
 
 		/**
-		 * The records using the contact, linked to their edit pages.
+		 * The records using the advisor, linked to their edit pages.
 		 * @return {Array}
 		 */
 		usageSections: function () {
@@ -604,13 +604,13 @@ export default {
 		},
 
 		/**
-		 * The validation schema for the form (mirrors the IcContact asserts). Only the
+		 * The validation schema for the form (mirrors the IcAdvisor asserts). Only the
 		 * chosen type's name fields are on the form.
 		 * @return {Object} The validation schema.
 		 */
-		contactSchema: function () {
+		advisorSchema: function () {
 			let shape = {
-				type: Yup.string().nullable().required("Choose a contact type."),
+				type: Yup.string().nullable().required("Choose an advisor type."),
 				email: Yup.string()
 					.nullable()
 					.email("Please enter a valid email address.")
@@ -683,11 +683,11 @@ export default {
 			this.success = true
 
 			if (!this.itemExists) {
-				this.successMessage = "Contact created."
-				document.location = "/contacts/" + this.record.id + "/edit"
+				this.successMessage = "Advisor created."
+				document.location = "/advisors/" + this.record.id + "/edit"
 			} else {
 				this.successMessage = "Update successful."
-				this.fetchContact(this.record.id)
+				this.fetchAdvisor(this.record.id)
 				setTimeout(() => {
 					this.success = false
 				}, 3000)
@@ -695,14 +695,14 @@ export default {
 		},
 
 		/**
-		 * Gets the contact (with its usage counts and lists) by the specified ID.
-		 * @param {string} itemId The ID of the contact.
+		 * Gets the advisor (with its usage counts and lists) by the specified ID.
+		 * @param {string} itemId The ID of the advisor.
 		 */
-		fetchContact: function (itemId) {
+		fetchAdvisor: function (itemId) {
 			let self = this
 
 			axios
-				.get("/api/contacts/" + itemId)
+				.get("/api/advisors/" + itemId)
 				.then(function (response) {
 					// Success.
 					self.record = response.data
@@ -716,7 +716,7 @@ export default {
 						self.is404 = true
 					} else {
 						self.apiError.status = error.response ? error.response.status : 500
-						self.apiError.message = "There was an error loading this contact."
+						self.apiError.message = "There was an error loading this advisor."
 					}
 				})
 		},
@@ -728,7 +728,7 @@ export default {
 			this.deleteErrorMessage = null
 			this.isDeleted = true
 			setTimeout(function () {
-				window.location.replace("/contacts")
+				window.location.replace("/advisors")
 			}, 2000)
 		},
 
@@ -741,16 +741,16 @@ export default {
 		},
 
 		/**
-		 * Submit the form via the API. The other type's name fields are cleared, so a contact
+		 * Submit the form via the API. The other type's name fields are cleared, so an advisor
 		 * that changes type doesn't keep a name it no longer shows.
 		 */
-		submitContact: function () {
+		submitAdvisor: function () {
 			let self = this // 'this' loses scope within axios
 			self.success = false
 			let method = this.itemExists ? "put" : "post"
 			let route = this.itemExists
-				? "/api/contacts/" + this.record.id
-				: "/api/contacts"
+				? "/api/advisors/" + this.record.id
+				: "/api/advisors"
 
 			axios({
 				method: method,

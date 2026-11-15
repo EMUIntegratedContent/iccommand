@@ -758,16 +758,16 @@ class ProgramsService
 	}
 
 	/**
-	 * Replaces a program's contacts by delegating to the repository.
+	 * Replaces a program's advisors by delegating to the repository.
 	 *
 	 * @param int $programId
-	 * @param int[] $contactIds ids of contacts that exist (see IcService::resolveContacts())
+	 * @param int[] $advisorIds ids of advisors that exist (see IcService::resolveAdvisors())
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function updateProgramContacts(int $programId, array $contactIds): void
+	public function updateProgramAdvisors(int $programId, array $advisorIds): void
 	{
-		$this->em->getRepository(Programs::class)->updateProgramContacts($programId, array_values(array_unique($contactIds)));
+		$this->em->getRepository(Programs::class)->updateProgramAdvisors($programId, array_values(array_unique($advisorIds)));
 	}
 
 	/**

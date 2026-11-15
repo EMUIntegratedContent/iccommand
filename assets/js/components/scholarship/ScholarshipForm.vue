@@ -659,13 +659,13 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="mt-2">Contacts</label>
-								<ic-contact-cards
-									input-id-prefix="scholarshipIcContact"
-									v-model="record.contactIds"
+								<label class="mt-2">Advisors</label>
+								<ic-advisor-cards
+									input-id-prefix="scholarshipIcAdvisor"
+									v-model="record.advisorIds"
 									:editable="userCanEdit && isEditMode"
 									@update:modelValue="formDirty = true"
-								></ic-contact-cards>
+								></ic-advisor-cards>
 							</div>
 							<div>
 								<label class="mt-2">Contact Information <span class="red">*</span></label>
@@ -819,7 +819,7 @@ import NotFound from "../utils/NotFound.vue"
 import ScholarshipDeleteModal from "./ScholarshipDeleteModal.vue"
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 import VueMultiselect from "vue-multiselect"
-import IcContactCards from "../ic/IcContactCards.vue"
+import IcAdvisorCards from "../ic/IcAdvisorCards.vue"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
@@ -859,7 +859,7 @@ export default {
 
 	components: {
 		Heading,
-		IcContactCards,
+		IcAdvisorCards,
 		NotFound,
 		ScholarshipDeleteModal,
 		Field,
@@ -962,7 +962,7 @@ export default {
 				description: "",
 				collegeId: "",
 				departmentId: "",
-				contactIds: [],
+				advisorIds: [],
 				programLinks: []
 			},
 

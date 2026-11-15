@@ -118,9 +118,9 @@ app.component("socialmedia-list", require("./components/socialmedia/SocialMediaL
 app.component("socialmedia-form", require("./components/socialmedia/SocialMediaForm.vue").default);
 app.component("socialmedia-delete-modal", require("./components/socialmedia/SocialMediaDeleteModal.vue").default);
 
-/* Contacts Application */
-app.component("contacts-list", require("./components/contacts/ContactList.vue").default);
-app.component("contacts-form", require("./components/contacts/ContactForm.vue").default);
+/* Advisors Application */
+app.component("advisors-list", require("./components/advisors/AdvisorList.vue").default);
+app.component("advisors-form", require("./components/advisors/AdvisorForm.vue").default);
 
 /* Scholarships Application */
 app.component("scholarship-list", require("./components/scholarship/ScholarshipList.vue").default);

@@ -2,10 +2,10 @@
 namespace App\Service;
 
 use App\Entity\Ic\IcCollege;
-use App\Entity\Ic\IcContact;
+use App\Entity\Ic\IcAdvisor;
 use App\Entity\Ic\IcDepartment;
 use App\Repository\Ic\IcCollegeRepository;
-use App\Repository\Ic\IcContactRepository;
+use App\Repository\Ic\IcAdvisorRepository;
 use App\Repository\Ic\IcDepartmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -14,8 +14,8 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Business logic for the colleges, departments and contacts shared across IC Command apps
- * (ic_colleges / ic_departments in the admin area, ic_contacts in the Contacts app).
+ * Business logic for the colleges, departments and advisors shared across IC Command apps
+ * (ic_colleges / ic_departments in the admin area, ic_advisors in the Advisors app).
  */
 class IcService
 {
@@ -24,37 +24,37 @@ class IcService
         private ValidatorInterface $validator,
         private IcCollegeRepository $colleges,
         private IcDepartmentRepository $departments,
-        private IcContactRepository $contacts,
+        private IcAdvisorRepository $advisors,
         private AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
     /**
-     * What the current user may do in the Contacts app, for the Vue components. Each role
+     * What the current user may do in the Advisors app, for the Vue components. Each role
      * inherits the ones below it; global admins get everything.
      *
      * @return array{admin: bool, edit: bool, delete: bool, view: bool}
      */
-    public function getContactPermissions(): array
+    public function getAdvisorPermissions(): array
     {
         $permissions = ['admin' => false, 'edit' => false, 'delete' => false, 'view' => false];
 
-        if ($this->authorizationChecker->isGranted('ROLE_CONTACTS_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
+        if ($this->authorizationChecker->isGranted('ROLE_ADVISORS_ADMIN') || $this->authorizationChecker->isGranted('ROLE_GLOBAL_ADMIN')) {
             $permissions['admin'] = true;
             $permissions['delete'] = true;
             $permissions['edit'] = true;
             $permissions['view'] = true;
         }
-        if ($this->authorizationChecker->isGranted('ROLE_CONTACTS_DELETE')) {
+        if ($this->authorizationChecker->isGranted('ROLE_ADVISORS_DELETE')) {
             $permissions['delete'] = true;
             $permissions['edit'] = true;
             $permissions['view'] = true;
         }
-        if ($this->authorizationChecker->isGranted('ROLE_CONTACTS_EDIT')) {
+        if ($this->authorizationChecker->isGranted('ROLE_ADVISORS_EDIT')) {
             $permissions['edit'] = true;
             $permissions['view'] = true;
         }
-        if ($this->authorizationChecker->isGranted('ROLE_CONTACTS_VIEW')) {
+        if ($this->authorizationChecker->isGranted('ROLE_ADVISORS_VIEW')) {
             $permissions['view'] = true;
         }
 
@@ -175,117 +175,117 @@ class IcService
         ]);
     }
 
-    /* ****************************** Contacts ******************************* */
+    /* ****************************** Advisors ******************************* */
 
-    public function getContactsPagination(int $page, int $limit, ?string $searchTerm = null): array
+    public function getAdvisorsPagination(int $page, int $limit, ?string $searchTerm = null): array
     {
-        return $this->contacts->paginatedWithCounts($page, $limit, $searchTerm);
+        return $this->advisors->paginatedWithCounts($page, $limit, $searchTerm);
     }
 
-    public function getContactWithCounts(int $id): ?array
+    public function getAdvisorWithCounts(int $id): ?array
     {
-        return $this->contacts->findOneWithCounts($id);
+        return $this->advisors->findOneWithCounts($id);
     }
 
     /**
-     * The contact with its counts plus the records that use it.
+     * The advisor with its counts plus the records that use it.
      */
-    public function getContactWithUsage(int $id): ?array
+    public function getAdvisorWithUsage(int $id): ?array
     {
-        $contact = $this->getContactWithCounts($id);
-        return $contact === null ? null : $contact + $this->contacts->findUsage($id);
+        $advisor = $this->getAdvisorWithCounts($id);
+        return $advisor === null ? null : $advisor + $this->advisors->findUsage($id);
     }
 
-    public function getContact(int $id): ?IcContact
+    public function getAdvisor(int $id): ?IcAdvisor
     {
-        return $this->contacts->find($id);
+        return $this->advisors->find($id);
     }
 
-    public function getContactsForDropdown(): array
+    public function getAdvisorsForDropdown(): array
     {
-        return $this->contacts->findForDropdown();
+        return $this->advisors->findForDropdown();
     }
 
     /**
-     * The contacts a form picked, without duplicates. Cleared pickers (null or '') are skipped,
-     * so an empty list means no contacts.
+     * The advisors a form picked, without duplicates. Cleared pickers (null or '') are skipped,
+     * so an empty list means no advisors.
      *
-     * @param mixed $ids list of contact ids; anything else counts as an empty list
-     * @return IcContact[]
-     * @throws UnprocessableEntityHttpException for an id that doesn't exist, e.g. a contact
+     * @param mixed $ids list of advisor ids; anything else counts as an empty list
+     * @return IcAdvisor[]
+     * @throws UnprocessableEntityHttpException for an id that doesn't exist, e.g. an advisor
      *                                          deleted while the form was open
      */
-    public function resolveContacts(mixed $ids): array
+    public function resolveAdvisors(mixed $ids): array
     {
         if (!is_array($ids)) {
             return [];
         }
 
-        $contacts = [];
+        $advisors = [];
         foreach ($ids as $id) {
             if ($id === null || $id === '') {
                 continue;
             }
 
-            $contactId = filter_var($id, FILTER_VALIDATE_INT);
-            $contact = $contactId === false ? null : $this->contacts->find($contactId);
-            if ($contact === null) {
-                throw new UnprocessableEntityHttpException('That contact no longer exists.');
+            $advisorId = filter_var($id, FILTER_VALIDATE_INT);
+            $advisor = $advisorId === false ? null : $this->advisors->find($advisorId);
+            if ($advisor === null) {
+                throw new UnprocessableEntityHttpException('That advisor no longer exists.');
             }
-            $contacts[$contact->getId()] = $contact;
+            $advisors[$advisor->getId()] = $advisor;
         }
 
-        return array_values($contacts);
+        return array_values($advisors);
     }
 
     /**
-     * What the public feeds publish about each contact, as a list per record id, for one of
-     * the contact link tables (see IcContactRepository::LINK_TABLES). Records without
-     * contacts are absent.
+     * What the public feeds publish about each advisor, as a list per record id, for one of
+     * the advisor link tables (see IcAdvisorRepository::LINK_TABLES). Records without
+     * advisors are absent.
      *
      * @return array<int, array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>>
      */
-    public function getIcContactsInfoByRecord(string $linkTable): array
+    public function getIcAdvisorsInfoByRecord(string $linkTable): array
     {
-        $info = $this->contacts->findPublicInfoById();
+        $info = $this->advisors->findPublicInfoById();
 
         $byRecord = [];
-        foreach ($this->contacts->findContactIdsByRecord($linkTable) as $recordId => $contactIds) {
-            $byRecord[$recordId] = array_values(array_filter(array_map(fn (int $id) => $info[$id] ?? null, $contactIds)));
+        foreach ($this->advisors->findAdvisorIdsByRecord($linkTable) as $recordId => $advisorIds) {
+            $byRecord[$recordId] = array_values(array_filter(array_map(fn (int $id) => $info[$id] ?? null, $advisorIds)));
         }
 
         return $byRecord;
     }
 
     /**
-     * Adds each row's icContactsInfo: the public details of its program's contacts, or [].
+     * Adds each row's icAdvisorsInfo: the public details of its program's advisors, or [].
      *
      * @param array<int, array> $rows program rows with an id key
      */
-    public function addProgramContactsInfo(array $rows): array
+    public function addProgramAdvisorsInfo(array $rows): array
     {
-        $info = $this->getIcContactsInfoByRecord(IcContactRepository::PROGRAM_LINK);
+        $info = $this->getIcAdvisorsInfoByRecord(IcAdvisorRepository::PROGRAM_LINK);
 
         return array_map(function (array $row) use ($info) {
-            $row['icContactsInfo'] = $info[(int) $row['id']] ?? [];
+            $row['icAdvisorsInfo'] = $info[(int) $row['id']] ?? [];
             return $row;
         }, $rows);
     }
 
     /**
-     * Why a contact can't be deleted (records still use it), or null if nothing uses it.
+     * Why an advisor can't be deleted (records still use it), or null if nothing uses it.
      */
-    public function contactDeleteBlocker(int $id): ?string
+    public function advisorDeleteBlocker(int $id): ?string
     {
-        $contact = $this->getContactWithCounts($id);
-        if ($contact === null) {
+        $advisor = $this->getAdvisorWithCounts($id);
+        if ($advisor === null) {
             return null;
         }
 
-        return $this->blockerMessage($contact['display_name'], [
-            'program' => $contact['program_count'],
-            'scholarship' => $contact['scholarship_count'],
-            'building' => $contact['building_count'],
+        return $this->blockerMessage($advisor['display_name'], [
+            'program' => $advisor['program_count'],
+            'scholarship' => $advisor['scholarship_count'],
+            'building' => $advisor['building_count'],
         ]);
     }
 

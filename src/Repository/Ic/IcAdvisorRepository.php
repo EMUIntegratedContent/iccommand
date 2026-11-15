@@ -1,29 +1,29 @@
 <?php
 namespace App\Repository\Ic;
 
-use App\Entity\Ic\IcContact;
+use App\Entity\Ic\IcAdvisor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * The repository of the contacts shared across IC Command apps.
- * @method IcContact|null find($id, $lockMode = null, $lockVersion = null)
- * @method IcContact|null findOneBy(array $criteria, array $orderBy = null)
- * @method IcContact[]    findAll()
- * @method IcContact[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * The repository of the advisors shared across IC Command apps.
+ * @method IcAdvisor|null find($id, $lockMode = null, $lockVersion = null)
+ * @method IcAdvisor|null findOneBy(array $criteria, array $orderBy = null)
+ * @method IcAdvisor[]    findAll()
+ * @method IcAdvisor[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class IcContactRepository extends ServiceEntityRepository
+class IcAdvisorRepository extends ServiceEntityRepository
 {
-    /** IcContact::getDisplayName() in SQL, for a contact aliased as c. */
+    /** IcAdvisor::getDisplayName() in SQL, for an advisor aliased as c. */
     public const DISPLAY_NAME_SQL = "IF(c.type = 'Person', CONCAT(c.last_name, ', ', c.first_name), c.organization)";
 
     /**
-     * The tables joining a record to its contacts: (record id column, contact_id). Both are
-     * foreign keys; the contact side has no ON DELETE action, so a used contact can't be deleted.
+     * The tables joining a record to its advisors: (record id column, advisor_id). Both are
+     * foreign keys; the advisor side has no ON DELETE action, so a used advisor can't be deleted.
      */
-    public const PROGRAM_LINK = 'program_contact';
-    public const SCHOLARSHIP_LINK = 'scholarship_contact';
-    public const BUILDING_LINK = 'map_building_contact';
+    public const PROGRAM_LINK = 'program_advisor';
+    public const SCHOLARSHIP_LINK = 'scholarship_advisor';
+    public const BUILDING_LINK = 'map_building_advisor';
 
     /** link table => its record id column */
     public const LINK_TABLES = [
@@ -35,18 +35,18 @@ class IcContactRepository extends ServiceEntityRepository
     /** The row select shared by the list and single-record queries; counts are correlated subqueries. */
     private const SELECT_WITH_COUNTS = "
         SELECT c.*, " . self::DISPLAY_NAME_SQL . " AS display_name,
-            (SELECT COUNT(*) FROM program_contact x WHERE x.contact_id = c.id) AS program_count,
-            (SELECT COUNT(*) FROM scholarship_contact x WHERE x.contact_id = c.id) AS scholarship_count,
-            (SELECT COUNT(*) FROM map_building_contact x WHERE x.contact_id = c.id) AS building_count
-        FROM ic_contacts c";
+            (SELECT COUNT(*) FROM program_advisor x WHERE x.advisor_id = c.id) AS program_count,
+            (SELECT COUNT(*) FROM scholarship_advisor x WHERE x.advisor_id = c.id) AS scholarship_count,
+            (SELECT COUNT(*) FROM map_building_advisor x WHERE x.advisor_id = c.id) AS building_count
+        FROM ic_advisors c";
 
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, IcContact::class);
+        parent::__construct($registry, IcAdvisor::class);
     }
 
     /**
-     * All contacts as plain rows for the contact pickers, sorted by name.
+     * All advisors as plain rows for the advisor pickers, sorted by name.
      *
      * @return array<int, array{id: int, displayName: string, type: string, email: ?string}>
      */
@@ -54,57 +54,57 @@ class IcContactRepository extends ServiceEntityRepository
     {
         $rows = $this->getEntityManager()->getConnection()->executeQuery(
             'SELECT c.id, ' . self::DISPLAY_NAME_SQL . ' AS displayName, c.type, c.email
-             FROM ic_contacts c ORDER BY displayName ASC'
+             FROM ic_advisors c ORDER BY displayName ASC'
         )->fetchAllAssociative();
 
         return array_map(fn (array $row) => ['id' => (int) $row['id']] + $row, $rows);
     }
 
     /**
-     * What the public feeds publish about each contact, keyed by contact id.
+     * What the public feeds publish about each advisor, keyed by advisor id.
      *
      * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>
      */
     public function findPublicInfoById(): array
     {
         $info = [];
-        foreach ($this->findAll() as $contact) {
-            $info[$contact->getId()] = $contact->toPublicArray();
+        foreach ($this->findAll() as $advisor) {
+            $info[$advisor->getId()] = $advisor->toPublicArray();
         }
 
         return $info;
     }
 
     /**
-     * The contact ids of each record in a link table, keyed by record id, each list sorted by
-     * contact name.
+     * The advisor ids of each record in a link table, keyed by record id, each list sorted by
+     * advisor name.
      *
      * @param string $linkTable one of the LINK_TABLES keys
      * @return array<int, int[]>
      */
-    public function findContactIdsByRecord(string $linkTable): array
+    public function findAdvisorIdsByRecord(string $linkTable): array
     {
-        $recordColumn = self::LINK_TABLES[$linkTable] ?? throw new \InvalidArgumentException("Unknown contact link table $linkTable.");
+        $recordColumn = self::LINK_TABLES[$linkTable] ?? throw new \InvalidArgumentException("Unknown advisor link table $linkTable.");
 
         $rows = $this->getEntityManager()->getConnection()->executeQuery(
-            "SELECT l.$recordColumn AS record_id, l.contact_id
-             FROM $linkTable l JOIN ic_contacts c ON c.id = l.contact_id
+            "SELECT l.$recordColumn AS record_id, l.advisor_id
+             FROM $linkTable l JOIN ic_advisors c ON c.id = l.advisor_id
              ORDER BY " . self::DISPLAY_NAME_SQL . ' ASC, c.id ASC'
         )->fetchAllAssociative();
 
         $byRecord = [];
         foreach ($rows as $row) {
-            $byRecord[(int) $row['record_id']][] = (int) $row['contact_id'];
+            $byRecord[(int) $row['record_id']][] = (int) $row['advisor_id'];
         }
 
         return $byRecord;
     }
 
     /**
-     * Paginated contact list for the admin screen, with how many records point at each
-     * contact. The search term matches the name, organization or email.
+     * Paginated advisor list for the admin screen, with how many records point at each
+     * advisor. The search term matches the name, organization or email.
      *
-     * @return array{contacts: array<int, array>, totalRows: int}
+     * @return array{advisors: array<int, array>, totalRows: int}
      */
     public function paginatedWithCounts(int $page, int $limit, ?string $searchTerm = null): array
     {
@@ -129,16 +129,16 @@ class IcContactRepository extends ServiceEntityRepository
             $params
         )->fetchAllAssociative();
 
-        $total = $conn->executeQuery("SELECT COUNT(*) FROM ic_contacts c $where", $params)->fetchOne();
+        $total = $conn->executeQuery("SELECT COUNT(*) FROM ic_advisors c $where", $params)->fetchOne();
 
         return [
-            'contacts' => array_map([$this, 'castRow'], $rows),
+            'advisors' => array_map([$this, 'castRow'], $rows),
             'totalRows' => (int) $total,
         ];
     }
 
     /**
-     * One contact with its usage counts (same shape as a paginatedWithCounts() row).
+     * One advisor with its usage counts (same shape as a paginatedWithCounts() row).
      */
     public function findOneWithCounts(int $id): ?array
     {
@@ -159,15 +159,15 @@ class IcContactRepository extends ServiceEntityRepository
     {
         $queries = [
             'programs' => 'SELECT x.id, x.full_name, x.catalog FROM program_programs x
-                JOIN program_contact l ON l.program_id = x.id
-                WHERE l.contact_id = :id ORDER BY x.full_name ASC, x.catalog ASC',
+                JOIN program_advisor l ON l.program_id = x.id
+                WHERE l.advisor_id = :id ORDER BY x.full_name ASC, x.catalog ASC',
             'scholarships' => 'SELECT x.id, x.schlrshp_title AS title FROM scholarships_scholarship x
-                JOIN scholarship_contact l ON l.scholarship_id = x.id
-                WHERE l.contact_id = :id ORDER BY title ASC',
+                JOIN scholarship_advisor l ON l.scholarship_id = x.id
+                WHERE l.advisor_id = :id ORDER BY title ASC',
             'buildings' => 'SELECT x.id, i.name FROM map_building x
                 JOIN map_item i ON i.id = x.id
-                JOIN map_building_contact l ON l.building_id = x.id
-                WHERE l.contact_id = :id ORDER BY i.name ASC',
+                JOIN map_building_advisor l ON l.building_id = x.id
+                WHERE l.advisor_id = :id ORDER BY i.name ASC',
         ];
 
         $conn = $this->getEntityManager()->getConnection();

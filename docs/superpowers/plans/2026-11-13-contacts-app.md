@@ -1,5 +1,8 @@
 # Contacts Application Implementation Plan
 
+> **Renamed:** this app is now Advisors (`ic_advisors`, `IcAdvisor`, `/advisors`, `ROLE_ADVISORS_*`). This
+> document predates the rename and keeps the old names; `docs/ic-advisors.md` is current.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Move the contacts list/form out of `/admin` into a standalone Contacts app with its own roles, menus, templates and Vue components.

@@ -1,5 +1,8 @@
 # IcContact — shared contact entity
 
+> **Renamed:** this app is now Advisors (`ic_advisors`, `IcAdvisor`, `/advisors`, `ROLE_ADVISORS_*`). This
+> document predates the rename and keeps the old names; `docs/ic-advisors.md` is current.
+
 ## Context
 Programs, scholarships and buildings each need contacts (people or organizations). Like `ic_colleges` /
 `ic_departments`, contacts are shared across IC Command apps, so they live in one `ic_contacts` table

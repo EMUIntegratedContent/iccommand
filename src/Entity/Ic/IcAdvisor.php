@@ -1,7 +1,7 @@
 <?php
 namespace App\Entity\Ic;
 
-use App\Repository\Ic\IcContactRepository;
+use App\Repository\Ic\IcAdvisorRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -9,13 +9,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * A person or organization to contact, shared across IC Command apps. Programs, scholarships
- * and buildings can each have any number of them, through the program_contact,
- * scholarship_contact and map_building_contact link tables.
+ * An advisor (a person or organization), shared across IC Command apps. Programs, scholarships
+ * and buildings can each have any number of them, through the program_advisor,
+ * scholarship_advisor and map_building_advisor link tables.
  */
-#[ORM\Entity(repositoryClass: IcContactRepository::class)]
-#[ORM\Table(name: 'ic_contacts')]
-class IcContact
+#[ORM\Entity(repositoryClass: IcAdvisorRepository::class)]
+#[ORM\Table(name: 'ic_advisors')]
+class IcAdvisor
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,10 +23,10 @@ class IcContact
     #[Groups("ic")]
     private ?int $id = null;
 
-    #[ORM\Column(length: 20, enumType: IcContactType::class)]
-    #[Assert\NotNull(message: 'Choose a contact type.')]
+    #[ORM\Column(length: 20, enumType: IcAdvisorType::class)]
+    #[Assert\NotNull(message: 'Choose an advisor type.')]
     #[Groups("ic")]
-    private ?IcContactType $type = null;
+    private ?IcAdvisorType $type = null;
 
     #[ORM\Column(name: 'last_name', length: 100, nullable: true)]
     #[Assert\Length(max: 100, maxMessage: 'Last name must be 100 characters or less.')]
@@ -85,7 +85,7 @@ class IcContact
     /* Gedmo Variables */
 
     /**
-     * The time stamp when this contact was created.
+     * The time stamp when this advisor was created.
      */
     #[ORM\Column(type: 'datetime')]
     #[Gedmo\Timestampable(on: 'create')]
@@ -93,7 +93,7 @@ class IcContact
     private $created;
 
     /**
-     * The user who created this contact.
+     * The user who created this advisor.
      */
     #[ORM\Column(type: 'string')]
     #[Gedmo\Blameable(on: 'create')]
@@ -101,7 +101,7 @@ class IcContact
     private $createdBy;
 
     /**
-     * The time stamp when this contact was last updated.
+     * The time stamp when this advisor was last updated.
      */
     #[ORM\Column(type: 'datetime')]
     #[Gedmo\Timestampable(on: 'update')]
@@ -109,7 +109,7 @@ class IcContact
     private $updated;
 
     /**
-     * The user who last updated this contact.
+     * The user who last updated this advisor.
      */
     #[ORM\Column(type: 'string')]
     #[Gedmo\Blameable(on: 'update')]
@@ -121,12 +121,12 @@ class IcContact
         return $this->id;
     }
 
-    public function getType(): ?IcContactType
+    public function getType(): ?IcAdvisorType
     {
         return $this->type;
     }
 
-    public function setType(?IcContactType $type): self
+    public function setType(?IcAdvisorType $type): self
     {
         $this->type = $type;
         return $this;
@@ -263,13 +263,13 @@ class IcContact
     }
 
     /**
-     * The name for pickers and lists: "Last, First" or the organization. IcContactRepository::
+     * The name for pickers and lists: "Last, First" or the organization. IcAdvisorRepository::
      * DISPLAY_NAME_SQL is the same rule in SQL.
      */
     #[Groups("ic")]
     public function getDisplayName(): string
     {
-        if ($this->type === IcContactType::PERSON) {
+        if ($this->type === IcAdvisorType::PERSON) {
             return $this->lastName . ', ' . $this->firstName;
         }
 
@@ -277,7 +277,7 @@ class IcContact
     }
 
     /**
-     * What the public feeds publish about a contact. Everything else (room, area, Forager and
+     * What the public feeds publish about an advisor. Everything else (room, area, Forager and
      * image URLs, audit fields, id) stays private, so a new field is private until added here.
      *
      * @return array{name: string, email: ?string, phone: ?string, url: ?string}
@@ -285,7 +285,7 @@ class IcContact
     public function toPublicArray(): array
     {
         return [
-            'name' => $this->type === IcContactType::PERSON
+            'name' => $this->type === IcAdvisorType::PERSON
                 ? $this->firstName . ' ' . $this->lastName
                 : (string) $this->organization,
             'email' => $this->email,
@@ -295,18 +295,18 @@ class IcContact
     }
 
     /**
-     * A person needs both names and an organization needs its name, or the contact has no
+     * A person needs both names and an organization needs its name, or the advisor has no
      * name to show.
      */
     #[Assert\Callback]
     public function validateName(ExecutionContextInterface $context): void
     {
         $required = match ($this->type) {
-            IcContactType::PERSON => [
+            IcAdvisorType::PERSON => [
                 'lastName' => [$this->lastName, 'A last name is required.'],
                 'firstName' => [$this->firstName, 'A first name is required.'],
             ],
-            IcContactType::ORGANIZATION => [
+            IcAdvisorType::ORGANIZATION => [
                 'organization' => [$this->organization, 'An organization name is required.'],
             ],
             null => [],

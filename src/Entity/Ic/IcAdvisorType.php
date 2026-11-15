@@ -2,7 +2,7 @@
 
 namespace App\Entity\Ic;
 
-enum IcContactType: string
+enum IcAdvisorType: string
 {
     case PERSON = 'Person';
     case ORGANIZATION = 'Organization';

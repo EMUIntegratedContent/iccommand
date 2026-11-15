@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Tests\Controller\Contacts;
+namespace App\Tests\Controller\Advisors;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * Page access for the Contacts app (/contacts...). Temp users are zz_ictest_-prefixed and
- * the test contact is ZZ-prefixed; tearDown removes both.
+ * Page access for the Advisors app (/advisors...). Temp users are zz_ictest_-prefixed and
+ * the test advisor is ZZ-prefixed; tearDown removes both.
  */
-class ContactPagesTest extends WebTestCase
+class AdvisorPagesTest extends WebTestCase
 {
     private const USERNAME_PREFIX = 'zz_ictest_';
-    private const NAME_PREFIX = 'ZZ Ic Contact Page Test';
+    private const NAME_PREFIX = 'ZZ Ic Advisor Page Test';
 
     /**
      * @return array<string, array{0: string[], 1: array<string, int>}> roles => expected status per path
@@ -21,12 +21,12 @@ class ContactPagesTest extends WebTestCase
     public static function accessMatrix(): array
     {
         return [
-            'view' => [['ROLE_CONTACTS_VIEW'], ['/contacts' => 200, '/contacts/ID' => 200, '/contacts/create' => 403, '/contacts/ID/edit' => 403, '/contacts/manage' => 403]],
-            'edit' => [['ROLE_CONTACTS_EDIT'], ['/contacts' => 200, '/contacts/ID' => 200, '/contacts/create' => 200, '/contacts/ID/edit' => 200, '/contacts/manage' => 403]],
-            'delete' => [['ROLE_CONTACTS_DELETE'], ['/contacts' => 200, '/contacts/create' => 200, '/contacts/manage' => 403]],
-            'admin' => [['ROLE_CONTACTS_ADMIN'], ['/contacts' => 200, '/contacts/create' => 200, '/contacts/ID/edit' => 200, '/contacts/manage' => 200]],
-            'global admin alone' => [['ROLE_GLOBAL_ADMIN'], ['/contacts' => 200, '/contacts/ID' => 200, '/contacts/create' => 200, '/contacts/ID/edit' => 200, '/contacts/manage' => 200]],
-            'other module' => [['ROLE_MAP_ADMIN'], ['/contacts' => 403, '/contacts/create' => 403, '/contacts/manage' => 403]],
+            'view' => [['ROLE_ADVISORS_VIEW'], ['/advisors' => 200, '/advisors/ID' => 200, '/advisors/create' => 403, '/advisors/ID/edit' => 403, '/advisors/manage' => 403]],
+            'edit' => [['ROLE_ADVISORS_EDIT'], ['/advisors' => 200, '/advisors/ID' => 200, '/advisors/create' => 200, '/advisors/ID/edit' => 200, '/advisors/manage' => 403]],
+            'delete' => [['ROLE_ADVISORS_DELETE'], ['/advisors' => 200, '/advisors/create' => 200, '/advisors/manage' => 403]],
+            'admin' => [['ROLE_ADVISORS_ADMIN'], ['/advisors' => 200, '/advisors/create' => 200, '/advisors/ID/edit' => 200, '/advisors/manage' => 200]],
+            'global admin alone' => [['ROLE_GLOBAL_ADMIN'], ['/advisors' => 200, '/advisors/ID' => 200, '/advisors/create' => 200, '/advisors/ID/edit' => 200, '/advisors/manage' => 200]],
+            'other module' => [['ROLE_MAP_ADMIN'], ['/advisors' => 403, '/advisors/create' => 403, '/advisors/manage' => 403]],
         ];
     }
 
@@ -37,7 +37,7 @@ class ContactPagesTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $id = $this->persistContact($em);
+        $id = $this->persistAdvisor($em);
         $client->loginUser($this->persistUser($em, 'pages', $roles));
 
         foreach ($expected as $path => $status) {
@@ -52,7 +52,7 @@ class ContactPagesTest extends WebTestCase
         $em = static::getContainer()->get('doctrine')->getManager();
         $client->loginUser($this->persistUser($em, 'ids', ['ROLE_GLOBAL_ADMIN']));
 
-        foreach (['/contacts/create' => 200, '/contacts/manage' => 200, '/contacts/9999999' => 404, '/contacts/9999999/edit' => 404] as $path => $status) {
+        foreach (['/advisors/create' => 200, '/advisors/manage' => 200, '/advisors/9999999' => 404, '/advisors/9999999/edit' => 404] as $path => $status) {
             $client->request('GET', $path);
             $this->assertSame($status, $client->getResponse()->getStatusCode(), $path);
         }
@@ -64,7 +64,7 @@ class ContactPagesTest extends WebTestCase
         $em = static::getContainer()->get('doctrine')->getManager();
         $client->loginUser($this->persistUser($em, 'old', ['ROLE_GLOBAL_ADMIN']));
 
-        foreach (['/admin/contacts', '/admin/contacts/create'] as $path) {
+        foreach (['/admin/advisors', '/admin/advisors/create'] as $path) {
             $client->request('GET', $path);
             $this->assertSame(404, $client->getResponse()->getStatusCode(), $path);
         }
@@ -75,24 +75,24 @@ class ContactPagesTest extends WebTestCase
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
 
-        $client->loginUser($this->persistUser($em, 'nav_view', ['ROLE_CONTACTS_VIEW']));
-        $client->request('GET', '/contacts');
+        $client->loginUser($this->persistUser($em, 'nav_view', ['ROLE_ADVISORS_VIEW']));
+        $client->request('GET', '/advisors');
         $body = $client->getResponse()->getContent();
-        $this->assertStringNotContainsString('href="/contacts/create"', $body);
-        $this->assertStringNotContainsString('href="/contacts/manage"', $body);
+        $this->assertStringNotContainsString('href="/advisors/create"', $body);
+        $this->assertStringNotContainsString('href="/advisors/manage"', $body);
 
-        $client->loginUser($this->persistUser($em, 'nav_admin', ['ROLE_CONTACTS_ADMIN']));
-        $client->request('GET', '/contacts');
+        $client->loginUser($this->persistUser($em, 'nav_admin', ['ROLE_ADVISORS_ADMIN']));
+        $client->request('GET', '/advisors');
         $body = $client->getResponse()->getContent();
-        $this->assertStringContainsString('href="/contacts/create"', $body);
-        $this->assertStringContainsString('href="/contacts/manage"', $body);
+        $this->assertStringContainsString('href="/advisors/create"', $body);
+        $this->assertStringContainsString('href="/advisors/manage"', $body);
     }
 
-    private function persistContact(EntityManagerInterface $em): int
+    private function persistAdvisor(EntityManagerInterface $em): int
     {
         $client = static::getClient();
         $client->loginUser($this->persistUser($em, 'seed', ['ROLE_GLOBAL_ADMIN']));
-        $client->request('POST', '/api/contacts', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['type' => 'Organization', 'organization' => self::NAME_PREFIX]));
+        $client->request('POST', '/api/advisors', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['type' => 'Organization', 'organization' => self::NAME_PREFIX]));
         return json_decode($client->getResponse()->getContent(), true)['id'];
     }
 
@@ -113,7 +113,7 @@ class ContactPagesTest extends WebTestCase
     {
         if (static::$booted) {
             $conn = static::getContainer()->get('doctrine')->getManager()->getConnection();
-            $conn->executeStatement('DELETE FROM ic_contacts WHERE organization LIKE ?', [self::NAME_PREFIX . '%']);
+            $conn->executeStatement('DELETE FROM ic_advisors WHERE organization LIKE ?', [self::NAME_PREFIX . '%']);
             $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
         }
         parent::tearDown();

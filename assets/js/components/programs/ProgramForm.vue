@@ -406,13 +406,13 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="mt-2">Contacts</label>
-						<ic-contact-cards
-							input-id-prefix="progContact"
-							v-model="record.contact_ids"
+						<label class="mt-2">Advisors</label>
+						<ic-advisor-cards
+							input-id-prefix="progAdvisor"
+							v-model="record.advisor_ids"
 							:editable="userCanEdit && isEditMode"
 							@update:modelValue="formDirty = true"
-						></ic-contact-cards>
+						></ic-advisor-cards>
 					</div>
 					<div>
 						<label class="mt-2">Image URL</label>
@@ -624,7 +624,7 @@
 <script>
 import Heading from "../utils/Heading.vue"
 import VueMultiselect from "vue-multiselect"
-import IcContactCards from "../ic/IcContactCards.vue"
+import IcAdvisorCards from "../ic/IcAdvisorCards.vue"
 import NotFound from "../utils/NotFound.vue"
 import ProgramDeleteModal from "./ProgramDeleteModal.vue"
 import { ErrorMessage, Field, Form as VeeForm } from "vee-validate"
@@ -656,7 +656,7 @@ export default {
 
 	components: {
 		Heading,
-		IcContactCards,
+		IcAdvisorCards,
 		VueMultiselect,
 		ProgramDeleteModal,
 		NotFound,
@@ -742,7 +742,7 @@ export default {
 				duration: null,
 				image_url: null,
 				application_url: null,
-				contact_ids: [],
+				advisor_ids: [],
 				program_overview: "",
 				is_active: true
 			},
@@ -1020,8 +1020,8 @@ export default {
 					structuredResponse.college_ids = self.formatCollegeIds(
 						response.data.college_ids
 					)
-					structuredResponse.contact_ids = self.formatContactIds(
-						response.data.contact_ids
+					structuredResponse.advisor_ids = self.formatAdvisorIds(
+						response.data.advisor_ids
 					)
 					structuredResponse.department_ids = self.formatDepartmentIds(
 						response.data.department_ids
@@ -1146,9 +1146,9 @@ export default {
 				.map((college_id) => Number(college_id.trim()))
 		},
 
-		formatContactIds: function (contactIds) {
-			if (!contactIds) return []
-			return contactIds.split(",").map((contact_id) => Number(contact_id.trim()))
+		formatAdvisorIds: function (advisorIds) {
+			if (!advisorIds) return []
+			return advisorIds.split(",").map((advisor_id) => Number(advisor_id.trim()))
 		},
 
 		formatDepartmentIds: function (departmentIds) {
@@ -1218,8 +1218,8 @@ export default {
 					structuredResponse.college_ids = self.formatCollegeIds(
 						response.data.college_ids
 					)
-					structuredResponse.contact_ids = self.formatContactIds(
-						response.data.contact_ids
+					structuredResponse.advisor_ids = self.formatAdvisorIds(
+						response.data.advisor_ids
 					)
 					structuredResponse.department_ids = self.formatDepartmentIds(
 						response.data.department_ids

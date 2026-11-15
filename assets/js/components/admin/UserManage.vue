@@ -373,11 +373,11 @@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-4 pl-4 pb-2">
               <div class="card card-accent card-accent-green">
-                <div class="card-header">Contacts</div>
+                <div class="card-header">Advisors</div>
                 <div class="card-body">
                   <template
-                      v-for="role in rolesContacts"
-                      :key="'user-contacts-' + role"
+                      v-for="role in rolesAdvisors"
+                      :key="'user-advisors-' + role"
                   >
                     <input
                         type="checkbox"
@@ -485,7 +485,7 @@ export default {
 			rolesCas: [],
 			rolesSocial: [],
 			rolesScholarship: [],
-			rolesContacts: [],
+			rolesAdvisors: [],
 			success: false,
 			successMessage: "",
 			user: {
@@ -578,8 +578,8 @@ export default {
 						if (key.startsWith("ROLE_SCHOLARSHIP_")) {
 							self.rolesScholarship.push(key)
 						}
-						if (key.startsWith("ROLE_CONTACTS_")) {
-							self.rolesContacts.push(key)
+						if (key.startsWith("ROLE_ADVISORS_")) {
+							self.rolesAdvisors.push(key)
 						}
 					}
 				})

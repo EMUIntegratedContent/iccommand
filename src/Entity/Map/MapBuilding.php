@@ -2,7 +2,7 @@
 
 namespace App\Entity\Map;
 
-use App\Entity\Ic\IcContact;
+use App\Entity\Ic\IcAdvisor;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -78,16 +78,16 @@ class MapBuilding extends MapItem
 	private $buildingType;
 
 	/**
-	 * Many buildings have many contacts. Serialized through the contactIds/contactNames/
-	 * icContactsInfo virtual properties below rather than as nested objects.
+	 * Many buildings have many advisors. Serialized through the advisorIds/advisorNames/
+	 * icAdvisorsInfo virtual properties below rather than as nested objects.
 	 *
-	 * @var Collection<int, IcContact>
+	 * @var Collection<int, IcAdvisor>
 	 */
-	#[ORM\ManyToMany(targetEntity: "App\Entity\Ic\IcContact", fetch: "EAGER")]
-	#[ORM\JoinTable(name: "map_building_contact")]
+	#[ORM\ManyToMany(targetEntity: "App\Entity\Ic\IcAdvisor", fetch: "EAGER")]
+	#[ORM\JoinTable(name: "map_building_advisor")]
 	#[ORM\JoinColumn(name: "building_id", referencedColumnName: "id", onDelete: "CASCADE")]
-	#[ORM\InverseJoinColumn(name: "contact_id", referencedColumnName: "id")]
-	private $icContacts;
+	#[ORM\InverseJoinColumn(name: "advisor_id", referencedColumnName: "id")]
+	private $icAdvisors;
 
 
 	/**
@@ -99,7 +99,7 @@ class MapBuilding extends MapItem
 	public function __construct()
 	{
 		parent::__construct();
-		$this->icContacts = new ArrayCollection();
+		$this->icAdvisors = new ArrayCollection();
 		$this->bathrooms = new ArrayCollection();
 		$this->diningOptions = new ArrayCollection();
 		$this->emergencyDevices = new ArrayCollection();
@@ -207,29 +207,29 @@ class MapBuilding extends MapItem
 	}
 
 	/**
-	 * @return Collection<int, IcContact>
+	 * @return Collection<int, IcAdvisor>
 	 */
 	#[Ignore]
-	public function getIcContacts(): Collection
+	public function getIcAdvisors(): Collection
 	{
-		return $this->icContacts;
+		return $this->icAdvisors;
 	}
 
 	/**
-	 * Makes the building's contacts exactly these.
+	 * Makes the building's advisors exactly these.
 	 *
-	 * @param IcContact[] $icContacts
+	 * @param IcAdvisor[] $icAdvisors
 	 */
-	public function setIcContacts(array $icContacts): void
+	public function setIcAdvisors(array $icAdvisors): void
 	{
-		foreach ($this->icContacts->toArray() as $existing) {
-			if (!in_array($existing, $icContacts, true)) {
-				$this->icContacts->removeElement($existing);
+		foreach ($this->icAdvisors->toArray() as $existing) {
+			if (!in_array($existing, $icAdvisors, true)) {
+				$this->icAdvisors->removeElement($existing);
 			}
 		}
-		foreach ($icContacts as $icContact) {
-			if (!$this->icContacts->contains($icContact)) {
-				$this->icContacts->add($icContact);
+		foreach ($icAdvisors as $icAdvisor) {
+			if (!$this->icAdvisors->contains($icAdvisor)) {
+				$this->icAdvisors->add($icAdvisor);
 			}
 		}
 	}
@@ -238,32 +238,32 @@ class MapBuilding extends MapItem
 	 * @return int[]
 	 */
 	#[Groups("bldgs")]
-	public function getContactIds(): array
+	public function getAdvisorIds(): array
 	{
-		return array_values($this->icContacts->map(fn (IcContact $c) => $c->getId())->toArray());
+		return array_values($this->icAdvisors->map(fn (IcAdvisor $c) => $c->getId())->toArray());
 	}
 
 	/**
 	 * @return string[]
 	 */
 	#[Groups("bldgs")]
-	public function getContactNames(): array
+	public function getAdvisorNames(): array
 	{
-		return array_values($this->icContacts->map(fn (IcContact $c) => $c->getDisplayName())->toArray());
+		return array_values($this->icAdvisors->map(fn (IcAdvisor $c) => $c->getDisplayName())->toArray());
 	}
 
 	/**
-	 * What the public feed publishes about the contacts, sorted by name.
+	 * What the public feed publishes about the advisors, sorted by name.
 	 *
 	 * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>
 	 */
 	#[Groups("bldgs")]
-	public function getIcContactsInfo(): array
+	public function getIcAdvisorsInfo(): array
 	{
-		$contacts = $this->icContacts->toArray();
-		usort($contacts, fn (IcContact $a, IcContact $b) => strcasecmp($a->getDisplayName(), $b->getDisplayName()));
+		$advisors = $this->icAdvisors->toArray();
+		usort($advisors, fn (IcAdvisor $a, IcAdvisor $b) => strcasecmp($a->getDisplayName(), $b->getDisplayName()));
 
-		return array_map(fn (IcContact $c) => $c->toPublicArray(), $contacts);
+		return array_map(fn (IcAdvisor $c) => $c->toPublicArray(), $advisors);
 	}
 
 	public function getDirectoryDepartments()

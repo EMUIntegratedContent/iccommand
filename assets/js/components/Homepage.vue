@@ -159,16 +159,6 @@ export default {
 					display: false,
 					category: "Maps & Directories"
 				},
-				contacts: {
-					// Added Nov. 2026
-					title: "Contacts",
-					description:
-						"The contacts application manages the people and organizations that programs, scholarships, and buildings list as their contacts.",
-					buttonText: "Manage Contacts",
-					buttonLink: "/contacts",
-					display: false,
-					category: "Maps & Directories"
-				},
 				scholarships: {
 					// Added Aug. 2026
 					title: "Scholarships",
@@ -176,6 +166,16 @@ export default {
 						'The scholarships application manages scholarship listings and their criteria for display at <a href="https://www.emich.edu/finaid/types/scholarships" target="_blank">emich.edu/finaid</a>.',
 					buttonText: "Manage Scholarships",
 					buttonLink: "/scholarships",
+					display: false,
+					category: "Program Marketing"
+				},
+				advisors: {
+					// Added Nov. 2026
+					title: "Advisors",
+					description:
+						"The advisors application manages the people and organizations that programs, scholarships, and buildings list as their advisors.",
+					buttonText: "Manage Advisors",
+					buttonLink: "/advisors",
 					display: false,
 					category: "Program Marketing"
 				}
@@ -263,8 +263,8 @@ export default {
 			if (role.includes("ROLE_SOCIAL_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.social.display = true
 			}
-			if (role.includes("ROLE_CONTACTS_") || role.includes("ROLE_GLOBAL_ADMIN")) {
-				this.userModules.contacts.display = true
+			if (role.includes("ROLE_ADVISORS_") || role.includes("ROLE_GLOBAL_ADMIN")) {
+				this.userModules.advisors.display = true
 			}
 			if (
 				role.includes("ROLE_SCHOLARSHIP_") ||

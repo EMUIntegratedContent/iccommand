@@ -54,7 +54,7 @@ class ProgramsRepository extends ServiceEntityRepository
 				GROUP_CONCAT(DISTINCT pkl.keyword_id) AS keyword_ids,
 				GROUP_CONCAT(DISTINCT pcl.college_id) AS college_ids,
 				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids,
-				(SELECT GROUP_CONCAT(pc.contact_id) FROM program_contact pc WHERE pc.program_id = p.id) AS contact_ids
+				(SELECT GROUP_CONCAT(pc.advisor_id) FROM program_advisor pc WHERE pc.program_id = p.id) AS advisor_ids
 			FROM program_programs p
 			LEFT JOIN program_websites w ON (
 					(w.program_id IS NOT NULL AND w.program_id = p.id)
@@ -469,27 +469,27 @@ class ProgramsRepository extends ServiceEntityRepository
 	}
 
 	/**
-	 * Updates the contacts for a program using a transaction.
-	 * Deletes existing contact links and inserts new ones. program_contact has no entity (the
-	 * programs entity manager can't load IcContact), so this is raw SQL like the other links.
+	 * Updates the advisors for a program using a transaction.
+	 * Deletes existing advisor links and inserts new ones. program_advisor has no entity (the
+	 * programs entity manager can't load IcAdvisor), so this is raw SQL like the other links.
 	 *
 	 * @param int $programId The ID of the program
-	 * @param array<int> $contactIds Array of ic_contacts IDs, already checked to exist
+	 * @param array<int> $advisorIds Array of ic_advisors IDs, already checked to exist
 	 * @throws \Exception If database operation fails
 	 */
-	public function updateProgramContacts(int $programId, array $contactIds): void
+	public function updateProgramAdvisors(int $programId, array $advisorIds): void
 	{
 		$conn = $this->em->getConnection();
 		try {
 			$conn->beginTransaction();
 
-			$conn->executeStatement('DELETE FROM program_contact WHERE program_id = :program_id', ['program_id' => $programId]);
+			$conn->executeStatement('DELETE FROM program_advisor WHERE program_id = :program_id', ['program_id' => $programId]);
 
-			$insSql = 'INSERT INTO program_contact (program_id, contact_id) VALUES (:program_id, :contact_id)';
-			foreach ($contactIds as $contactId) {
+			$insSql = 'INSERT INTO program_advisor (program_id, advisor_id) VALUES (:program_id, :advisor_id)';
+			foreach ($advisorIds as $advisorId) {
 				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
-					'contact_id' => $contactId
+					'advisor_id' => $advisorId
 				]);
 			}
 

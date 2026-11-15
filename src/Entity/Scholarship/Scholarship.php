@@ -1,7 +1,7 @@
 <?php
 namespace App\Entity\Scholarship;
 
-use App\Entity\Ic\IcContact;
+use App\Entity\Ic\IcAdvisor;
 use App\Repository\Scholarship\ScholarshipRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -306,17 +306,17 @@ class Scholarship
     private ?string $contact = null;
 
     /**
-     * The optional shared contacts. Separate from the free-text $contact above, which stays
-     * required. Serialized through the contactIds/contactNames/icContactsInfo virtual
+     * The optional advisors. Separate from the free-text $contact above, which stays
+     * required. Serialized through the advisorIds/advisorNames/icAdvisorsInfo virtual
      * properties below rather than as nested objects.
      *
-     * @var Collection<int, IcContact>
+     * @var Collection<int, IcAdvisor>
      */
-    #[ORM\ManyToMany(targetEntity: IcContact::class, fetch: 'EAGER')]
-    #[ORM\JoinTable(name: 'scholarship_contact')]
+    #[ORM\ManyToMany(targetEntity: IcAdvisor::class, fetch: 'EAGER')]
+    #[ORM\JoinTable(name: 'scholarship_advisor')]
     #[ORM\JoinColumn(name: 'scholarship_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    #[ORM\InverseJoinColumn(name: 'contact_id', referencedColumnName: 'id')]
-    private Collection $icContacts;
+    #[ORM\InverseJoinColumn(name: 'advisor_id', referencedColumnName: 'id')]
+    private Collection $icAdvisors;
 
     /**
      * The links joining this scholarship to academic programs.
@@ -365,7 +365,7 @@ class Scholarship
      */
     public function __construct()
     {
-        $this->icContacts = new ArrayCollection();
+        $this->icAdvisors = new ArrayCollection();
         $this->programLinks = new ArrayCollection();
         $this->keywordLinks = new ArrayCollection();
         $this->organizationLinks = new ArrayCollection();
@@ -762,29 +762,29 @@ class Scholarship
     }
 
     /**
-     * @return Collection<int, IcContact>
+     * @return Collection<int, IcAdvisor>
      */
     #[Ignore]
-    public function getIcContacts(): Collection
+    public function getIcAdvisors(): Collection
     {
-        return $this->icContacts;
+        return $this->icAdvisors;
     }
 
     /**
-     * Makes the scholarship's contacts exactly these.
+     * Makes the scholarship's advisors exactly these.
      *
-     * @param IcContact[] $icContacts
+     * @param IcAdvisor[] $icAdvisors
      */
-    public function setIcContacts(array $icContacts): self
+    public function setIcAdvisors(array $icAdvisors): self
     {
-        foreach ($this->icContacts->toArray() as $existing) {
-            if (!in_array($existing, $icContacts, true)) {
-                $this->icContacts->removeElement($existing);
+        foreach ($this->icAdvisors->toArray() as $existing) {
+            if (!in_array($existing, $icAdvisors, true)) {
+                $this->icAdvisors->removeElement($existing);
             }
         }
-        foreach ($icContacts as $icContact) {
-            if (!$this->icContacts->contains($icContact)) {
-                $this->icContacts->add($icContact);
+        foreach ($icAdvisors as $icAdvisor) {
+            if (!$this->icAdvisors->contains($icAdvisor)) {
+                $this->icAdvisors->add($icAdvisor);
             }
         }
         return $this;
@@ -794,32 +794,32 @@ class Scholarship
      * @return int[]
      */
     #[Groups("scholarship")]
-    public function getContactIds(): array
+    public function getAdvisorIds(): array
     {
-        return array_values($this->icContacts->map(fn (IcContact $c) => $c->getId())->toArray());
+        return array_values($this->icAdvisors->map(fn (IcAdvisor $c) => $c->getId())->toArray());
     }
 
     /**
      * @return string[]
      */
     #[Groups("scholarship")]
-    public function getContactNames(): array
+    public function getAdvisorNames(): array
     {
-        return array_values($this->icContacts->map(fn (IcContact $c) => $c->getDisplayName())->toArray());
+        return array_values($this->icAdvisors->map(fn (IcAdvisor $c) => $c->getDisplayName())->toArray());
     }
 
     /**
-     * What the public feed publishes about the contacts, sorted by name.
+     * What the public feed publishes about the advisors, sorted by name.
      *
      * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string}>
      */
     #[Groups("scholarship")]
-    public function getIcContactsInfo(): array
+    public function getIcAdvisorsInfo(): array
     {
-        $contacts = $this->icContacts->toArray();
-        usort($contacts, fn (IcContact $a, IcContact $b) => strcasecmp($a->getDisplayName(), $b->getDisplayName()));
+        $advisors = $this->icAdvisors->toArray();
+        usort($advisors, fn (IcAdvisor $a, IcAdvisor $b) => strcasecmp($a->getDisplayName(), $b->getDisplayName()));
 
-        return array_map(fn (IcContact $c) => $c->toPublicArray(), $contacts);
+        return array_map(fn (IcAdvisor $c) => $c->toPublicArray(), $advisors);
     }
 
     /**

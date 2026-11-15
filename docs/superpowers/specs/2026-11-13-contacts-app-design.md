@@ -1,5 +1,8 @@
 # Contacts application (design)
 
+> **Renamed:** this app is now Advisors (`ic_advisors`, `IcAdvisor`, `/advisors`, `ROLE_ADVISORS_*`). This
+> document predates the rename and keeps the old names; `docs/ic-advisors.md` is current.
+
 ## Intent
 Contacts (`ic_contacts`) is shared by Programs, Scholarships and Map, so its list and form should be an
 app of their own, not part of /admin. Admin screens stay global-admin-only; Contacts gets its own roles,

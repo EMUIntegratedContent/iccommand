@@ -14,13 +14,13 @@ admin_ic_departments:
   resource: App\Controller\Api\Admin\IcDepartmentController
   prefix: /api/admin/
 
-contacts:
-  resource: App\Controller\Api\Contacts\ContactController
-  prefix: /api/contacts
+advisors:
+  resource: App\Controller\Api\Advisors\AdvisorController
+  prefix: /api/advisors
   trailing_slash_on_root: false
 
-ic_contact_options:
-  resource: App\Controller\Api\Ic\IcContactOptionsController
+ic_advisor_options:
+  resource: App\Controller\Api\Ic\IcAdvisorOptionsController
   prefix: /api/ic/
 
 ic_external:
