@@ -11,8 +11,9 @@
     <php>
         <ini name="error_reporting" value="-1" />
         <env name="KERNEL_CLASS" value="App\Kernel" />
-        <env name="APP_ENV" value="test" />
-        <env name="APP_DEBUG" value="1" />
+        <!-- force: an APP_ENV already in the shell (e.g. from sourcing .env) must not win -->
+        <env name="APP_ENV" value="test" force="true" />
+        <env name="APP_DEBUG" value="1" force="true" />
         <env name="APP_SECRET" value="s$cretf0rt3st" />
         <env name="SHELL_VERBOSITY" value="-1" />
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>

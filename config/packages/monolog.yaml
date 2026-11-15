@@ -25,6 +25,9 @@ when@dev:
 
 when@test:
     monolog:
+        # Declared per env like config/packages/{dev,staging,prod}/monolog.yaml; services.yaml
+        # injects monolog.logger.crime_log into the crime log code.
+        channels: ["crime_log"]
         handlers:
             main:
                 type: stream

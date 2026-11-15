@@ -33,11 +33,12 @@ bin/check-frontend-build      # Run before committing public/build
 ```
 
 ### Tests
-`bin/phpunit` runs PHPUnit 9.6 (downloaded into `bin/.phpunit` on first use) with `APP_ENV=test`, and
-`tests/bootstrap.php` reads `.env` and `.env.local`. Tests run against the real `ic` DB, so clean up the rows
-they create. Test-env config lives in `when@test` blocks (there is no `config/packages/test/`); test mail
-goes to the null transport. PHPUnit 9 takes a single path, so groups of directories are `<testsuite>`s in
-`phpunit.xml.dist`.
+`bin/phpunit` runs PHPUnit 9.6 (downloaded into `bin/.phpunit` on first use) with `APP_ENV=test` (forced by
+`phpunit.xml.dist` and `tests/bootstrap.php`, so an `APP_ENV` already in the shell can't leak in), and `tests/bootstrap.php` reads
+`.env` and `.env.local`, so nothing needs exporting. Tests run against the real `ic` DB, so run pending
+migrations first and clean up the rows tests create. Test-env config lives in `when@test` blocks (there is no
+`config/packages/test/`); test mail goes to the null transport. PHPUnit 9 takes a single path, so groups of
+directories are `<testsuite>`s in `phpunit.xml.dist`.
 ```bash
 php bin/phpunit                                     # Everything (inside the web container)
 php bin/phpunit tests/Api/Admin                     # One directory or file

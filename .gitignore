@@ -76,3 +76,4 @@ create table programs.program_programs
 )
     collate = latin1_general_ci;
 
+.phpunit.result.cache
