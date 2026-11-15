@@ -3,6 +3,7 @@ namespace App\Repository\Ic;
 
 use App\Entity\Ic\IcAdvisor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -28,6 +29,21 @@ class IcAdvisorRepository extends ServiceEntityRepository
     public const LINK_TABLES = [
         self::PROGRAM_LINK => 'program_id',
         self::SCHOLARSHIP_LINK => 'scholarship_id',
+    ];
+
+    /** The usage list (and option list) key of each link table's records. */
+    public const RECORD_KINDS = [
+        'programs' => self::PROGRAM_LINK,
+        'scholarships' => self::SCHOLARSHIP_LINK,
+    ];
+
+    /**
+     * link table => [record table, the row columns (record aliased as x), order]. Usage rows
+     * and option rows share these columns, so a picked option can join the usage list as is.
+     */
+    private const RECORDS = [
+        self::PROGRAM_LINK => ['program_programs', 'x.id, x.full_name, x.catalog, x.is_active AS active', 'x.full_name ASC, x.catalog ASC, x.id ASC'],
+        self::SCHOLARSHIP_LINK => ['scholarships_scholarship', 'x.id, x.schlrshp_title AS title, x.schlrshp_active AS active', 'x.schlrshp_title ASC, x.id ASC'],
     ];
 
     /**
@@ -163,23 +179,84 @@ class IcAdvisorRepository extends ServiceEntityRepository
      */
     public function findUsage(int $id): array
     {
-        $queries = [
-            'programs' => 'SELECT x.id, x.full_name, x.catalog FROM program_programs x
-                JOIN program_advisor l ON l.program_id = x.id
-                WHERE l.advisor_id = :id ORDER BY x.full_name ASC, x.catalog ASC',
-            'scholarships' => 'SELECT x.id, x.schlrshp_title AS title FROM scholarships_scholarship x
-                JOIN scholarship_advisor l ON l.scholarship_id = x.id
-                WHERE l.advisor_id = :id ORDER BY title ASC',
-        ];
-
         $conn = $this->getEntityManager()->getConnection();
         $usage = [];
-        foreach ($queries as $key => $sql) {
-            $rows = $conn->executeQuery($sql, ['id' => $id])->fetchAllAssociative();
-            $usage[$key] = array_map(fn (array $row) => ['id' => (int) $row['id']] + $row, $rows);
+        foreach (self::RECORD_KINDS as $key => $linkTable) {
+            [$table, $columns, $order] = self::RECORDS[$linkTable];
+            $recordColumn = self::LINK_TABLES[$linkTable];
+            $rows = $conn->executeQuery(
+                "SELECT $columns FROM $table x JOIN $linkTable l ON l.$recordColumn = x.id
+                 WHERE l.advisor_id = :id ORDER BY $order",
+                ['id' => $id]
+            )->fetchAllAssociative();
+            $usage[$key] = array_map([$this, 'castRecordRow'], $rows);
         }
 
         return $usage;
+    }
+
+    /**
+     * Every program or scholarship, for the advisor form's "add" search. Same row shape as
+     * findUsage(): programs {id, full_name, catalog, active}, scholarships {id, title, active}.
+     *
+     * @param string $linkTable one of the LINK_TABLES keys
+     */
+    public function findRecordOptions(string $linkTable): array
+    {
+        [$table, $columns, $order] = self::RECORDS[$linkTable] ?? throw new \InvalidArgumentException("Unknown advisor link table $linkTable.");
+
+        $rows = $this->getEntityManager()->getConnection()
+            ->executeQuery("SELECT $columns FROM $table x ORDER BY $order")
+            ->fetchAllAssociative();
+
+        return array_map([$this, 'castRecordRow'], $rows);
+    }
+
+    /**
+     * Which of these program or scholarship ids exist.
+     *
+     * @param int[] $ids
+     * @return int[]
+     */
+    public function findExistingRecordIds(string $linkTable, array $ids): array
+    {
+        [$table] = self::RECORDS[$linkTable] ?? throw new \InvalidArgumentException("Unknown advisor link table $linkTable.");
+        if ($ids === []) {
+            return [];
+        }
+
+        $found = $this->getEntityManager()->getConnection()->executeQuery(
+            "SELECT id FROM $table WHERE id IN (?)",
+            [array_values($ids)],
+            [ArrayParameterType::INTEGER]
+        )->fetchFirstColumn();
+
+        return array_map('intval', $found);
+    }
+
+    /**
+     * Makes these the advisor's programs or scholarships. The ids must exist. Doesn't open a
+     * transaction itself: IcService::saveAdvisor() runs it inside the advisor's save.
+     *
+     * @param int[] $recordIds
+     */
+    public function replaceAdvisorLinks(string $linkTable, int $advisorId, array $recordIds): void
+    {
+        $recordColumn = self::LINK_TABLES[$linkTable] ?? throw new \InvalidArgumentException("Unknown advisor link table $linkTable.");
+        $conn = $this->getEntityManager()->getConnection();
+
+        $conn->executeStatement("DELETE FROM $linkTable WHERE advisor_id = ?", [$advisorId]);
+        foreach (array_unique($recordIds) as $recordId) {
+            $conn->executeStatement("INSERT INTO $linkTable ($recordColumn, advisor_id) VALUES (?, ?)", [$recordId, $advisorId]);
+        }
+    }
+
+    private function castRecordRow(array $row): array
+    {
+        $row['id'] = (int) $row['id'];
+        $row['active'] = (bool) $row['active'];
+
+        return $row;
     }
 
     private function castRow(array $row): array

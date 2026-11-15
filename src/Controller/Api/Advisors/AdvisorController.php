@@ -4,6 +4,7 @@ namespace App\Controller\Api\Advisors;
 
 use App\Entity\Ic\IcAdvisor;
 use App\Entity\Ic\IcAdvisorType;
+use App\Repository\Ic\IcAdvisorRepository;
 use App\Service\IcService;
 use App\Util\RequestHelper;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -11,12 +12,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * CRUD for the advisors shared across IC Command apps (ic_advisors).
+ * CRUD for the advisors shared across IC Command apps (ic_advisors), including which programs and
+ * scholarships use each one, so advisor editors can link them without access to those apps.
  * Prefix /api/advisors (routes.yaml). View reads, edit writes, delete removes; global admins can do all.
  */
 class AdvisorController extends AbstractController
@@ -35,6 +38,15 @@ class AdvisorController extends AbstractController
         'url' => 'setUrl',
         'foragerUrl' => 'setForagerUrl',
         'imageUrl' => 'setImageUrl',
+    ];
+
+    /**
+     * Lists of linked records (payload key => link table). Each replaces the advisor's links of
+     * that kind when the key is present, like advisorIds on the records' own save routes.
+     */
+    private const LINK_FIELDS = [
+        'programIds' => IcAdvisorRepository::PROGRAM_LINK,
+        'scholarshipIds' => IcAdvisorRepository::SCHOLARSHIP_LINK,
     ];
 
     public function __construct(
@@ -65,6 +77,26 @@ class AdvisorController extends AbstractController
         return new Response(json_encode($this->service->getBuildingOptions()), 200, ["Content-Type" => "application/json"]);
     }
 
+    /**
+     * Every program (id, full_name, catalog, active), for the form's "add a program" search.
+     */
+    #[Route('/programs', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_ADVISORS_EDIT")'))]
+    public function programOptionsAction(): Response
+    {
+        return new Response(json_encode($this->service->getRecordOptions(IcAdvisorRepository::PROGRAM_LINK)), 200, ["Content-Type" => "application/json"]);
+    }
+
+    /**
+     * Every scholarship (id, title, active), for the form's "add a scholarship" search.
+     */
+    #[Route('/scholarships', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_ADVISORS_EDIT")'))]
+    public function scholarshipOptionsAction(): Response
+    {
+        return new Response(json_encode($this->service->getRecordOptions(IcAdvisorRepository::SCHOLARSHIP_LINK)), 200, ["Content-Type" => "application/json"]);
+    }
+
     #[Route('/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_ADVISORS_VIEW")'))]
     public function getAction(int $id): Response
@@ -80,16 +112,7 @@ class AdvisorController extends AbstractController
     #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_ADVISORS_EDIT")'))]
     public function createAction(Request $request): Response
     {
-        $advisor = new IcAdvisor();
-        $this->applyFields($advisor, json_decode($request->getContent(), true) ?? []);
-
-        $errors = $this->service->validate($advisor);
-        if (count($errors) > 0) {
-            return new Response($this->serializer->serialize($errors, "json"), 422, ["Content-Type" => "application/json"]);
-        }
-
-        $this->service->save($advisor);
-        return new Response($this->serialize($advisor), 201, ["Content-Type" => "application/json"]);
+        return $this->saveFromRequest(new IcAdvisor(), $request, 201);
     }
 
     #[Route('/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]
@@ -101,15 +124,7 @@ class AdvisorController extends AbstractController
             return new Response(json_encode("Advisor not found."), 404, ["Content-Type" => "application/json"]);
         }
 
-        $this->applyFields($advisor, json_decode($request->getContent(), true) ?? []);
-
-        $errors = $this->service->validate($advisor);
-        if (count($errors) > 0) {
-            return new Response($this->serializer->serialize($errors, "json"), 422, ["Content-Type" => "application/json"]);
-        }
-
-        $this->service->save($advisor);
-        return new Response($this->serialize($advisor), 200, ["Content-Type" => "application/json"]);
+        return $this->saveFromRequest($advisor, $request, 200);
     }
 
     /**
@@ -139,6 +154,52 @@ class AdvisorController extends AbstractController
     }
 
     /* ***************************** Helpers ***************************** */
+
+    /**
+     * Applies the payload, checks it, and saves the advisor with its program and scholarship
+     * links. Nothing is written unless everything is valid.
+     */
+    private function saveFromRequest(IcAdvisor $advisor, Request $request, int $successStatus): Response
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+
+        try {
+            $this->applyFields($advisor, $data);
+            $links = [];
+            foreach (self::LINK_FIELDS as $key => $linkTable) {
+                if (array_key_exists($key, $data)) {
+                    $links[$linkTable] = $this->service->resolveRecordIds($linkTable, $data[$key]);
+                }
+            }
+        } catch (UnprocessableEntityHttpException $e) {
+            return $this->unprocessable($e->getMessage());
+        }
+
+        $errors = $this->service->validate($advisor);
+        if (count($errors) > 0) {
+            return new Response($this->serializer->serialize($errors, "json"), 422, ["Content-Type" => "application/json"]);
+        }
+
+        try {
+            $this->service->saveAdvisor($advisor, $links);
+        } catch (ForeignKeyConstraintViolationException) {
+            // A building, program or scholarship was deleted between the check and the save.
+            return $this->unprocessable('A building, program or scholarship you picked no longer exists.');
+        }
+
+        return new Response($this->serialize($advisor), $successStatus, ["Content-Type" => "application/json"]);
+    }
+
+    /**
+     * A 422 shaped like a validation failure, so the form lists the message.
+     */
+    private function unprocessable(string $message): Response
+    {
+        return new Response(json_encode([
+            'title' => 'Validation Failed',
+            'violations' => [['propertyPath' => '', 'title' => $message]],
+        ]), 422, ["Content-Type" => "application/json"]);
+    }
 
     /**
      * An unknown or blank type leaves the type unset so validation reports it. buildingId

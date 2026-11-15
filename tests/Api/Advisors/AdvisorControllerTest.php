@@ -8,10 +8,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * End-to-end test for the advisors API (/api/advisors), including an advisor's building and
- * the form's building options, the rule that an advisor can't be deleted while a program or
- * scholarship uses it, and the picker's options route. Test rows are ZZ-prefixed and temp users
- * zz_ictest_-prefixed; tearDown removes both.
+ * End-to-end test for the advisors API (/api/advisors), including an advisor's building, linking
+ * programs and scholarships from the advisor side, the form's option routes, the rule that an
+ * advisor can't be deleted while a program or scholarship uses it, and the picker's options
+ * route. Test rows are ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
  */
 class AdvisorControllerTest extends WebTestCase
 {
@@ -177,6 +177,84 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(204);
     }
 
+    /**
+     * Advisor editors can link programs and scholarships from the advisor, without access to
+     * those apps, and the records see the same links.
+     */
+    public function testProgramsAndScholarshipsCanBeLinkedFromTheAdvisor(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $client->loginUser($this->persistUser($em, 'links_admin', ['ROLE_GLOBAL_ADMIN']));
+
+        $programId = $this->createRecord($client, '/api/programs/', $this->programPayload($em));
+        $scholarshipId = $this->createRecord($client, '/api/scholarships/', $this->scholarshipPayload([]));
+        $otherScholarshipId = $this->createRecord($client, '/api/scholarships/', $this->scholarshipPayload(['title' => self::NAME_PREFIX . ' Other Scholarship', 'active' => false]));
+
+        // An editor with no programs or scholarship role.
+        $client->loginUser($this->persistUser($em, 'links_editor', ['ROLE_ADVISORS_EDIT']));
+
+        // The add searches' options: every record, in the usage lists' row shape.
+        $client->request('GET', '/api/advisors/programs');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(
+            ['id' => $programId, 'full_name' => self::NAME_PREFIX . ' Program Full', 'catalog' => 'undergraduate', 'active' => true],
+            current(array_filter(json_decode($client->getResponse()->getContent(), true), fn (array $r) => $r['id'] === $programId))
+        );
+        $client->request('GET', '/api/advisors/scholarships');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(
+            ['id' => $otherScholarshipId, 'title' => self::NAME_PREFIX . ' Other Scholarship', 'active' => false],
+            current(array_filter(json_decode($client->getResponse()->getContent(), true), fn (array $r) => $r['id'] === $otherScholarshipId))
+        );
+
+        // Create already linked. Duplicates and blanks are dropped.
+        $this->json($client, 'POST', '/api/advisors', [
+            'type' => 'Organization',
+            'organization' => self::NAME_PREFIX . ' Linked',
+            'programIds' => [$programId, (string) $programId, null, ''],
+            'scholarshipIds' => [$scholarshipId],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+        $advisorId = json_decode($client->getResponse()->getContent(), true)['id'];
+        $this->assertLinks($client, $advisorId, [$programId], [$scholarshipId]);
+
+        // The records see the link too.
+        $client->loginUser($this->persistUser($em, 'links_admin2', ['ROLE_GLOBAL_ADMIN']));
+        $client->request('GET', '/api/scholarships/' . $scholarshipId);
+        $this->assertSame([$advisorId], json_decode($client->getResponse()->getContent(), true)['advisorIds']);
+        $client->request('GET', '/api/programs/' . $programId);
+        $this->assertSame((string) $advisorId, json_decode($client->getResponse()->getContent(), true)['advisor_ids']);
+
+        // The edit role can remove links. A missing key leaves that kind alone; [] clears it.
+        $client->loginUser($this->persistUser($em, 'links_editor2', ['ROLE_ADVISORS_EDIT']));
+        $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['scholarshipIds' => []]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertLinks($client, $advisorId, [$programId], []);
+
+        $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['programIds' => [], 'scholarshipIds' => [$otherScholarshipId, $scholarshipId]]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertLinks($client, $advisorId, [], [$otherScholarshipId, $scholarshipId]);
+
+        // Unknown, non-numeric or boolean ids are refused with a message, and nothing is saved.
+        foreach ([[999999999], ['abc'], [true]] as $ids) {
+            $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['organization' => self::NAME_PREFIX . ' Renamed', 'programIds' => $ids]);
+            $this->assertSame(422, $client->getResponse()->getStatusCode(), json_encode($ids));
+            $this->assertSame('That program no longer exists.', json_decode($client->getResponse()->getContent(), true)['violations'][0]['title']);
+        }
+        $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['scholarshipIds' => [$scholarshipId, 999999999]]);
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('That scholarship no longer exists.', json_decode($client->getResponse()->getContent(), true)['violations'][0]['title']);
+
+        $one = $this->assertLinks($client, $advisorId, [], [$otherScholarshipId, $scholarshipId]);
+        $this->assertSame(self::NAME_PREFIX . ' Linked', $one['display_name']);
+
+        // A view-only user can't change links.
+        $client->loginUser($this->persistUser($em, 'links_viewer', ['ROLE_ADVISORS_VIEW']));
+        $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['scholarshipIds' => []]);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
     public function testUnknownAdvisorIsRejected(): void
     {
         $client = static::createClient();
@@ -256,8 +334,10 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertSame($canRead ? 200 : 403, $client->getResponse()->getStatusCode(), 'list');
         $client->request('GET', '/api/advisors/' . $seedId);
         $this->assertSame($canRead ? 200 : 403, $client->getResponse()->getStatusCode(), 'get');
-        $client->request('GET', '/api/advisors/buildings');
-        $this->assertSame($canWrite ? 200 : 403, $client->getResponse()->getStatusCode(), 'building options');
+        foreach (['buildings', 'programs', 'scholarships'] as $options) {
+            $client->request('GET', '/api/advisors/' . $options);
+            $this->assertSame($canWrite ? 200 : 403, $client->getResponse()->getStatusCode(), $options . ' options');
+        }
 
         $this->json($client, 'POST', '/api/advisors', ['type' => 'Organization', 'organization' => self::NAME_PREFIX . ' Made']);
         $this->assertSame($canWrite ? 201 : 403, $client->getResponse()->getStatusCode(), 'create');
@@ -326,6 +406,54 @@ class AdvisorControllerTest extends WebTestCase
         ];
     }
 
+    /**
+     * Reads the advisor and checks its program and scholarship lists (ids in list order) and
+     * counts. Returns the advisor.
+     *
+     * @param int[] $programIds
+     * @param int[] $scholarshipIds
+     */
+    private function assertLinks(KernelBrowser $client, int $advisorId, array $programIds, array $scholarshipIds): array
+    {
+        $client->request('GET', '/api/advisors/' . $advisorId);
+        $this->assertResponseStatusCodeSame(200);
+        $one = json_decode($client->getResponse()->getContent(), true);
+        $this->assertSame($programIds, array_column($one['programs'], 'id'), 'programs');
+        $this->assertSame($scholarshipIds, array_column($one['scholarships'], 'id'), 'scholarships');
+        $this->assertSame(count($programIds), $one['program_count']);
+        $this->assertSame(count($scholarshipIds), $one['scholarship_count']);
+
+        return $one;
+    }
+
+    /**
+     * POSTs a program or scholarship that must save; returns its id.
+     */
+    private function createRecord(KernelBrowser $client, string $url, array $data): int
+    {
+        $this->json($client, 'POST', $url, $data);
+        $this->assertSame(201, $client->getResponse()->getStatusCode(), $url . ': ' . substr($client->getResponse()->getContent(), 0, 500));
+        return (int) json_decode($client->getResponse()->getContent(), true)['id'];
+    }
+
+    private function programPayload(EntityManagerInterface $em): array
+    {
+        $conn = $em->getConnection();
+
+        return [
+            'catalog' => 'undergraduate',
+            'program' => self::NAME_PREFIX . ' Program',
+            'full_name' => self::NAME_PREFIX . ' Program Full',
+            'degree_id' => (int) $conn->fetchOne('SELECT MIN(degree_id) FROM program_programs'),
+            'type_id' => (int) $conn->fetchOne('SELECT MIN(type_id) FROM program_programs'),
+            'is_active' => true,
+            'delivery_ids' => [(int) $conn->fetchOne('SELECT MIN(delivery_id) FROM program_delivery')],
+            'college_ids' => [],
+            'department_ids' => [],
+            'keyword_ids' => [],
+        ];
+    }
+
     private function createBuilding(KernelBrowser $client, EntityManagerInterface $em): int
     {
         $this->json($client, 'POST', '/api/mapitems', [
@@ -382,8 +510,14 @@ class AdvisorControllerTest extends WebTestCase
         if (static::$booted) {
             $em = static::getContainer()->get('doctrine')->getManager();
             $conn = $em->getConnection();
-            $conn->executeStatement('DELETE FROM scholarships_scholarship WHERE schlrshp_title LIKE ?', [self::NAME_PREFIX . '%']);
-            $conn->executeStatement('DELETE FROM map_item WHERE name LIKE ?', [self::NAME_PREFIX . '%']);
+            $like = self::NAME_PREFIX . '%';
+            $conn->executeStatement('DELETE FROM scholarships_scholarship WHERE schlrshp_title LIKE ?', [$like]);
+            $programs = 'SELECT id FROM program_programs WHERE program LIKE ?';
+            foreach (['program_delivery', 'program_college_link', 'program_inter_dept', 'program_keyword_links', 'program_websites'] as $table) {
+                $conn->executeStatement("DELETE FROM $table WHERE program_id IN ($programs)", [$like]);
+            }
+            $conn->executeStatement('DELETE FROM program_programs WHERE program LIKE ?', [$like]);
+            $conn->executeStatement('DELETE FROM map_item WHERE name LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM ic_advisors WHERE organization LIKE ? OR last_name LIKE ?', [self::NAME_PREFIX . '%', self::NAME_PREFIX . '%']);
             $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
         }

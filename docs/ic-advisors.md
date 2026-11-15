@@ -4,8 +4,9 @@ This app was called Contacts until November 15, 2026. `Version20261115000000` re
 and roles (see Migrations below); the older docs it links to still use the old names.
 
 An advisor is a person or organization. Programs and scholarships can each have any number of them (and an
-advisor can belong to any number of records), chosen on their own form with one searchable picker per
-advisor. An advisor can be in one building, chosen on the advisor's own form. Buildings, colleges and
+advisor can belong to any number of records). The links can be edited from either side: on the program or
+scholarship form (one searchable picker per advisor), or on the advisor's form, for advisor editors who
+can't open those apps. An advisor can be in one building, chosen on the advisor's own form. Buildings, colleges and
 departments don't list advisors. The plan and its reasoning are in `docs/ic-contacts-plan.md` (buildings
 there are the earlier design, replaced by `Version20261115010000`).
 
@@ -61,13 +62,23 @@ The advisor form (`AdvisorForm.vue`) has a searchable Building picker, filled fr
 `/api/advisors/buildings`. Read-only, it shows the building's name or "None". The advisor list has a
 Building column.
 
+The advisor form's Usage section (`IcUsageLists.vue`, shared with the college and department forms) lists
+the advisor's programs and scholarships, each linked to its edit page, with a search over the list. In edit
+mode, for `ROLE_ADVISORS_EDIT` and up, each section also has an "Add" search over every program (by full
+name, with its catalog) or scholarship (by title), from `/api/advisors/programs` and
+`/api/advisors/scholarships`. Clicking a result adds it, and a trash button removes an item. Inactive
+records are marked. The changes are saved with the rest of the form (`programIds` / `scholarshipIds`), and
+the delete button follows the saved counts. The college and department forms don't pass `editable`, so
+theirs stay read-only.
+
 ## API
 
 | Route | Who | What |
 |---|---|---|
 | `GET /api/advisors`, `GET /api/advisors/{id}` | `ROLE_ADVISORS_VIEW` and up, global admins | List (search, paging), read. Rows carry `building_id` and `building_name` |
-| `POST /api/advisors`, `PUT /api/advisors/{id}` | `ROLE_ADVISORS_EDIT` and up, global admins | Create, update. `buildingId` sets the building; `null` or `''` clears it, a missing key leaves it, and an id that isn't a building returns 422. The response has `buildingId` and `buildingName` |
+| `POST /api/advisors`, `PUT /api/advisors/{id}` | `ROLE_ADVISORS_EDIT` and up, global admins | Create, update. `buildingId` sets the building; `null` or `''` clears it, a missing key leaves it, and an id that isn't a building returns 422. `programIds` / `scholarshipIds` replace the advisor's links of that kind, with the same rules as `advisorIds` below. The advisor and its links save in one transaction, and nothing is saved on a 422. A 422 lists its messages in `violations[].title`. The response has `buildingId` and `buildingName`, not the links |
 | `GET /api/advisors/buildings` | `ROLE_ADVISORS_EDIT` and up, global admins | The Building picker's rows: `id`, `name`, sorted by name. Separate from `/api/mapbuildings/`, which needs a map role |
+| `GET /api/advisors/programs`, `GET /api/advisors/scholarships` | `ROLE_ADVISORS_EDIT` and up, global admins | Every program (`id`, `full_name`, `catalog`, `active`) or scholarship (`id`, `title`, `active`), sorted by name, for the Add searches. Same row shape as the `programs` / `scholarships` lists in `GET /api/advisors/{id}` |
 | `DELETE /api/advisors/{id}` | `ROLE_ADVISORS_DELETE` and up, global admins | Delete (409 while in use) |
 | `GET /api/ic/advisors/options` | Global admins and anyone with a programs or scholarship CREATE role (their EDIT and ADMIN roles inherit it) | Dropdown rows: `id`, `displayName`, `type`, `email` |
 

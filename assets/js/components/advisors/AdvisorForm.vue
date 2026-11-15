@@ -312,9 +312,18 @@
 						<p>Last updated {{ formatHistoryDate(record.updated) }} by {{ record.updated_by }}</p>
 					</fieldset>
 
-					<fieldset v-if="itemExists">
+					<fieldset v-if="itemExists || canEditLinks">
 						<legend>Usage</legend>
-						<ic-usage-lists :sections="usageSections"></ic-usage-lists>
+						<p v-if="canEditLinks" class="text-muted small">
+							Add or remove the programs and scholarships this advisor belongs to.
+							Changes are saved with the rest of the form.
+						</p>
+						<ic-usage-lists
+							:sections="usageSections"
+							:editable="canEditLinks"
+							@add="addLink"
+							@remove="removeLink"
+						></ic-usage-lists>
 					</fieldset>
 
 					<div
@@ -421,9 +430,11 @@ export default {
 			this.isEditMode = true
 		}
 
-		// Only editors pick a building; readers see the record's building_name.
+		// Only editors pick a building or add programs and scholarships; readers see the
+		// record's own lists.
 		if (this.userCanEdit) {
 			this.fetchBuildings()
+			this.fetchLinkOptions()
 		}
 
 		if (this.itemExists === false) {
@@ -485,6 +496,14 @@ export default {
 			buildings: [],
 			buildingsError: null,
 			loadingBuildings: false,
+
+			/**
+			 * Every program and scholarship, for the add searches (null while loading), in the
+			 * same row shape as record.programs / record.scholarships.
+			 * @type {Object}
+			 */
+			linkOptions: { programs: null, scholarships: null },
+			linkOptionsErrors: { programs: null, scholarships: null },
 
 			/**
 			 * The reason the server refused to delete the advisor, if any.
@@ -621,31 +640,58 @@ export default {
 		},
 
 		/**
-		 * The records using the advisor, linked to their edit pages.
+		 * @return {boolean} True if the usage lists can be changed (the edit role, in edit mode).
+		 */
+		canEditLinks: function () {
+			return this.isEditMode && this.userCanEdit
+		},
+
+		/**
+		 * linkOptions as add-search options ({id, name, note}); null while loading.
+		 * @return {Object}
+		 */
+		linkOptionItems: function () {
+			let items = {}
+			for (let key in this.linkOptions) {
+				let rows = this.linkOptions[key]
+				items[key] = rows === null ? null : rows.map((row) => this.linkItem(key, row))
+			}
+			return items
+		},
+
+		/**
+		 * The records using the advisor, linked to their edit pages. In edit mode each section
+		 * can also add any program or scholarship.
 		 * @return {Array}
 		 */
 		usageSections: function () {
+			let self = this
 			return [
 				{
 					key: "programs",
 					label: "Programs",
-					items: this.record.programs.map((p) => ({
-						id: p.id,
-						name: p.full_name,
-						note: p.catalog,
-						url: "/programs/" + p.id + "/edit"
-					}))
+					addPlaceholder: "Search all degrees and programs by name",
+					urlPrefix: "/programs/"
 				},
 				{
 					key: "scholarships",
 					label: "Scholarships",
-					items: this.record.scholarships.map((s) => ({
-						id: s.id,
-						name: s.title,
-						url: "/scholarships/" + s.id + "/edit"
-					}))
+					addPlaceholder: "Search all scholarships by name",
+					urlPrefix: "/scholarships/"
 				}
-			]
+			].map(function (section) {
+				return {
+					key: section.key,
+					label: section.label,
+					addPlaceholder: section.addPlaceholder,
+					items: self.record[section.key].map((row) => ({
+						...self.linkItem(section.key, row),
+						url: section.urlPrefix + row.id + "/edit"
+					})),
+					addOptions: self.canEditLinks ? self.linkOptionItems[section.key] : undefined,
+					addError: self.linkOptionsErrors[section.key]
+				}
+			})
 		},
 
 		/**
@@ -777,6 +823,77 @@ export default {
 		},
 
 		/**
+		 * Adds a program or scholarship from the add search to the list, in name order.
+		 * @param {string} key "programs" or "scholarships"
+		 * @param {Object} option The picked option ({id, name, note}).
+		 */
+		addLink: function (key, option) {
+			let row = (this.linkOptions[key] || []).find((r) => r.id === option.id)
+			if (!row || this.record[key].some((r) => r.id === row.id)) {
+				return
+			}
+			let self = this
+			this.record[key] = this.record[key].concat([row]).sort(function (a, b) {
+				return (
+					self.linkItem(key, a).name.localeCompare(self.linkItem(key, b).name, undefined, {
+						sensitivity: "base"
+					}) || String(a.catalog || "").localeCompare(String(b.catalog || "")) || a.id - b.id
+				)
+			})
+			this.formDirty = true
+		},
+
+		/**
+		 * Removes a program or scholarship from the list.
+		 * @param {string} key "programs" or "scholarships"
+		 * @param {number} id The record's id.
+		 */
+		removeLink: function (key, id) {
+			this.record[key] = this.record[key].filter((r) => r.id !== id)
+			this.formDirty = true
+		},
+
+		/**
+		 * A program or scholarship row as a list item: its name, and a note with the catalog
+		 * (programs) and whether it is inactive.
+		 * @param {string} key "programs" or "scholarships"
+		 * @param {Object} row A usage or option row.
+		 * @return {Object} {id, name, note}
+		 */
+		linkItem: function (key, row) {
+			let notes = []
+			if (key === "programs" && row.catalog) {
+				notes.push(row.catalog)
+			}
+			if (row.active === false) {
+				notes.push("inactive")
+			}
+			return {
+				id: row.id,
+				name: (key === "programs" ? row.full_name : row.title) || "",
+				note: notes.join(", ")
+			}
+		},
+
+		/**
+		 * Gets every program and scholarship for the add searches.
+		 */
+		fetchLinkOptions: function () {
+			let self = this
+			Object.keys(this.linkOptions).forEach(function (key) {
+				axios
+					.get("/api/advisors/" + key)
+					.then(function (response) {
+						self.linkOptions[key] = response.data
+					})
+					.catch(function () {
+						self.linkOptions[key] = []
+						self.linkOptionsErrors[key] = "There was an error loading the " + key + "."
+					})
+			})
+		},
+
+		/**
 		 * Gets the buildings for the picker.
 		 */
 		fetchBuildings: function () {
@@ -842,7 +959,9 @@ export default {
 					buildingId: self.record.building_id,
 					url: self.record.url,
 					foragerUrl: self.record.forager_url,
-					imageUrl: self.record.image_url
+					imageUrl: self.record.image_url,
+					programIds: self.record.programs.map((p) => p.id),
+					scholarshipIds: self.record.scholarships.map((s) => s.id)
 				}
 			})
 				.then(function (response) {

@@ -242,6 +242,69 @@ class IcService
     }
 
     /**
+     * Every program or scholarship, for the advisor form's "add" search.
+     *
+     * @param string $linkTable IcAdvisorRepository::PROGRAM_LINK or SCHOLARSHIP_LINK
+     */
+    public function getRecordOptions(string $linkTable): array
+    {
+        return $this->advisors->findRecordOptions($linkTable);
+    }
+
+    /**
+     * The programs or scholarships an advisor form picked, without duplicates. Like
+     * resolveAdvisors(): a non-list counts as an empty list, and null or '' entries are skipped.
+     *
+     * @param string $linkTable IcAdvisorRepository::PROGRAM_LINK or SCHOLARSHIP_LINK
+     * @return int[]
+     * @throws UnprocessableEntityHttpException for an id that doesn't exist, e.g. a record
+     *                                          deleted while the form was open
+     */
+    public function resolveRecordIds(string $linkTable, mixed $ids): array
+    {
+        $noun = $linkTable === IcAdvisorRepository::PROGRAM_LINK ? 'program' : 'scholarship';
+        if (!is_array($ids)) {
+            return [];
+        }
+
+        $wanted = [];
+        foreach ($ids as $id) {
+            if ($id === null || $id === '') {
+                continue;
+            }
+            $recordId = is_bool($id) ? false : filter_var($id, FILTER_VALIDATE_INT);
+            if ($recordId === false) {
+                throw new UnprocessableEntityHttpException("That $noun no longer exists.");
+            }
+            $wanted[$recordId] = $recordId;
+        }
+
+        $existing = $this->advisors->findExistingRecordIds($linkTable, array_values($wanted));
+        if (count($existing) !== count($wanted)) {
+            throw new UnprocessableEntityHttpException("That $noun no longer exists.");
+        }
+
+        return array_values($wanted);
+    }
+
+    /**
+     * Saves the advisor and, in the same transaction, makes each given list its programs or
+     * scholarships. A link table missing from $links keeps its rows.
+     *
+     * @param array<string, int[]> $links link table => record ids (from resolveRecordIds())
+     */
+    public function saveAdvisor(IcAdvisor $advisor, array $links): void
+    {
+        $this->em->wrapInTransaction(function () use ($advisor, $links): void {
+            $this->em->persist($advisor);
+            $this->em->flush(); // A new advisor needs its id before it can be linked.
+            foreach ($links as $linkTable => $recordIds) {
+                $this->advisors->replaceAdvisorLinks($linkTable, $advisor->getId(), $recordIds);
+            }
+        });
+    }
+
+    /**
      * The buildings an advisor can be in, for the advisor form's picker.
      *
      * @return array<int, array{id: int, name: string}>
