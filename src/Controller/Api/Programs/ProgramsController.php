@@ -8,6 +8,7 @@ use App\Entity\Programs\ProgramWebsites;
 use App\Entity\Programs\Programs;
 use App\Util\RequestHelper;
 use App\Service\ProgramsService;
+use App\Repository\Ic\IcAdvisorRepository;
 use App\Service\IcService;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -316,7 +317,7 @@ class ProgramsController extends AbstractController
 
 		// Update advisors pivot table
 		try {
-			$this->service->updateProgramAdvisors($program->getId(), array_map(fn($c) => $c->getId(), $advisors));
+			$this->icService->setRecordAdvisors(IcAdvisorRepository::PROGRAM_LINK, $program->getId(), $advisors);
 		} catch (\Exception $e) {
 			return new Response("Failed to save program advisors.", 500, array("Content-Type" => "application/json"));
 		}
@@ -458,7 +459,7 @@ class ProgramsController extends AbstractController
 		// Update advisors pivot table
 		if ($advisors !== null) {
 			try {
-				$this->service->updateProgramAdvisors($program->getId(), array_map(fn($c) => $c->getId(), $advisors));
+				$this->icService->setRecordAdvisors(IcAdvisorRepository::PROGRAM_LINK, $program->getId(), $advisors);
 			} catch (\Exception $e) {
 				return new Response("Failed to save program advisors.", 500, array("Content-Type" => "application/json"));
 			}

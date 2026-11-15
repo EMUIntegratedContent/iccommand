@@ -443,12 +443,8 @@ export default {
 			this.isEditMode = true
 		}
 
-		// Only editors pick a building or add programs and scholarships; readers see the
-		// record's own lists.
-		if (this.userCanEdit) {
-			this.fetchBuildings()
-			this.fetchLinkOptions()
-		}
+		// The building picker and add searches only show in edit mode, so their lists load then.
+		this.loadEditOptions()
 
 		if (this.itemExists === false) {
 			// Set up for a new advisor.
@@ -517,6 +513,13 @@ export default {
 			 */
 			linkOptions: { programs: null, scholarships: null },
 			linkOptionsErrors: { programs: null, scholarships: null },
+
+			/**
+			 * Whether the buildings and link options have been requested (once, on the first
+			 * switch to edit mode).
+			 * @type {boolean}
+			 */
+			editOptionsRequested: false,
 
 			/**
 			 * The reason the server refused to delete the advisor, if any.
@@ -673,8 +676,9 @@ export default {
 		},
 
 		/**
-		 * The records using the advisor, linked to their edit pages. In edit mode each section
-		 * can also add any program or scholarship.
+		 * The records using the advisor. Each links to the record's edit page or read-only page,
+		 * whichever the user's program or scholarship roles allow, or is plain text without
+		 * access. In edit mode each section can also add any program or scholarship.
 		 * @return {Array}
 		 */
 		usageSections: function () {
@@ -684,22 +688,29 @@ export default {
 					key: "programs",
 					label: "Programs",
 					addPlaceholder: "Search all degrees and programs by name",
-					urlPrefix: "/programs/"
+					urlPrefix: "/programs/",
+					linkMode: self.permissions[0].programLinks
 				},
 				{
 					key: "scholarships",
 					label: "Scholarships",
 					addPlaceholder: "Search all scholarships by name",
-					urlPrefix: "/scholarships/"
+					urlPrefix: "/scholarships/",
+					linkMode: self.permissions[0].scholarshipLinks
 				}
 			].map(function (section) {
+				let urlFor = function (id) {
+					if (section.linkMode === "edit") return section.urlPrefix + id + "/edit"
+					if (section.linkMode === "show") return section.urlPrefix + id
+					return null
+				}
 				return {
 					key: section.key,
 					label: section.label,
 					addPlaceholder: section.addPlaceholder,
 					items: self.record[section.key].map((row) => ({
 						...self.linkItem(section.key, row),
-						url: section.urlPrefix + row.id + "/edit"
+						url: urlFor(row.id)
 					})),
 					addOptions: self.canEditLinks ? self.linkOptionItems[section.key] : undefined,
 					addError: self.linkOptionsErrors[section.key]
@@ -889,6 +900,19 @@ export default {
 		},
 
 		/**
+		 * Loads the building picker's and add searches' lists the first time the form is in
+		 * edit mode for an editor, so read-only visits don't download them.
+		 */
+		loadEditOptions: function () {
+			if (!this.canEditLinks || this.editOptionsRequested) {
+				return
+			}
+			this.editOptionsRequested = true
+			this.fetchBuildings()
+			this.fetchLinkOptions()
+		},
+
+		/**
 		 * Gets every program and scholarship for the add searches.
 		 */
 		fetchLinkOptions: function () {
@@ -996,6 +1020,7 @@ export default {
 		 */
 		toggleEdit: function () {
 			this.isEditMode = !this.isEditMode
+			this.loadEditOptions()
 		},
 
 		/**

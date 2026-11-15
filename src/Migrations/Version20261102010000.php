@@ -19,8 +19,10 @@ use Doctrine\Migrations\AbstractMigration;
  * quiet. program_contact has no entity (see ProgramsRepository::updateProgramContacts()), but
  * follows the same naming.
  *
- * It also drops scholarships_scholarship.schlrshp_contact_id, the unused single-contact
- * placeholder the many-to-many link table replaces. Nothing wrote it. down() adds it back empty.
+ * It also drops scholarships_scholarship.schlrshp_contact_id, the single-contact placeholder
+ * the many-to-many link table replaces. The scholarship form never wrote it, but the API
+ * accepted contactId, so up() warns with how many scholarships had a value (they point at no
+ * table, and are lost). down() adds the column back empty.
  *
  * An earlier version of this migration added a contact_id column to ic_colleges, ic_departments,
  * program_programs, scholarships_scholarship (renaming schlrshp_contact_id) and map_building.
@@ -61,6 +63,13 @@ final class Version20261102010000 extends AbstractMigration
     {
         $this->removeLegacyColumns();
         if ($this->columnExists(self::PLACEHOLDER_TABLE, self::PLACEHOLDER_COLUMN)) {
+            $values = (int)$this->connection->fetchOne(
+                'SELECT COUNT(*) FROM ' . self::PLACEHOLDER_TABLE . ' WHERE ' . self::PLACEHOLDER_COLUMN . ' IS NOT NULL'
+            );
+            $this->warnIf($values > 0, sprintf(
+                'Dropping %s.%s, which is set on %d scholarships; those values are lost',
+                self::PLACEHOLDER_TABLE, self::PLACEHOLDER_COLUMN, $values
+            ));
             $this->addSql('ALTER TABLE ' . self::PLACEHOLDER_TABLE . ' DROP COLUMN ' . self::PLACEHOLDER_COLUMN);
         }
 

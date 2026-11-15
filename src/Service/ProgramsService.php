@@ -758,19 +758,6 @@ class ProgramsService
 	}
 
 	/**
-	 * Replaces a program's advisors by delegating to the repository.
-	 *
-	 * @param int $programId
-	 * @param int[] $advisorIds ids of advisors that exist (see IcService::resolveAdvisors())
-	 * @return void
-	 * @throws \Exception
-	 */
-	public function updateProgramAdvisors(int $programId, array $advisorIds): void
-	{
-		$this->em->getRepository(Programs::class)->updateProgramAdvisors($programId, array_values(array_unique($advisorIds)));
-	}
-
-	/**
 	 * Normalize and update departments for a program by delegating to the repository.
 	 * Accepts an array or comma-separated string and ensures an array of ints is passed
 	 * to the repository.

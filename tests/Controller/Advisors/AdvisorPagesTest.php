@@ -46,6 +46,41 @@ class AdvisorPagesTest extends WebTestCase
         }
     }
 
+    /**
+     * @return array<string, array{0: string[], 1: array}> roles => the permissions the form gets
+     */
+    public static function permissionMatrix(): array
+    {
+        $none = ['programLinks' => null, 'scholarshipLinks' => null];
+
+        return [
+            'edit only' => [['ROLE_ADVISORS_EDIT'], ['admin' => false, 'delete' => false, 'edit' => true, 'view' => true] + $none],
+            'admin' => [['ROLE_ADVISORS_ADMIN'], ['admin' => true, 'delete' => true, 'edit' => true, 'view' => true] + $none],
+            // Usage list links go to the page the user's program/scholarship role can open.
+            'edit, program viewer, scholarship editor' => [
+                ['ROLE_ADVISORS_EDIT', 'ROLE_PROGRAMS_VIEW', 'ROLE_SCHOLARSHIP_EDIT'],
+                ['admin' => false, 'delete' => false, 'edit' => true, 'view' => true, 'programLinks' => 'show', 'scholarshipLinks' => 'edit'],
+            ],
+            'global admin alone' => [['ROLE_GLOBAL_ADMIN'], ['admin' => true, 'delete' => true, 'edit' => true, 'view' => true, 'programLinks' => 'edit', 'scholarshipLinks' => 'edit']],
+        ];
+    }
+
+    /**
+     * @dataProvider permissionMatrix
+     */
+    public function testFormGetsPermissionsFromRoles(array $roles, array $expected): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $id = $this->persistAdvisor($em);
+        $client->loginUser($this->persistUser($em, 'perms', $roles));
+
+        $crawler = $client->request('GET', '/advisors/' . $id . '/edit');
+        $this->assertResponseIsSuccessful();
+        $permissions = json_decode($crawler->filter('advisors-form')->attr(':permissions'), true);
+        $this->assertSame([$expected], $permissions);
+    }
+
     public function testRoutesAreNotCapturedByTheIdRoute(): void
     {
         $client = static::createClient();

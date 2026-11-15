@@ -62,7 +62,9 @@ class ProgramsExternalController extends AbstractController
 	public function getDegreeSearchAction(Request $request): Response
 	{
 		$result = $this->programsService->searchDegreePrograms($request->query->all());
-		$result['programs'] = $this->icService->addProgramAdvisorsInfo($result['programs']);
+		// The rows' ids are shortened for catalog links, so look advisors up by the full ids.
+		$result['programs'] = $this->icService->addProgramAdvisorsInfo($result['programs'], $result['programIds']);
+		unset($result['programIds']);
 
 		return new Response(json_encode($result), 200, ["Content-Type" => "application/json"]);
 	}

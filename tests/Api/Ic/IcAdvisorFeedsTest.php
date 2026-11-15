@@ -89,6 +89,45 @@ class IcAdvisorFeedsTest extends WebTestCase
         $this->assertNoAdvisorIds($search['programs'][0]);
     }
 
+    /**
+     * The search feed shortens program ids to 5 digits for catalog links (15277001 -> 15277),
+     * but advisors must still come from the full id. Test programs get short ids, so this links
+     * a test advisor to a real program with a longer one (skipped if there is none); tearDown
+     * removes the link with the advisor.
+     */
+    public function testSearchFeedFindsAdvisorsByFullProgramId(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $client->loginUser($this->persistUser($em));
+        $conn = $em->getConnection();
+
+        $program = $conn->fetchAssociative(
+            'SELECT p.id, p.full_name FROM program_programs p
+             WHERE p.is_active = 1 AND p.id > 99999 AND p.full_name IS NOT NULL
+               AND EXISTS (SELECT 1 FROM program_delivery d WHERE d.program_id = p.id)
+             ORDER BY p.id LIMIT 1'
+        );
+        if ($program === false) {
+            $this->markTestSkipped('No active program with an id longer than 5 digits.');
+        }
+
+        $advisorId = $this->createAdvisor($client);
+        $conn->insert('program_advisor', ['program_id' => $program['id'], 'advisor_id' => $advisorId]);
+
+        $client->getCookieJar()->clear();
+        static::getContainer()->get('security.token_storage')->setToken(null);
+        $rows = $this->publicJson($client, '/api/external/programs/search?program=' . urlencode($program['full_name']))['programs'];
+
+        $expected = array_merge(self::EXPECTED_INFO, ['buildingName' => null]);
+        $hasAdvisor = fn (array $row) => in_array($expected, $row['icAdvisorsInfo'], true);
+        $this->assertNotEmpty(array_filter($rows, fn (array $row) => $row['full_name'] === $program['full_name'] && $hasAdvisor($row)), 'the linked program lists the advisor');
+        $this->assertSame([], array_values(array_filter($rows, fn (array $row) => $row['full_name'] !== $program['full_name'] && $hasAdvisor($row))), 'no other program does');
+        foreach ($rows as $row) {
+            $this->assertLessThanOrEqual(5, strlen((string) $row['id']), 'ids stay shortened for catalog links');
+        }
+    }
+
     public function testAdvisorsCanBeReadBackAndChanged(): void
     {
         $client = static::createClient();
@@ -360,6 +399,8 @@ class IcAdvisorFeedsTest extends WebTestCase
             $conn->executeStatement('DELETE FROM program_programs WHERE program LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM scholarships_scholarship WHERE schlrshp_title LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM map_item WHERE name LIKE ?', [$like]);
+            // Links to real records (which aren't deleted) would block deleting the advisors.
+            $conn->executeStatement('DELETE l FROM program_advisor l JOIN ic_advisors a ON a.id = l.advisor_id WHERE a.last_name LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM ic_advisors WHERE last_name LIKE ?', [$like]);
             $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
         }

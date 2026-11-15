@@ -108,7 +108,8 @@
 							class="list-group-item d-flex justify-content-between align-items-center"
 						>
 							<span>
-								<a :href="item.url" target="_blank">{{ item.name }}</a>
+								<a v-if="item.url" :href="item.url" target="_blank">{{ item.name }}</a>
+								<span v-else>{{ item.name }}</span>
 								<small v-if="item.note" class="text-muted ml-2"
 									>({{ item.note }})</small
 								>
@@ -142,7 +143,7 @@ export default {
 	props: {
 		/**
 		 * One collapsible list per kind of record that uses the college, department or advisor:
-		 * [{ key, label, items: [{ id, name, note, url }] }].
+		 * [{ key, label, items: [{ id, name, note, url }] }]. An item without a url is plain text.
 		 *
 		 * With editable, a section can also offer every record of its kind to add:
 		 * addOptions [{ id, name, note }] (null while loading), and optionally addPlaceholder

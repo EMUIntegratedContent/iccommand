@@ -78,15 +78,21 @@ class IcAdvisorRepository extends ServiceEntityRepository
     }
 
     /**
-     * What the public feeds publish about each advisor, keyed by advisor id.
+     * What the public feeds publish about these advisors, keyed by advisor id.
      *
+     * @param int[] $advisorIds
      * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string, buildingName: ?string}>
      */
-    public function findPublicInfoById(): array
+    public function findPublicInfoById(array $advisorIds): array
     {
+        if ($advisorIds === []) {
+            return [];
+        }
+
         // Fetch-joins the buildings, since toPublicArray() reads each one's name.
         $advisors = $this->createQueryBuilder('a')
             ->leftJoin('a.building', 'b')->addSelect('b')
+            ->where('a.id IN (:ids)')->setParameter('ids', array_values($advisorIds))
             ->getQuery()->getResult();
 
         $info = [];
@@ -104,14 +110,21 @@ class IcAdvisorRepository extends ServiceEntityRepository
      * @param string $linkTable one of the LINK_TABLES keys
      * @return array<int, int[]>
      */
-    public function findAdvisorIdsByRecord(string $linkTable): array
+    public function findAdvisorIdsByRecord(string $linkTable, ?array $recordIds = null): array
     {
         $recordColumn = self::LINK_TABLES[$linkTable] ?? throw new \InvalidArgumentException("Unknown advisor link table $linkTable.");
+        if ($recordIds === []) {
+            return [];
+        }
 
+        $where = $recordIds === null ? '' : "WHERE l.$recordColumn IN (?)";
         $rows = $this->getEntityManager()->getConnection()->executeQuery(
             "SELECT l.$recordColumn AS record_id, l.advisor_id
              FROM $linkTable l JOIN ic_advisors c ON c.id = l.advisor_id
-             ORDER BY " . self::DISPLAY_NAME_SQL . ' ASC, c.id ASC'
+             $where
+             ORDER BY " . self::DISPLAY_NAME_SQL . ' ASC, c.id ASC',
+            $recordIds === null ? [] : [array_values($recordIds)],
+            $recordIds === null ? [] : [ArrayParameterType::INTEGER]
         )->fetchAllAssociative();
 
         $byRecord = [];
@@ -147,7 +160,7 @@ class IcAdvisorRepository extends ServiceEntityRepository
 
         // offset/limit are ints, so inlining them is injection-safe.
         $rows = $conn->executeQuery(
-            self::SELECT_WITH_COUNTS . " $where ORDER BY display_name ASC LIMIT $offset, $limit",
+            self::SELECT_WITH_COUNTS . " $where ORDER BY display_name ASC, c.id ASC LIMIT $offset, $limit",
             $params
         )->fetchAllAssociative();
 
@@ -235,19 +248,59 @@ class IcAdvisorRepository extends ServiceEntityRepository
     }
 
     /**
-     * Makes these the advisor's programs or scholarships. The ids must exist. Doesn't open a
-     * transaction itself: IcService::saveAdvisor() runs it inside the advisor's save.
+     * The program or scholarship ids an advisor is linked to.
+     *
+     * @return int[]
+     */
+    public function findRecordIdsForAdvisor(string $linkTable, int $advisorId): array
+    {
+        $recordColumn = self::LINK_TABLES[$linkTable] ?? throw new \InvalidArgumentException("Unknown advisor link table $linkTable.");
+
+        return array_map('intval', $this->getEntityManager()->getConnection()
+            ->executeQuery("SELECT $recordColumn FROM $linkTable WHERE advisor_id = ?", [$advisorId])
+            ->fetchFirstColumn());
+    }
+
+    /**
+     * Makes these the advisor's programs or scholarships (the advisor form's side of a link
+     * table). The ids must exist. Callers wrap it in a transaction.
      *
      * @param int[] $recordIds
      */
     public function replaceAdvisorLinks(string $linkTable, int $advisorId, array $recordIds): void
     {
         $recordColumn = self::LINK_TABLES[$linkTable] ?? throw new \InvalidArgumentException("Unknown advisor link table $linkTable.");
+        $this->replaceLinks($linkTable, 'advisor_id', $advisorId, $recordColumn, $recordIds);
+    }
+
+    /**
+     * Makes these a program's or scholarship's advisors (the record form's side). The ids must
+     * exist. Callers wrap it in a transaction.
+     *
+     * @param int[] $advisorIds
+     */
+    public function replaceRecordAdvisors(string $linkTable, int $recordId, array $advisorIds): void
+    {
+        $recordColumn = self::LINK_TABLES[$linkTable] ?? throw new \InvalidArgumentException("Unknown advisor link table $linkTable.");
+        $this->replaceLinks($linkTable, $recordColumn, $recordId, 'advisor_id', $advisorIds);
+    }
+
+    /**
+     * The one place advisor link rows are rewritten from raw SQL: deletes the rows whose
+     * $ownerColumn is $ownerId, then inserts one per other id.
+     *
+     * @param int[] $otherIds
+     */
+    private function replaceLinks(string $linkTable, string $ownerColumn, int $ownerId, string $otherColumn, array $otherIds): void
+    {
         $conn = $this->getEntityManager()->getConnection();
 
-        $conn->executeStatement("DELETE FROM $linkTable WHERE advisor_id = ?", [$advisorId]);
-        foreach (array_unique($recordIds) as $recordId) {
-            $conn->executeStatement("INSERT INTO $linkTable ($recordColumn, advisor_id) VALUES (?, ?)", [$recordId, $advisorId]);
+        $conn->executeStatement("DELETE FROM $linkTable WHERE $ownerColumn = ?", [$ownerId]);
+        foreach (array_unique($otherIds) as $otherId) {
+            $conn->executeStatement(
+                "INSERT INTO $linkTable ($ownerColumn, $otherColumn) VALUES (?, ?)",
+                [$ownerId, $otherId]
+            );
         }
     }
 

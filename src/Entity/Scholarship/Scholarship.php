@@ -308,11 +308,12 @@ class Scholarship
     /**
      * The optional advisors. Separate from the free-text $contact above, which stays
      * required. Serialized through the advisorIds/advisorNames/icAdvisorsInfo virtual
-     * properties below rather than as nested objects.
+     * properties below rather than as nested objects. Lazy: ScholarshipRepository's lists
+     * load them (with their buildings) for all scholarships in one query.
      *
      * @var Collection<int, IcAdvisor>
      */
-    #[ORM\ManyToMany(targetEntity: IcAdvisor::class, fetch: 'EAGER')]
+    #[ORM\ManyToMany(targetEntity: IcAdvisor::class)]
     #[ORM\JoinTable(name: 'scholarship_advisor')]
     #[ORM\JoinColumn(name: 'scholarship_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'advisor_id', referencedColumnName: 'id')]
@@ -869,6 +870,16 @@ class Scholarship
     public function getUpdatedBy()
     {
         return $this->updatedBy;
+    }
+
+    /**
+     * Marks it as changed now, for a change Gedmo can't see (only its links changed). Gedmo
+     * still sets updatedBy on the flush, since updated is then a changed column.
+     */
+    public function touch(): self
+    {
+        $this->updated = new \DateTime();
+        return $this;
     }
 
     /* ****************************** Validation ****************************** */

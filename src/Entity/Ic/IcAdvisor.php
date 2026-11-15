@@ -297,6 +297,16 @@ class IcAdvisor
     }
 
     /**
+     * Marks it as changed now, for a change Gedmo can't see (only its links changed). Gedmo
+     * still sets updatedBy on the flush, since updated is then a changed column.
+     */
+    public function touch(): self
+    {
+        $this->updated = new \DateTime();
+        return $this;
+    }
+
+    /**
      * The name for pickers and lists: "Last, First" or the organization. IcAdvisorRepository::
      * DISPLAY_NAME_SQL is the same rule in SQL.
      */

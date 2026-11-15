@@ -150,7 +150,8 @@ class ProgramsRepository extends ServiceEntityRepository
 	 * @param string $orderBy   Validated ORDER BY clause (from a fixed allowlist).
 	 * @param int    $page      1-based page number.
 	 * @param int    $limit     Rows per page.
-	 * @return array{programs: array, count: int, pages: int, offset: int, end: int, page: int}
+	 * @return array{programs: array, programIds: int[], count: int, pages: int, offset: int, end: int, page: int}
+	 *         programIds: each row's full id, in row order, since the rows' own ids are shortened
 	 */
 	public function searchDegreePrograms(string $whereSql, array $binds, string $orderBy, int $page, int $limit): array
 	{
@@ -219,6 +220,7 @@ class ProgramsRepository extends ServiceEntityRepository
 			LIMIT $offset, $limit";
 
 		$programs = $conn->executeQuery($selectSql, $binds)->fetchAllAssociative();
+		$programIds = array_map('intval', array_column($programs, 'id'));
 
 		// Programs sharing a catalog page differ only past the 5th id digit
 		// (e.g. 15277000/15277001 -> 15277); collapse to the first 5 for catalog links.
@@ -232,6 +234,7 @@ class ProgramsRepository extends ServiceEntityRepository
 
 		return [
 			'programs' => $programs,
+			'programIds' => $programIds,
 			'count'    => $count,
 			'pages'    => $pages,
 			'offset'   => $offset,
@@ -456,40 +459,6 @@ class ProgramsRepository extends ServiceEntityRepository
 				$conn->executeStatement($insSql, [
 					'program_id' => $programId,
 					'college_id' => $collegeId
-				]);
-			}
-
-			$conn->commit();
-		} catch (\Exception $e) {
-			if ($conn->isTransactionActive()) {
-				$conn->rollBack();
-			}
-			throw $e;
-		}
-	}
-
-	/**
-	 * Updates the advisors for a program using a transaction.
-	 * Deletes existing advisor links and inserts new ones. program_advisor has no entity (the
-	 * programs entity manager can't load IcAdvisor), so this is raw SQL like the other links.
-	 *
-	 * @param int $programId The ID of the program
-	 * @param array<int> $advisorIds Array of ic_advisors IDs, already checked to exist
-	 * @throws \Exception If database operation fails
-	 */
-	public function updateProgramAdvisors(int $programId, array $advisorIds): void
-	{
-		$conn = $this->em->getConnection();
-		try {
-			$conn->beginTransaction();
-
-			$conn->executeStatement('DELETE FROM program_advisor WHERE program_id = :program_id', ['program_id' => $programId]);
-
-			$insSql = 'INSERT INTO program_advisor (program_id, advisor_id) VALUES (:program_id, :advisor_id)';
-			foreach ($advisorIds as $advisorId) {
-				$conn->executeStatement($insSql, [
-					'program_id' => $programId,
-					'advisor_id' => $advisorId
 				]);
 			}
 

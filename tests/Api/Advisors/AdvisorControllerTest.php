@@ -227,10 +227,23 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertSame((string) $advisorId, json_decode($client->getResponse()->getContent(), true)['advisor_ids']);
 
         // The edit role can remove links. A missing key leaves that kind alone; [] clears it.
+        // A links-only change still records who made it, on the advisor and the scholarship.
         $client->loginUser($this->persistUser($em, 'links_editor2', ['ROLE_ADVISORS_EDIT']));
         $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['scholarshipIds' => []]);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertLinks($client, $advisorId, [$programId], []);
+        $this->assertSame(self::USERNAME_PREFIX . 'links_editor2', json_decode($client->getResponse()->getContent(), true)['updatedBy']);
+        $one = $this->assertLinks($client, $advisorId, [$programId], []);
+        $this->assertSame(self::USERNAME_PREFIX . 'links_editor2', $one['updated_by']);
+        $this->assertSame(
+            self::USERNAME_PREFIX . 'links_editor2',
+            $em->getConnection()->fetchOne('SELECT updated_by FROM scholarships_scholarship WHERE id = ?', [$scholarshipId])
+        );
+
+        // Sending the same lists again changes nothing, so the history stays.
+        $client->loginUser($this->persistUser($em, 'links_editor3', ['ROLE_ADVISORS_EDIT']));
+        $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['programIds' => [$programId], 'scholarshipIds' => []]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(self::USERNAME_PREFIX . 'links_editor2', $this->assertLinks($client, $advisorId, [$programId], [])['updated_by']);
 
         $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['programIds' => [], 'scholarshipIds' => [$otherScholarshipId, $scholarshipId]]);
         $this->assertResponseStatusCodeSame(200);
@@ -265,21 +278,27 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['advisorIds' => ['abc']]));
         $this->assertResponseStatusCodeSame(422);
+        // true isn't advisor #1.
+        $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['advisorIds' => [true]]));
+        $this->assertResponseStatusCodeSame(422);
+        $this->json($client, 'POST', '/api/programs/', $this->programPayload($em) + ['advisor_ids' => [true]]);
+        $this->assertResponseStatusCodeSame(422);
 
         // The same payload without the bad id saves, so the 422s above were the advisor.
         $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['advisorIds' => []]));
         $this->assertResponseStatusCodeSame(201);
     }
 
-    public function testOptionsRouteIsOpenToEditorsOnly(): void
+    public function testOptionsRouteIsOpenToProgramAndScholarshipUsers(): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
         $client->loginUser($this->persistUser($em, 'advisor_seed', ['ROLE_GLOBAL_ADMIN']));
         $advisorId = $this->createOrganization($client, self::NAME_PREFIX . ' Option');
 
-        // Program and scholarship editors can read the options, but not the advisors API.
-        foreach (['ROLE_PROGRAMS_CREATE', 'ROLE_SCHOLARSHIP_CREATE', 'ROLE_SCHOLARSHIP_ADMIN'] as $index => $role) {
+        // Program and scholarship users, viewers included (their read-only cards show the
+        // names), can read the options, but not the advisors API.
+        foreach (['ROLE_PROGRAMS_VIEW', 'ROLE_SCHOLARSHIP_VIEW', 'ROLE_PROGRAMS_CREATE', 'ROLE_SCHOLARSHIP_ADMIN'] as $index => $role) {
             $client->loginUser($this->persistUser($em, 'advisor_editor' . $index, [$role]));
 
             $client->request('GET', '/api/ic/advisors/options');
@@ -293,9 +312,8 @@ class AdvisorControllerTest extends WebTestCase
             $this->assertSame(403, $client->getResponse()->getStatusCode(), $role);
         }
 
-        // View-only users don't get the picker, and buildings no longer have advisors, so
-        // neither gets its data.
-        foreach (['ROLE_PROGRAMS_VIEW', 'ROLE_MAP_CREATE', 'ROLE_MAP_ADMIN'] as $index => $role) {
+        // Other modules don't show advisor cards (buildings no longer have advisors).
+        foreach (['ROLE_ADVISORS_VIEW', 'ROLE_MAP_CREATE', 'ROLE_MAP_ADMIN'] as $index => $role) {
             $client->loginUser($this->persistUser($em, 'advisor_noopts' . $index, [$role]));
             $client->request('GET', '/api/ic/advisors/options');
             $this->assertSame(403, $client->getResponse()->getStatusCode(), $role);

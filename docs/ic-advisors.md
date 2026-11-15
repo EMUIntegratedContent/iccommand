@@ -23,7 +23,7 @@ there are the earlier design, replaced by `Version20261115010000`).
 | `email`, `phone`, `room`, `area` | Optional |
 | `building_id` | Optional `INT`, FK to `map_building` with `ON DELETE SET NULL`: deleting the building clears it and keeps the advisor. `IcAdvisor::$building` (`ManyToOne` to `MapBuilding`) |
 | `url`, `forager_url`, `image_url` | Optional; must be valid URLs |
-| `created`, `created_by`, `updated`, `updated_by` | Filled by Gedmo; `*_by` hold the username |
+| `created`, `created_by`, `updated`, `updated_by` | Filled by Gedmo; `*_by` hold the username. Gedmo only sees column changes, so a save from the advisor form that only changes links sets `updated` itself (`IcAdvisor::touch()`), and Gedmo then fills `updated_by`. The scholarships gained or lost are touched the same way; programs have no audit fields |
 
 `created_by` and `updated_by` are required and need a logged-in user, so a console import or seed must
 set them itself.
@@ -37,7 +37,7 @@ The advisor side has no `ON DELETE` action, so an advisor that is still linked c
 | Table | Columns | Mapping |
 |---|---|---|
 | `scholarship_advisor` | `scholarship_id`, `advisor_id` | `Scholarship::$icAdvisors` (`ManyToMany`), with `advisorIds` / `advisorNames` virtual properties for the form |
-| `program_advisor` | `program_id`, `advisor_id` | No entity: the `programs` entity manager maps only `App\Entity\Programs`, so it can't hold an association to `IcAdvisor`. `ProgramsRepository::updateProgramAdvisors()` writes it with raw SQL, like `program_college_link` |
+| `program_advisor` | `program_id`, `advisor_id` | No entity: the `programs` entity manager maps only `App\Entity\Programs`, so it can't hold an association to `IcAdvisor`. It is written with raw SQL by `IcAdvisorRepository::replaceLinks()`, the one helper for both sides (`replaceRecordAdvisors()` for the program form, `replaceAdvisorLinks()` for the advisor form) |
 
 `Scholarship::$contact` is a different thing: the free-text contact block (`schlrshp_contact`). It stays
 required, keeps its name, and is still published as `contact`. The old unused `schlrshp_contact_id` column
@@ -63,11 +63,14 @@ The advisor form (`AdvisorForm.vue`) has a searchable Building picker, filled fr
 Building column.
 
 The advisor form's Usage section (`IcUsageLists.vue`, shared with the college and department forms) lists
-the advisor's programs and scholarships in name order, each linked to its edit page (unlike the college and
-department forms, without a search over the list: `:searchable="false"`). In edit
-mode, for `ROLE_ADVISORS_EDIT` and up, each section also has an "Add" search over every program (by full
-name, with its catalog) or scholarship (by title), from `/api/advisors/programs` and
-`/api/advisors/scholarships`. Clicking a result adds it, and a trash button removes an item. Inactive
+the advisor's programs and scholarships in name order (unlike the college and department forms, without a
+search over the list: `:searchable="false"`). Each links to the record's edit page or read-only page,
+whichever the user's programs or scholarship role opens, or is plain text for users with neither
+(`programLinks` / `scholarshipLinks` in the page's permissions, from `IcService::getAdvisorPermissions()`).
+In edit mode, for `ROLE_ADVISORS_EDIT` and up, each section also has an "Add" search over every program (by
+full name, with its catalog) or scholarship (by title), from `/api/advisors/programs` and
+`/api/advisors/scholarships`. Those lists and the buildings load the first time the form is in edit mode,
+so a read-only visit doesn't download them. Clicking a result adds it, and a trash button removes an item. Inactive
 records are marked. The changes are saved with the rest of the form (`programIds` / `scholarshipIds`), and
 the delete button follows the saved counts. The college and department forms don't pass `editable`, so
 theirs stay read-only.
@@ -81,7 +84,7 @@ theirs stay read-only.
 | `GET /api/advisors/buildings` | `ROLE_ADVISORS_EDIT` and up, global admins | The Building picker's rows: `id`, `name`, sorted by name. Separate from `/api/mapbuildings/`, which needs a map role |
 | `GET /api/advisors/programs`, `GET /api/advisors/scholarships` | `ROLE_ADVISORS_EDIT` and up, global admins | Every program (`id`, `full_name`, `catalog`, `active`) or scholarship (`id`, `title`, `active`), sorted by name, for the Add searches. Same row shape as the `programs` / `scholarships` lists in `GET /api/advisors/{id}` |
 | `DELETE /api/advisors/{id}` | `ROLE_ADVISORS_DELETE` and up, global admins | Delete (409 while in use) |
-| `GET /api/ic/advisors/options` | Global admins and anyone with a programs or scholarship CREATE role (their EDIT and ADMIN roles inherit it) | Dropdown rows: `id`, `displayName`, `type`, `email` |
+| `GET /api/ic/advisors/options` | Global admins and anyone with a programs or scholarship role (`ROLE_PROGRAMS_VIEW` / `ROLE_SCHOLARSHIP_VIEW` and up): editors pick from it, and read-only advisor cards show names from it | Dropdown rows: `id`, `displayName`, `type`, `email` |
 
 Each record's own save route takes the list of advisor ids: `advisorIds`, or `advisor_ids` on programs. It
 replaces the record's advisors, so `[]` (or `null`) clears them and a missing key leaves them unchanged.

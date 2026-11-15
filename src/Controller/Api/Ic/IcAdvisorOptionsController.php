@@ -10,9 +10,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * The advisor picker's options. Prefix /api/ic/ (routes.yaml). Separate from the advisors API
- * because program and scholarship editors use the picker too. Each module's CREATE role also
- * covers its editors and admins through the role hierarchy.
+ * The advisor cards' options. Prefix /api/ic/ (routes.yaml). Separate from the advisors API
+ * because program and scholarship users need them: editors to pick, and read-only viewers to
+ * show the chosen advisors' names. Each module's VIEW role covers all its roles through the
+ * hierarchy. Advisor names and emails are public in the feeds anyway.
  */
 class IcAdvisorOptionsController extends AbstractController
 {
@@ -24,7 +25,7 @@ class IcAdvisorOptionsController extends AbstractController
      * Every advisor (id, displayName, type, email), sorted by name.
      */
     #[Route('/advisors/options', methods: ['GET'])]
-    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_CREATE") or is_granted("ROLE_SCHOLARSHIP_CREATE")'))]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
     public function getOptionsAction(): Response
     {
         return new Response(json_encode($this->service->getAdvisorsForDropdown()), 200, ["Content-Type" => "application/json"]);
