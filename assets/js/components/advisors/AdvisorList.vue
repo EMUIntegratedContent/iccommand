@@ -84,7 +84,6 @@
 						<thead>
 							<tr>
 								<th scope="col">Name</th>
-								<th scope="col">Type</th>
 								<th scope="col">Email</th>
 								<th scope="col">Phone</th>
 								<th scope="col">Building</th>
@@ -100,7 +99,6 @@
 										advisor.display_name
 									}}</a>
 								</th>
-								<td>{{ advisor.type }}</td>
 								<td>{{ advisor.email }}</td>
 								<td>{{ advisor.phone }}</td>
 								<td>{{ advisor.building_name }}</td>
