@@ -173,7 +173,7 @@ export default {
 					// Added Nov. 2026
 					title: "Advisors",
 					description:
-						"The advisors application manages the people and organizations that programs and scholarships list as their advisors.",
+						"The advisors application manages the people and organizations that programs list as their advisors.",
 					buttonText: "Manage Advisors",
 					buttonLink: "/advisors",
 					display: false,

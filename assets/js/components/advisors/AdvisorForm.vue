@@ -54,6 +54,7 @@
 							<small v-if="isEditMode" class="text-muted"><span class="red">*</span> Required field</small>
 						</div>
 						<div class="card-body">
+							<h6 class="advisor-section-title">Identity</h6>
 							<div class="form-group">
 								<label class="d-block"
 									>Type <span class="red" v-if="isEditMode">*</span></label
@@ -144,6 +145,7 @@
 									</div>
 								</div>
 							</template>
+							<h6 class="advisor-section-title">Contact &amp; Web</h6>
 							<div class="form-group">
 								<label>Email</label>
 								<Field
@@ -182,6 +184,27 @@
 									{{ errors.phone }}
 								</div>
 							</div>
+							<div class="form-group">
+								<label>URL</label>
+								<Field
+									name="url"
+									type="url"
+									class="form-control"
+									:class="{
+										'is-invalid': errors.url,
+										'form-control-plaintext': !isEditMode
+									}"
+									:readonly="!isEditMode"
+									v-model="record.url"
+									placeholder="https://www.emich.edu/..."
+									@update:modelValue="formDirty = true"
+								>
+								</Field>
+								<div class="invalid-feedback">
+									{{ errors.url }}
+								</div>
+							</div>
+							<h6 class="advisor-section-title">Campus Location</h6>
 							<div class="form-group">
 								<label for="advisorBuilding">Building</label>
 								<template v-if="isEditMode">
@@ -248,26 +271,6 @@
 									{{ errors.area }}
 								</div>
 							</div>
-							<div class="form-group">
-								<label>URL</label>
-								<Field
-									name="url"
-									type="url"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.url,
-										'form-control-plaintext': !isEditMode
-									}"
-									:readonly="!isEditMode"
-									v-model="record.url"
-									placeholder="https://www.emich.edu/..."
-									@update:modelValue="formDirty = true"
-								>
-								</Field>
-								<div class="invalid-feedback">
-									{{ errors.url }}
-								</div>
-							</div>
 <!--							<div class="form-group">-->
 <!--								<label>Forager URL</label>-->
 <!--								<Field-->
@@ -315,8 +318,9 @@
 						</div>
 						<div class="card-body">
 							<p v-if="canEditLinks" class="text-muted small">
-								Add or remove the programs and scholarships this advisor belongs to.
-								Changes are saved with the rest of the form.
+								Manage the degrees, minors, and certificates{{
+									scholarshipAdvisorsEnabled ? " and scholarships" : ""
+								}} this advisor belongs to. Changes are saved with the rest of the form.
 							</p>
 							<ic-usage-lists
 								:sections="usageSections"
@@ -372,7 +376,7 @@
 					<div v-if="isEditMode" aria-label="action buttons" class="mb-4">
 						<p v-if="formDirty" class="red">You have unsaved changes.</p>
 						<button class="btn btn-success" type="submit">
-							<i class="fa fa-save fa-2x"></i>
+							<i class="fa fa-save"></i> Save
 						</button>
 						<button
 							v-if="itemExists && userCanDelete"
@@ -383,7 +387,7 @@
 							:disabled="isInUse"
 							:title="isInUse ? deleteBlockedReason : 'Delete this advisor'"
 						>
-							<i class="fa fa-trash fa-2x"></i>
+							<i class="fa fa-trash"></i> Delete
 						</button>
 						<small v-if="itemExists && userCanDelete && isInUse" class="text-muted ml-2">{{
 							deleteBlockedReason
@@ -425,6 +429,18 @@
 .red {
 	color: #ff0033;
 }
+/* Underlined, upper-case titles splitting the Advisor Information card into sections. */
+.advisor-section-title {
+	font-size: 1.25rem;
+	font-weight: 400;
+	text-transform: uppercase;
+	border-bottom: 1px solid #adb5bd;
+	padding-bottom: 0.35rem;
+	margin: 1.5rem 0 1rem;
+}
+.advisor-section-title:first-child {
+	margin-top: 0;
+}
 </style>
 
 <script>
@@ -433,6 +449,7 @@ import IcDeleteModal from "../ic/IcDeleteModal.vue"
 import IcUsageLists from "../ic/IcUsageLists.vue"
 import NotFound from "../utils/NotFound.vue"
 import VueMultiselect from "vue-multiselect"
+import { SCHOLARSHIP_ADVISORS_ENABLED } from "@/utils/featureFlags"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
@@ -589,6 +606,13 @@ export default {
 
 	computed: {
 		/**
+		 * @return {boolean} True if scholarships show on this form (see utils/featureFlags.js).
+		 */
+		scholarshipAdvisorsEnabled: function () {
+			return SCHOLARSHIP_ADVISORS_ENABLED
+		},
+
+		/**
 		 * @return {boolean} True if the user can edit advisors.
 		 */
 		userCanEdit: function () {
@@ -698,24 +722,26 @@ export default {
 					urlPrefix: "/scholarships/",
 					linkMode: self.permissions[0].scholarshipLinks
 				}
-			].map(function (section) {
-				let urlFor = function (id) {
-					if (section.linkMode === "edit") return section.urlPrefix + id + "/edit"
-					if (section.linkMode === "show") return section.urlPrefix + id
-					return null
-				}
-				return {
-					key: section.key,
-					label: section.label,
-					addPlaceholder: section.addPlaceholder,
-					items: self.record[section.key].map((row) => ({
-						...self.linkItem(section.key, row),
-						url: urlFor(row.id)
-					})),
-					addOptions: self.canEditLinks ? self.linkOptionItems[section.key] : undefined,
-					addError: self.linkOptionsErrors[section.key]
-				}
-			})
+			]
+				.filter((section) => section.key !== "scholarships" || self.scholarshipAdvisorsEnabled)
+				.map(function (section) {
+					let urlFor = function (id) {
+						if (section.linkMode === "edit") return section.urlPrefix + id + "/edit"
+						if (section.linkMode === "show") return section.urlPrefix + id
+						return null
+					}
+					return {
+						key: section.key,
+						label: section.label,
+						addPlaceholder: section.addPlaceholder,
+						items: self.record[section.key].map((row) => ({
+							...self.linkItem(section.key, row),
+							url: urlFor(row.id)
+						})),
+						addOptions: self.canEditLinks ? self.linkOptionItems[section.key] : undefined,
+						addError: self.linkOptionsErrors[section.key]
+					}
+				})
 		},
 
 		/**
@@ -913,21 +939,24 @@ export default {
 		},
 
 		/**
-		 * Gets every program and scholarship for the add searches.
+		 * Gets every program and scholarship for the add searches (scholarships only while
+		 * they show on the form).
 		 */
 		fetchLinkOptions: function () {
 			let self = this
-			Object.keys(this.linkOptions).forEach(function (key) {
-				axios
-					.get("/api/advisors/" + key)
-					.then(function (response) {
-						self.linkOptions[key] = response.data
-					})
-					.catch(function () {
-						self.linkOptions[key] = []
-						self.linkOptionsErrors[key] = "There was an error loading the " + key + "."
-					})
-			})
+			Object.keys(this.linkOptions)
+				.filter((key) => key !== "scholarships" || self.scholarshipAdvisorsEnabled)
+				.forEach(function (key) {
+					axios
+						.get("/api/advisors/" + key)
+						.then(function (response) {
+							self.linkOptions[key] = response.data
+						})
+						.catch(function () {
+							self.linkOptions[key] = []
+							self.linkOptionsErrors[key] = "There was an error loading the " + key + "."
+						})
+				})
 		},
 
 		/**

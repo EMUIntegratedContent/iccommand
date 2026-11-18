@@ -658,7 +658,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="form-group">
+							<div v-if="scholarshipAdvisorsEnabled" class="form-group">
 								<label class="mt-2">Advisors</label>
 								<ic-advisor-cards
 									input-id-prefix="scholarshipIcAdvisor"
@@ -820,6 +820,7 @@ import ScholarshipDeleteModal from "./ScholarshipDeleteModal.vue"
 import ClassicEditor from "@/utils/ckeditor"
 import VueMultiselect from "vue-multiselect"
 import IcAdvisorCards from "../ic/IcAdvisorCards.vue"
+import { SCHOLARSHIP_ADVISORS_ENABLED } from "@/utils/featureFlags"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
@@ -975,6 +976,13 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @return {boolean} True if the advisor cards show (see utils/featureFlags.js).
+		 */
+		scholarshipAdvisorsEnabled: function () {
+			return SCHOLARSHIP_ADVISORS_ENABLED
+		},
+
 		lockIcon: function () {
 			return this.isEditMode
 				? "<i class='fa fa-unlock'></i>"

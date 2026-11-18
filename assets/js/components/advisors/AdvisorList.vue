@@ -12,9 +12,15 @@
 		</div>
 		<div>
 			<p>
-				Advisors are shared across IC Command: <strong>programs</strong> and
-				<strong>scholarships</strong> can each have any number of them, chosen
-				from this list on their own forms. An advisor's name, email, phone, URL
+				<template v-if="scholarshipAdvisorsEnabled">
+					Advisors are shared across IC Command: <strong>programs</strong> and
+					<strong>scholarships</strong> can each have any number of them, chosen
+					from this list on their own forms.
+				</template>
+				<template v-else>
+					Advisors are shared across IC Command: <strong>programs</strong> can
+					each have any number of them, chosen from this list on the program form.
+				</template> An advisor's name, email, phone, URL
 				and building name appear on the public API for those records. An
 				advisor can't be deleted while anything still uses it.
 			</p>
@@ -88,7 +94,7 @@
 								<th scope="col">Phone</th>
 								<th scope="col">Building</th>
 								<th scope="col">Programs</th>
-								<th scope="col">Scholarships</th>
+								<th v-if="scholarshipAdvisorsEnabled" scope="col">Scholarships</th>
 								<th scope="col">Actions</th>
 							</tr>
 						</thead>
@@ -103,7 +109,7 @@
 								<td>{{ advisor.phone }}</td>
 								<td>{{ advisor.building_name }}</td>
 								<td>{{ advisor.program_count }}</td>
-								<td>{{ advisor.scholarship_count }}</td>
+								<td v-if="scholarshipAdvisorsEnabled">{{ advisor.scholarship_count }}</td>
 								<td>
 									<a v-if="userCanEdit" :href="'/advisors/' + advisor.id + '/edit'"
 										><font-awesome-icon icon="fa-solid fa-pen-to-square"
@@ -130,6 +136,7 @@
 <script>
 import Heading from "../utils/Heading.vue"
 import ExternalPaginator from "../utils/ExternalPaginator.vue"
+import { SCHOLARSHIP_ADVISORS_ENABLED } from "@/utils/featureFlags"
 
 export default {
 	created() {
@@ -174,6 +181,13 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @return {boolean} True if scholarships show on this list (see utils/featureFlags.js).
+		 */
+		scholarshipAdvisorsEnabled: function () {
+			return SCHOLARSHIP_ADVISORS_ENABLED
+		},
+
 		/**
 		 * @return {boolean} True if the user can add and edit advisors.
 		 */
