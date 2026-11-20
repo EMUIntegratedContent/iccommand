@@ -77,7 +77,7 @@
 									>
 									</Field>
 									<label class="form-check-label" :for="'advisorType' + option">{{
-										option
+										typeLabels[option]
 									}}</label>
 								</div>
 								<div class="invalid-feedback d-block" v-if="errors.type">
@@ -126,7 +126,7 @@
 							</div>
 							<template v-if="isOrganization">
 								<div class="form-group">
-									<label>Organization <span class="red" v-if="isEditMode">*</span></label>
+									<label>Office Name <span class="red" v-if="isEditMode">*</span></label>
 									<Field
 										name="organization"
 										type="text"
@@ -187,7 +187,7 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label>URL</label>
+								<label>{{ urlLabel }}</label>
 								<Field
 									name="url"
 									type="url"
@@ -604,7 +604,13 @@ export default {
 			 * The advisor types (IcAdvisorType).
 			 * @type {Array}
 			 */
-			typeOptions: ["Person", "Organization"]
+			typeOptions: ["Person", "Organization"],
+
+			/**
+			 * What the form calls each type. "Organization" is still the stored value.
+			 * @type {Object}
+			 */
+			typeLabels: { Person: "Person", Organization: "Office" }
 		}
 	},
 
@@ -681,6 +687,15 @@ export default {
 		 */
 		isPerson: function () {
 			return this.record.type === "Person"
+		},
+
+		/**
+		 * @return {string} The URL field's label for the chosen type.
+		 */
+		urlLabel: function () {
+			if (this.isPerson) return "Faculty / Staff Profile URL"
+			if (this.isOrganization) return "Office Website URL"
+			return "URL"
 		},
 
 		/**
@@ -806,8 +821,8 @@ export default {
 			if (this.isOrganization) {
 				shape.organization = Yup.string()
 					.nullable()
-					.required("An organization name is required.")
-					.max(255, "Organization must be 255 characters or less.")
+					.required("An office name is required.")
+					.max(255, "Office name must be 255 characters or less.")
 			}
 
 			return Yup.object().shape(shape)

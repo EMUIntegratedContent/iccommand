@@ -41,7 +41,7 @@ class IcAdvisor
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Length(max: 255, maxMessage: 'Organization must be 255 characters or less.')]
+    #[Assert\Length(max: 255, maxMessage: 'Office name must be 255 characters or less.')]
     #[Groups("ic")]
     private ?string $organization = null;
 
@@ -355,7 +355,7 @@ class IcAdvisor
                 'firstName' => [$this->firstName, 'A first name is required.'],
             ],
             IcAdvisorType::ORGANIZATION => [
-                'organization' => [$this->organization, 'An organization name is required.'],
+                'organization' => [$this->organization, 'An office name is required.'],
             ],
             null => [],
         };
