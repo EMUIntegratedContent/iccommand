@@ -84,8 +84,8 @@
 									{{ errors.type }}
 								</div>
 							</div>
-							<template v-if="isPerson">
-								<div class="form-group">
+							<div v-if="isPerson" class="form-row">
+								<div class="form-group col-12 col-md-6">
 									<label>First Name <span class="red" v-if="isEditMode">*</span></label>
 									<Field
 										name="firstName"
@@ -104,7 +104,7 @@
 										{{ errors.firstName }}
 									</div>
 								</div>
-								<div class="form-group">
+								<div class="form-group col-12 col-md-6">
 									<label>Last Name <span class="red" v-if="isEditMode">*</span></label>
 									<Field
 										name="lastName"
@@ -123,7 +123,7 @@
 										{{ errors.lastName }}
 									</div>
 								</div>
-							</template>
+							</div>
 							<template v-if="isOrganization">
 								<div class="form-group">
 									<label>Organization <span class="red" v-if="isEditMode">*</span></label>
@@ -146,42 +146,44 @@
 								</div>
 							</template>
 							<h6 class="advisor-section-title">Contact &amp; Web</h6>
-							<div class="form-group">
-								<label>Email</label>
-								<Field
-									name="email"
-									type="email"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.email,
-										'form-control-plaintext': !isEditMode
-									}"
-									:readonly="!isEditMode"
-									v-model="record.email"
-									@update:modelValue="formDirty = true"
-								>
-								</Field>
-								<div class="invalid-feedback">
-									{{ errors.email }}
+							<div class="form-row">
+								<div class="form-group col-12 col-md-6">
+									<label>Email</label>
+									<Field
+										name="email"
+										type="email"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.email,
+											'form-control-plaintext': !isEditMode
+										}"
+										:readonly="!isEditMode"
+										v-model="record.email"
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.email }}
+									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<label>Phone</label>
-								<Field
-									name="phone"
-									type="text"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.phone,
-										'form-control-plaintext': !isEditMode
-									}"
-									:readonly="!isEditMode"
-									v-model="record.phone"
-									@update:modelValue="formDirty = true"
-								>
-								</Field>
-								<div class="invalid-feedback">
-									{{ errors.phone }}
+								<div class="form-group col-12 col-md-6">
+									<label>Phone</label>
+									<Field
+										name="phone"
+										type="text"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.phone,
+											'form-control-plaintext': !isEditMode
+										}"
+										:readonly="!isEditMode"
+										v-model="record.phone"
+										@update:modelValue="formDirty = true"
+									>
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.phone }}
+									</div>
 								</div>
 							</div>
 							<div class="form-group">
@@ -205,72 +207,74 @@
 								</div>
 							</div>
 							<h6 class="advisor-section-title">Campus Location</h6>
-							<div class="form-group">
-								<label for="advisorBuilding">Building</label>
-								<template v-if="isEditMode">
-									<VueMultiselect
+							<div class="form-row">
+								<div class="form-group col-12 col-md-6">
+									<label for="advisorBuilding">Building</label>
+									<template v-if="isEditMode">
+										<VueMultiselect
+											id="advisorBuilding"
+											v-model="selectedBuilding"
+											:options="buildings"
+											:multiple="false"
+											:loading="loadingBuildings"
+											label="name"
+											track-by="id"
+											placeholder="Search buildings..."
+											@update:modelValue="formDirty = true"
+										>
+										</VueMultiselect>
+										<small v-if="buildingsError" class="text-danger">{{
+											buildingsError
+										}}</small>
+									</template>
+									<input
+										v-else
 										id="advisorBuilding"
-										v-model="selectedBuilding"
-										:options="buildings"
-										:multiple="false"
-										:loading="loadingBuildings"
-										label="name"
-										track-by="id"
-										placeholder="Search buildings..."
+										type="text"
+										class="form-control form-control-plaintext"
+										:value="record.building_name || 'None'"
+										readonly
+									/>
+								</div>
+								<div class="form-group col-12 col-md-6">
+									<label>Room</label>
+									<Field
+										name="room"
+										type="text"
+										class="form-control"
+										:class="{
+											'is-invalid': errors.room,
+											'form-control-plaintext': !isEditMode
+										}"
+										:readonly="!isEditMode"
+										v-model="record.room"
 										@update:modelValue="formDirty = true"
 									>
-									</VueMultiselect>
-									<small v-if="buildingsError" class="text-danger">{{
-										buildingsError
-									}}</small>
-								</template>
-								<input
-									v-else
-									id="advisorBuilding"
-									type="text"
-									class="form-control form-control-plaintext"
-									:value="record.building_name || 'None'"
-									readonly
-								/>
-							</div>
-							<div class="form-group">
-								<label>Room</label>
-								<Field
-									name="room"
-									type="text"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.room,
-										'form-control-plaintext': !isEditMode
-									}"
-									:readonly="!isEditMode"
-									v-model="record.room"
-									@update:modelValue="formDirty = true"
-								>
-								</Field>
-								<div class="invalid-feedback">
-									{{ errors.room }}
+									</Field>
+									<div class="invalid-feedback">
+										{{ errors.room }}
+									</div>
 								</div>
 							</div>
-							<div class="form-group">
-								<label>Area</label>
-								<Field
-									name="area"
-									type="text"
-									class="form-control"
-									:class="{
-										'is-invalid': errors.area,
-										'form-control-plaintext': !isEditMode
-									}"
-									:readonly="!isEditMode"
-									v-model="record.area"
-									@update:modelValue="formDirty = true"
-								>
-								</Field>
-								<div class="invalid-feedback">
-									{{ errors.area }}
-								</div>
-							</div>
+<!--							<div class="form-group">-->
+<!--								<label>Area</label>-->
+<!--								<Field-->
+<!--									name="area"-->
+<!--									type="text"-->
+<!--									class="form-control"-->
+<!--									:class="{-->
+<!--										'is-invalid': errors.area,-->
+<!--										'form-control-plaintext': !isEditMode-->
+<!--									}"-->
+<!--									:readonly="!isEditMode"-->
+<!--									v-model="record.area"-->
+<!--									@update:modelValue="formDirty = true"-->
+<!--								>-->
+<!--								</Field>-->
+<!--								<div class="invalid-feedback">-->
+<!--									{{ errors.area }}-->
+<!--								</div>-->
+<!--							</div>-->
 <!--							<div class="form-group">-->
 <!--								<label>Forager URL</label>-->
 <!--								<Field-->
@@ -314,7 +318,7 @@
 
 					<fieldset v-if="itemExists || canEditLinks" class="card mb-4" aria-labelledby="advisorUsageHeading">
 						<div class="card-header">
-							<h5 id="advisorUsageHeading" class="mb-0">Usage</h5>
+							<h5 id="advisorUsageHeading" class="mb-0">Associated Programs</h5>
 						</div>
 						<div class="card-body">
 							<p v-if="canEditLinks" class="text-muted small">
