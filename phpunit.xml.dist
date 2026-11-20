@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
+<!-- https://docs.phpunit.de/en/9.6/configuration.html (bin/phpunit runs PHPUnit 9.6) -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.1/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
          backupGlobals="false"
          colors="true"
-         bootstrap="vendor/autoload.php"
+         bootstrap="tests/bootstrap.php"
+         defaultTestSuite="Project Test Suite"
 >
     <php>
         <ini name="error_reporting" value="-1" />
         <env name="KERNEL_CLASS" value="App\Kernel" />
-        <env name="APP_ENV" value="test" />
-        <env name="APP_DEBUG" value="1" />
+        <!-- force: an APP_ENV already in the shell (e.g. from sourcing .env) must not win -->
+        <env name="APP_ENV" value="test" force="true" />
+        <env name="APP_DEBUG" value="1" force="true" />
         <env name="APP_SECRET" value="s$cretf0rt3st" />
         <env name="SHELL_VERBOSITY" value="-1" />
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
@@ -30,13 +32,19 @@
         <testsuite name="Project Test Suite">
             <directory>tests/</directory>
         </testsuite>
+        <!-- PHPUnit 9 takes one path, so a group of directories is a suite (run with the testsuite option, see CLAUDE.md) -->
+        <testsuite name="advisors">
+            <directory>tests/Api/Advisors</directory>
+            <file>tests/Api/Ic/IcAdvisorFeedsTest.php</file>
+            <directory>tests/Controller/Advisors</directory>
+        </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist>
-            <directory>./src/</directory>
-        </whitelist>
-    </filter>
+    <coverage>
+        <include>
+            <directory suffix=".php">./src/</directory>
+        </include>
+    </coverage>
 
     <listeners>
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />

@@ -1,12 +1,14 @@
 <?php
 namespace App\Entity\Scholarship;
 
+use App\Entity\Ic\IcAdvisor;
 use App\Repository\Scholarship\ScholarshipRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -304,11 +306,18 @@ class Scholarship
     private ?string $contact = null;
 
     /**
-     * Loose FK to a contact record. The contacts relation is deferred to a later phase.
+     * The optional advisors. Separate from the free-text $contact above, which stays
+     * required. Serialized through the advisorIds/advisorNames/icAdvisorsInfo virtual
+     * properties below rather than as nested objects. Lazy: ScholarshipRepository's lists
+     * load them (with their buildings) for all scholarships in one query.
+     *
+     * @var Collection<int, IcAdvisor>
      */
-    #[ORM\Column(name: 'schlrshp_contact_id', type: 'integer', nullable: true)]
-    #[Groups("scholarship")]
-    private ?int $contactId = null;
+    #[ORM\ManyToMany(targetEntity: IcAdvisor::class)]
+    #[ORM\JoinTable(name: 'scholarship_advisor')]
+    #[ORM\JoinColumn(name: 'scholarship_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'advisor_id', referencedColumnName: 'id')]
+    private Collection $icAdvisors;
 
     /**
      * The links joining this scholarship to academic programs.
@@ -357,6 +366,7 @@ class Scholarship
      */
     public function __construct()
     {
+        $this->icAdvisors = new ArrayCollection();
         $this->programLinks = new ArrayCollection();
         $this->keywordLinks = new ArrayCollection();
         $this->organizationLinks = new ArrayCollection();
@@ -752,15 +762,65 @@ class Scholarship
         return $this;
     }
 
-    public function getContactId(): ?int
+    /**
+     * @return Collection<int, IcAdvisor>
+     */
+    #[Ignore]
+    public function getIcAdvisors(): Collection
     {
-        return $this->contactId;
+        return $this->icAdvisors;
     }
 
-    public function setContactId(?int $contactId): self
+    /**
+     * Makes the scholarship's advisors exactly these.
+     *
+     * @param IcAdvisor[] $icAdvisors
+     */
+    public function setIcAdvisors(array $icAdvisors): self
     {
-        $this->contactId = $contactId;
+        foreach ($this->icAdvisors->toArray() as $existing) {
+            if (!in_array($existing, $icAdvisors, true)) {
+                $this->icAdvisors->removeElement($existing);
+            }
+        }
+        foreach ($icAdvisors as $icAdvisor) {
+            if (!$this->icAdvisors->contains($icAdvisor)) {
+                $this->icAdvisors->add($icAdvisor);
+            }
+        }
         return $this;
+    }
+
+    /**
+     * @return int[]
+     */
+    #[Groups("scholarship")]
+    public function getAdvisorIds(): array
+    {
+        return array_values($this->icAdvisors->map(fn (IcAdvisor $c) => $c->getId())->toArray());
+    }
+
+    /**
+     * @return string[]
+     */
+    #[Groups("scholarship")]
+    public function getAdvisorNames(): array
+    {
+        return array_values($this->icAdvisors->map(fn (IcAdvisor $c) => $c->getDisplayName())->toArray());
+    }
+
+    /**
+     * What the public feed publishes about the advisors, sorted by name.
+     *
+     * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string, buildingName: ?string}>
+     */
+    #[Groups("scholarship")]
+    public function getIcAdvisorsInfo(): array
+    {
+        $advisors = $this->icAdvisors->toArray();
+        usort($advisors, fn (IcAdvisor $a, IcAdvisor $b) => strcasecmp($a->getDisplayName(), $b->getDisplayName()));
+
+        return array_map(fn (IcAdvisor $c) => $c->toPublicArray(), $advisors);
     }
 
     /**
@@ -810,6 +870,16 @@ class Scholarship
     public function getUpdatedBy()
     {
         return $this->updatedBy;
+    }
+
+    /**
+     * Marks it as changed now, for a change Gedmo can't see (only its links changed). Gedmo
+     * still sets updatedBy on the flush, since updated is then a changed column.
+     */
+    public function touch(): self
+    {
+        $this->updated = new \DateTime();
+        return $this;
     }
 
     /* ****************************** Validation ****************************** */

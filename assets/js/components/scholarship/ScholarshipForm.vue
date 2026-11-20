@@ -658,6 +658,15 @@
 									</div>
 								</div>
 							</div>
+							<div v-if="scholarshipAdvisorsEnabled" class="form-group">
+								<label class="mt-2">Advisors</label>
+								<ic-advisor-cards
+									input-id-prefix="scholarshipIcAdvisor"
+									v-model="record.advisorIds"
+									:editable="userCanEdit && isEditMode"
+									@update:modelValue="formDirty = true"
+								></ic-advisor-cards>
+							</div>
 							<div>
 								<label class="mt-2">Contact Information <span class="red">*</span></label>
 								<template v-if="!userCanEdit || !isEditMode">
@@ -810,6 +819,8 @@ import NotFound from "../utils/NotFound.vue"
 import ScholarshipDeleteModal from "./ScholarshipDeleteModal.vue"
 import ClassicEditor from "@/utils/ckeditor"
 import VueMultiselect from "vue-multiselect"
+import IcAdvisorCards from "../ic/IcAdvisorCards.vue"
+import { SCHOLARSHIP_ADVISORS_ENABLED } from "@/utils/featureFlags"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"
 
@@ -849,6 +860,7 @@ export default {
 
 	components: {
 		Heading,
+		IcAdvisorCards,
 		NotFound,
 		ScholarshipDeleteModal,
 		Field,
@@ -951,6 +963,7 @@ export default {
 				description: "",
 				collegeId: "",
 				departmentId: "",
+				advisorIds: [],
 				programLinks: []
 			},
 
@@ -963,6 +976,13 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @return {boolean} True if the advisor cards show (see utils/featureFlags.js).
+		 */
+		scholarshipAdvisorsEnabled: function () {
+			return SCHOLARSHIP_ADVISORS_ENABLED
+		},
+
 		lockIcon: function () {
 			return this.isEditMode
 				? "<i class='fa fa-unlock'></i>"

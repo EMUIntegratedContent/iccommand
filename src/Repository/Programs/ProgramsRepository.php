@@ -53,7 +53,8 @@ class ProgramsRepository extends ServiceEntityRepository
 				GROUP_CONCAT(DISTINCT pd.delivery_id) AS delivery_ids,
 				GROUP_CONCAT(DISTINCT pkl.keyword_id) AS keyword_ids,
 				GROUP_CONCAT(DISTINCT pcl.college_id) AS college_ids,
-				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids
+				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids,
+				(SELECT GROUP_CONCAT(pc.advisor_id) FROM program_advisor pc WHERE pc.program_id = p.id) AS advisor_ids
 			FROM program_programs p
 			LEFT JOIN program_websites w ON (
 					(w.program_id IS NOT NULL AND w.program_id = p.id)
@@ -149,7 +150,8 @@ class ProgramsRepository extends ServiceEntityRepository
 	 * @param string $orderBy   Validated ORDER BY clause (from a fixed allowlist).
 	 * @param int    $page      1-based page number.
 	 * @param int    $limit     Rows per page.
-	 * @return array{programs: array, count: int, pages: int, offset: int, end: int, page: int}
+	 * @return array{programs: array, programIds: int[], count: int, pages: int, offset: int, end: int, page: int}
+	 *         programIds: each row's full id, in row order, since the rows' own ids are shortened
 	 */
 	public function searchDegreePrograms(string $whereSql, array $binds, string $orderBy, int $page, int $limit): array
 	{
@@ -218,6 +220,7 @@ class ProgramsRepository extends ServiceEntityRepository
 			LIMIT $offset, $limit";
 
 		$programs = $conn->executeQuery($selectSql, $binds)->fetchAllAssociative();
+		$programIds = array_map('intval', array_column($programs, 'id'));
 
 		// Programs sharing a catalog page differ only past the 5th id digit
 		// (e.g. 15277000/15277001 -> 15277); collapse to the first 5 for catalog links.
@@ -231,6 +234,7 @@ class ProgramsRepository extends ServiceEntityRepository
 
 		return [
 			'programs' => $programs,
+			'programIds' => $programIds,
 			'count'    => $count,
 			'pages'    => $pages,
 			'offset'   => $offset,

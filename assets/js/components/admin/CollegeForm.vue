@@ -184,8 +184,8 @@
 
 <script>
 import Heading from "../utils/Heading.vue"
-import IcDeleteModal from "./IcDeleteModal.vue"
-import IcUsageLists from "./IcUsageLists.vue"
+import IcDeleteModal from "../ic/IcDeleteModal.vue"
+import IcUsageLists from "../ic/IcUsageLists.vue"
 import NotFound from "../utils/NotFound.vue"
 import { Field, Form as VeeForm } from "vee-validate"
 import * as Yup from "yup"

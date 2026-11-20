@@ -3,10 +3,10 @@
     "app": {
       "js": [
         "/build/runtime.f82f4939.js",
-        "/build/app.b66b5153.js"
+        "/build/app.bd6acf6d.js"
       ],
       "css": [
-        "/build/app.80cc6872.css"
+        "/build/app.1ca2fa3c.css"
       ]
     }
   }
