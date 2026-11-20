@@ -11,7 +11,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Adds baseline security headers to every response Symfony produces.
  *
  * - X-Frame-Options: DENY stops other sites framing ICCommand (clickjacking).
- * - X-Content-Type-Options: nosniff stops browsers guessing content types.
  * - Referrer-Policy limits what other sites learn from followed links.
  * - Strict-Transport-Security (production, HTTPS only) tells browsers to use
  *   HTTPS for a year. includeSubDomains is deliberately not set because it
@@ -19,6 +18,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * Headers a controller already set are left alone. A Content-Security-Policy
  * is not added yet: the templates still rely on inline scripts.
+ *
+ * X-Content-Type-Options is not set here: Apache adds it on staging and prod,
+ * and sending it from the app as well produced a duplicate header.
  */
 class SecurityHeadersSubscriber implements EventSubscriberInterface
 {
@@ -42,7 +44,6 @@ class SecurityHeadersSubscriber implements EventSubscriberInterface
 		$headers = $event->getResponse()->headers;
 		$defaults = [
 			'X-Frame-Options' => 'DENY',
-			'X-Content-Type-Options' => 'nosniff',
 			'Referrer-Policy' => 'strict-origin-when-cross-origin',
 		];
 		if ($this->environment === 'prod' && $event->getRequest()->isSecure()) {
