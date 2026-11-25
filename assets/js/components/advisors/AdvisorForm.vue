@@ -256,6 +256,20 @@
 									</div>
 								</div>
 							</div>
+							<div v-if="record.legacy_programs" class="form-group">
+								<label for="advisorLegacyPrograms">Legacy Programs</label>
+								<textarea
+									id="advisorLegacyPrograms"
+									class="form-control"
+									rows="4"
+									:value="record.legacy_programs"
+									readonly
+								></textarea>
+								<small class="text-muted"
+									>From the old advisor tables, for checking against Associated Programs. Not
+									editable.</small
+								>
+							</div>
 <!--							<div class="form-group">-->
 <!--								<label>Area</label>-->
 <!--								<Field-->
@@ -579,6 +593,7 @@ export default {
 				url: "",
 				forager_url: "",
 				image_url: "",
+				legacy_programs: "",
 				program_count: 0,
 				scholarship_count: 0,
 				programs: [],
