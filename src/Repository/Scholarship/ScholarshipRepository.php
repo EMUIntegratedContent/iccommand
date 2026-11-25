@@ -67,7 +67,7 @@ class ScholarshipRepository extends ServiceEntityRepository
     }
 
     /**
-     * Bulk-initializes the keyword, organization and program link collections (and their
+     * Bulk-initializes the keyword, organization, program and advisor collections (and their
      * target entities) for the given scholarships — one query per collection type — so
      * serializing a list doesn't lazy-load per row (N+1).
      *
@@ -85,6 +85,8 @@ class ScholarshipRepository extends ServiceEntityRepository
             'SELECT s, kl, k FROM App\Entity\Scholarship\Scholarship s LEFT JOIN s.keywordLinks kl LEFT JOIN kl.keyword k WHERE s IN (:scholarships)',
             'SELECT s, ol, o FROM App\Entity\Scholarship\Scholarship s LEFT JOIN s.organizationLinks ol LEFT JOIN ol.organization o WHERE s IN (:scholarships)',
             'SELECT s, pl, p FROM App\Entity\Scholarship\Scholarship s LEFT JOIN s.programLinks pl LEFT JOIN pl.program p WHERE s IN (:scholarships)',
+            // Advisors and their buildings, which the public feed's icAdvisorsInfo reads.
+            'SELECT s, a, b FROM App\Entity\Scholarship\Scholarship s LEFT JOIN s.icAdvisors a LEFT JOIN a.building b WHERE s IN (:scholarships)',
         ];
         foreach ($warmups as $dql) {
             $em->createQuery($dql)->setParameter('scholarships', $scholarships)->getResult();

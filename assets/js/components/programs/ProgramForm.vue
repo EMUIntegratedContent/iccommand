@@ -405,6 +405,15 @@
 							{{ errors.progDuration }}
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="mt-2">Advisors</label>
+						<ic-advisor-cards
+							input-id-prefix="progAdvisor"
+							v-model="record.advisor_ids"
+							:editable="userCanEdit && isEditMode"
+							@update:modelValue="formDirty = true"
+						></ic-advisor-cards>
+					</div>
 					<div>
 						<label class="mt-2">Image URL</label>
 						<Field
@@ -615,6 +624,7 @@
 <script>
 import Heading from "../utils/Heading.vue"
 import VueMultiselect from "vue-multiselect"
+import IcAdvisorCards from "../ic/IcAdvisorCards.vue"
 import NotFound from "../utils/NotFound.vue"
 import ProgramDeleteModal from "./ProgramDeleteModal.vue"
 import { ErrorMessage, Field, Form as VeeForm } from "vee-validate"
@@ -646,6 +656,7 @@ export default {
 
 	components: {
 		Heading,
+		IcAdvisorCards,
 		VueMultiselect,
 		ProgramDeleteModal,
 		NotFound,
@@ -731,6 +742,7 @@ export default {
 				duration: null,
 				image_url: null,
 				application_url: null,
+				advisor_ids: [],
 				program_overview: "",
 				is_active: true
 			},
@@ -1008,6 +1020,9 @@ export default {
 					structuredResponse.college_ids = self.formatCollegeIds(
 						response.data.college_ids
 					)
+					structuredResponse.advisor_ids = self.formatAdvisorIds(
+						response.data.advisor_ids
+					)
 					structuredResponse.department_ids = self.formatDepartmentIds(
 						response.data.department_ids
 					)
@@ -1131,6 +1146,11 @@ export default {
 				.map((college_id) => Number(college_id.trim()))
 		},
 
+		formatAdvisorIds: function (advisorIds) {
+			if (!advisorIds) return []
+			return advisorIds.split(",").map((advisor_id) => Number(advisor_id.trim()))
+		},
+
 		formatDepartmentIds: function (departmentIds) {
 			if (!departmentIds) return []
 			return departmentIds
@@ -1197,6 +1217,9 @@ export default {
 					)
 					structuredResponse.college_ids = self.formatCollegeIds(
 						response.data.college_ids
+					)
+					structuredResponse.advisor_ids = self.formatAdvisorIds(
+						response.data.advisor_ids
 					)
 					structuredResponse.department_ids = self.formatDepartmentIds(
 						response.data.department_ids

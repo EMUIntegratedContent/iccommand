@@ -20,6 +20,23 @@ class MapBuildingRepository extends ServiceEntityRepository
     }
 
 
+    /**
+     * Every building's id and name, sorted by name, for pickers.
+     *
+     * @return array<int, array{id: int, name: string}>
+     */
+    public function findOptions(): array
+    {
+        $rows = $this->createQueryBuilder('b')
+            ->select('b.id', 'b.name')
+            ->orderBy('b.name', 'ASC')
+            ->addOrderBy('b.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map(fn (array $row) => ['id' => (int) $row['id'], 'name' => (string) $row['name']], $rows);
+    }
+
     public function findAllBuildingsWithFields(array $fields)
     {
         return $this->createQueryBuilder('b')

@@ -33,12 +33,17 @@ bin/check-frontend-build      # Run before committing public/build
 ```
 
 ### Tests
-The `test` env is stale since the Symfony 8 upgrade: it needs `SYMFONY_PHPUNIT_VERSION=9.6`, temporary
-patches to `config/packages/test/*.yaml`, and the `.env` vars exported with `APP_ENV=test`. Tests run
-against the real `ic` DB, so clean up the rows they create.
+`bin/phpunit` runs PHPUnit 9.6 (downloaded into `bin/.phpunit` on first use) with `APP_ENV=test` (forced by
+`phpunit.xml.dist` and `tests/bootstrap.php`, so an `APP_ENV` already in the shell can't leak in), and `tests/bootstrap.php` reads
+`.env` and `.env.local`, so nothing needs exporting. Tests run against the real `ic` DB, so run pending
+migrations first and clean up the rows tests create. Test-env config lives in `when@test` blocks (there is no
+`config/packages/test/`); test mail goes to the null transport. PHPUnit 9 takes a single path, so groups of
+directories are `<testsuite>`s in `phpunit.xml.dist`.
 ```bash
-php bin/phpunit tests/Api/Admin                     # Run a directory/file (inside the web container)
-php bin/phpunit --filter testMethodName             # Run a single test method
+php bin/phpunit                                     # Everything (inside the web container)
+php bin/phpunit tests/Api/Admin                     # One directory or file
+php bin/phpunit --testsuite advisors                # A suite from phpunit.xml.dist
+php bin/phpunit --filter testMethodName             # A single test method
 ```
 
 ## Architecture
@@ -62,6 +67,14 @@ Services that use a non-default entity manager (Programs, CrimeLog) must inject 
 dropdowns. A program's colleges and departments live ONLY in `program_college_link` / `program_inter_dept`
 (several per program). See `docs/shared-colleges-departments.md`. Much of the Programs module is raw DBAL
 SQL in `ProgramsRepository` (many program tables have no entity).
+
+`ic_advisors` (`IcAdvisor`, managed in the Advisors app at /advisors, roles `ROLE_ADVISORS_VIEW/EDIT/DELETE/ADMIN`) holds the advisors of programs and scholarships
+(many each), through the `program_advisor` and `scholarship_advisor` link tables. The links are editable from either
+side (the advisor form, via `programIds`/`scholarshipIds`, is for advisor editors without those apps). Each
+advisor can be in one building (`building_id` → `map_building`, `ON DELETE SET NULL`); buildings don't list advisors. Public feeds
+publish them as the `icAdvisorsInfo` list (including `buildingName`), built only by `IcAdvisor::toPublicArray()`.
+It was named Contacts (`ic_contacts`, `IcContact`) until November 2026. A scholarship's free-text `contact`
+field is unrelated and keeps its name. See `docs/ic-advisors.md`.
 
 ### Backend Structure
 
@@ -125,4 +138,4 @@ Environment-specific CORS in `config/packages/nelmio_cors.yaml`. Dev allows `*.e
   `--dry-run`, earlier migrations' SQL hasn't run, so checks must tolerate the old schema.
 - Delete modals: don't clear `deleteConfirm` inside the click handler before the request finishes; doing so
   disables the button before Bootstrap's `data-dismiss` handler runs, and the modal stays open.
-- Public API docs: `docs/scholarship-search-api.md`, `docs/shared-colleges-departments.md`.
+- Public API docs: `docs/scholarship-search-api.md`, `docs/shared-colleges-departments.md`, `docs/ic-advisors.md`.
