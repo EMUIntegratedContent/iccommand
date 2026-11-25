@@ -12,16 +12,16 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * Advisors set through each record's own API reach that record's public feed as the
- * icAdvisorsInfo list: name, email, phone, url and building name only, sorted by name, [] for
- * none. Test rows are ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
+ * icAdvisorsInfo list: name, email, phone, url, room, area and building name only, sorted by
+ * name, [] for none. Test rows are ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
  */
 class IcAdvisorFeedsTest extends WebTestCase
 {
     private const NAME_PREFIX = 'ZZ Ic Feed Test';
     private const USERNAME_PREFIX = 'zz_ictest_';
 
-    /** Fields of the advisor that must never reach a public feed. */
-    private const PRIVATE_VALUES = ['ZZPRIVATEROOM', 'ZZPRIVATEAREA', 'zzprivateforager', 'zzprivateimage'];
+    /** Fields of the advisor that must never reach a public feed (Forager and image URLs). */
+    private const PRIVATE_VALUES = ['zzprivateforager', 'zzprivateimage'];
 
     /** The advisor with every field set. Sorts after SECOND_INFO by display name ("Last, Jane" after "Last, Adam"). */
     private const EXPECTED_INFO = [
@@ -29,6 +29,8 @@ class IcAdvisorFeedsTest extends WebTestCase
         'email' => 'zz.feed@emich.edu',
         'phone' => '734-487-1234',
         'url' => 'https://www.emich.edu/zz-feed',
+        'room' => 'ZZ 101',
+        'area' => 'ZZ Feed Area',
         'buildingName' => self::NAME_PREFIX . ' Building',
     ];
 
@@ -38,6 +40,8 @@ class IcAdvisorFeedsTest extends WebTestCase
         'email' => null,
         'phone' => null,
         'url' => null,
+        'room' => null,
+        'area' => null,
         'buildingName' => null,
     ];
 
@@ -244,8 +248,8 @@ class IcAdvisorFeedsTest extends WebTestCase
         $advisor = (new IcAdvisor())
             ->setType(IcAdvisorType::ORGANIZATION)
             ->setOrganization(self::NAME_PREFIX)
-            ->setRoom(self::PRIVATE_VALUES[0])
-            ->setArea(self::PRIVATE_VALUES[1]);
+            ->setForagerUrl('https://www.emich.edu/' . self::PRIVATE_VALUES[0])
+            ->setImageUrl('https://www.emich.edu/' . self::PRIVATE_VALUES[1]);
 
         $scholarship = (new Scholarship())->setIcAdvisors([$advisor]);
         $json = $serializer->serialize($scholarship, 'json');
@@ -268,11 +272,11 @@ class IcAdvisorFeedsTest extends WebTestCase
             'email' => self::EXPECTED_INFO['email'],
             'phone' => self::EXPECTED_INFO['phone'],
             'url' => self::EXPECTED_INFO['url'],
+            'room' => self::EXPECTED_INFO['room'],
+            'area' => self::EXPECTED_INFO['area'],
         ]) + [
-            'room' => self::PRIVATE_VALUES[0],
-            'area' => self::PRIVATE_VALUES[1],
-            'foragerUrl' => 'https://www.emich.edu/' . self::PRIVATE_VALUES[2],
-            'imageUrl' => 'https://www.emich.edu/' . self::PRIVATE_VALUES[3],
+            'foragerUrl' => 'https://www.emich.edu/' . self::PRIVATE_VALUES[0],
+            'imageUrl' => 'https://www.emich.edu/' . self::PRIVATE_VALUES[1],
         ]);
     }
 

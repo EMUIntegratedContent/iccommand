@@ -99,12 +99,13 @@ No login needed. Each record carries `icAdvisorsInfo`, a list that is empty with
 name otherwise. Each entry is:
 
 ```json
-{ "name": "Jane Doe", "email": "jdoe@emich.edu", "phone": "734-487-1234", "url": "https://www.emich.edu/example", "buildingName": "Pray-Harrold" }
+{ "name": "Jane Doe", "email": "jdoe@emich.edu", "phone": "734-487-1234", "url": "https://www.emich.edu/example", "room": "701", "area": "Admissions", "buildingName": "Pray-Harrold" }
 ```
 
-`name` is "First Last" for a Person and the organization for an Organization. `email`, `phone`, `url` and
-`buildingName` can be `null`. Nothing else about the advisor is published, including its id and its
-building's id.
+`name` is "First Last" for a Person and the organization for an Organization. `email`, `phone`, `url`,
+`room`, `area` and `buildingName` can be `null`. `area` isn't on the advisor form yet, so it is `null`
+unless set through the API. Nothing else about the advisor is published: not its Forager or image URL,
+its `legacy_programs`, its id or its building's id.
 
 | Route | Records |
 |---|---|
@@ -140,23 +141,22 @@ The advisors in the two old advisor tables, `advisor_programs` (graduate) and `u
 (undergraduate), were brought in by `sql/legacy_advisors_import.sql`: 149 advisors and 392 `program_advisor`
 links, made from 543 legacy rows on 2026-11-25. The imported rows have `created_by = 'legacy_import'`.
 
-- **Making the file.** `php bin/console app:advisors:legacy-sql [--output=...]` reads the legacy tables,
-  `program_programs` and the buildings, and writes the file. It only reads the database. It reports the
-  skipped names, the legacy program names that link to nothing, and the addresses with no building. It
-  refuses to write anything if an advisor wouldn't pass `IcAdvisor` validation. The code is in
-  `src/Service/LegacyAdvisors/`.
+- **How the file was made.** A one-off console command, `app:advisors:legacy-sql`, read the legacy tables,
+  `program_programs` and the buildings, and wrote the file. It refused to write if an advisor wouldn't pass
+  `IcAdvisor` validation. The command and its classes (`src/Service/LegacyAdvisors/`, including the close-call
+  answers in `LegacyAdvisorOverrides`) were removed once the file was final. They are in the history of PR #184
+  (last at commit `d315f5f`) if the file ever needs regenerating.
 - **Rules.**
-  - Names that only point elsewhere ("Visit the … website for advising information.", "Contact …") get no
-    record. Degrees and titles after a name are dropped.
-  - Rows of one person share a last name and email. When the rows disagree, the most common value wins, and a
-    tie goes to the most recently updated row.
-  - A program links when its name matches a `program_programs` name, in every catalog.
-  - The room comes from the front of the address, and the building is matched by name against `map_item`.
-  - Relative URLs get `https://www.emich.edu` in front.
+  - Names that only point elsewhere ("Visit the … website for advising information.", "Contact …") got no
+    record. Degrees and titles after a name were dropped.
+  - Rows of one person share a last name and email. Where the rows disagreed, the most common value won, and a
+    tie went to the most recently updated row.
+  - A program linked when its name matched a `program_programs` name, in every catalog.
+  - The room came from the front of the address, and the building was matched by name against `map_item`.
+  - Relative URLs got `https://www.emich.edu` in front.
   - `legacy_programs` lists every legacy program name of the advisor's rows, whether or not it linked.
-- **Close calls.** Merges, first names, extra program matches and the "Packham" typo are settled in
-  `LegacyAdvisorOverrides`. Each entry is tagged with its ID in
-  `docs/superpowers/plans/2026-11-25-legacy-advisor-close-calls.md`.
+- **Close calls.** Merges, first names, extra program matches and the "Packham" typo are listed with their
+  answers in `docs/superpowers/plans/2026-11-25-legacy-advisor-close-calls.md`.
 - **Running it on production.**
   1. Back up the database.
   2. Run `doctrine:migrations:migrate`, which needs `Version20261125000000`.
@@ -165,6 +165,6 @@ links, made from 543 legacy rows on 2026-11-25. The imported rows have `created_
      `missing_building` should list nothing, and the legacy tables should still have the row counts and last updates
      in its `-- Source:` line.
 
-  It finds buildings, programs and advisors by name, so ids don't matter. It's safe to re-run: existing
-  advisors are matched by name and email, `legacy_programs` is only set while empty, and links use
-  `INSERT IGNORE`.
+  It finds buildings, programs and advisors by name, so ids don't matter. It's safe to re-run before anyone edits
+  the imported advisors: existing advisors are matched by name and email, `legacy_programs` is only set while
+  empty, and links use `INSERT IGNORE`.

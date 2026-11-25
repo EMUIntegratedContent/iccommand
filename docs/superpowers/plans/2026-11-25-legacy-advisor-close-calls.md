@@ -3,8 +3,8 @@
 ## Answers (2026-11-25)
 
 Every recommendation below was accepted: N1, N2, N3, B1 and P1–P14 yes, and U1–U14 as recommended (so U13
-and U14 stay unlinked). The legacy rows match production. The answers live in `LegacyAdvisorOverrides`,
-each tagged with its ID. P2, P7, P10, P11, U5, U7 and U9 have no override because only skipped rows
+and U14 stay unlinked). The legacy rows match production. The answers lived in `LegacyAdvisorOverrides`,
+each tagged with its ID (removed after the SQL was final; in PR #184's history, last at `d315f5f`). P2, P7, P10, P11, U5, U7 and U9 have no override because only skipped rows
 ("Visit the … website", "Contact the department …") list those programs. The regenerated report raised no
 new close calls: 149 advisors, 392 links, every address has a building, and the 45 unlinked names are the
 ones listed at the end, plus U13 and U14.

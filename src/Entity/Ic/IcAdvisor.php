@@ -335,11 +335,11 @@ class IcAdvisor
     }
 
     /**
-     * What the public feeds publish about an advisor. Everything else (room, area, Forager and
-     * image URLs, audit fields, its id and its building's id) stays private, so a new field is
-     * private until added here.
+     * What the public feeds publish about an advisor. Everything else (Forager and image URLs,
+     * legacy programs, audit fields, its id and its building's id) stays private, so a new field
+     * is private until added here.
      *
-     * @return array{name: string, email: ?string, phone: ?string, url: ?string, buildingName: ?string}
+     * @return array{name: string, email: ?string, phone: ?string, url: ?string, room: ?string, area: ?string, buildingName: ?string}
      */
     public function toPublicArray(): array
     {
@@ -350,8 +350,8 @@ class IcAdvisor
             'email' => $this->email,
             'phone' => $this->phone,
             'url' => $this->url,
-						'room' => $this->room,
-						'area' => $this->area,
+            'room' => $this->room,
+            'area' => $this->area,
             'buildingName' => $this->building?->getName(),
         ];
     }

@@ -163,7 +163,7 @@ error.
 | `description` | string \| null | HTML |
 | `appProc` | string \| null | HTML — how to apply |
 | `contact` | string \| null | HTML — who to contact |
-| `icAdvisorsInfo` | object[] | The advisors, sorted by name, or `[]`. Each has `name`, `email`, `phone`, `url` and `buildingName`, the name of the building the advisor is in (all but `name` can be `null`). Separate from `contact`, which is free text and always present on new records |
+| `icAdvisorsInfo` | object[] | The advisors, sorted by name, or `[]`. Each has `name`, `email`, `phone`, `url`, `room`, `area` and `buildingName`, the name of the building the advisor is in (all but `name` can be `null`). Separate from `contact`, which is free text and always present on new records |
 | `amount` | string \| null | Free text, e.g. `$1000`, `varies`, `160 awards at $500 each` |
 | `url` | string \| null | |
 | `gpa` | string \| null | Minimum GPA, two decimals, e.g. `"3.00"`. A string, not a number |
@@ -248,6 +248,8 @@ may be `null`.
       "email": "jdoe@emich.edu",
       "phone": "734-487-1234",
       "url": "https://www.emich.edu/example",
+      "room": "701",
+      "area": "Admissions",
       "buildingName": "Pray-Harrold"
     }
   ],
