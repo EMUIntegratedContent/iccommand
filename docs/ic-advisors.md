@@ -133,3 +133,36 @@ The second one also removes the `contact_id` columns that an earlier version of 
 still has them. Roll it back and re-apply it there to clean up. Nothing in production had them.
 
 All are safe to re-run. Back up before migrating.
+
+## Legacy import (November 2026)
+
+The advisors in the two old advisor tables, `advisor_programs` (graduate) and `uacdc_advisor_programs`
+(undergraduate), were brought in by `sql/legacy_advisors_import.sql`: 149 advisors and 392 `program_advisor`
+links, made from 543 legacy rows on 2026-11-25. The imported rows have `created_by = 'legacy_import'`.
+
+- **Making the file.** `php bin/console app:advisors:legacy-sql [--output=...]` reads the legacy tables,
+  `program_programs` and the buildings, and writes the file. It only reads the database. It reports the
+  skipped names, the legacy program names that link to nothing, and the addresses with no building. It
+  refuses to write anything if an advisor wouldn't pass `IcAdvisor` validation. The code is in
+  `src/Service/LegacyAdvisors/`.
+- **Rules.**
+  - Names that only point elsewhere ("Visit the … website for advising information.", "Contact …") get no
+    record. Degrees and titles after a name are dropped.
+  - Rows of one person share a last name and email. When the rows disagree, the most common value wins, and a
+    tie goes to the most recently updated row.
+  - A program links when its name matches a `program_programs` name, in every catalog.
+  - The room comes from the front of the address, and the building is matched by name against `map_item`.
+  - Relative URLs get `https://www.emich.edu` in front.
+  - `legacy_programs` lists every legacy program name of the advisor's rows, whether or not it linked.
+- **Close calls.** Merges, first names, extra program matches and the "Packham" typo are settled in
+  `LegacyAdvisorOverrides`. Each entry is tagged with its ID in
+  `docs/superpowers/plans/2026-11-25-legacy-advisor-close-calls.md`.
+- **Running it on production.**
+  1. Back up the database.
+  2. Run `doctrine:migrations:migrate`, which needs `Version20261125000000`.
+  3. Run `mariadb ic < sql/legacy_advisors_import.sql`.
+  4. Check that the two counts it prints match its `-- Expected:` line.
+
+  It finds buildings, programs and advisors by name, so ids don't matter. It's safe to re-run: existing
+  advisors are matched by name and email, `legacy_programs` is only set while empty, and links use
+  `INSERT IGNORE`.
