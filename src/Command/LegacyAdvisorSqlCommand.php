@@ -51,7 +51,8 @@ class LegacyAdvisorSqlCommand extends Command
                         CAST(updated_at AS CHAR) AS updated_at
                  FROM $table ORDER BY id"
             );
-            $counts[] = sprintf('%s %d rows', $table, count($tableRows));
+            $lastUpdated = $tableRows ? max(array_column($tableRows, 'updated_at')) : 'never';
+            $counts[] = sprintf('%s %d rows, last updated %s', $table, count($tableRows), $lastUpdated);
             $rows = array_merge($rows, $tableRows);
         }
         $programs = $this->connection->fetchAllAssociative('SELECT TRIM(full_name) AS full_name, catalog FROM program_programs');

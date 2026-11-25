@@ -161,7 +161,9 @@ links, made from 543 legacy rows on 2026-11-25. The imported rows have `created_
   1. Back up the database.
   2. Run `doctrine:migrations:migrate`, which needs `Version20261125000000`.
   3. Run `mariadb ic < sql/legacy_advisors_import.sql`.
-  4. Check that the two counts it prints match its `-- Expected:` line.
+  4. Check what it prints at the end. The advisor, link and with-building counts should match its `-- Expected:` line,
+     `missing_building` should list nothing, and the legacy tables should still have the row counts and last updates
+     in its `-- Source:` line.
 
   It finds buildings, programs and advisors by name, so ids don't matter. It's safe to re-run: existing
   advisors are matched by name and email, `legacy_programs` is only set while empty, and links use

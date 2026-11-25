@@ -106,6 +106,45 @@ class LegacyAdvisorSqlWriterTest extends TestCase
         $this->assertStringContainsString('-- Source: test source', $sql);
     }
 
+    /**
+     * A building renamed or missing on the target database would import as NULL without changing
+     * the advisor or link counts, so the checks count buildings and list the missing names.
+     */
+    public function testChecksCoverBuildings(): void
+    {
+        $sql = $this->write([
+            $this->tang(),
+            $this->office('College of Education Advising Center'),
+        ]);
+
+        $this->assertStringContainsString('-- Expected: 2 advisors, 1 links, 1 with a building', $sql);
+        $this->assertStringContainsString(
+            "SELECT COUNT(*) AS imported_with_building FROM ic_advisors WHERE created_by = 'legacy_import' AND building_id IS NOT NULL;",
+            $sql
+        );
+        $this->assertStringContainsString(
+            "SELECT b.name AS missing_building FROM (SELECT 'Sill Hall' AS name) b\n"
+            . "WHERE NOT EXISTS (SELECT 1 FROM map_item m WHERE m.discr = 'building' AND m.name = b.name);",
+            $sql
+        );
+    }
+
+    /**
+     * The file can't see later edits to the legacy tables on its own, so it ends by showing their
+     * row counts and last update, to compare with the Source line.
+     */
+    public function testChecksShowTheLegacyTables(): void
+    {
+        $sql = $this->write([$this->tang()]);
+
+        $this->assertStringContainsString(
+            "SELECT 'advisor_programs' AS legacy_table, COUNT(*) AS row_count, MAX(updated_at) AS last_updated FROM advisor_programs\n"
+            . "UNION ALL SELECT 'uacdc_advisor_programs', COUNT(*), MAX(updated_at) FROM uacdc_advisor_programs;",
+            $sql
+        );
+        $this->assertLessThan(strpos($sql, 'FROM uacdc_advisor_programs;'), strpos($sql, "COMMIT;\n"));
+    }
+
     public function testNoLinkStatementWithoutPrograms(): void
     {
         $sql = $this->withoutComments($this->write([$this->tang(programs: [], legacyPrograms: [])]));
