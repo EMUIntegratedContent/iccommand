@@ -23,6 +23,7 @@ there are the earlier design, replaced by `Version20261115010000`).
 | `email`, `phone`, `room`, `area` | Optional |
 | `building_id` | Optional `INT`, FK to `map_building` with `ON DELETE SET NULL`: deleting the building clears it and keeps the advisor. `IcAdvisor::$building` (`ManyToOne` to `MapBuilding`) |
 | `url`, `forager_url`, `image_url` | Optional; must be valid URLs |
+| `legacy_programs` | Optional `TEXT`, read-only: the advisor's program names in the old advisor tables (`advisor_programs`, `uacdc_advisor_programs`), comma-separated, filled only by the November 2026 legacy import so its links can be checked against the old data. The API returns it (`legacy_programs`) but never writes it, the advisor form shows it in a read-only textarea, and it isn't published |
 | `created`, `created_by`, `updated`, `updated_by` | Filled by Gedmo; `*_by` hold the username. Gedmo only sees column changes, so a save from the advisor form that only changes links sets `updated` itself (`IcAdvisor::touch()`), and Gedmo then fills `updated_by`. The scholarships gained or lost are touched the same way; programs have no audit fields |
 
 `created_by` and `updated_by` are required and need a logged-in user, so a console import or seed must
@@ -125,6 +126,7 @@ link table with no property, which keeps them out of that output.
 | `Version20261102010000` | Create the three link tables (`program_contact`, `scholarship_contact`, `map_building_contact`) | Yes, but which contacts each record had is lost |
 | `Version20261115000000` | Rename to advisors: `ic_contacts` to `ic_advisors`, each `*_contact` link table to `*_advisor`, `contact_id` to `advisor_id`, their indexes and foreign keys to the names Doctrine expects, and `ROLE_CONTACTS_*` to `ROLE_ADVISORS_*` in `user.roles` | Yes, nothing is lost |
 | `Version20261115010000` | Drop `map_building_advisor` and add `ic_advisors.building_id`. Old building links aren't carried over (a building listing an advisor isn't the advisor being in that building) | Yes, but each advisor's building is lost, and `map_building_advisor` comes back empty |
+| `Version20261125000000` | Add `ic_advisors.legacy_programs` | Yes, but the lists are lost |
 
 The second one also removes the `contact_id` columns that an earlier version of it added to `ic_colleges`,
 `ic_departments`, `program_programs`, `scholarships_scholarship` and `map_building`, if a development database

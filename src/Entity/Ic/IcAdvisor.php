@@ -92,6 +92,15 @@ class IcAdvisor
     #[Groups("ic")]
     private ?string $imageUrl = null;
 
+    /**
+     * The advisor's program names in the old advisor tables, comma-separated, for checking the
+     * new links against. Only the legacy import SQL writes it: it has no setter, the API never
+     * writes it, and toPublicArray() leaves it out.
+     */
+    #[ORM\Column(name: 'legacy_programs', type: 'text', length: 65535, nullable: true)]
+    #[Groups("ic")]
+    private ?string $legacyPrograms = null;
+
     /* Gedmo Variables */
 
     /**
@@ -274,6 +283,11 @@ class IcAdvisor
     {
         $this->imageUrl = $imageUrl;
         return $this;
+    }
+
+    public function getLegacyPrograms(): ?string
+    {
+        return $this->legacyPrograms;
     }
 
     public function getCreated()
