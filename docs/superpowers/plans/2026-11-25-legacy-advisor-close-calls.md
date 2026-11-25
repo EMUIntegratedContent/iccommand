@@ -1,5 +1,14 @@
 # Legacy advisor import: close calls
 
+## Answers (2026-11-25)
+
+Every recommendation below was accepted: N1, N2, N3, B1 and P1–P14 yes, and U1–U14 as recommended (so U13
+and U14 stay unlinked). The legacy rows match production. The answers live in `LegacyAdvisorOverrides`,
+each tagged with its ID. P2, P7, P10, P11, U5, U7 and U9 have no override because only skipped rows
+("Visit the … website", "Contact the department …") list those programs. The regenerated report raised no
+new close calls: 149 advisors, 392 links, every address has a building, and the 45 unlinked names are the
+ones listed at the end, plus U13 and U14.
+
 Questions for the import in `2026-11-25-legacy-advisor-import.md`. Each one has a recommendation. Reply
 with the IDs you want changed (for example "U2 no, N3 Barb"). Anything you don't mention keeps its
 recommendation. Task 6 turns your answers into `LegacyAdvisorOverrides`.
