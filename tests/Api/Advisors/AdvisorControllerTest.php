@@ -2,6 +2,7 @@
 
 namespace App\Tests\Api\Advisors;
 
+use App\Entity\Ic\IcAdvisor;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -410,6 +411,42 @@ class AdvisorControllerTest extends WebTestCase
 
         $client->request('GET', '/api/ic/advisors/options');
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    /**
+     * legacy_programs is filled only by the legacy import SQL: the API shows it but never
+     * writes it, and the public feeds don't publish it.
+     */
+    public function testLegacyProgramsIsReadOnly(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $client->loginUser($this->persistUser($em, 'legacy_admin', ['ROLE_GLOBAL_ADMIN']));
+        $id = $this->createOrganization($client, self::NAME_PREFIX . ' Legacy Office');
+        $em->getConnection()->executeStatement(
+            'UPDATE ic_advisors SET legacy_programs = ? WHERE id = ?',
+            ['Biology Minor, Chemistry [BS]', $id]
+        );
+
+        $client->request('GET', '/api/advisors/' . $id);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame('Biology Minor, Chemistry [BS]', json_decode($client->getResponse()->getContent(), true)['legacy_programs']);
+
+        $this->json($client, 'PUT', '/api/advisors/' . $id, [
+            'type' => 'Organization',
+            'organization' => self::NAME_PREFIX . ' Legacy Office',
+            'legacyPrograms' => 'changed',
+            'legacy_programs' => 'changed',
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+
+        $client->request('GET', '/api/advisors/' . $id);
+        $this->assertSame('Biology Minor, Chemistry [BS]', json_decode($client->getResponse()->getContent(), true)['legacy_programs']);
+
+        $em->clear();
+        $public = $em->getRepository(IcAdvisor::class)->find($id)->toPublicArray();
+        $this->assertArrayNotHasKey('legacyPrograms', $public);
+        $this->assertArrayNotHasKey('legacy_programs', $public);
     }
 
     private function scholarshipPayload(array $extra): array
