@@ -359,7 +359,7 @@ class ProgramsController extends AbstractController
 		$id = $request->request->get("id");
 		$programId = $request->request->get("program_id");
 		$progName = $request->request->get("program");
-		$url = strtolower($request->request->get("url"));
+		$url = strtolower((string) $request->request->get("url"));
 
 		if (!$progName) {
 			return new Response("Program name is required.", 422, array("Content-Type" => "application/json"));
@@ -410,7 +410,7 @@ class ProgramsController extends AbstractController
 		$progFullName = $request->request->get("full_name");
 		$progName = $request->request->get("program");
 		$catalog = strtolower($request->request->get("catalog"));
-		$url = strtolower($request->request->get("url"));
+		$url = strtolower((string) $request->request->get("url"));
 
 		$collegeIds = $request->request->all("college_ids");
 		$departmentIds = $request->request->all("department_ids");
