@@ -63,11 +63,12 @@ jobs:
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
 
-      - run: composer install --no-interaction --no-progress --prefer-dist
-
-      # .env is git-ignored, but Symfony refuses to start without one. Everything it would hold
-      # comes from .env.test and the job env above.
+      # .env is git-ignored, but Symfony refuses to start without one, and composer install
+      # runs bin/console (cache:clear) afterwards. Everything it would hold comes from .env.test
+      # and the job env above.
       - run: touch .env
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Create the test databases
         run: |
@@ -106,8 +107,8 @@ jobs:
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
 
+      - run: touch .env # before composer install, see the phpunit job
       - run: composer install --no-interaction --no-progress --prefer-dist
-      - run: touch .env
 
       # No database needed: server_version lets the container compile offline.
       - run: php bin/console lint:container
