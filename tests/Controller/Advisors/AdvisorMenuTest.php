@@ -2,12 +2,12 @@
 
 namespace App\Tests\Controller\Advisors;
 
-use App\Entity\User;
+use App\Tests\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * The Advisors entry in the top menu (base.html.twig), under Program Marketing. Temp users are
- * zz_ictest_-prefixed; tearDown removes them.
+ * zz_ictest_-prefixed; each test is rolled back (dama/doctrine-test-bundle).
  */
 class AdvisorMenuTest extends WebTestCase
 {
@@ -31,16 +31,7 @@ class AdvisorMenuTest extends WebTestCase
     private function menuHasAdvisors(string $suffix, array $roles): bool
     {
         $client = static::createClient();
-        $em = static::getContainer()->get('doctrine')->getManager();
-        $user = new User();
-        $user->setUsername(self::USERNAME_PREFIX . $suffix);
-        $user->setEmail(self::USERNAME_PREFIX . $suffix . '@test.local');
-        $user->setPassword('not-used-by-loginUser');
-        $user->setEnabled(1);
-        $user->setRoles($roles);
-        $em->persist($user);
-        $em->flush();
-        $client->loginUser($user);
+        $client->loginUser(UserFactory::withRoles($roles, self::USERNAME_PREFIX . $suffix));
 
         $crawler = $client->request('GET', '/applinks');
         $this->assertResponseIsSuccessful();
@@ -55,14 +46,5 @@ class AdvisorMenuTest extends WebTestCase
         $this->assertSame('Program Marketing', trim($menuButton->text()));
 
         return true;
-    }
-
-    protected function tearDown(): void
-    {
-        if (static::$booted) {
-            $conn = static::getContainer()->get('doctrine')->getManager()->getConnection();
-            $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
-        }
-        parent::tearDown();
     }
 }

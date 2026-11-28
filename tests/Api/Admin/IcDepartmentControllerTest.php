@@ -6,12 +6,13 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Factory\UserFactory;
 
 /**
  * End-to-end CRUD test for the admin department API (/api/admin/departments), including
  * moving a department to another college and the rule that a department can't be deleted
  * while programs or scholarships use it. Test rows are ZZ-prefixed and temp users
- * zz_ictest_-prefixed; tearDown removes both.
+ * zz_ictest_-prefixed; each test is rolled back (dama/doctrine-test-bundle).
  */
 class IcDepartmentControllerTest extends WebTestCase
 {
@@ -22,7 +23,7 @@ class IcDepartmentControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'dept_admin', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'dept_admin'));
 
         $collegeA = $this->createCollege($client, self::NAME_PREFIX . ' College A');
         $collegeB = $this->createCollege($client, self::NAME_PREFIX . ' College B');
@@ -85,7 +86,7 @@ class IcDepartmentControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'dept_inuse', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'dept_inuse'));
 
         $departmentId = $em->getConnection()->fetchOne('SELECT department_id FROM program_inter_dept LIMIT 1');
         if ($departmentId === false) {
@@ -113,30 +114,5 @@ class IcDepartmentControllerTest extends WebTestCase
     private function json(KernelBrowser $client, string $method, string $url, array $data): void
     {
         $client->request($method, $url, [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
-    }
-
-    private function persistUser(EntityManagerInterface $em, string $suffix, array $roles): User
-    {
-        $user = new User();
-        $user->setUsername(self::USERNAME_PREFIX . $suffix);
-        $user->setEmail(self::USERNAME_PREFIX . $suffix . '@test.local');
-        $user->setPassword('not-used-by-loginUser');
-        $user->setEnabled(1);
-        $user->setRoles($roles);
-        $em->persist($user);
-        $em->flush();
-        return $user;
-    }
-
-    protected function tearDown(): void
-    {
-        if (static::$booted) {
-            $em = static::getContainer()->get('doctrine')->getManager();
-            $conn = $em->getConnection();
-            $conn->executeStatement('DELETE FROM ic_departments WHERE department LIKE ?', [self::NAME_PREFIX . '%']);
-            $conn->executeStatement('DELETE FROM ic_colleges WHERE college LIKE ?', [self::NAME_PREFIX . '%']);
-            $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
-        }
-        parent::tearDown();
     }
 }

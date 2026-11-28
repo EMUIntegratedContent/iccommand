@@ -15,4 +15,6 @@ return [
 		Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true, 'staging' => true],
 		Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true, 'staging' => true],
 		Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
+		Zenstruck\Foundry\ZenstruckFoundryBundle::class => ['dev' => true, 'test' => true],
+		DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['test' => true],
 ];

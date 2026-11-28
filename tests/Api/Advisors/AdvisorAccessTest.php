@@ -6,10 +6,11 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
+use App\Tests\Factory\UserFactory;
 
 /**
  * Role wiring for the Advisors app: the ROLE_ADVISORS_* hierarchy and access management
- * (roles list, per-app user lists). Temp users are zz_ictest_-prefixed; tearDown removes them.
+ * (roles list, per-app user lists). Temp users are zz_ictest_-prefixed; each test is rolled back (dama/doctrine-test-bundle).
  */
 class AdvisorAccessTest extends WebTestCase
 {
@@ -35,7 +36,7 @@ class AdvisorAccessTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'roles_admin', ['ROLE_ADVISORS_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_ADMIN'], self::USERNAME_PREFIX . 'roles_admin'));
 
         $client->request('GET', '/api/admin/roles');
 
@@ -51,36 +52,14 @@ class AdvisorAccessTest extends WebTestCase
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
 
-        $client->loginUser($this->persistUser($em, 'app_admin', ['ROLE_ADVISORS_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_ADMIN'], self::USERNAME_PREFIX . 'app_admin'));
         $client->request('GET', '/api/admin/appusers/ROLE_ADVISORS_');
         $this->assertResponseStatusCodeSame(200);
         $client->request('GET', '/api/admin/appusers/ROLE_MAP_');
         $this->assertResponseStatusCodeSame(403);
 
-        $client->loginUser($this->persistUser($em, 'app_viewer', ['ROLE_ADVISORS_VIEW']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_VIEW'], self::USERNAME_PREFIX . 'app_viewer'));
         $client->request('GET', '/api/admin/appusers/ROLE_ADVISORS_');
         $this->assertResponseStatusCodeSame(403);
-    }
-
-    private function persistUser(EntityManagerInterface $em, string $suffix, array $roles): User
-    {
-        $user = new User();
-        $user->setUsername(self::USERNAME_PREFIX . $suffix);
-        $user->setEmail(self::USERNAME_PREFIX . $suffix . '@test.local');
-        $user->setPassword('not-used-by-loginUser');
-        $user->setEnabled(1);
-        $user->setRoles($roles);
-        $em->persist($user);
-        $em->flush();
-        return $user;
-    }
-
-    protected function tearDown(): void
-    {
-        if (static::$booted) {
-            $conn = static::getContainer()->get('doctrine')->getManager()->getConnection();
-            $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
-        }
-        parent::tearDown();
     }
 }

@@ -1,52 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- https://docs.phpunit.de/en/9.6/configuration.html (bin/phpunit runs PHPUnit 9.6) -->
+<!-- https://docs.phpunit.de/en/13.4/configuration.html (bin/phpunit runs vendor/bin/phpunit) -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          backupGlobals="false"
          colors="true"
          bootstrap="tests/bootstrap.php"
+         cacheDirectory="var/cache/phpunit"
          defaultTestSuite="Project Test Suite"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnPhpunitDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnSkippedTests="true"
 >
     <php>
         <ini name="error_reporting" value="-1" />
-        <env name="KERNEL_CLASS" value="App\Kernel" />
+        <!-- Production runs in America/Detroit; date-sensitive code (scholarship deadlines, crime log) must see the same. -->
+        <ini name="date.timezone" value="America/Detroit" />
         <!-- force: an APP_ENV already in the shell (e.g. from sourcing .env) must not win -->
         <env name="APP_ENV" value="test" force="true" />
         <env name="APP_DEBUG" value="1" force="true" />
-        <env name="APP_SECRET" value="s$cretf0rt3st" />
         <env name="SHELL_VERBOSITY" value="-1" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
-        <!-- define your env variables for the test env here -->
-
-        <!-- ###+ nelmio/cors-bundle ### -->
-        <env name="CORS_ALLOW_ORIGIN" value="^https?://localhost:?[0-9]*$"/>
-        <!-- ###- nelmio/cors-bundle ### -->
-
-        <!-- ###+ symfony/mailer ### -->
-        <!-- MAILER_DSN=null://null -->
-        <!-- ###- symfony/mailer ### -->
+        <!-- Other test settings are in .env.test. -->
     </php>
 
     <testsuites>
         <testsuite name="Project Test Suite">
             <directory>tests/</directory>
         </testsuite>
-        <!-- PHPUnit 9 takes one path, so a group of directories is a suite (run with the testsuite option, see CLAUDE.md) -->
         <testsuite name="advisors">
             <directory>tests/Api/Advisors</directory>
             <file>tests/Api/Ic/IcAdvisorFeedsTest.php</file>
             <directory>tests/Controller/Advisors</directory>
         </testsuite>
+        <testsuite name="security">
+            <directory>tests/Security</directory>
+        </testsuite>
     </testsuites>
 
-    <coverage>
+    <!-- Deprecations are reported only when our code (src/) triggers them, directly or through a
+         Symfony/Doctrine call it makes. Vendor-internal deprecations are not ours to fix. -->
+    <source ignoreSuppressionOfDeprecations="true" ignoreIndirectDeprecations="true">
+        <deprecationTrigger>
+            <function>trigger_deprecation</function>
+            <method>Doctrine\Deprecations\Deprecation::trigger</method>
+            <method>Doctrine\Deprecations\Deprecation::triggerIfCalledFromOutside</method>
+        </deprecationTrigger>
         <include>
-            <directory suffix=".php">./src/</directory>
+            <directory suffix=".php">src/</directory>
         </include>
-    </coverage>
+    </source>
 
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-    </listeners>
+    <extensions>
+        <!-- Symfony's ClockMock/DnsMock attributes and kernel-state reset between tests -->
+        <bootstrap class="Symfony\Bridge\PhpUnit\SymfonyExtension" />
+        <!-- Each test runs inside a transaction (all three connections) that is rolled back afterwards -->
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
+    </extensions>
 </phpunit>

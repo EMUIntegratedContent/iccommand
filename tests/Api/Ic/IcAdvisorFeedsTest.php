@@ -9,14 +9,18 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Factory\UserFactory;
+use App\Tests\Support\ProgramFixtures;
 
 /**
  * Advisors set through each record's own API reach that record's public feed as the
  * icAdvisorsInfo list: name, email, phone, url, room, area and building name only, sorted by
- * name, [] for none. Test rows are ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
+ * name, [] for none. Test rows are ZZ-prefixed and temp users zz_ictest_-prefixed; each test is rolled back (dama/doctrine-test-bundle).
  */
 class IcAdvisorFeedsTest extends WebTestCase
 {
+    use ProgramFixtures;
+
     private const NAME_PREFIX = 'ZZ Ic Feed Test';
     private const USERNAME_PREFIX = 'zz_ictest_';
 
@@ -49,7 +53,7 @@ class IcAdvisorFeedsTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_feeds'));
 
         $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em));
         $advisorId = $this->createAdvisor($client, 'Jane', true, $buildingId);
@@ -96,14 +100,14 @@ class IcAdvisorFeedsTest extends WebTestCase
     /**
      * The search feed shortens program ids to 5 digits for catalog links (15277001 -> 15277),
      * but advisors must still come from the full id. Test programs get short ids, so this links
-     * a test advisor to a real program with a longer one (skipped if there is none); tearDown
-     * removes the link with the advisor.
+     * a test advisor to a real program with a longer one (skipped if there is none); the link is
+     * rolled back with the rest of the test.
      */
     public function testSearchFeedFindsAdvisorsByFullProgramId(): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_feeds'));
         $conn = $em->getConnection();
 
         $program = $conn->fetchAssociative(
@@ -136,7 +140,7 @@ class IcAdvisorFeedsTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_feeds'));
 
         $advisorId = $this->createAdvisor($client);
         $secondId = $this->createAdvisor($client, 'Adam', false);
@@ -198,7 +202,7 @@ class IcAdvisorFeedsTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_feeds'));
         $conn = $em->getConnection();
 
         $advisorId = $this->createAdvisor($client);
@@ -219,7 +223,7 @@ class IcAdvisorFeedsTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_feeds'));
         $conn = $em->getConnection();
 
         $buildingId = $this->create($client, 'POST', '/api/mapitems', $this->buildingPayload($em));
@@ -316,24 +320,6 @@ class IcAdvisorFeedsTest extends WebTestCase
         ];
     }
 
-    private function programPayload(EntityManagerInterface $em): array
-    {
-        $conn = $em->getConnection();
-
-        return [
-            'catalog' => 'undergraduate',
-            'program' => self::NAME_PREFIX . ' Program',
-            'full_name' => self::NAME_PREFIX . ' Program Full',
-            'degree_id' => (int) $conn->fetchOne('SELECT MIN(degree_id) FROM program_programs'),
-            'type_id' => (int) $conn->fetchOne('SELECT MIN(type_id) FROM program_programs'),
-            'is_active' => true,
-            'delivery_ids' => [(int) $conn->fetchOne('SELECT MIN(delivery_id) FROM program_delivery')],
-            'college_ids' => [],
-            'department_ids' => [],
-            'keyword_ids' => [],
-        ];
-    }
-
     /**
      * POST/PUT that must succeed; returns the new record's id.
      */
@@ -375,39 +361,5 @@ class IcAdvisorFeedsTest extends WebTestCase
         foreach (['advisorId', 'advisorIds', 'advisor_id', 'advisor_ids', 'advisorName', 'advisorNames', 'advisor_name', 'icAdvisor', 'icAdvisors', 'icAdvisorInfo', 'buildingId', 'building_id'] as $key) {
             $this->assertArrayNotHasKey($key, $row);
         }
-    }
-
-    private function persistUser(EntityManagerInterface $em): User
-    {
-        $user = new User();
-        $user->setUsername(self::USERNAME_PREFIX . 'advisor_feeds');
-        $user->setEmail(self::USERNAME_PREFIX . 'advisor_feeds@test.local');
-        $user->setPassword('not-used-by-loginUser');
-        $user->setEnabled(1);
-        $user->setRoles(['ROLE_GLOBAL_ADMIN']);
-        $em->persist($user);
-        $em->flush();
-        return $user;
-    }
-
-    protected function tearDown(): void
-    {
-        if (static::$booted) {
-            $conn = static::getContainer()->get('doctrine')->getManager()->getConnection();
-            $like = self::NAME_PREFIX . '%';
-
-            $programs = 'SELECT id FROM program_programs WHERE program LIKE ?';
-            foreach (['program_delivery', 'program_college_link', 'program_inter_dept', 'program_keyword_links', 'program_websites'] as $table) {
-                $conn->executeStatement("DELETE FROM $table WHERE program_id IN ($programs)", [$like]);
-            }
-            $conn->executeStatement('DELETE FROM program_programs WHERE program LIKE ?', [$like]);
-            $conn->executeStatement('DELETE FROM scholarships_scholarship WHERE schlrshp_title LIKE ?', [$like]);
-            $conn->executeStatement('DELETE FROM map_item WHERE name LIKE ?', [$like]);
-            // Links to real records (which aren't deleted) would block deleting the advisors.
-            $conn->executeStatement('DELETE l FROM program_advisor l JOIN ic_advisors a ON a.id = l.advisor_id WHERE a.last_name LIKE ?', [$like]);
-            $conn->executeStatement('DELETE FROM ic_advisors WHERE last_name LIKE ?', [$like]);
-            $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
-        }
-        parent::tearDown();
     }
 }

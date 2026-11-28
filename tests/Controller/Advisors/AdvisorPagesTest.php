@@ -5,10 +5,12 @@ namespace App\Tests\Controller\Advisors;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Factory\UserFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Page access for the Advisors app (/advisors...). Temp users are zz_ictest_-prefixed and
- * the test advisor is ZZ-prefixed; tearDown removes both.
+ * the test advisor is ZZ-prefixed; each test is rolled back (dama/doctrine-test-bundle).
  */
 class AdvisorPagesTest extends WebTestCase
 {
@@ -30,15 +32,13 @@ class AdvisorPagesTest extends WebTestCase
         ];
     }
 
-    /**
-     * @dataProvider accessMatrix
-     */
+    #[DataProvider('accessMatrix')]
     public function testPageAccessMatrix(array $roles, array $expected): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
         $id = $this->persistAdvisor($em);
-        $client->loginUser($this->persistUser($em, 'pages', $roles));
+        $client->loginUser(UserFactory::withRoles($roles, self::USERNAME_PREFIX . 'pages'));
 
         foreach ($expected as $path => $status) {
             $client->request('GET', str_replace('ID', (string) $id, $path));
@@ -65,15 +65,13 @@ class AdvisorPagesTest extends WebTestCase
         ];
     }
 
-    /**
-     * @dataProvider permissionMatrix
-     */
+    #[DataProvider('permissionMatrix')]
     public function testFormGetsPermissionsFromRoles(array $roles, array $expected): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
         $id = $this->persistAdvisor($em);
-        $client->loginUser($this->persistUser($em, 'perms', $roles));
+        $client->loginUser(UserFactory::withRoles($roles, self::USERNAME_PREFIX . 'perms'));
 
         $crawler = $client->request('GET', '/advisors/' . $id . '/edit');
         $this->assertResponseIsSuccessful();
@@ -85,7 +83,7 @@ class AdvisorPagesTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'ids', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'ids'));
 
         foreach (['/advisors/create' => 200, '/advisors/manage' => 200, '/advisors/9999999' => 404, '/advisors/9999999/edit' => 404] as $path => $status) {
             $client->request('GET', $path);
@@ -97,7 +95,7 @@ class AdvisorPagesTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'old', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'old'));
 
         foreach (['/admin/advisors', '/admin/advisors/create'] as $path) {
             $client->request('GET', $path);
@@ -110,13 +108,13 @@ class AdvisorPagesTest extends WebTestCase
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
 
-        $client->loginUser($this->persistUser($em, 'nav_view', ['ROLE_ADVISORS_VIEW']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_VIEW'], self::USERNAME_PREFIX . 'nav_view'));
         $client->request('GET', '/advisors');
         $body = $client->getResponse()->getContent();
         $this->assertStringNotContainsString('href="/advisors/create"', $body);
         $this->assertStringNotContainsString('href="/advisors/manage"', $body);
 
-        $client->loginUser($this->persistUser($em, 'nav_admin', ['ROLE_ADVISORS_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_ADMIN'], self::USERNAME_PREFIX . 'nav_admin'));
         $client->request('GET', '/advisors');
         $body = $client->getResponse()->getContent();
         $this->assertStringContainsString('href="/advisors/create"', $body);
@@ -126,31 +124,8 @@ class AdvisorPagesTest extends WebTestCase
     private function persistAdvisor(EntityManagerInterface $em): int
     {
         $client = static::getClient();
-        $client->loginUser($this->persistUser($em, 'seed', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'seed'));
         $client->request('POST', '/api/advisors', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['type' => 'Organization', 'organization' => self::NAME_PREFIX]));
         return json_decode($client->getResponse()->getContent(), true)['id'];
-    }
-
-    private function persistUser(EntityManagerInterface $em, string $suffix, array $roles): User
-    {
-        $user = new User();
-        $user->setUsername(self::USERNAME_PREFIX . $suffix);
-        $user->setEmail(self::USERNAME_PREFIX . $suffix . '@test.local');
-        $user->setPassword('not-used-by-loginUser');
-        $user->setEnabled(1);
-        $user->setRoles($roles);
-        $em->persist($user);
-        $em->flush();
-        return $user;
-    }
-
-    protected function tearDown(): void
-    {
-        if (static::$booted) {
-            $conn = static::getContainer()->get('doctrine')->getManager()->getConnection();
-            $conn->executeStatement('DELETE FROM ic_advisors WHERE organization LIKE ?', [self::NAME_PREFIX . '%']);
-            $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
-        }
-        parent::tearDown();
     }
 }

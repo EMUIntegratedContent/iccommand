@@ -1,0 +1,14 @@
+when@test:
+    # Keeps one static connection per DBAL connection for the whole run, so the PHPUnit
+    # extension can wrap each test in a transaction and roll it back.
+    dama_doctrine_test:
+        enable_static_connection: true
+        enable_static_meta_data_cache: true
+        enable_static_query_cache: true
+        # "default" and "programs" are the same ic database (see doctrine.yaml). Sharing one
+        # driver connection puts them in the same test transaction; otherwise a row a test writes
+        # through one is invisible to the other until commit, which never happens.
+        connection_keys:
+            default: ic
+            programs: ic
+            dps: dps

@@ -7,15 +7,20 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Factory\UserFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
+use App\Tests\Support\ProgramFixtures;
 
 /**
  * End-to-end test for the advisors API (/api/advisors), including an advisor's building, linking
  * programs and scholarships from the advisor side, the form's option routes, the rule that an
  * advisor can't be deleted while a program or scholarship uses it, and the picker's options
- * route. Test rows are ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
+ * route. Test rows are ZZ-prefixed and temp users zz_ictest_-prefixed; each test is rolled back (dama/doctrine-test-bundle).
  */
 class AdvisorControllerTest extends WebTestCase
 {
+    use ProgramFixtures;
+
     private const NAME_PREFIX = 'ZZ Ic Advisor Test';
     private const USERNAME_PREFIX = 'zz_ictest_';
 
@@ -23,7 +28,7 @@ class AdvisorControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'advisor_admin', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_admin'));
         $buildingId = $this->createBuilding($client, $em);
 
         // The form's building options: id and name only.
@@ -139,7 +144,7 @@ class AdvisorControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'advisor_inuse', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_inuse'));
 
         $advisorId = $this->createOrganization($client, self::NAME_PREFIX . ' In Use');
         $otherId = $this->createOrganization($client, self::NAME_PREFIX . ' Other');
@@ -186,14 +191,14 @@ class AdvisorControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'links_admin', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'links_admin'));
 
         $programId = $this->createRecord($client, '/api/programs/', $this->programPayload($em));
         $scholarshipId = $this->createRecord($client, '/api/scholarships/', $this->scholarshipPayload([]));
         $otherScholarshipId = $this->createRecord($client, '/api/scholarships/', $this->scholarshipPayload(['title' => self::NAME_PREFIX . ' Other Scholarship', 'active' => false]));
 
         // An editor with no programs or scholarship role.
-        $client->loginUser($this->persistUser($em, 'links_editor', ['ROLE_ADVISORS_EDIT']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_EDIT'], self::USERNAME_PREFIX . 'links_editor'));
 
         // The add searches' options: every record, in the usage lists' row shape.
         $client->request('GET', '/api/advisors/programs');
@@ -221,7 +226,7 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertLinks($client, $advisorId, [$programId], [$scholarshipId]);
 
         // The records see the link too.
-        $client->loginUser($this->persistUser($em, 'links_admin2', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'links_admin2'));
         $client->request('GET', '/api/scholarships/' . $scholarshipId);
         $this->assertSame([$advisorId], json_decode($client->getResponse()->getContent(), true)['advisorIds']);
         $client->request('GET', '/api/programs/' . $programId);
@@ -229,7 +234,7 @@ class AdvisorControllerTest extends WebTestCase
 
         // The edit role can remove links. A missing key leaves that kind alone; [] clears it.
         // A links-only change still records who made it, on the advisor and the scholarship.
-        $client->loginUser($this->persistUser($em, 'links_editor2', ['ROLE_ADVISORS_EDIT']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_EDIT'], self::USERNAME_PREFIX . 'links_editor2'));
         $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['scholarshipIds' => []]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(self::USERNAME_PREFIX . 'links_editor2', json_decode($client->getResponse()->getContent(), true)['updatedBy']);
@@ -241,7 +246,7 @@ class AdvisorControllerTest extends WebTestCase
         );
 
         // Sending the same lists again changes nothing, so the history stays.
-        $client->loginUser($this->persistUser($em, 'links_editor3', ['ROLE_ADVISORS_EDIT']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_EDIT'], self::USERNAME_PREFIX . 'links_editor3'));
         $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['programIds' => [$programId], 'scholarshipIds' => []]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(self::USERNAME_PREFIX . 'links_editor2', $this->assertLinks($client, $advisorId, [$programId], [])['updated_by']);
@@ -264,7 +269,7 @@ class AdvisorControllerTest extends WebTestCase
         $this->assertSame(self::NAME_PREFIX . ' Linked', $one['display_name']);
 
         // A view-only user can't change links.
-        $client->loginUser($this->persistUser($em, 'links_viewer', ['ROLE_ADVISORS_VIEW']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_VIEW'], self::USERNAME_PREFIX . 'links_viewer'));
         $this->json($client, 'PUT', '/api/advisors/' . $advisorId, ['scholarshipIds' => []]);
         $this->assertResponseStatusCodeSame(403);
     }
@@ -273,7 +278,7 @@ class AdvisorControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'advisor_unknown', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_unknown'));
 
         $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['advisorIds' => [999999999]]));
         $this->assertResponseStatusCodeSame(422);
@@ -294,13 +299,13 @@ class AdvisorControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'advisor_seed', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'advisor_seed'));
         $advisorId = $this->createOrganization($client, self::NAME_PREFIX . ' Option');
 
         // Program and scholarship users, viewers included (their read-only cards show the
         // names), can read the options, but not the advisors API.
         foreach (['ROLE_PROGRAMS_VIEW', 'ROLE_SCHOLARSHIP_VIEW', 'ROLE_PROGRAMS_CREATE', 'ROLE_SCHOLARSHIP_ADMIN'] as $index => $role) {
-            $client->loginUser($this->persistUser($em, 'advisor_editor' . $index, [$role]));
+            $client->loginUser(UserFactory::withRoles([$role], self::USERNAME_PREFIX . 'advisor_editor' . $index));
 
             $client->request('GET', '/api/ic/advisors/options');
             $this->assertSame(200, $client->getResponse()->getStatusCode(), $role);
@@ -315,7 +320,7 @@ class AdvisorControllerTest extends WebTestCase
 
         // Other modules don't show advisor cards (buildings no longer have advisors).
         foreach (['ROLE_ADVISORS_VIEW', 'ROLE_MAP_CREATE', 'ROLE_MAP_ADMIN'] as $index => $role) {
-            $client->loginUser($this->persistUser($em, 'advisor_noopts' . $index, [$role]));
+            $client->loginUser(UserFactory::withRoles([$role], self::USERNAME_PREFIX . 'advisor_noopts' . $index));
             $client->request('GET', '/api/ic/advisors/options');
             $this->assertSame(403, $client->getResponse()->getStatusCode(), $role);
         }
@@ -336,18 +341,16 @@ class AdvisorControllerTest extends WebTestCase
         ];
     }
 
-    /**
-     * @dataProvider roleMatrix
-     */
+    #[DataProvider('roleMatrix')]
     public function testRoleMatrix(array $roles, bool $canRead, bool $canWrite, bool $canDelete): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
 
-        $client->loginUser($this->persistUser($em, 'seed_admin', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'seed_admin'));
         $seedId = $this->createOrganization($client, self::NAME_PREFIX . ' Seed');
 
-        $client->loginUser($this->persistUser($em, 'matrix_user', $roles));
+        $client->loginUser(UserFactory::withRoles($roles, self::USERNAME_PREFIX . 'matrix_user'));
 
         $client->request('GET', '/api/advisors?page=1&limit=10');
         $this->assertSame($canRead ? 200 : 403, $client->getResponse()->getStatusCode(), 'list');
@@ -372,12 +375,12 @@ class AdvisorControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'inuse_seed', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'inuse_seed'));
         $advisorId = $this->createOrganization($client, self::NAME_PREFIX . ' Busy');
         $this->json($client, 'POST', '/api/scholarships/', $this->scholarshipPayload(['advisorIds' => [$advisorId]]));
         $this->assertResponseStatusCodeSame(201);
 
-        $client->loginUser($this->persistUser($em, 'inuse_deleter', ['ROLE_ADVISORS_DELETE']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_ADVISORS_DELETE'], self::USERNAME_PREFIX . 'inuse_deleter'));
         $client->request('DELETE', '/api/advisors/' . $advisorId);
 
         $this->assertResponseStatusCodeSame(409);
@@ -388,7 +391,7 @@ class AdvisorControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'old_api', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'old_api'));
 
         $client->request('GET', '/api/admin/advisors');
 
@@ -421,7 +424,7 @@ class AdvisorControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'legacy_admin', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'legacy_admin'));
         $id = $this->createOrganization($client, self::NAME_PREFIX . ' Legacy Office');
         $em->getConnection()->executeStatement(
             'UPDATE ic_advisors SET legacy_programs = ? WHERE id = ?',
@@ -491,24 +494,6 @@ class AdvisorControllerTest extends WebTestCase
         return (int) json_decode($client->getResponse()->getContent(), true)['id'];
     }
 
-    private function programPayload(EntityManagerInterface $em): array
-    {
-        $conn = $em->getConnection();
-
-        return [
-            'catalog' => 'undergraduate',
-            'program' => self::NAME_PREFIX . ' Program',
-            'full_name' => self::NAME_PREFIX . ' Program Full',
-            'degree_id' => (int) $conn->fetchOne('SELECT MIN(degree_id) FROM program_programs'),
-            'type_id' => (int) $conn->fetchOne('SELECT MIN(type_id) FROM program_programs'),
-            'is_active' => true,
-            'delivery_ids' => [(int) $conn->fetchOne('SELECT MIN(delivery_id) FROM program_delivery')],
-            'college_ids' => [],
-            'department_ids' => [],
-            'keyword_ids' => [],
-        ];
-    }
-
     private function createBuilding(KernelBrowser $client, EntityManagerInterface $em): int
     {
         $this->json($client, 'POST', '/api/mapitems', [
@@ -545,37 +530,5 @@ class AdvisorControllerTest extends WebTestCase
     private function json(KernelBrowser $client, string $method, string $url, array $data): void
     {
         $client->request($method, $url, [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
-    }
-
-    private function persistUser(EntityManagerInterface $em, string $suffix, array $roles): User
-    {
-        $user = new User();
-        $user->setUsername(self::USERNAME_PREFIX . $suffix);
-        $user->setEmail(self::USERNAME_PREFIX . $suffix . '@test.local');
-        $user->setPassword('not-used-by-loginUser');
-        $user->setEnabled(1);
-        $user->setRoles($roles);
-        $em->persist($user);
-        $em->flush();
-        return $user;
-    }
-
-    protected function tearDown(): void
-    {
-        if (static::$booted) {
-            $em = static::getContainer()->get('doctrine')->getManager();
-            $conn = $em->getConnection();
-            $like = self::NAME_PREFIX . '%';
-            $conn->executeStatement('DELETE FROM scholarships_scholarship WHERE schlrshp_title LIKE ?', [$like]);
-            $programs = 'SELECT id FROM program_programs WHERE program LIKE ?';
-            foreach (['program_delivery', 'program_college_link', 'program_inter_dept', 'program_keyword_links', 'program_websites'] as $table) {
-                $conn->executeStatement("DELETE FROM $table WHERE program_id IN ($programs)", [$like]);
-            }
-            $conn->executeStatement('DELETE FROM program_programs WHERE program LIKE ?', [$like]);
-            $conn->executeStatement('DELETE FROM map_item WHERE name LIKE ?', [$like]);
-            $conn->executeStatement('DELETE FROM ic_advisors WHERE organization LIKE ? OR last_name LIKE ?', [self::NAME_PREFIX . '%', self::NAME_PREFIX . '%']);
-            $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
-        }
-        parent::tearDown();
     }
 }

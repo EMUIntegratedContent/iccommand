@@ -6,11 +6,12 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Factory\UserFactory;
 
 /**
  * End-to-end CRUD test for the admin college API (/api/admin/colleges), including the
  * rule that a college can't be deleted while a department still uses it. Test rows are
- * ZZ-prefixed and temp users zz_ictest_-prefixed; tearDown removes both.
+ * ZZ-prefixed and temp users zz_ictest_-prefixed; each test is rolled back (dama/doctrine-test-bundle).
  */
 class IcCollegeControllerTest extends WebTestCase
 {
@@ -21,7 +22,7 @@ class IcCollegeControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'college_admin', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'college_admin'));
 
         // CREATE
         $this->json($client, 'POST', '/api/admin/colleges', ['college' => self::NAME_PREFIX . ' College', 'url' => '']);
@@ -97,7 +98,7 @@ class IcCollegeControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'college_inuse', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'college_inuse'));
 
         $collegeId = $em->getConnection()->fetchOne('SELECT college_id FROM program_college_link LIMIT 1');
         if ($collegeId === false) {
@@ -120,7 +121,7 @@ class IcCollegeControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'plain_user', ['ROLE_USER']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_USER'], self::USERNAME_PREFIX . 'plain_user'));
 
         $client->request('GET', '/api/admin/colleges');
         $this->assertResponseStatusCodeSame(403);
@@ -136,7 +137,7 @@ class IcCollegeControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $client->loginUser($this->persistUser($em, 'page_admin', ['ROLE_GLOBAL_ADMIN']));
+        $client->loginUser(UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'page_admin'));
 
         foreach (['/admin/colleges', '/admin/colleges/create', '/admin/departments', '/admin/departments/create'] as $url) {
             $client->request('GET', $url);
@@ -149,30 +150,5 @@ class IcCollegeControllerTest extends WebTestCase
     private function json(KernelBrowser $client, string $method, string $url, array $data): void
     {
         $client->request($method, $url, [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data));
-    }
-
-    private function persistUser(EntityManagerInterface $em, string $suffix, array $roles): User
-    {
-        $user = new User();
-        $user->setUsername(self::USERNAME_PREFIX . $suffix);
-        $user->setEmail(self::USERNAME_PREFIX . $suffix . '@test.local');
-        $user->setPassword('not-used-by-loginUser');
-        $user->setEnabled(1);
-        $user->setRoles($roles);
-        $em->persist($user);
-        $em->flush();
-        return $user;
-    }
-
-    protected function tearDown(): void
-    {
-        if (static::$booted) {
-            $em = static::getContainer()->get('doctrine')->getManager();
-            $conn = $em->getConnection();
-            $conn->executeStatement('DELETE FROM ic_departments WHERE department LIKE ?', [self::NAME_PREFIX . '%']);
-            $conn->executeStatement('DELETE FROM ic_colleges WHERE college LIKE ?', [self::NAME_PREFIX . '%']);
-            $conn->executeStatement('DELETE FROM `user` WHERE username LIKE ?', [self::USERNAME_PREFIX . '%']);
-        }
-        parent::tearDown();
     }
 }

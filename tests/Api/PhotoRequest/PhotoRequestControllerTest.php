@@ -2,77 +2,35 @@
 
 namespace App\Tests\Api\PhotoRequest;
 
+use App\Tests\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use App\Entity\PhotoRequest\PhotoRequest;
-use Symfony\Component\BrowserKit\Cookie;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
+/**
+ * The Photo Request admin list and search return JSON to photo viewers.
+ */
 class PhotoRequestControllerTest extends WebTestCase
 {
-  private $client = null;
+    public function testListReturnsJson(): void
+    {
+        $client = static::createClient();
+        $client->loginUser(UserFactory::withRoles(['ROLE_PHOTO_VIEW']));
 
-  protected function setUp(): void
-  {
-    $this->client = static::createClient();
-  }
+        $client->request('GET', '/api/photorequests/list');
 
-  public function testGetPhotoRequestsList()
-  {
-    $this->login();
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseHeaderSame('Content-Type', 'application/json');
+        $this->assertJson($client->getResponse()->getContent());
+    }
 
-    $crawler = $this->client->request('GET', '/api/photorequests/list');
+    public function testSearchReturnsJson(): void
+    {
+        $client = static::createClient();
+        $client->loginUser(UserFactory::withRoles(['ROLE_PHOTO_VIEW']));
 
-    // asserts that there is an HTTP response of 200 when requesting the route
-    $this->assertEquals(
-      200,
-      $this->client->getResponse()->getStatusCode()
-    );
+        $client->request('GET', '/api/photorequests/search?searchterm=test');
 
-    // asserts that the "Content-Type" header is "application/json"
-    $this->assertTrue(
-      $this->client->getResponse()->headers->contains(
-        'Content-Type',
-        'application/json'
-      ),
-      $this->client->getResponse()->headers->get('Content-Type')
-    );
-  }
-
-  public function testSearchPhotoRequests()
-  {
-    $this->login();
-
-    $crawler = $this->client->request('GET', '/api/photorequests/search?searchterm=test');
-
-    // asserts that there is an HTTP response of 200 when requesting the route
-    $this->assertEquals(
-      200,
-      $this->client->getResponse()->getStatusCode()
-    );
-
-    // asserts that the "Content-Type" header is "application/json"
-    $this->assertTrue(
-      $this->client->getResponse()->headers->contains(
-        'Content-Type',
-        'application/json'
-      ),
-      $this->client->getResponse()->headers->get('Content-Type')
-    );
-  }
-
-  private function logIn()
-  {
-    $session = $this->client->getContainer()->get('session');
-
-    $firewallName = 'main';
-    $firewallContext = 'main';
-
-    $token = new UsernamePasswordToken('cpuzzuol', 'password', $firewallName, array('ROLE_GLOBAL_ADMIN_SUPER'));
-    $session->set('_security_' . $firewallContext, serialize($token));
-    $session->save();
-
-    $cookie = new Cookie($session->getName(), $session->getId());
-    $this->client->getCookieJar()->set($cookie);
-  }
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseHeaderSame('Content-Type', 'application/json');
+        $this->assertJson($client->getResponse()->getContent());
+    }
 }

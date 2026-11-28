@@ -1,6 +1,7 @@
 monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - crime_log # Injected into the crime log code (services.yaml); each env's monolog.yaml gives it a handler
 
 when@dev:
     monolog:
@@ -25,9 +26,6 @@ when@dev:
 
 when@test:
     monolog:
-        # Declared per env like config/packages/{dev,staging,prod}/monolog.yaml; services.yaml
-        # injects monolog.logger.crime_log into the crime log code.
-        channels: ["crime_log"]
         handlers:
             main:
                 type: stream
