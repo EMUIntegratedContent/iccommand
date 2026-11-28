@@ -24,7 +24,7 @@ class MapExhibit extends MapItem
 	/**
 	 * Many emergency devices can belong to one building.
 	 */
-	#[ORM\ManyToOne(targetEntity: "MapBuilding", inversedBy: "emergencyDevices")]
+	#[ORM\ManyToOne(targetEntity: "MapBuilding", inversedBy: "exhibits")]
 	#[ORM\JoinColumn(name: "building_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
 	private $building;
 

@@ -17,7 +17,7 @@ class ProgramKeywordLinks
     #[ORM\Id]
     private ?int $keyword_id = null;
 
-    #[ORM\ManyToOne(targetEntity: ProgramKeywords::class, inversedBy: 'programKeywordLinks')]
+    #[ORM\ManyToOne(targetEntity: ProgramKeywords::class)]
     #[ORM\JoinColumn(name: 'keyword_id', referencedColumnName: 'id')]
     private ?ProgramKeywords $keyword = null;
 

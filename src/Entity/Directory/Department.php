@@ -28,7 +28,7 @@ class Department
   /**
    * Many departments can belong to one building.
    */
-  #[ORM\ManyToOne(targetEntity: MapBuilding::class)]
+  #[ORM\ManyToOne(targetEntity: MapBuilding::class, inversedBy: "directoryDepartments")]
   #[ORM\JoinColumn(name: "map_building_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
   #[Groups("department")]
   private ?MapBuilding $mapBuilding = null;
