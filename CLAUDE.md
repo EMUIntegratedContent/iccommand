@@ -59,6 +59,16 @@ vendor/bin/php-cs-fixer fix src/Some/File.php       # @Symfony style; not enforc
 CI (`.github/workflows/ci.yml`) runs PHPUnit against a MariaDB 11 service, plus container/YAML/Twig lint and PHPStan,
 on PRs and pushes to `master` and `feature/modernization`.
 
+## Branching
+
+Production deploys by pulling `master`, so urgent fixes branch from and merge into `master`. Modernization work
+(see `docs/modernization-review.md` and issue #129) collects on `feature/modernization`:
+- Each phase is its own branch off `feature/modernization`, named `modernization/phase-<n>-<topic>`, with a PR back
+  into `feature/modernization`.
+- Once a phase is merged there, `feature/modernization` is merged into `master` with its own PR (tag `master` first,
+  e.g. `pre-modernization-1`, as the rollback point).
+- After anything lands on `master`, merge `master` into `feature/modernization` (merge, don't rebase).
+
 ## Architecture
 
 ### Multi-Database Setup
