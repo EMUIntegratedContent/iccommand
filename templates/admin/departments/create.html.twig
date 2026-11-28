@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add a department.{% endblock %}
+
+{% block modulenav %}
+  {% include 'admin/nav_admin.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <admin-department-form :item-exists="false" start-mode="edit"></admin-department-form>
+</div>
+{% endblock %}

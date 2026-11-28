@@ -53,7 +53,8 @@ class ProgramsRepository extends ServiceEntityRepository
 				GROUP_CONCAT(DISTINCT pd.delivery_id) AS delivery_ids,
 				GROUP_CONCAT(DISTINCT pkl.keyword_id) AS keyword_ids,
 				GROUP_CONCAT(DISTINCT pcl.college_id) AS college_ids,
-				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids
+				GROUP_CONCAT(DISTINCT pid.department_id) AS department_ids,
+				(SELECT GROUP_CONCAT(pc.advisor_id) FROM program_advisor pc WHERE pc.program_id = p.id) AS advisor_ids
 			FROM program_programs p
 			LEFT JOIN program_websites w ON (
 					(w.program_id IS NOT NULL AND w.program_id = p.id)
@@ -149,24 +150,23 @@ class ProgramsRepository extends ServiceEntityRepository
 	 * @param string $orderBy   Validated ORDER BY clause (from a fixed allowlist).
 	 * @param int    $page      1-based page number.
 	 * @param int    $limit     Rows per page.
-	 * @return array{programs: array, count: int, pages: int, offset: int, end: int, page: int}
+	 * @return array{programs: array, programIds: int[], count: int, pages: int, offset: int, end: int, page: int}
+	 *         programIds: each row's full id, in row order, since the rows' own ids are shortened
 	 */
 	public function searchDegreePrograms(string $whereSql, array $binds, string $orderBy, int $page, int $limit): array
 	{
 		$conn = $this->em->getConnection();
 
-		// The COUNT joins mirror the SELECT joins minus program_colleges/program_websites,
-		// which are only needed for output columns/ordering. This matches the legacy query.
+		// The COUNT joins mirror the SELECT joins minus program_websites, which is only
+		// needed for an output column. Department/college filters are EXISTS subqueries
+		// (see ProgramsService::searchDegreePrograms), so neither link table is joined.
 		$countSql = "
 			SELECT COUNT(DISTINCT p.id) AS cnt
 			FROM program_programs p
-			LEFT JOIN program_departments d ON p.department_id = d.id
 			INNER JOIN program_degrees de ON p.degree_id = de.id
-			LEFT JOIN program_inter_dept pid ON pid.program_id = p.id
 			JOIN program_delivery pd ON pd.program_id = p.id
 			LEFT JOIN program_keyword_links pkl ON pkl.program_id = p.id
 			LEFT JOIN program_keywords pk ON pk.id = pkl.keyword_id
-			LEFT JOIN program_college_link cl ON cl.program_id = p.id
 			WHERE p.is_active = 1 " . $whereSql;
 
 		$count = (int) $conn->executeQuery($countSql, $binds)->fetchOne();
@@ -195,39 +195,46 @@ class ProgramsRepository extends ServiceEntityRepository
 				p.program,
 				p.catalog_id,
 				p.ref_id,
-				d.department,
-				d.college_id AS college,
-				c.url,
+				(SELECT JSON_ARRAYAGG(dd.department ORDER BY dd.department)
+					FROM program_inter_dept x
+					JOIN ic_departments dd ON dd.id = x.department_id
+					WHERE x.program_id = p.id) AS departments,
+				(SELECT JSON_ARRAYAGG(cc.college ORDER BY cc.college)
+					FROM program_college_link l
+					JOIN ic_colleges cc ON cc.id = l.college_id
+					WHERE l.program_id = p.id) AS colleges,
 				de.degree,
 				IF(de.degree LIKE '%certificate%', 'Certificate', de.degree_short) AS degree_short,
 				p.type_id,
 				pw.url AS prg_url,
 				GROUP_CONCAT(pd.delivery_id SEPARATOR ':') AS DeliveryIDs
 			FROM program_programs p
-			LEFT JOIN program_departments d ON p.department_id = d.id
 			LEFT JOIN program_websites pw ON pw.program = p.program
-			INNER JOIN program_colleges c ON p.college_id = c.id
 			INNER JOIN program_degrees de ON p.degree_id = de.id
-			LEFT JOIN program_inter_dept pid ON pid.program_id = p.id
 			JOIN program_delivery pd ON pd.program_id = p.id
 			LEFT JOIN program_keyword_links pkl ON pkl.program_id = p.id
 			LEFT JOIN program_keywords pk ON pk.id = pkl.keyword_id
-			LEFT JOIN program_college_link cl ON cl.program_id = p.id
 			WHERE p.is_active = 1 " . $whereSql . "
 			GROUP BY p.id
 			" . $orderBy . "
 			LIMIT $offset, $limit";
 
 		$programs = $conn->executeQuery($selectSql, $binds)->fetchAllAssociative();
+		$programIds = array_map('intval', array_column($programs, 'id'));
 
 		// Programs sharing a catalog page differ only past the 5th id digit
 		// (e.g. 15277000/15277001 -> 15277); collapse to the first 5 for catalog links.
+		// departments and colleges (names) come back as JSON arrays, or NULL when the
+		// program has none.
 		foreach ($programs as $key => $value) {
 			$programs[$key]['id'] = substr((string) $value['id'], 0, 5);
+			$programs[$key]['departments'] = json_decode($value['departments'] ?? '[]', true);
+			$programs[$key]['colleges'] = json_decode($value['colleges'] ?? '[]', true);
 		}
 
 		return [
 			'programs' => $programs,
+			'programIds' => $programIds,
 			'count'    => $count,
 			'pages'    => $pages,
 			'offset'   => $offset,
@@ -249,9 +256,9 @@ class ProgramsRepository extends ServiceEntityRepository
 	{
 		$sql = "SELECT DISTINCT d.department, CONCAT(d.department, ':', d.id) AS key_value
 			FROM program_programs AS p
-			LEFT JOIN program_departments AS d ON p.department_id = d.id
-			WHERE d.department IS NOT NULL
-				AND p.is_active = 1";
+			JOIN program_inter_dept AS x ON x.program_id = p.id
+			JOIN ic_departments AS d ON d.id = x.department_id
+			WHERE p.is_active = 1";
 
 		$rows = $this->em->getConnection()->executeQuery($sql)->fetchAllAssociative();
 		$arrDepartments = array_column($rows, 'key_value');
@@ -287,28 +294,6 @@ class ProgramsRepository extends ServiceEntityRepository
 		}
 
 		return $arrAreaOfStudy;
-	}
-
-	public function getColleges(): array
-	{
-		$clgSql = "
-			SELECT *
-			FROM program_colleges
-			ORDER BY college ASC
-		";
-
-		return $this->em->getConnection()->executeQuery($clgSql)->fetchAllAssociative();
-	}
-
-	public function getDepartments(): array
-	{
-		$departmentsSql = "
-			SELECT id, department
-			FROM program_departments
-			ORDER BY department ASC
-		";
-
-		return $this->em->getConnection()->executeQuery($departmentsSql)->fetchAllAssociative();
 	}
 
 	public function getProgTypes(): array
@@ -418,6 +403,38 @@ class ProgramsRepository extends ServiceEntityRepository
 			}
 			throw $e;
 		}
+	}
+
+	/**
+	 * Every program's college and department names, read from the link tables
+	 * (program_college_link / program_inter_dept), keyed by program id and sorted by name.
+	 *
+	 * @return array{colleges: array<int, string[]>, departments: array<int, string[]>}
+	 */
+	public function getLinkedNamesByProgram(): array
+	{
+		$conn = $this->em->getConnection();
+		$result = ['colleges' => [], 'departments' => []];
+
+		$colleges = $conn->fetchAllAssociative(
+			'SELECT l.program_id, c.college FROM program_college_link l
+			 JOIN ic_colleges c ON c.id = l.college_id
+			 ORDER BY l.program_id, c.college'
+		);
+		foreach ($colleges as $row) {
+			$result['colleges'][(int) $row['program_id']][] = $row['college'];
+		}
+
+		$departments = $conn->fetchAllAssociative(
+			'SELECT x.program_id, d.department FROM program_inter_dept x
+			 JOIN ic_departments d ON d.id = x.department_id
+			 ORDER BY x.program_id, d.department'
+		);
+		foreach ($departments as $row) {
+			$result['departments'][(int) $row['program_id']][] = $row['department'];
+		}
+
+		return $result;
 	}
 
 	/**

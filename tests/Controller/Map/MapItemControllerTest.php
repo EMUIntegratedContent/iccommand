@@ -13,7 +13,7 @@ class MapItemControllerTest extends WebTestCase
 {
     private $client = null;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->client = static::createClient();
     }

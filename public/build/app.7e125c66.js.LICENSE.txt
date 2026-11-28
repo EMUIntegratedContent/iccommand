@@ -1,13 +1,50 @@
+/* #__PURE__ -- @preserve */
+
+/* istanbul ignore else -- @preserve - The Vue component always provides an error callback. */
+
+/* istanbul ignore file -- @preserve */
+
+/* istanbul ignore if -- @preserve */
+
+/* istanbul ignore if -- @preserve - Attribute updates are only requested for existing roots. */
+
+/* istanbul ignore if -- @preserve - Defensive check, instance can only be set to an editor here. */
+
+/* istanbul ignore if -- @preserve - Defensive check, instance never becomes undefined. */
+
+/* istanbul ignore if -- @preserve - Defensive check, the teardown releases the registration. */
+
+/* istanbul ignore if -- @preserve - Initialization errors after unmount are intentionally ignored. */
+
+/* istanbul ignore if -- @preserve - Instance replacement/unmount before deferred ready is a defensive race guard. */
+
+/* istanbul ignore if: defensive guard for the `ModelRange | null` return type -- @preserve */
+
+/* istanbul ignore if: paranoid check -- @preserve */
+
+/* istanbul ignore next -- @preserve */
+
+/* istanbul ignore next -- @preserve - Direct composable usage may omit roots attributes. */
+
+/* istanbul ignore next: static function definition -- @preserve */
+
+/* v8 ignore else -- @preserve */
+
+/* v8 ignore if -- @preserve */
+
+/* v8 ignore next -- @preserve */
+
+/* v8 ignore next 6 -- @preserve */
+
+/* v8 ignore start -- @preserve */
+
+/* v8 ignore stop -- @preserve */
+
 /*!
   * Bootstrap v4.6.2 (https://getbootstrap.com/)
   * Copyright 2011-2022 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
-
-/*!
- * @license Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
- * For licensing, see LICENSE.md.
- */
 
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -34,8 +71,6 @@
  * Date: 2023-08-28T13:37Z
  */
 
-/*! #__NO_SIDE_EFFECTS__ */
-
 /*! Axios v1.20.0 Copyright (c) 2026 Matt Zabriskie and contributors */
 
 /**
@@ -54,31 +89,41 @@
  */
 
 /**
-* @vue/compiler-core v3.4.35
+ * @license Copyright (c) 2003-2026, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
+ */
+
+/**
+* @license Copyright (c) 2003-2026, CKSource Holding sp. z o.o. All rights reserved.
+* For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
+*/
+
+/**
+* @vue/compiler-core v3.5.43
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/
 
 /**
-* @vue/compiler-dom v3.4.35
+* @vue/compiler-dom v3.5.43
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/
 
 /**
-* @vue/runtime-core v3.4.35
+* @vue/runtime-core v3.5.43
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/
 
 /**
-* @vue/runtime-dom v3.4.35
+* @vue/runtime-dom v3.5.43
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/
 
 /**
-* @vue/shared v3.4.35
+* @vue/shared v3.5.43
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/

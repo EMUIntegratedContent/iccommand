@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Controller\Api\Ic;
+
+use App\Service\IcService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+/**
+ * The advisor cards' options. Prefix /api/ic/ (routes.yaml). Separate from the advisors API
+ * because program and scholarship users need them: editors to pick, and read-only viewers to
+ * show the chosen advisors' names. Each module's VIEW role covers all its roles through the
+ * hierarchy. Advisor names and emails are public in the feeds anyway.
+ */
+class IcAdvisorOptionsController extends AbstractController
+{
+    public function __construct(private IcService $service)
+    {
+    }
+
+    /**
+     * Every advisor (id, displayName, type, email), sorted by name.
+     */
+    #[Route('/advisors/options', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_PROGRAMS_VIEW") or is_granted("ROLE_SCHOLARSHIP_VIEW")'))]
+    public function getOptionsAction(): Response
+    {
+        return new Response(json_encode($this->service->getAdvisorsForDropdown()), 200, ["Content-Type" => "application/json"]);
+    }
+}

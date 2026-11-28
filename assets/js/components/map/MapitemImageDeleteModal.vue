@@ -57,6 +57,9 @@ export default {
       if(this.deleteConfirm == 'delete'){
         this.$emit('imageDeleteRequested')
         this.deleteConfirm = null // reset text field
+        // Resetting the text disables the button before the click reaches Bootstrap's
+        // data-dismiss handler, so close the modal explicitly.
+        $('#deleteImageModal-' + this.podIndex).modal('hide')
       }
     },
     // restore original image info and close modal

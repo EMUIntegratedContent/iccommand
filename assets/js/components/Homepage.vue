@@ -168,6 +168,16 @@ export default {
 					buttonLink: "/scholarships",
 					display: false,
 					category: "Program Marketing"
+				},
+				advisors: {
+					// Added Nov. 2026
+					title: "Advisors",
+					description:
+						"The advisors application manages the people and organizations that programs list as their advisors.",
+					buttonText: "Manage Advisors",
+					buttonLink: "/advisors",
+					display: false,
+					category: "Program Marketing"
 				}
 			}
 		}
@@ -252,6 +262,9 @@ export default {
 			}
 			if (role.includes("ROLE_SOCIAL_") || role.includes("ROLE_GLOBAL_ADMIN")) {
 				this.userModules.social.display = true
+			}
+			if (role.includes("ROLE_ADVISORS_") || role.includes("ROLE_GLOBAL_ADMIN")) {
+				this.userModules.advisors.display = true
 			}
 			if (
 				role.includes("ROLE_SCHOLARSHIP_") ||

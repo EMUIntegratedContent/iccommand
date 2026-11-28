@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Advisors{% endblock %}
+
+{% block modulenav %}
+  {% include 'advisors/nav_advisors.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <advisors-list :permissions="[{{ permissions }}]"></advisors-list>
+</div>
+{% endblock %}

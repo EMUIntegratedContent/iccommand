@@ -48,12 +48,16 @@ export default {
       let self = this
       // word 'delete' must be typed in modal
       if(this.deleteConfirm == 'delete'){
-        this.deleteConfirm = null; // reset delete text
+        // The delete text is reset once the request finishes, not here: clearing it now
+        // disables this button before the click reaches Bootstrap's data-dismiss
+        // handler, which then ignores it and leaves the modal open.
         axios.delete('/api/mapitems/' + this.mapitem.id)
         .then(function(response) {
+          self.deleteConfirm = null
           self.itemDeleted() // fire delete event to parent
         })
         .catch(function(error) {
+          self.deleteConfirm = null
           self.itemDeleteError()
         })
       }

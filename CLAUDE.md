@@ -12,13 +12,14 @@ ICCommand is a Symfony 8 / PHP 8.5 multi-module internal web application for Eas
 ```bash
 docker compose up -d          # Start all services (web on :8080, db on :3306, mailhog on :8027)
 docker compose down           # Stop services
+docker exec iccommand-web-1 php bin/console <cmd>   # DB host `db` only resolves inside Docker
 ```
 
 ### PHP / Symfony
 ```bash
 composer install              # Install PHP dependencies
 php bin/console cache:clear   # Clear Symfony cache
-php bin/console doctrine:migrations:migrate   # Run database migrations
+php bin/console doctrine:migrations:migrate [--dry-run]   # Migrations live in src/Migrations/
 php bin/console make:entity   # Generate a new entity
 ```
 
@@ -27,14 +28,22 @@ php bin/console make:entity   # Generate a new entity
 npm install                   # Install JS dependencies
 npm run dev                   # Build assets once (development)
 npm run watch                 # Build assets with file watching
-npm run build                 # Build assets for production
+npm run build                 # Production build; public/build is committed (prod deploys by git pull)
+bin/check-frontend-build      # Run before committing public/build
 ```
 
 ### Tests
+`bin/phpunit` runs PHPUnit 9.6 (downloaded into `bin/.phpunit` on first use) with `APP_ENV=test` (forced by
+`phpunit.xml.dist` and `tests/bootstrap.php`, so an `APP_ENV` already in the shell can't leak in), and `tests/bootstrap.php` reads
+`.env` and `.env.local`, so nothing needs exporting. Tests run against the real `ic` DB, so run pending
+migrations first and clean up the rows tests create. Test-env config lives in `when@test` blocks (there is no
+`config/packages/test/`); test mail goes to the null transport. PHPUnit 9 takes a single path, so groups of
+directories are `<testsuite>`s in `phpunit.xml.dist`.
 ```bash
-php bin/phpunit               # Run all tests
-php bin/phpunit tests/path/to/TestFile.php          # Run a single test file
-php bin/phpunit --filter testMethodName              # Run a single test method
+php bin/phpunit                                     # Everything (inside the web container)
+php bin/phpunit tests/Api/Admin                     # One directory or file
+php bin/phpunit --testsuite advisors                # A suite from phpunit.xml.dist
+php bin/phpunit --filter testMethodName             # A single test method
 ```
 
 ## Architecture
@@ -45,11 +54,27 @@ Three separate MySQL/MariaDB connections configured in `config/packages/doctrine
 
 | Connection | Entity Directory | Purpose |
 |---|---|---|
-| `default` | `src/Entity/` (excluding Programs, CrimeLog) | Main IC application |
-| `programs` | `src/Entity/Programs/` | Acalog academic programs catalog |
+| `default` | all of `src/Entity/` (auto_mapping) | Main IC application |
+| `programs` | `src/Entity/Programs/` | Same physical `ic` DB as default (Programs moved in June 2026) |
 | `dps` | `src/Entity/CrimeLog/` | DPS crime & fire log |
 
 Services that use a non-default entity manager (Programs, CrimeLog) must inject the correct EntityManager explicitly rather than relying on the autowired default.
+
+### Shared Colleges & Departments
+
+`ic_` prefix = table shared by more than one app. `ic_colleges` / `ic_departments` (entities in
+`src/Entity/Ic/`, managed at /admin/colleges and /admin/departments) feed the Programs and Scholarships
+dropdowns. A program's colleges and departments live ONLY in `program_college_link` / `program_inter_dept`
+(several per program). See `docs/shared-colleges-departments.md`. Much of the Programs module is raw DBAL
+SQL in `ProgramsRepository` (many program tables have no entity).
+
+`ic_advisors` (`IcAdvisor`, managed in the Advisors app at /advisors, roles `ROLE_ADVISORS_VIEW/EDIT/DELETE/ADMIN`) holds the advisors of programs and scholarships
+(many each), through the `program_advisor` and `scholarship_advisor` link tables. The links are editable from either
+side (the advisor form, via `programIds`/`scholarshipIds`, is for advisor editors without those apps). Each
+advisor can be in one building (`building_id` → `map_building`, `ON DELETE SET NULL`); buildings don't list advisors. Public feeds
+publish them as the `icAdvisorsInfo` list (including `buildingName`), built only by `IcAdvisor::toPublicArray()`.
+It was named Contacts (`ic_contacts`, `IcContact`) until November 2026. A scholarship's free-text `contact`
+field is unrelated and keeps its name. See `docs/ic-advisors.md`.
 
 ### Backend Structure
 
@@ -100,8 +125,17 @@ Environment-specific CORS in `config/packages/nelmio_cors.yaml`. Dev allows `*.e
 ## Key Conventions
 
 - PHP routes use `#[Route]` and `#[IsGranted]` attributes (not YAML or annotation routing).
-- Serialization uses JMS Serializer with serialization groups for API responses.
+- Serialization uses Symfony Serializer (`SerializerInterface`) with `#[Groups]` attributes (jms/serializer is installed but unused).
 - Form validation uses Symfony Validator constraints on entity properties.
 - Frontend HTTP requests use Axios with CSRF token configured in `assets/js/bootstrap.js`.
-- jQuery is globally available via Webpack `autoProvidejQuery()`.
+- jQuery (`$` / `jQuery`) is auto-provided to bundled modules via Webpack `autoProvidejQuery()`, but is not on `window` (so not usable from the browser console or inline scripts).
 - Vue 3 runs with the runtime compiler enabled and Options API support.
+- New API controllers must be registered in `config/routes.yaml` with their `/api/...` prefix; otherwise
+  `config/routes/attributes.yaml` serves them at a bare path, outside the `^/api` firewall rule.
+- `^/admin` is ROLE_GLOBAL_ADMIN-only via access_control.
+- Migrations are hand-written and safe to re-run: check `information_schema` before each change and use
+  `warnIf`/`abortIf`. MariaDB can't roll back schema changes, so back up before migrating. Under
+  `--dry-run`, earlier migrations' SQL hasn't run, so checks must tolerate the old schema.
+- Delete modals: don't clear `deleteConfirm` inside the click handler before the request finishes; doing so
+  disables the button before Bootstrap's `data-dismiss` handler runs, and the modal stays open.
+- Public API docs: `docs/scholarship-search-api.md`, `docs/shared-colleges-departments.md`, `docs/ic-advisors.md`.
