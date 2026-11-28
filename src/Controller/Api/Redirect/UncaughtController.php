@@ -120,6 +120,9 @@ class UncaughtController extends AbstractController{
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
 	public function deleteUncaughtAction($id): Response{
 		$uncaught = $this->doctrine->getRepository(Uncaught::class)->find($id);
+		if(!$uncaught){
+			return new Response(json_encode("Uncaught item not found for id: $id"), 404, array("Content-Type" => "application/json"));
+		}
 
 		$this->em->remove($uncaught);
 		$this->em->flush();
@@ -151,7 +154,11 @@ class UncaughtController extends AbstractController{
 	#[Route('/', methods: ['PUT'])]
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
 	public function putUncaughtAction(Request $request): Response{
-		$uncaught = $this->doctrine->getRepository(Uncaught::class)->find($request->request->get("id"));
+		$id = $request->request->get("id");
+		$uncaught = $id ? $this->doctrine->getRepository(Uncaught::class)->find($id) : null;
+		if(!$uncaught){
+			return new Response(json_encode("Uncaught item not found for id: $id"), 404, array("Content-Type" => "application/json"));
+		}
 
 		// Set the fields for all uncaught items.
 		$uncaught->setIsRecommended($request->request->get("isRecommended"));

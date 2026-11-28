@@ -2,45 +2,27 @@
 
 namespace App\Tests\Controller;
 
+use App\Tests\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-//FUNCTIONAL AND UNIT TESTING TUTORIAL: https://symfony.com/doc/current/testing.html
 class DefaultControllerTest extends WebTestCase
 {
-    public function testHomepage()
+    public function testHomepageNeedsALogin(): void
     {
         $client = static::createClient();
+        $client->request('GET', '/');
 
-        $crawler = $client->request('GET', '/');
-        /*
-        // asserts that there is at least one img tag
-        $this->assertGreaterThan(
-            0,
-            $crawler->filter('img')->count()
-        );
+        $this->assertResponseRedirects();
+        $this->assertStringContainsString('/login', $client->getResponse()->headers->get('Location'));
+    }
 
-        // asserts that there is at least one h2 tag
-        // with the class "subtitle"
-        $this->assertLessThan(
-            1,
-            $crawler->filter('h2.subtitle')->count()
-        );
-        */
-        // asserts that there is an HTTP response of 200 when requesting the route
-        $this->assertEquals(
-            200,
-            $client->getResponse()->getStatusCode());
-/*
-       $client->request('GET', '/unittest');
+    public function testHomepageLoadsForAnyUser(): void
+    {
+        $client = static::createClient();
+        $client->loginUser(UserFactory::withRoles([]));
 
-       // asserts that the "Content-Type" header is "application/json"
-       $this->assertTrue(
-           $client->getResponse()->headers->contains(
-               'Content-Type',
-               'application/json; charset=UTF-8'
-           ),
-           $client->getResponse()->headers->get('Content-Type') // optional message shown on failure
-       );
-       */
+        $client->request('GET', '/');
+
+        $this->assertResponseIsSuccessful();
     }
 }

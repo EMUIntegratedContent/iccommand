@@ -54,8 +54,8 @@ Parameters come in three kinds:
 | `highSchool` | string | Substring, case-insensitive | Free text |
 | `enrollment` | string | Substring, case-insensitive | Free text, e.g. `full` matches `full time`, `Full-Time`, `fulltime` |
 | `major` | integer | Exact program ID | A program ID from the programs catalog |
-| `college` | integer | Exact college ID | A college ID |
-| `department` | integer | Exact department ID | A department ID |
+| `college` | integer | Exact college ID | A college ID (`ic_colleges.id`) |
+| `department` | integer | Exact department ID | A department ID (`ic_departments.id`) |
 | `organization` | string | Substring against any awarding organization linked to the scholarship | Free text |
 | `keyword` | string | Comma-separated list; matches a scholarship carrying **any** of the terms as a substring | e.g. `nursing,transfer` |
 | `isFafsa` | boolean | See below | `1` / `0` |
@@ -163,6 +163,7 @@ error.
 | `description` | string \| null | HTML |
 | `appProc` | string \| null | HTML — how to apply |
 | `contact` | string \| null | HTML — who to contact |
+| `icAdvisorsInfo` | object[] | The advisors, sorted by name, or `[]`. Each has `name`, `email`, `phone`, `url`, `room`, `area` and `buildingName`, the name of the building the advisor is in (all but `name` can be `null`). Separate from `contact`, which is free text and always present on new records |
 | `amount` | string \| null | Free text, e.g. `$1000`, `varies`, `160 awards at $500 each` |
 | `url` | string \| null | |
 | `gpa` | string \| null | Minimum GPA, two decimals, e.g. `"3.00"`. A string, not a number |
@@ -178,8 +179,8 @@ error.
 | `city` | string \| null | |
 | `county` | string \| null | |
 | `highSchool` | string \| null | |
-| `collegeId` | integer \| null | Awarding college |
-| `departmentId` | integer \| null | Awarding department |
+| `college` | string \| null | Awarding college name |
+| `department` | string \| null | Awarding department name |
 | `isFafsa` | boolean | A FAFSA is required |
 | `isParent` | boolean | Applicant must be a parent |
 | `isBilingual` | boolean | Applicant must be bilingual |
@@ -241,8 +242,19 @@ may be `null`.
   "county": null,
   "highSchool": null,
   "contact": null,
-  "collegeId": null,
-  "departmentId": null,
+  "icAdvisorsInfo": [
+    {
+      "name": "Jane Doe",
+      "email": "jdoe@emich.edu",
+      "phone": "734-487-1234",
+      "url": "https://www.emich.edu/example",
+      "room": "701",
+      "area": "Admissions",
+      "buildingName": "Pray-Harrold"
+    }
+  ],
+  "college": null,
+  "department": null,
   "organizations": [ { "id": 6, "organization": "Alumni Association" } ],
   "keywords": [ { "id": 40, "keyword": "alumni" } ],
   "programLinks": []
@@ -257,6 +269,10 @@ may be `null`.
 |---|---|
 | `GET /api/external/scholarships/all` | Every scholarship on offer. Same as a search with no parameters |
 | `GET /api/external/scholarships/{id}` | One scholarship. `404` if it does not exist, is unpublished, or has expired |
+| `GET /api/external/scholarships/options` | Allowed values for the fixed-choice criteria, as an object keyed `gender`, `ethnicity`, `classStanding`, `housing`, `transfer`, `state`, each an array of strings |
+| `GET /api/external/scholarships/keyword-options` | Every keyword as `{ "id", "keyword" }`, sorted by name. Use the names for the `keyword` parameter |
+| `GET /api/external/scholarships/organization-options` | Every organization as `{ "id", "organization" }`, sorted by name. Use the names for the `organization` parameter |
+| `GET /api/external/ic/colleges`, `GET /api/external/ic/departments` | The college and department lists, for the `college` and `department` parameters. See `docs/shared-colleges-departments.md` |
 
 ---
 

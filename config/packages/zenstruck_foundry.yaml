@@ -1,0 +1,7 @@
+when@dev: &dev
+    # https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html
+    # Don't use Foundry's ResetDatabase trait in tests: dama/doctrine-test-bundle already rolls
+    # each test back, and the migrations are written for the existing databases, not for a reset.
+    zenstruck_foundry: ~
+
+when@test: *dev

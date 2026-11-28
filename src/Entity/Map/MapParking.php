@@ -34,7 +34,7 @@ class MapParking extends MapItem
 	/**
 	 * Many Parking lots have Many types.
 	 */
-	#[ORM\ManyToMany(targetEntity: "App\Entity\Map\MapParkingType")]
+	#[ORM\ManyToMany(targetEntity: "App\Entity\Map\MapParkingType", inversedBy: "parkingLots")]
 	#[JoinTable(name: "mapparking_types")]
 	#[JoinColumn(name: "mapparking_id", referencedColumnName: "id")]
 	#[InverseJoinColumn(name: "type_id", referencedColumnName: "id")]

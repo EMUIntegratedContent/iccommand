@@ -5,6 +5,7 @@ namespace App\Tests\Controller\SocialMedia;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Factory\UserFactory;
 
 /**
  * Verifies the Social Media Directory management page + the admin user API accept an
@@ -16,24 +17,11 @@ class SocialMediaManageTest extends WebTestCase
 {
     private const USERNAME_PREFIX = 'zz_smtest_';
 
-    private function persistUser(EntityManagerInterface $em, string $suffix, array $roles): User
-    {
-        $user = new User();
-        $user->setUsername(self::USERNAME_PREFIX . $suffix);
-        $user->setEmail(self::USERNAME_PREFIX . $suffix . '@test.local');
-        $user->setPassword('not-used-by-loginUser');
-        $user->setEnabled(1);
-        $user->setRoles($roles);
-        $em->persist($user);
-        $em->flush();
-        return $user;
-    }
-
     public function testManagePageAccessibleToAppAdmin(): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $admin = $this->persistUser($em, 'admin_page', ['ROLE_SOCIAL_ADMIN']);
+        $admin = UserFactory::withRoles(['ROLE_SOCIAL_ADMIN'], self::USERNAME_PREFIX . 'admin_page');
         $client->loginUser($admin);
 
         $client->request('GET', '/social-media/manage');
@@ -45,7 +33,7 @@ class SocialMediaManageTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $user = $this->persistUser($em, 'plain_user', ['ROLE_SOCIAL_USER']);
+        $user = UserFactory::withRoles(['ROLE_SOCIAL_USER'], self::USERNAME_PREFIX . 'plain_user');
         $client->loginUser($user);
 
         $client->request('GET', '/social-media/manage');
@@ -56,7 +44,7 @@ class SocialMediaManageTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $admin = $this->persistUser($em, 'admin_api', ['ROLE_SOCIAL_ADMIN']);
+        $admin = UserFactory::withRoles(['ROLE_SOCIAL_ADMIN'], self::USERNAME_PREFIX . 'admin_api');
         $client->loginUser($admin);
 
         // Roles endpoint must accept the social app admin and expose the social roles.
@@ -78,8 +66,8 @@ class SocialMediaManageTest extends WebTestCase
     {
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
-        $admin = $this->persistUser($em, 'global_admin', ['ROLE_GLOBAL_ADMIN']);
-        $target = $this->persistUser($em, 'role_target', ['ROLE_USER']);
+        $admin = UserFactory::withRoles(['ROLE_GLOBAL_ADMIN'], self::USERNAME_PREFIX . 'global_admin');
+        $target = UserFactory::withRoles(['ROLE_USER'], self::USERNAME_PREFIX . 'role_target');
         $client->loginUser($admin);
 
         // Simulates checking the "Social Media Directory" role box + saving on the admin user page.
@@ -105,24 +93,5 @@ class SocialMediaManageTest extends WebTestCase
         $em->clear();
         $reloaded = $em->getRepository(User::class)->find($target->getId());
         $this->assertContains('ROLE_SOCIAL_ADMIN', $reloaded->getRoles());
-    }
-
-    protected function tearDown(): void
-    {
-        if (static::$booted) {
-            $em = static::getContainer()->get('doctrine')->getManager();
-            $leftovers = $em->getRepository(User::class)->createQueryBuilder('u')
-                ->where('u.username LIKE :prefix')
-                ->setParameter('prefix', self::USERNAME_PREFIX . '%')
-                ->getQuery()
-                ->getResult();
-            foreach ($leftovers as $row) {
-                $em->remove($row);
-            }
-            if ($leftovers) {
-                $em->flush();
-            }
-        }
-        parent::tearDown();
     }
 }

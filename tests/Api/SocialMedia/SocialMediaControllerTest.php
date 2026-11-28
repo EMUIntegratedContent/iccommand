@@ -3,7 +3,7 @@
 namespace App\Tests\Api\SocialMedia;
 
 use App\Entity\SocialMedia;
-use App\Entity\User;
+use App\Tests\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -20,9 +20,7 @@ class SocialMediaControllerTest extends WebTestCase
         $client = static::createClient();
         $em = static::getContainer()->get('doctrine')->getManager();
 
-        $user = $em->getRepository(User::class)->findOneBy(['email' => 'cpuzzuol@emich.edu']);
-        $this->assertNotNull($user, 'Expected a seed user to log in with.');
-        $client->loginUser($user);
+        $client->loginUser(UserFactory::withRoles(['ROLE_SOCIAL_ADMIN']));
 
         // CREATE
         $client->request('POST', '/api/social-media/', [
@@ -88,25 +86,5 @@ class SocialMediaControllerTest extends WebTestCase
         // confirm gone
         $client->request('GET', '/api/social-media/' . $id);
         $this->assertResponseStatusCodeSame(404);
-    }
-
-    protected function tearDown(): void
-    {
-        // Remove any rows this test may have left behind (name prefixed with "ZZ ").
-        if (static::$booted) {
-            $em = static::getContainer()->get('doctrine')->getManager();
-            $leftovers = $em->getRepository(SocialMedia::class)->createQueryBuilder('s')
-                ->where('s.name LIKE :prefix')
-                ->setParameter('prefix', 'ZZ %')
-                ->getQuery()
-                ->getResult();
-            foreach ($leftovers as $row) {
-                $em->remove($row);
-            }
-            if ($leftovers) {
-                $em->flush();
-            }
-        }
-        parent::tearDown();
     }
 }

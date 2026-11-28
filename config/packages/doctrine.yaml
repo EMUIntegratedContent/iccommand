@@ -4,6 +4,11 @@ parameters:
     # environment variables are not available yet.
     # You should not need to change this value.
     env(DATABASE_URL): ''
+    # The database server version, so Doctrine knows the SQL dialect without connecting first
+    # (needed by doctrine:database:create, cache:warmup and the tests). Set these on each server
+    # if it runs something else, e.g. DATABASE_SERVER_VERSION=10.6.18-MariaDB.
+    env(DATABASE_SERVER_VERSION): '10.11.0-MariaDB'
+    env(DATABASE_SERVER_VERSION_DPS): '%env(DATABASE_SERVER_VERSION)%'
 
 doctrine:
     dbal:
@@ -17,6 +22,7 @@ doctrine:
                 port: '%env(resolve:DATABASE_PORT)%'
                 user: '%env(resolve:DATABASE_USER)%'
                 password: '%env(resolve:DATABASE_PASSWORD)%'
+                server_version: '%env(DATABASE_SERVER_VERSION)%'
             # Programs — PART OF THE DEFAULT (ic) DATABASE AS OF JUNE 2026.
             # Previously a separate godzilla/kingkong schema. The connection is kept as a
             # distinct entity manager (see orm.entity_managers.programs below) so the
@@ -31,6 +37,7 @@ doctrine:
                 port: '%env(resolve:DATABASE_PORT)%'
                 user: '%env(resolve:DATABASE_USER)%'
                 password: '%env(resolve:DATABASE_PASSWORD)%'
+                server_version: '%env(DATABASE_SERVER_VERSION)%'
             # DPS (godzilla/dps)
             dps:
                 # configure these for your database server
@@ -41,6 +48,7 @@ doctrine:
                 port: '%env(resolve:DATABASE_PORT_DPS)%'
                 user: '%env(resolve:DATABASE_USER_DPS)%'
                 password: '%env(resolve:DATABASE_PASSWORD_DPS)%'
+                server_version: '%env(DATABASE_SERVER_VERSION_DPS)%'
         default_connection: default
     orm:
         enable_native_lazy_objects: true

@@ -1,0 +1,21 @@
+# Static analysis: vendor/bin/phpstan analyse (CI runs it too).
+# Level 5 with a baseline: phpstan-baseline.neon lists the errors that existed when PHPStan was
+# added, so only NEW errors fail. Fix baseline entries over time, then raise the level.
+# Regenerate the baseline only after fixing entries: vendor/bin/phpstan analyse --generate-baseline
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    excludePaths:
+        # Hand-written, run-once SQL; not worth analysing.
+        - src/Migrations
+    tmpDir: var/cache/phpstan
+    symfony:
+        # Built by "php bin/console cache:warmup --env=test" (CI does this before analysing).
+        containerXmlPath: var/cache/test/App_KernelTestDebugContainer.xml
+    doctrine:
+        objectManagerLoader: tests/object-manager.php

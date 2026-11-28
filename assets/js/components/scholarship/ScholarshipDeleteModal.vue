@@ -67,14 +67,17 @@ export default {
 			let self = this
 
 			if (this.deleteConfirm == "delete") {
-				this.deleteConfirm = null
-
+				// The delete text is reset once the request finishes, not here: clearing it now
+				// disables this button before the click reaches Bootstrap's data-dismiss
+				// handler, which then ignores it and leaves the modal open.
 				axios
 					.delete("/api/scholarships/" + this.scholarship.id)
 					.then(function (response) {
+						self.deleteConfirm = null
 						self.itemDeleted()
 					})
 					.catch(function (error) {
+						self.deleteConfirm = null
 						self.itemDeleteError()
 					})
 			}

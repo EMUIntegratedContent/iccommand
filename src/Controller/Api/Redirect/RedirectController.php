@@ -104,6 +104,9 @@ class RedirectController extends AbstractController{
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
 	public function deleteRedirectAction($id): Response{
 		$redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
+		if(!$redirect){
+			return new Response(json_encode("Redirect not found for id: $id"), 404, array("Content-Type" => "application/json"));
+		}
 
 		$this->em->remove($redirect);
 		$this->em->flush();
@@ -139,7 +142,7 @@ class RedirectController extends AbstractController{
 	#[IsGranted(new Expression('is_granted("ROLE_GLOBAL_ADMIN") or is_granted("ROLE_REDIRECT_USER")'))]
 	public function searchRedirectsAction(Request $request): Response{
 		$searchTerm = $request->query->get('searchterm');
-		$type = $request->query->get('type');
+		$type = $request->query->get('type') ?? 'broken'; // same default as /list
 
 		$redirects = $this->service->getRedirectsByName($searchTerm, $type);
 
@@ -245,7 +248,7 @@ class RedirectController extends AbstractController{
 		$toLink = $request->request->get("toLink");
 		$itemType = $request->request->get("itemType");
 
-		$redirect = $this->doctrine->getRepository(Redirect::class)->find($id);
+		$redirect = $id ? $this->doctrine->getRepository(Redirect::class)->find($id) : null;
 
 		if(!$redirect){
 			return new Response(json_encode("Redirect not found for id: $id"), 404, array("Content-Type" => "application/json"));

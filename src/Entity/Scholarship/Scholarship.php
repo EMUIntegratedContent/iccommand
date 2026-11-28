@@ -1,12 +1,14 @@
 <?php
 namespace App\Entity\Scholarship;
 
+use App\Entity\Ic\IcAdvisor;
 use App\Repository\Scholarship\ScholarshipRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -37,14 +39,9 @@ class Scholarship
     ];
 
     /**
-     * Two decimal places to match the DECIMAL(3,2) column, which reads back as "3.50".
+     * At most two decimal places to match the DECIMAL(3,2) column, which reads back as "3.50".
      */
-    public const GPA_OPTIONS = [
-        '2.50', '2.60', '2.70', '2.80', '2.90',
-        '3.00', '3.10', '3.20', '3.30', '3.40',
-        '3.50', '3.60', '3.70', '3.80', '3.90',
-        '4.00',
-    ];
+    public const GPA_PATTERN = '/^\d+(\.\d{1,2})?$/';
 
     /**
      * Class standing is multi-select and is stored comma separated.
@@ -104,6 +101,7 @@ class Scholarship
      * A short overview of this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_overview', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide an overview.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $overview = null;
 
@@ -118,7 +116,8 @@ class Scholarship
      * The minimum GPA required for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_gpa', type: 'decimal', precision: 3, scale: 2, nullable: true)]
-    #[Assert\Choice(choices: self::GPA_OPTIONS, message: "Choose a GPA from the list.")]
+    #[Assert\Regex(pattern: self::GPA_PATTERN, message: "Enter the GPA as a number with up to two decimal places.")]
+    #[Assert\Range(notInRangeMessage: "GPA must be between 0.00 and 4.00.", min: 0, max: 4)]
     #[Groups("scholarship")]
     private ?string $gpa = null;
 
@@ -126,6 +125,7 @@ class Scholarship
      * The URL with more information about this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_url', type: 'string', length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "You must provide an application link.")]
     #[Assert\Url(message: "Provide a valid URL.")]
     #[Assert\Length(max: 255)]
     #[Groups("scholarship")]
@@ -135,6 +135,7 @@ class Scholarship
      * The description of this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_description', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide additional information.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $description = null;
 
@@ -218,7 +219,7 @@ class Scholarship
     private ?string $ethnicity = null;
 
     /**
-     * The awarding college. Loose FK to program_colleges.id, mirroring how
+     * The awarding college. Loose FK to ic_colleges.id, mirroring how
      * App\Entity\Programs\Programs references colleges — a plain int with no Doctrine
      * association and no database FK constraint.
      */
@@ -227,10 +228,11 @@ class Scholarship
     private ?int $collegeId = null;
 
     /**
-     * The awarding department. Loose FK to program_departments.id, same convention as
-     * $collegeId above.
+     * The awarding department: ic_departments.id. A plain int (no Doctrine association) so
+     * the feed shape stays a scalar, but the database enforces it with an FK
+     * (ON DELETE SET NULL).
      */
-    #[ORM\Column(name: 'schlrshp_department_id', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'schlrshp_department_id', type: 'integer', nullable: true, options: ['unsigned' => true])]
     #[Groups("scholarship")]
     private ?int $departmentId = null;
 
@@ -288,13 +290,6 @@ class Scholarship
     private ?string $housing = null;
 
     /**
-     * The application process for this scholarship.
-     */
-    #[ORM\Column(name: 'schlrshp_app_proc', type: 'text', nullable: true)]
-    #[Groups("scholarship")]
-    private ?string $appProc = null;
-
-    /**
      * The award amount for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_amount', type: 'string', length: 255, nullable: true)]
@@ -306,15 +301,23 @@ class Scholarship
      * The free-text contact information for this scholarship.
      */
     #[ORM\Column(name: 'schlrshp_contact', type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "You must provide contact information.", normalizer: [self::class, 'richTextToPlainText'])]
     #[Groups("scholarship")]
     private ?string $contact = null;
 
     /**
-     * Loose FK to a contact record. The contacts relation is deferred to a later phase.
+     * The optional advisors. Separate from the free-text $contact above, which stays
+     * required. Serialized through the advisorIds/advisorNames/icAdvisorsInfo virtual
+     * properties below rather than as nested objects. Lazy: ScholarshipRepository's lists
+     * load them (with their buildings) for all scholarships in one query.
+     *
+     * @var Collection<int, IcAdvisor>
      */
-    #[ORM\Column(name: 'schlrshp_contact_id', type: 'integer', nullable: true)]
-    #[Groups("scholarship")]
-    private ?int $contactId = null;
+    #[ORM\ManyToMany(targetEntity: IcAdvisor::class)]
+    #[ORM\JoinTable(name: 'scholarship_advisor')]
+    #[ORM\JoinColumn(name: 'scholarship_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'advisor_id', referencedColumnName: 'id')]
+    private Collection $icAdvisors;
 
     /**
      * The links joining this scholarship to academic programs.
@@ -363,6 +366,7 @@ class Scholarship
      */
     public function __construct()
     {
+        $this->icAdvisors = new ArrayCollection();
         $this->programLinks = new ArrayCollection();
         $this->keywordLinks = new ArrayCollection();
         $this->organizationLinks = new ArrayCollection();
@@ -425,7 +429,8 @@ class Scholarship
     }
 
     /**
-     * Pad the GPA to two decimals so "3.5" and "3.50" are stored the same way.
+     * Pad the GPA to two decimals so "3.5" and "3.50" are stored the same way. Anything with
+     * more decimals is kept as given so validation rejects it rather than rounding it.
      * @param string|null $gpa
      * @return $this
      */
@@ -436,7 +441,7 @@ class Scholarship
             return $this;
         }
 
-        $this->gpa = is_numeric($gpa) ? number_format((float)$gpa, 2, '.', '') : $gpa;
+        $this->gpa = preg_match(self::GPA_PATTERN, $gpa) ? number_format((float)$gpa, 2, '.', '') : $gpa;
         return $this;
     }
 
@@ -735,17 +740,6 @@ class Scholarship
         return $this;
     }
 
-    public function getAppProc(): ?string
-    {
-        return $this->appProc;
-    }
-
-    public function setAppProc(?string $appProc): self
-    {
-        $this->appProc = $appProc;
-        return $this;
-    }
-
     public function getAmount(): ?string
     {
         return $this->amount;
@@ -768,15 +762,65 @@ class Scholarship
         return $this;
     }
 
-    public function getContactId(): ?int
+    /**
+     * @return Collection<int, IcAdvisor>
+     */
+    #[Ignore]
+    public function getIcAdvisors(): Collection
     {
-        return $this->contactId;
+        return $this->icAdvisors;
     }
 
-    public function setContactId(?int $contactId): self
+    /**
+     * Makes the scholarship's advisors exactly these.
+     *
+     * @param IcAdvisor[] $icAdvisors
+     */
+    public function setIcAdvisors(array $icAdvisors): self
     {
-        $this->contactId = $contactId;
+        foreach ($this->icAdvisors->toArray() as $existing) {
+            if (!in_array($existing, $icAdvisors, true)) {
+                $this->icAdvisors->removeElement($existing);
+            }
+        }
+        foreach ($icAdvisors as $icAdvisor) {
+            if (!$this->icAdvisors->contains($icAdvisor)) {
+                $this->icAdvisors->add($icAdvisor);
+            }
+        }
         return $this;
+    }
+
+    /**
+     * @return int[]
+     */
+    #[Groups("scholarship")]
+    public function getAdvisorIds(): array
+    {
+        return array_values($this->icAdvisors->map(fn (IcAdvisor $c) => $c->getId())->toArray());
+    }
+
+    /**
+     * @return string[]
+     */
+    #[Groups("scholarship")]
+    public function getAdvisorNames(): array
+    {
+        return array_values($this->icAdvisors->map(fn (IcAdvisor $c) => $c->getDisplayName())->toArray());
+    }
+
+    /**
+     * What the public feed publishes about the advisors, sorted by name.
+     *
+     * @return array<int, array{name: string, email: ?string, phone: ?string, url: ?string, buildingName: ?string}>
+     */
+    #[Groups("scholarship")]
+    public function getIcAdvisorsInfo(): array
+    {
+        $advisors = $this->icAdvisors->toArray();
+        usort($advisors, fn (IcAdvisor $a, IcAdvisor $b) => strcasecmp($a->getDisplayName(), $b->getDisplayName()));
+
+        return array_map(fn (IcAdvisor $c) => $c->toPublicArray(), $advisors);
     }
 
     /**
@@ -828,7 +872,29 @@ class Scholarship
         return $this->updatedBy;
     }
 
+    /**
+     * Marks it as changed now, for a change Gedmo can't see (only its links changed). Gedmo
+     * still sets updatedBy on the flush, since updated is then a changed column.
+     */
+    public function touch(): self
+    {
+        $this->updated = new \DateTime();
+        return $this;
+    }
+
     /* ****************************** Validation ****************************** */
+
+    /**
+     * Reduce rich-text HTML to its visible text, so the required rich-text fields treat
+     * editor markup with no text in it (e.g. "<p>&nbsp;</p>") as blank.
+     * @param string $html
+     * @return string
+     */
+    public static function richTextToPlainText(string $html): string
+    {
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return trim(str_replace("\u{00A0}", ' ', $text));
+    }
 
     /**
      * Check each class standing, since they are stored as one comma separated string.

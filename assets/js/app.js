@@ -45,7 +45,7 @@ if (!String.prototype.includes) {
 
 /* ******************************** Vue Setup ******************************* */
 import { createApp } from "vue"
-import CKEditor from '@ckeditor/ckeditor5-vue';
+import { CkeditorPlugin } from '@ckeditor/ckeditor5-vue';
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -66,6 +66,10 @@ app.component("home-page", require("./components/Homepage.vue").default);
 app.component("admin-user-index", require("./components/admin/UserIndex.vue").default);
 app.component("admin-user-manage", require("./components/admin/UserManage.vue").default);
 app.component("app-manage", require("./components/admin/AppManage.vue").default);
+app.component("admin-college-list", require("./components/admin/CollegeList.vue").default);
+app.component("admin-college-form", require("./components/admin/CollegeForm.vue").default);
+app.component("admin-department-list", require("./components/admin/DepartmentList.vue").default);
+app.component("admin-department-form", require("./components/admin/DepartmentForm.vue").default);
 app.component("user-profile", require("./components/Profile.vue").default);
 
 /* Campus Map Application */
@@ -114,6 +118,10 @@ app.component("socialmedia-list", require("./components/socialmedia/SocialMediaL
 app.component("socialmedia-form", require("./components/socialmedia/SocialMediaForm.vue").default);
 app.component("socialmedia-delete-modal", require("./components/socialmedia/SocialMediaDeleteModal.vue").default);
 
+/* Advisors Application */
+app.component("advisors-list", require("./components/advisors/AdvisorList.vue").default);
+app.component("advisors-form", require("./components/advisors/AdvisorForm.vue").default);
+
 /* Scholarships Application */
 app.component("scholarship-list", require("./components/scholarship/ScholarshipList.vue").default);
 app.component("scholarship-form", require("./components/scholarship/ScholarshipForm.vue").default);
@@ -122,7 +130,7 @@ app.component("scholarship-organizations-list", require("./components/scholarshi
 
 
 app.component('font-awesome-icon', FontAwesomeIcon)
-app.use(CKEditor)
+app.use(CkeditorPlugin)
 app.mount('#app')
 
 
