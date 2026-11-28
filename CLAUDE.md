@@ -33,18 +33,31 @@ bin/check-frontend-build      # Run before committing public/build
 ```
 
 ### Tests
-`bin/phpunit` runs PHPUnit 9.6 (downloaded into `bin/.phpunit` on first use) with `APP_ENV=test` (forced by
-`phpunit.xml.dist` and `tests/bootstrap.php`, so an `APP_ENV` already in the shell can't leak in), and `tests/bootstrap.php` reads
-`.env` and `.env.local`, so nothing needs exporting. Tests run against the real `ic` DB, so run pending
-migrations first and clean up the rows tests create. Test-env config lives in `when@test` blocks (there is no
-`config/packages/test/`); test mail goes to the null transport. PHPUnit 9 takes a single path, so groups of
-directories are `<testsuite>`s in `phpunit.xml.dist`.
+`bin/phpunit` runs PHPUnit 13 from `vendor/` with `APP_ENV=test` (forced by `phpunit.xml.dist` and
+`tests/bootstrap.php`, so an `APP_ENV` already in the shell can't leak in). Env files load in the order `.env`, `.env.local`,
+`.env.test` (committed test defaults), `.env.test.local`. Locally, tests use the DB from your `.env`/`.env.local` (run
+pending migrations first); CI uses an empty `ic_test` built from the entities plus `tests/schema/legacy-tables.sql`
+(program tables with no entity; keep it in step when a migration changes them).
+
+- **Every test is rolled back** (dama/doctrine-test-bundle wraps each test in a transaction on all connections;
+  `default` and `programs` share one, see `config/packages/dama_doctrine_test_bundle.yaml`), so tests need no cleanup.
+  Don't run DDL or `TRUNCATE` in tests: MariaDB commits those implicitly.
+- **Users:** `$client->loginUser(UserFactory::withRoles(['ROLE_X']))` (`tests/Factory/`, Zenstruck Foundry). Never
+  depend on a real user or real rows; seed what the test needs (see `tests/Support/ProgramFixtures.php`).
+- **Auth coverage:** `tests/Security/RouteAccessTest.php` checks anonymous → 401, unrelated role → 403, right role
+  allowed. Add a route there when you add or change a guard.
+- Deprecations triggered from `src/` are reported. Use `#[DataProvider]` attributes (PHPUnit 12+ ignores `@dataProvider`).
+- Test-env config lives in `when@test` blocks (there is no `config/packages/test/`); test mail goes to the null transport.
 ```bash
 php bin/phpunit                                     # Everything (inside the web container)
 php bin/phpunit tests/Api/Admin                     # One directory or file
 php bin/phpunit --testsuite advisors                # A suite from phpunit.xml.dist
 php bin/phpunit --filter testMethodName             # A single test method
+vendor/bin/phpstan analyse                          # Level 5; new errors fail, old ones are in phpstan-baseline.neon
+vendor/bin/php-cs-fixer fix src/Some/File.php       # @Symfony style; not enforced yet, fix files you touch
 ```
+CI (`.github/workflows/ci.yml`) runs PHPUnit against a MariaDB 11 service, plus container/YAML/Twig lint and PHPStan,
+on PRs and pushes to `master` and `feature/modernization`.
 
 ## Architecture
 
@@ -57,6 +70,9 @@ Three separate MySQL/MariaDB connections configured in `config/packages/doctrine
 | `default` | all of `src/Entity/` (auto_mapping) | Main IC application |
 | `programs` | `src/Entity/Programs/` | Same physical `ic` DB as default (Programs moved in June 2026) |
 | `dps` | `src/Entity/CrimeLog/` | DPS crime & fire log |
+
+Each connection has a `server_version` (env `DATABASE_SERVER_VERSION` / `_DPS`, default `10.11.0-MariaDB`) so
+console commands and PHPStan don't need a live database to pick the SQL dialect.
 
 Services that use a non-default entity manager (Programs, CrimeLog) must inject the correct EntityManager explicitly rather than relying on the autowired default.
 

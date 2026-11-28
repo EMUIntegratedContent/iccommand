@@ -1,0 +1,119 @@
+name: CI
+
+# PHP tests and static analysis. The tests run against a throwaway MariaDB that exists only
+# for the job (a "service container"): its schema is built from the Doctrine entities plus
+# tests/schema/legacy-tables.sql, and every test is rolled back (dama/doctrine-test-bundle).
+on:
+  pull_request:
+    branches: [master, feature/modernization]
+  push:
+    branches: [master, feature/modernization]
+
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the older run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_ENV: test
+  # The app reads these instead of a .env file (see .env.test for the rest).
+  DATABASE_HOST: 127.0.0.1
+  DATABASE_PORT: 3306
+  DATABASE_NAME: ic_test
+  DATABASE_USER: root
+  DATABASE_PASSWORD: root
+  DATABASE_HOST_DPS: 127.0.0.1
+  DATABASE_PORT_DPS: 3306
+  # Must be "dps": the CrimeLog entities pin their tables to the dps schema by name.
+  DATABASE_NAME_DPS: dps
+  DATABASE_USER_DPS: root
+  DATABASE_PASSWORD_DPS: root
+  DATABASE_SERVER_VERSION: 11.4.0-MariaDB
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: ldap, gd, pdo_mysql, zip
+          ini-values: date.timezone=America/Detroit
+          coverage: pcov
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+
+      # .env is git-ignored, but Symfony refuses to start without one. Everything it would hold
+      # comes from .env.test and the job env above.
+      - run: touch .env
+
+      - name: Create the test databases
+        run: |
+          php bin/console doctrine:database:create
+          php bin/console doctrine:database:create --connection=dps
+          php bin/console doctrine:schema:validate --skip-sync
+          # The default entity manager maps every entity, the dps.* CrimeLog tables included.
+          php bin/console doctrine:schema:create
+          # Program tables the code uses through raw SQL only (no entity).
+          mysql -h 127.0.0.1 -u root -proot ic_test < tests/schema/legacy-tables.sql
+
+      - run: php bin/phpunit --coverage-clover var/coverage/clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: var/coverage/clover.xml
+          if-no-files-found: ignore
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: ldap, gd, pdo_mysql, zip
+          coverage: none
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+      - run: touch .env
+
+      # No database needed: server_version lets the container compile offline.
+      - run: php bin/console lint:container
+      - run: php bin/console lint:yaml config --parse-tags
+      - run: php bin/console lint:twig templates
+
+      # PHPStan's Symfony extension reads the compiled test container.
+      - run: php bin/console cache:warmup
+      - run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G

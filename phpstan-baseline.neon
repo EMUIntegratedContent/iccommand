@@ -1,0 +1,991 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Property App\\Controller\\Admin\\UserController\:\:\$em is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/UserController.php
+
+		-
+			message: '#^Property App\\Controller\\Admin\\UserController\:\:\$serializer is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/UserController.php
+
+		-
+			message: '#^Property App\\Controller\\Admin\\UserController\:\:\$service is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Admin/UserController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Admin\\UserController\:\:\$service is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Admin/UserController.php
+
+		-
+			message: '#^PHPDoc tag @var above a method has no effect\.$#'
+			identifier: varTag.misplaced
+			count: 1
+			path: src/Controller/Api/Cas/CasController.php
+
+		-
+			message: '#^Loose comparison using \=\= between 0\|0\.0\|''''\|''0''\|false\|null and ''1'' will always evaluate to false\.$#'
+			identifier: equal.alwaysFalse
+			count: 1
+			path: src/Controller/Api/Directory/DirectoryController.php
+
+		-
+			message: '#^Loose comparison using \=\= between 0\|0\.0\|''''\|''0''\|false\|null and 1 will always evaluate to false\.$#'
+			identifier: equal.alwaysFalse
+			count: 1
+			path: src/Controller/Api/Directory/DirectoryController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Directory\\DirectoryController\:\:\$logger is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Directory/DirectoryController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\EmailController\:\:\$mailer is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/EmailController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Emergency\\EmergencyController\:\:\$doctrine is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Emergency/EmergencyController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Emergency\\EmergencyController\:\:\$em is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Emergency/EmergencyController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:getBathrooms\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:getDiningOptions\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:getDispensers\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:getEmergencyDevices\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:getExhibits\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:getParkingTypes\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:getServices\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:setAddress\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:setBuilding\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:setBuildingType\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:setHasHandicapSpaces\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:setHours\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:setIsGenderNeutral\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:setSpaces\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:setType\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Parameter \#1 \$building of method App\\Entity\\Map\\MapBathroom\:\:setBuilding\(\) expects App\\Entity\\Map\\MapBuilding\|null, App\\Entity\\Map\\MapItem\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Parameter \#1 \$building of method App\\Entity\\Map\\MapDining\:\:setBuilding\(\) expects App\\Entity\\Map\\MapBuilding\|null, App\\Entity\\Map\\MapItem\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Parameter \#1 \$building of method App\\Entity\\Map\\MapDispenser\:\:setBuilding\(\) expects App\\Entity\\Map\\MapBuilding\|null, App\\Entity\\Map\\MapItem\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Parameter \#1 \$building of method App\\Entity\\Map\\MapEmergency\:\:setBuilding\(\) expects App\\Entity\\Map\\MapBuilding\|null, App\\Entity\\Map\\MapItem\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Parameter \#1 \$building of method App\\Entity\\Map\\MapExhibit\:\:setBuilding\(\) expects App\\Entity\\Map\\MapBuilding\|null, App\\Entity\\Map\\MapItem\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Parameter \#1 \$building of method App\\Entity\\Map\\MapService\:\:setBuilding\(\) expects App\\Entity\\Map\\MapBuilding\|null, App\\Entity\\Map\\MapItem\|array\|float\|int\|string\|false\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Parameter \#1 \$building of method App\\Entity\\Map\\MapService\:\:setBuilding\(\) expects App\\Entity\\Map\\MapBuilding\|null, App\\Entity\\Map\\MapItem\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Parameter \#3 \$parkingLot of method App\\Service\\MapItemService\:\:mapParkingLotTypeCompare\(\) expects App\\Entity\\Map\\MapParking, App\\Entity\\Map\\MapItem\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/Api/Map/MapItemController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Map\\MapItemImageController\:\:\$service is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Map/MapItemImageController.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: src/Controller/Api/PhotoRequest/PhotoRequestController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\PhotoRequest\\PhotoRequestController\:\:\$logger is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/PhotoRequest/PhotoRequestController.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: src/Controller/Api/Programs/ProgramsController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Programs\\ProgramsController\:\:\$logger is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Programs/ProgramsController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Programs\\ProgramsController\:\:\$programKeywordManager is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Programs/ProgramsController.php
+
+		-
+			message: '#^Cannot unset offset ''programIds'' on array\{programs\: array, count\: int, pages\: int, offset\: int, end\: int, areasOfStudy\: array\}\.$#'
+			identifier: unset.offset
+			count: 1
+			path: src/Controller/Api/Programs/ProgramsExternalController.php
+
+		-
+			message: '#^Offset ''programIds'' does not exist on array\{programs\: array, count\: int, pages\: int, offset\: int, end\: int, areasOfStudy\: array\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Controller/Api/Programs/ProgramsExternalController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Programs\\ProgramsExternalController\:\:\$serializer is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Programs/ProgramsExternalController.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Controller/Api/Redirect/RedirectController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Redirect\\RedirectController\:\:\$logger is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Redirect/RedirectController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\Redirect\\UncaughtController\:\:\$logger is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/Redirect/UncaughtController.php
+
+		-
+			message: '#^Property App\\Controller\\Api\\SocialMedia\\SocialMediaController\:\:\$logger is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Api/SocialMedia/SocialMediaController.php
+
+		-
+			message: '#^Property App\\Controller\\Applinks\\ApplinksController\:\:\$doctrine is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Applinks/ApplinksController.php
+
+		-
+			message: '#^Property App\\Controller\\Applinks\\ApplinksController\:\:\$service is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Applinks/ApplinksController.php
+
+		-
+			message: '#^Property App\\Controller\\CrimeLog\\CrimeLogController\:\:\$doctrine is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/CrimeLog/CrimeLogController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getUsername\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/DefaultController.php
+
+		-
+			message: '#^Property App\\Controller\\Emergency\\EmergencyController\:\:\$doctrine is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Emergency/EmergencyController.php
+
+		-
+			message: '#^Call to an undefined method App\\Entity\\Map\\MapItem\:\:getItemType\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/Map/MapItemController.php
+
+		-
+			message: '#^Property App\\Controller\\PhotoRequest\\PhotoRequestController\:\:\$doctrine is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/PhotoRequest/PhotoRequestController.php
+
+		-
+			message: '#^Property App\\Controller\\Programs\\ProgramsController\:\:\$doctrine is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/Programs/ProgramsController.php
+
+		-
+			message: '#^Property App\\Entity\\Cas\\CasCycle\:\:\$links type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Cas\\CasLink\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Cas/CasCycle.php
+
+		-
+			message: '#^Property App\\Entity\\Cas\\CasLink\:\:\$cycle type mapping mismatch\: property can contain App\\Entity\\Cas\\CasCycle\|null but database expects App\\Entity\\Cas\\CasCycle\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Cas/CasLink.php
+
+		-
+			message: '#^Access to an undefined property App\\Entity\\CrimeLog\\FireLog\:\:\$arson\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Entity/CrimeLog/FireLog.php
+
+		-
+			message: '#^PHPDoc tag @return with type App\\Entity\\CrimeLog\\CrimeLog is incompatible with native type App\\Entity\\CrimeLog\\FireLog\.$#'
+			identifier: return.phpDocType
+			count: 14
+			path: src/Entity/CrimeLog/FireLog.php
+
+		-
+			message: '#^Property App\\Entity\\Directory\\Department\:\:\$department type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Directory/Department.php
+
+		-
+			message: '#^Property App\\Entity\\Ic\\IcAdvisor\:\:\$type type mapping mismatch\: property can contain App\\Entity\\Ic\\IcAdvisorType\|null but database expects App\\Entity\\Ic\\IcAdvisorType\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Ic/IcAdvisor.php
+
+		-
+			message: '#^Property App\\Entity\\Ic\\IcCollege\:\:\$college type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Ic/IcCollege.php
+
+		-
+			message: '#^Property App\\Entity\\Ic\\IcDepartment\:\:\$college type mapping mismatch\: property can contain App\\Entity\\Ic\\IcCollege\|null but database expects App\\Entity\\Ic\\IcCollege\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Ic/IcDepartment.php
+
+		-
+			message: '#^Property App\\Entity\\Ic\\IcDepartment\:\:\$department type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Ic/IcDepartment.php
+
+		-
+			message: '#^Parameter \$targetEntity of attribute class Doctrine\\ORM\\Mapping\\ManyToOne constructor expects class\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Entity/Map/MapBathroom.php
+
+		-
+			message: '#^Parameter \$targetEntity of attribute class Doctrine\\ORM\\Mapping\\OneToMany constructor expects class\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 6
+			path: src/Entity/Map/MapBuilding.php
+
+		-
+			message: '#^Parameter \$targetEntity of attribute class Doctrine\\ORM\\Mapping\\ManyToOne constructor expects class\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Entity/Map/MapDining.php
+
+		-
+			message: '#^Parameter \$targetEntity of attribute class Doctrine\\ORM\\Mapping\\ManyToOne constructor expects class\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Entity/Map/MapDispenser.php
+
+		-
+			message: '#^Parameter \$targetEntity of attribute class Doctrine\\ORM\\Mapping\\ManyToOne constructor expects class\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Entity/Map/MapEmergency.php
+
+		-
+			message: '#^Parameter \$targetEntity of attribute class Doctrine\\ORM\\Mapping\\ManyToOne constructor expects class\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Entity/Map/MapExhibit.php
+
+		-
+			message: '#^Attribute class Symfony\\Component\\Serializer\\Attribute\\Groups constructor invoked with 2 parameters, 1 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: src/Entity/Map/MapItem.php
+
+		-
+			message: '#^Parameter \$targetEntity of attribute class Doctrine\\ORM\\Mapping\\ManyToMany constructor expects class\-string, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Entity/Map/MapParkingType.php
+
+		-
+			message: '#^Property App\\Entity\\Map\\MapParkingType\:\:\$parkingLots is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Entity/Map/MapParkingType.php
+
+		-
+			message: '#^Parameter \$targetEntity of attribute class Doctrine\\ORM\\Mapping\\ManyToOne constructor expects class\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Entity/Map/MapService.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\ProgramKeywordLinks\:\:\$keyword_id type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/ProgramKeywordLinks.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\ProgramKeywordLinks\:\:\$program_id type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/ProgramKeywordLinks.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\ProgramKeywords\:\:\$keyword type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/ProgramKeywords.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\ProgramWebsites\:\:\$program type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/ProgramWebsites.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\ProgramWebsites\:\:\$url type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/ProgramWebsites.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\Programs\:\:\$catalog type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/Programs.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\Programs\:\:\$catalog_id type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/Programs.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\Programs\:\:\$degree_id type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/Programs.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\Programs\:\:\$full_name type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/Programs.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\Programs\:\:\$program type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/Programs.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\Programs\:\:\$slug type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/Programs.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\Programs\:\:\$type_id type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/Programs.php
+
+		-
+			message: '#^Property App\\Entity\\Programs\\Types\:\:\$type type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Programs/Types.php
+
+		-
+			message: '#^Method App\\Entity\\Redirect\\Redirect\:\:getCreated\(\) has invalid return type App\\Entity\\Redirect\\datetime\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Entity/Redirect/Redirect.php
+
+		-
+			message: '#^Method App\\Entity\\Redirect\\Redirect\:\:getUpdated\(\) has invalid return type App\\Entity\\Redirect\\datetime\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Entity/Redirect/Redirect.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\Scholarship\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Scholarship/Scholarship.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\ScholarshipKeyword\:\:\$keyword type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Scholarship/ScholarshipKeyword.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\ScholarshipKeywordLink\:\:\$keyword type mapping mismatch\: property can contain App\\Entity\\Scholarship\\ScholarshipKeyword\|null but database expects App\\Entity\\Scholarship\\ScholarshipKeyword\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Scholarship/ScholarshipKeywordLink.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\ScholarshipKeywordLink\:\:\$scholarship type mapping mismatch\: property can contain App\\Entity\\Scholarship\\Scholarship\|null but database expects App\\Entity\\Scholarship\\Scholarship\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Scholarship/ScholarshipKeywordLink.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\ScholarshipOrganization\:\:\$organization type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Scholarship/ScholarshipOrganization.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\ScholarshipOrganizationLink\:\:\$organization type mapping mismatch\: property can contain App\\Entity\\Scholarship\\ScholarshipOrganization\|null but database expects App\\Entity\\Scholarship\\ScholarshipOrganization\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Scholarship/ScholarshipOrganizationLink.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\ScholarshipOrganizationLink\:\:\$scholarship type mapping mismatch\: property can contain App\\Entity\\Scholarship\\Scholarship\|null but database expects App\\Entity\\Scholarship\\Scholarship\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Scholarship/ScholarshipOrganizationLink.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\ScholarshipProgram\:\:\$program type mapping mismatch\: property can contain App\\Entity\\Programs\\Programs\|null but database expects App\\Entity\\Programs\\Programs\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Scholarship/ScholarshipProgram.php
+
+		-
+			message: '#^Property App\\Entity\\Scholarship\\ScholarshipProgram\:\:\$scholarship type mapping mismatch\: property can contain App\\Entity\\Scholarship\\Scholarship\|null but database expects App\\Entity\\Scholarship\\Scholarship\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Scholarship/ScholarshipProgram.php
+
+		-
+			message: '#^Property App\\Entity\\SocialMedia\\SocialMedia\:\:\$name type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/SocialMedia/SocialMedia.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:getEnabled\(\) should return int but returns bool\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$enabled \(bool\) does not accept int\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$username type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Method App\\Repository\\CrimeLog\\CrimeLogRepository\:\:getEntityManager\(\) should return Doctrine\\ORM\\EntityManagerInterface but returns Doctrine\\Persistence\\ObjectManager\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/CrimeLog/CrimeLogRepository.php
+
+		-
+			message: '#^Method App\\Repository\\CrimeLog\\FireLogRepository\:\:getEntityManager\(\) should return Doctrine\\ORM\\EntityManagerInterface but returns Doctrine\\Persistence\\ObjectManager\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/CrimeLog/FireLogRepository.php
+
+		-
+			message: '#^Class App\\Entity\\MapDining not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/Map/MapDiningRepository.php
+
+		-
+			message: '#^PHPDoc tag @method for method App\\Repository\\Map\\MapDiningRepository\:\:find\(\) return type contains unknown class App\\Entity\\MapDining\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/Map/MapDiningRepository.php
+
+		-
+			message: '#^PHPDoc tag @method for method App\\Repository\\Map\\MapDiningRepository\:\:findAll\(\) return type contains unknown class App\\Entity\\MapDining\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/Map/MapDiningRepository.php
+
+		-
+			message: '#^PHPDoc tag @method for method App\\Repository\\Map\\MapDiningRepository\:\:findBy\(\) return type contains unknown class App\\Entity\\MapDining\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/Map/MapDiningRepository.php
+
+		-
+			message: '#^PHPDoc tag @method for method App\\Repository\\Map\\MapDiningRepository\:\:findOneBy\(\) return type contains unknown class App\\Entity\\MapDining\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/Map/MapDiningRepository.php
+
+		-
+			message: '#^Class App\\Entity\\MapDispenser not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/MapDispenserRepository.php
+
+		-
+			message: '#^PHPDoc tag @method for method App\\Repository\\MapDispenserRepository\:\:find\(\) return type contains unknown class App\\Entity\\MapDispenser\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/MapDispenserRepository.php
+
+		-
+			message: '#^PHPDoc tag @method for method App\\Repository\\MapDispenserRepository\:\:findAll\(\) return type contains unknown class App\\Entity\\MapDispenser\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/MapDispenserRepository.php
+
+		-
+			message: '#^PHPDoc tag @method for method App\\Repository\\MapDispenserRepository\:\:findBy\(\) return type contains unknown class App\\Entity\\MapDispenser\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/MapDispenserRepository.php
+
+		-
+			message: '#^PHPDoc tag @method for method App\\Repository\\MapDispenserRepository\:\:findOneBy\(\) return type contains unknown class App\\Entity\\MapDispenser\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/MapDispenserRepository.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:createQueryBuilder\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: src/Repository/PhotoRequest/PhotoRequestRepository.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: src/Repository/Programs/ProgramKeywordsRepository.php
+
+		-
+			message: '#^Method App\\Repository\\Programs\\ProgramKeywordsRepository\:\:getEntityManager\(\) should return Doctrine\\ORM\\EntityManagerInterface but returns Doctrine\\Persistence\\ObjectManager\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/Programs/ProgramKeywordsRepository.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:createQueryBuilder\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Repository/Programs/ProgramWebsitesRepository.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Repository/Programs/ProgramWebsitesRepository.php
+
+		-
+			message: '#^Method App\\Repository\\Programs\\ProgramWebsitesRepository\:\:getEntityManager\(\) should return Doctrine\\ORM\\EntityManagerInterface but returns Doctrine\\Persistence\\ObjectManager\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/Programs/ProgramWebsitesRepository.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:createQueryBuilder\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Repository/Programs/ProgramsRepository.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 12
+			path: src/Repository/Programs/ProgramsRepository.php
+
+		-
+			message: '#^Method App\\Repository\\Programs\\ProgramsRepository\:\:getEntityManager\(\) should return Doctrine\\ORM\\EntityManagerInterface but returns Doctrine\\Persistence\\ObjectManager\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/Programs/ProgramsRepository.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: src/Repository/Programs/ProgramsRepository.php
+
+		-
+			message: '#^Variable \$conn might not be defined\.$#'
+			identifier: variable.undefined
+			count: 8
+			path: src/Repository/Programs/ProgramsRepository.php
+
+		-
+			message: '#^Method App\\Repository\\Programs\\TypesRepository\:\:getEntityManager\(\) should return Doctrine\\ORM\\EntityManagerInterface but returns Doctrine\\Persistence\\ObjectManager\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/Programs/TypesRepository.php
+
+		-
+			message: '#^Attribute class JetBrains\\PhpStorm\\ArrayShape does not exist\.$#'
+			identifier: attribute.notFound
+			count: 1
+			path: src/Service/CasService.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Service/CasService.php
+
+		-
+			message: '#^Method App\\Service\\CasService\:\:validate\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/CasService.php
+
+		-
+			message: '#^Property App\\Service\\CasService\:\:\$em is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/CasService.php
+
+		-
+			message: '#^Property App\\Service\\CrimeLogImporter\:\:\$em \(Doctrine\\ORM\\EntityManagerInterface\) does not accept Doctrine\\Persistence\\ObjectManager\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Service/CrimeLogImporter.php
+
+		-
+			message: '#^Class phpDocumentor\\Reflection\\PseudoTypes\\ArrayShape is not an Attribute class\.$#'
+			identifier: attribute.notAttribute
+			count: 1
+			path: src/Service/CrimeLogService.php
+
+		-
+			message: '#^Method App\\Service\\CrimeLogService\:\:validate\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/CrimeLogService.php
+
+		-
+			message: '#^Method App\\Service\\CrimeLogService\:\:validateFireLog\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/CrimeLogService.php
+
+		-
+			message: '#^Property App\\Service\\CrimeLogService\:\:\$em is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/CrimeLogService.php
+
+		-
+			message: '#^Method App\\Service\\DirectoryService\:\:validate\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/DirectoryService.php
+
+		-
+			message: '#^Method App\\Service\\EmergencyService\:\:validateBanner\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/EmergencyService.php
+
+		-
+			message: '#^Method App\\Service\\EmergencyService\:\:validateNotice\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/EmergencyService.php
+
+		-
+			message: '#^Property App\\Service\\EmergencyService\:\:\$em \(Doctrine\\ORM\\EntityManagerInterface\) does not accept Doctrine\\Persistence\\ObjectManager\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Service/EmergencyService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Service/EmergencyService.php
+
+		-
+			message: '#^Offset ''mime'' on array\{0\: int\<0, max\>, 1\: int\<0, max\>, 2\: int, 3\: string, mime\: string, channels\?\: int, bits\?\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Service/ImageUploadValidator.php
+
+		-
+			message: '#^Offset 0 on array\{0\: int\<0, max\>, 1\: int\<0, max\>, 2\: int, 3\: string, mime\: ''image/gif''\|''image/jpeg''\|''image/png'', channels\?\: int, bits\?\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Service/ImageUploadValidator.php
+
+		-
+			message: '#^Offset 1 on array\{0\: int\<1, max\>, 1\: int\<0, max\>, 2\: int, 3\: string, mime\: ''image/gif''\|''image/jpeg''\|''image/png'', channels\?\: int, bits\?\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Service/ImageUploadValidator.php
+
+		-
+			message: '#^Method App\\Service\\PhotoRequestService\:\:validate\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/PhotoRequestService.php
+
+		-
+			message: '#^Attribute class JetBrains\\PhpStorm\\ArrayShape does not exist\.$#'
+			identifier: attribute.notFound
+			count: 3
+			path: src/Service/ProgramsService.php
+
+		-
+			message: '#^Method App\\Service\\ProgramsService\:\:validate\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/ProgramsService.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 1
+			path: src/Service/ProgramsService.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: src/Service/ProgramsService.php
+
+		-
+			message: '#^Attribute class JetBrains\\PhpStorm\\ArrayShape does not exist\.$#'
+			identifier: attribute.notFound
+			count: 1
+			path: src/Service/RedirectService.php
+
+		-
+			message: '#^Method App\\Service\\RedirectService\:\:validate\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/RedirectService.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(Redirect A redirect that makes one link go to another link\.\)\: Unexpected token "A", expected variable at offset 102 on line 3$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Service/RedirectService.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Service/ScholarshipService.php
+
+		-
+			message: '#^Method App\\Service\\SocialMediaService\:\:validate\(\) should return Symfony\\Component\\Validator\\ConstraintViolationList but returns Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/SocialMediaService.php
+
+		-
+			message: '#^Property App\\Service\\UserService\:\:\$em is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/UserService.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Api/Admin/IcCollegeControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Api/Admin/IcDepartmentControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Api/Advisors/AdvisorControllerTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of method App\\Tests\\Api\\Advisors\\AdvisorControllerTest\:\:programPayload\(\) expects Doctrine\\ORM\\EntityManagerInterface, Doctrine\\Persistence\\ObjectManager given\.$#'
+			identifier: argument.type
+			count: 2
+			path: tests/Api/Advisors/AdvisorControllerTest.php
+
+		-
+			message: '#^Parameter \#2 \$em of method App\\Tests\\Api\\Advisors\\AdvisorControllerTest\:\:createBuilding\(\) expects Doctrine\\ORM\\EntityManagerInterface, Doctrine\\Persistence\\ObjectManager given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Api/Advisors/AdvisorControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Doctrine\\Persistence\\ObjectManager\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Api/Ic/IcAdvisorFeedsTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of method App\\Tests\\Api\\Ic\\IcAdvisorFeedsTest\:\:buildingPayload\(\) expects Doctrine\\ORM\\EntityManagerInterface, Doctrine\\Persistence\\ObjectManager given\.$#'
+			identifier: argument.type
+			count: 2
+			path: tests/Api/Ic/IcAdvisorFeedsTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of method App\\Tests\\Api\\Ic\\IcAdvisorFeedsTest\:\:programPayload\(\) expects Doctrine\\ORM\\EntityManagerInterface, Doctrine\\Persistence\\ObjectManager given\.$#'
+			identifier: argument.type
+			count: 7
+			path: tests/Api/Ic/IcAdvisorFeedsTest.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\BrowserKit\\AbstractBrowser\:\:loginUser\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Controller/Advisors/AdvisorPagesTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of method App\\Tests\\Controller\\Advisors\\AdvisorPagesTest\:\:persistAdvisor\(\) expects Doctrine\\ORM\\EntityManagerInterface, Doctrine\\Persistence\\ObjectManager given\.$#'
+			identifier: argument.type
+			count: 2
+			path: tests/Controller/Advisors/AdvisorPagesTest.php
+
+		-
+			message: '#^Property Psr\\Log\\AbstractLogger@anonymous/tests/Security/ExternalApiTokenTest\.php\:84\:\:\$logs is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: tests/Security/ExternalApiTokenTest.php
